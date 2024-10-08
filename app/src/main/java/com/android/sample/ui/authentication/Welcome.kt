@@ -86,7 +86,6 @@ fun WelcomeScreen() {
         // Sign Up Button
         SignUpButton()
 
-        // Add some space between buttons
         Spacer(modifier = Modifier.height(16.dp))
 
         // Login Button

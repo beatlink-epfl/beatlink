@@ -14,6 +14,7 @@ val Pink40 = Color(0xFF7D5260)
 // Primary color definitions for the app's UI elements
 val PrimaryRed = Color(0xFFEF3535)
 val PrimaryPurple = Color(0xFF5F2A83)
+val SecondaryPurple = Color(0x805F2A83)
 
 // Define the vertical gradient brush
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
