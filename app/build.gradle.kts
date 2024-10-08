@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -10,6 +13,15 @@ android {
     namespace = "com.android.sample"
     compileSdk = 34
 
+    // Load the API key from local.properties
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(FileInputStream(localPropertiesFile))
+    }
+
+    val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: ""
+
     defaultConfig {
         applicationId = "com.android.sample"
         minSdk = 28
@@ -21,6 +33,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {
@@ -126,8 +139,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(platform(libs.compose.bom))
+<<<<<<< HEAD
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+=======
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
+>>>>>>> 56e2a38 (feat: Implement MainScreen with current location, marker, and circle)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
@@ -158,6 +176,7 @@ dependencies {
     // ----------       Robolectric     ------------
     testImplementation(libs.robolectric)
 
+<<<<<<< HEAD
     // Testing Unit
     testImplementation(libs.junit)
     androidTestImplementation(libs.mockk)
@@ -180,6 +199,12 @@ dependencies {
     androidTestImplementation(libs.kaspresso.compose.support)
 
     //testImplementation(libs.kotlinx.coroutines.test)
+=======
+    // Google Service and Maps
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
+>>>>>>> 56e2a38 (feat: Implement MainScreen with current location, marker, and circle)
 }
 
 tasks.withType<Test> {
