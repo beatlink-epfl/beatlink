@@ -1,7 +1,6 @@
 package com.android.sample.ui.authentication
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,17 +82,12 @@ fun WelcomeScreen() {
         Spacer(modifier = Modifier.height(100.dp))
 
         // Sign Up Button
-        SignUpButton()
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Login Button
-        LoginButton()
+        SignInSpotifyButton()
       }
 }
 
 @Composable
-fun SignUpButton() {
+fun SignInSpotifyButton() {
   Box(
       modifier =
           Modifier.border(
@@ -110,39 +104,16 @@ fun SignUpButton() {
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow
             ) {
-              Text(
-                  text = "Sign up",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp))
-            }
-      }
-}
+              // Spotify icon
+              Image(
+                  painter = painterResource(id = R.drawable.spotify),
+                  contentDescription = "Spotify Icon",
+                  modifier = Modifier.size(32.dp))
 
-@Composable
-fun LoginButton() {
-  Box(
-      modifier =
-          Modifier.width(320.dp)
-              .height(48.dp)
-              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
-      contentAlignment = Alignment.Center) {
-        // Transparent Button to allow gradient background to show
-        Button(
-            onClick = { /* TODO: Handle login click */},
-            modifier = Modifier.fillMaxSize(),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, contentColor = Color.White),
-            shape = RoundedCornerShape(30.dp),
-            elevation = null // Optional: Remove button shadow if desired
-            ) {
+              Spacer(modifier = Modifier.width(16.dp))
+
               Text(
-                  text = "Login",
+                  text = "Sign in with Spotify",
                   style =
                       TextStyle(
                           fontSize = 14.sp,
