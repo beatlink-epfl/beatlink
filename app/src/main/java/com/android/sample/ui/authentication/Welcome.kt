@@ -41,14 +41,13 @@ fun WelcomeScreen() {
       modifier = Modifier.fillMaxSize().padding(16.dp),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(modifier = Modifier.height(80.dp)) // Add space above the logo
+        Spacer(modifier = Modifier.height(80.dp))
 
         // App logo
         Image(
             painter = painterResource(id = R.drawable.beatlink_logo),
             contentDescription = null,
-            modifier = Modifier.size(180.dp) // Adjust the size as needed
-            )
+            modifier = Modifier.size(180.dp))
 
         // App name
         Text(

@@ -53,158 +53,128 @@ import com.android.sample.ui.theme.SecondaryPurple
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen() {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Box(modifier = Modifier.fillMaxWidth().padding(end = 36.dp), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = buildAnnotatedString {
-                                append("Beat")
-                                withStyle(style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
+  Scaffold(
+      topBar = {
+        TopAppBar(
+            title = {
+              Box(
+                  modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
+                  contentAlignment = Alignment.Center) {
+                    Text(
+                        text =
+                            buildAnnotatedString {
+                              append("Beat")
+                              withStyle(
+                                  style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
                                     append("Link")
-                                }
+                                  }
                             },
-                            style = TextStyle(
+                        style =
+                            TextStyle(
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily(Font(R.font.roboto)),
                                 fontWeight = FontWeight(700),
                                 color = PrimaryPurple,
                                 letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center
-                                )
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* TODO : Handle back navigation */ }) {
-                        Icon(
-                            modifier = Modifier
-                                .size(30.dp)
-                                .graphicsLayer(alpha = 0.99f)
-                                .drawWithCache {
-                                    onDrawWithContent {
-                                        drawContent()
-                                        drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                                    }
-                                },
-                            imageVector =  Icons.Filled.ArrowBack,
-                            contentDescription = "Go back",
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+                                textAlign = TextAlign.Center))
+                  }
+            },
+            navigationIcon = {
+              IconButton(onClick = { /* TODO : Handle back navigation */}) {
+                Icon(
+                    modifier =
+                        Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
+                          onDrawWithContent {
+                            drawContent()
+                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                          }
+                        },
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Go back",
+                )
+              }
+            })
+      }) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues).padding(16.dp),
+            modifier = Modifier.padding(paddingValues).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Greeting text
-            Text(
-                text = "Hello again,\nGood to see you back !",
-                style = TextStyle(
-                    fontSize = 32.sp,
-                    lineHeight = 40.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(500),
-                    color = PrimaryPurple,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 0.32.sp
-                ),
-                modifier = Modifier
-                    .padding( bottom = 80.dp)
-                    .fillMaxWidth()
-            )
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              // Greeting text
+              Text(
+                  text = "Hello again,\nGood to see you back !",
+                  style =
+                      TextStyle(
+                          fontSize = 32.sp,
+                          lineHeight = 40.sp,
+                          fontFamily = FontFamily(Font(R.font.roboto)),
+                          fontWeight = FontWeight(500),
+                          color = PrimaryPurple,
+                          textAlign = TextAlign.Center,
+                          letterSpacing = 0.32.sp),
+                  modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth())
 
-            // Email input field
-            var email by remember { mutableStateOf("") }
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email",
-                    color = PrimaryPurple) },
-                placeholder = {
-                    Text(
-                        "Enter email address",
-                        color = SecondaryPurple
-                    )
-                },
-                modifier = Modifier
-                    .width(320.dp),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-            )
+              // Email input field
+              var email by remember { mutableStateOf("") }
+              OutlinedTextField(
+                  value = email,
+                  onValueChange = { email = it },
+                  label = { Text("Email", color = PrimaryPurple) },
+                  placeholder = { Text("Enter email address", color = SecondaryPurple) },
+                  modifier = Modifier.width(320.dp),
+                  singleLine = true,
+                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
 
-            // Password input field
-            var password by remember { mutableStateOf("") }
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password",
-                    color = PrimaryPurple) },
-                placeholder = {
-                    Text(
-                        "Enter password",
-                        color = SecondaryPurple
-                    )
-                },
-                modifier = Modifier
-                    .width(320.dp),
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
+              // Password input field
+              var password by remember { mutableStateOf("") }
+              OutlinedTextField(
+                  value = password,
+                  onValueChange = { password = it },
+                  label = { Text("Password", color = PrimaryPurple) },
+                  placeholder = { Text("Enter password", color = SecondaryPurple) },
+                  modifier = Modifier.width(320.dp),
+                  singleLine = true,
+                  visualTransformation = PasswordVisualTransformation(),
+                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
 
-            // Spacer between password field and login button
-            Spacer(modifier = Modifier.height(16.dp))
+              // Spacer between password field and login button
+              Spacer(modifier = Modifier.height(16.dp))
 
-            // Login button
-            LoginButton()
+              // Login button
+              LoginButton()
 
-           // Text for sign up option
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+              // Text for sign up option
+              Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "Don’t have an account yet ?",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(500),
-                        color = PrimaryPurple,
-                        letterSpacing = 0.14.sp
-                    )
-                )
+                    style =
+                        TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily(Font(R.font.roboto)),
+                            fontWeight = FontWeight(500),
+                            color = PrimaryPurple,
+                            letterSpacing = 0.14.sp))
 
                 Spacer(modifier = Modifier.width(4.dp))
 
                 // Sign up text with gradient color
                 Text(
                     text = "Sign up",
-                    modifier = Modifier.clickable(onClick = { /* TODO: Handle sign up click */ }),
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.roboto)),
-                        fontWeight = FontWeight(500),
-                        letterSpacing = 0.14.sp,
-                        brush = PrimaryGradientBrush,
-                        textDecoration = TextDecoration.Underline
-                    )
-                )
-
+                    modifier = Modifier.clickable(onClick = { /* TODO: Handle sign up click */}),
+                    style =
+                        TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily(Font(R.font.roboto)),
+                            fontWeight = FontWeight(500),
+                            letterSpacing = 0.14.sp,
+                            brush = PrimaryGradientBrush,
+                            textDecoration = TextDecoration.Underline))
+              }
             }
-        }
-    }
+      }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+  LoginScreen()
 }
