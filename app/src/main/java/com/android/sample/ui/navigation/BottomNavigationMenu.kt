@@ -29,57 +29,53 @@ fun BottomNavigationMenu(
     tabList: List<TopLevelDestination>,
     selectedItem: String
 ) {
-    NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(75.dp)
-            .testTag("bottomNavigationMenu"),
-        contentColor = MaterialTheme.colorScheme.surface,
-        content = {
-            tabList.forEach { tab ->
-                val selected = tab.screen == selectedItem
-                NavigationBarItem(
-                    icon = {
-                        Icon(
-                            painter = if (selected) {
-                                painterResource(id = tab.selectedIconResId)
-                            } else {
-                                painterResource(id = tab.unselectedIconResId)
-                            },
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = tab.textId,
-                            style = TextStyle(
-                                fontSize = Variables.BodyLargeSize,
-                                lineHeight = Variables.BodyLargeLineHeight,
-                                fontWeight = FontWeight(400),
-                                color =
+  NavigationBar(
+      modifier = Modifier.fillMaxWidth().height(75.dp).testTag("bottomNavigationMenu"),
+      contentColor = MaterialTheme.colorScheme.surface,
+      content = {
+        tabList.forEach { tab ->
+          val selected = tab.screen == selectedItem
+          NavigationBarItem(
+              icon = {
+                Icon(
+                    painter =
+                        if (selected) {
+                          painterResource(id = tab.selectedIconResId)
+                        } else {
+                          painterResource(id = tab.unselectedIconResId)
+                        },
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(40.dp))
+              },
+              label = {
+                Text(
+                    text = tab.textId,
+                    style =
+                        TextStyle(
+                            fontSize = Variables.BodyLargeSize,
+                            lineHeight = Variables.BodyLargeLineHeight,
+                            fontWeight = FontWeight(400),
+                            color =
                                 if (selected) {
-                                    Color(0xFFEF3535)
+                                  Color(0xFFEF3535)
                                 } else {
-                                    Color(0xFF5F2A83)
+                                  Color(0xFF5F2A83)
                                 },
-                                textAlign = TextAlign.Center,
-                                letterSpacing = Variables.BodyLargeTracking,
-                            )
-                        )
-                    },
-                    selected = false,
-                    onClick = { onTabSelect(tab) },
-                    modifier = Modifier.testTag(tab.textId)
-                )
-            }
-        },
-    )
+                            textAlign = TextAlign.Center,
+                            letterSpacing = Variables.BodyLargeTracking,
+                        ))
+              },
+              selected = false,
+              onClick = { onTabSelect(tab) },
+              modifier = Modifier.testTag(tab.textId))
+        }
+      },
+  )
 }
 
 object Variables {
-    val BodyLargeSize: TextUnit = 16.sp
-    val BodyLargeLineHeight: TextUnit = 24.sp
-    val BodyLargeTracking: TextUnit = 0.5.sp
+  val BodyLargeSize: TextUnit = 16.sp
+  val BodyLargeLineHeight: TextUnit = 24.sp
+  val BodyLargeTracking: TextUnit = 0.5.sp
 }
