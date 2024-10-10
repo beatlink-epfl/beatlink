@@ -128,7 +128,7 @@ fun SignInSpotifyButton() {
       }
 }
 
-//TODO : remove this preview
+// TODO : remove this preview
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
