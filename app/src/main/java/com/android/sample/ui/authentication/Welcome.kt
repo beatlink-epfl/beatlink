@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -46,7 +47,7 @@ fun WelcomeScreen() {
         Image(
             painter = painterResource(id = R.drawable.beatlink_logo),
             contentDescription = null,
-            modifier = Modifier.size(180.dp))
+            modifier = Modifier.size(180.dp).testTag("appLogo"))
 
         // App name
         Text(
@@ -57,6 +58,7 @@ fun WelcomeScreen() {
                     append("Link")
                   }
                 },
+            modifier = Modifier.testTag("appName"),
             style =
                 TextStyle(
                     fontSize = 30.sp,
@@ -69,6 +71,7 @@ fun WelcomeScreen() {
 
         Text(
             text = "Link Up Through Music",
+            modifier = Modifier.testTag("appText"),
             style =
                 TextStyle(
                     fontSize = 18.sp,
@@ -97,7 +100,7 @@ fun SignInSpotifyButton() {
       contentAlignment = Alignment.Center) {
         Button(
             onClick = { /* TODO: Handle sign up click */},
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("loginButton"),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.White, contentColor = PrimaryPurple),
@@ -125,6 +128,7 @@ fun SignInSpotifyButton() {
       }
 }
 
+//TODO : remove this preview
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
