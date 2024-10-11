@@ -1,10 +1,9 @@
-package com.android.sample.screen
+package com.android.sample.ui.map
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.android.sample.model.map.MapViewModel
-import com.android.sample.ui.map.MapScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
