@@ -28,6 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
 import com.android.sample.model.map.MapViewModel
+import com.android.sample.ui.navigation.BottomNavigationMenu
+import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.android.sample.ui.navigation.NavigationActions
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -37,6 +40,7 @@ import com.google.maps.android.compose.*
 @Composable
 fun MapScreen(
     mapViewModel: MapViewModel,
+    navigationActions: NavigationActions,
     circleRadiusInMeters: Double = 1000.0,
     currentMusicPlayed: String? = null
 ) {
@@ -80,14 +84,10 @@ fun MapScreen(
     Scaffold(
         modifier = Modifier.testTag("mapScreen"),
         bottomBar = {
-          Box(
-              modifier =
-                  Modifier.fillMaxWidth()
-                      .height(75.dp)
-                      .background(color = Color(0xFFEF3535))
-                      .testTag("bottomNavigationBar")) {
-                // Bottom navigation bar content can go here
-              }
+            BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
         },
         content = { padding ->
           Column(modifier = Modifier.fillMaxSize().padding(padding)) {
