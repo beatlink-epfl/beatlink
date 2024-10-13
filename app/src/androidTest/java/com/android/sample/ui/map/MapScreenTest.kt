@@ -30,6 +30,7 @@ class MapScreenTest {
       composeTestRule.onNodeWithTag("mapScreen").isDisplayed()
     }
 
+    composeTestRule.onNodeWithTag("mapScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("mapContainer").assertIsDisplayed()
     composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
     composeTestRule.onNodeWithTag("currentLocationButton").assertIsDisplayed()
