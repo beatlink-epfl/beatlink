@@ -84,10 +84,10 @@ fun MapScreen(
     Scaffold(
         modifier = Modifier.testTag("mapScreen"),
         bottomBar = {
-            BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationActions.currentRoute())
         },
         content = { padding ->
           Column(modifier = Modifier.fillMaxSize().padding(padding)) {

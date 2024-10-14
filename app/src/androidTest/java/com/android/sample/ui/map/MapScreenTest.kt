@@ -23,7 +23,9 @@ class MapScreenTest {
 
   @Test
   fun MapScreenTest() {
-    composeTestRule.setContent { MapScreen(MapViewModel(), NavigationActions(rememberNavController())) }
+    composeTestRule.setContent {
+      MapScreen(MapViewModel(), NavigationActions(rememberNavController()))
+    }
 
     // Wait for the page to load
     composeTestRule.waitUntil(timeoutMillis = 10000) {
