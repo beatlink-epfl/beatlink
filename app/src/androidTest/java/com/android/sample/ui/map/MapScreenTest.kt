@@ -13,19 +13,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 class MapScreenTest {
-  @get:Rule
-  val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule
   var permissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
   @Test
   fun MapScreenTest() {
-    composeTestRule.setContent {
-      MapScreen(NavigationActions(rememberNavController()))
-    }
+    composeTestRule.setContent { MapScreen(NavigationActions(rememberNavController())) }
 
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()

@@ -69,121 +69,121 @@ val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
 const val defaultZoom = 15f
 
 enum class CameraAction {
-    NO_ACTION,
-    MOVE,
-    ANIMATE
+  NO_ACTION,
+  MOVE,
+  ANIMATE
 }
 
 @Composable
 fun MapScreen(navigationActions: NavigationActions, currentMusicPlayed: String? = null) {
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
+  val coroutineScope = rememberCoroutineScope()
+  val context = LocalContext.current
 
-    val locationPermitted: MutableState<Boolean?> = remember { mutableStateOf(null) }
-    val locationPermissionsAlreadyGranted =
-        (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) ||
-                (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED)
-    val locationPermissions =
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-    val locationPermissionLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestMultiplePermissions(),
-            onResult = { permissions ->
-                when {
-                    permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                        locationPermitted.value = true
-                    }
-                    permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                        locationPermitted.value = true
-                    }
-                    else -> {
-                        locationPermitted.value = false
-                    }
-                }
-            })
-    val locationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val currentPosition = remember { mutableStateOf(defaultLocation) }
-    var isMapLoaded by remember { mutableStateOf(false) }
-    val moveToCurrentLocation = remember { mutableStateOf(CameraAction.NO_ACTION) }
-    LaunchedEffect(Unit) {
-        if (locationPermissionsAlreadyGranted) {
-            locationPermitted.value = true
+  val locationPermitted: MutableState<Boolean?> = remember { mutableStateOf(null) }
+  val locationPermissionsAlreadyGranted =
+      (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+          PackageManager.PERMISSION_GRANTED) ||
+          (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+              PackageManager.PERMISSION_GRANTED)
+  val locationPermissions =
+      arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+  val locationPermissionLauncher =
+      rememberLauncherForActivityResult(
+          contract = ActivityResultContracts.RequestMultiplePermissions(),
+          onResult = { permissions ->
+            when {
+              permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                locationPermitted.value = true
+              }
+              permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                locationPermitted.value = true
+              }
+              else -> {
+                locationPermitted.value = false
+              }
+            }
+          })
+  val locationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+  val currentPosition = remember { mutableStateOf(defaultLocation) }
+  var isMapLoaded by remember { mutableStateOf(false) }
+  val moveToCurrentLocation = remember { mutableStateOf(CameraAction.NO_ACTION) }
+  LaunchedEffect(Unit) {
+    if (locationPermissionsAlreadyGranted) {
+      locationPermitted.value = true
+    } else {
+      locationPermissionLauncher.launch(locationPermissions)
+      Log.d("MapScreen", "Requesting location permission")
+    }
+
+    // wait for user input
+    while (locationPermitted.value == null) {
+      delay(100)
+      Log.d("MapScreen", "Waiting for location permission")
+    }
+
+    while (true) {
+      coroutineScope.launch {
+        if (locationPermitted.value == true) {
+          Log.d("MapScreen", "Fetching current location")
+          val priority = PRIORITY_BALANCED_POWER_ACCURACY
+          val result =
+              locationClient
+                  .getCurrentLocation(
+                      priority,
+                      CancellationTokenSource().token,
+                  )
+                  .await()
+          result.let { fetchedLocation ->
+            currentPosition.value = LatLng(fetchedLocation.latitude, fetchedLocation.longitude)
+            isMapLoaded = true
+          }
+        } else if (locationPermitted.value == false) {
+          isMapLoaded = true
+        }
+      }
+      delay(5000) // map is updated every 5s
+    }
+  }
+
+  Scaffold(
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      modifier = Modifier.fillMaxSize().testTag("MapScreen"),
+  ) { innerPadding ->
+    Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+      // Map fills most of the screen
+      Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
+        if (isMapLoaded) {
+          moveToCurrentLocation.value = CameraAction.MOVE
+          GoogleMapView(
+              currentPosition = currentPosition,
+              moveToCurrentLocation = moveToCurrentLocation,
+              modifier = Modifier.testTag("Map"),
+              locationPermitted = locationPermitted.value!!)
         } else {
-            locationPermissionLauncher.launch(locationPermissions)
-            Log.d("MapScreen", "Requesting location permission")
+          Text("Loading map...", modifier = Modifier.padding(16.dp))
         }
+      }
 
-        // wait for user input
-        while (locationPermitted.value == null) {
-            delay(100)
-            Log.d("MapScreen", "Waiting for location permission")
-        }
-
-        while (true) {
-            coroutineScope.launch {
-                if (locationPermitted.value == true) {
-                    Log.d("MapScreen", "Fetching current location")
-                    val priority = PRIORITY_BALANCED_POWER_ACCURACY
-                    val result =
-                        locationClient
-                            .getCurrentLocation(
-                                priority,
-                                CancellationTokenSource().token,
-                            )
-                            .await()
-                    result.let { fetchedLocation ->
-                        currentPosition.value = LatLng(fetchedLocation.latitude, fetchedLocation.longitude)
-                        isMapLoaded = true
-                    }
-                } else if (locationPermitted.value == false) {
-                    isMapLoaded = true
-                }
-            }
-            delay(5000) // map is updated every 5s
-        }
+      // Player is placed just above the bottom bar
+      Row(
+          modifier =
+              Modifier.fillMaxWidth()
+                  .height(76.dp)
+                  .background(color = Color(0x215F2A83))
+                  .padding(horizontal = 32.dp, vertical = 26.dp)
+                  .testTag("playerContainer"),
+          horizontalArrangement = Arrangement.Center,
+          verticalAlignment = Alignment.CenterVertically,
+      ) {
+        PlayerCurrentMusicItem(currentMusicPlayed)
+      }
     }
-
-    Scaffold(
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute())
-        },
-        modifier = Modifier.fillMaxSize().testTag("MapScreen"),
-    ) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            // Map fills most of the screen
-            Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
-                if (isMapLoaded) {
-                    moveToCurrentLocation.value = CameraAction.MOVE
-                    GoogleMapView(
-                        currentPosition = currentPosition,
-                        moveToCurrentLocation = moveToCurrentLocation,
-                        modifier = Modifier.testTag("Map"),
-                        locationPermitted = locationPermitted.value!!)
-                } else {
-                    Text("Loading map...", modifier = Modifier.padding(16.dp))
-                }
-            }
-
-            // Player is placed just above the bottom bar
-            Row(
-                modifier =
-                Modifier.fillMaxWidth()
-                    .height(76.dp)
-                    .background(color = Color(0x215F2A83))
-                    .padding(horizontal = 32.dp, vertical = 26.dp)
-                    .testTag("playerContainer"),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                PlayerCurrentMusicItem(currentMusicPlayed)
-            }
-        }
-    }
+  }
 }
 
 @Composable
@@ -194,85 +194,85 @@ fun GoogleMapView(
     locationPermitted: Boolean,
     radius: Double = 1000.0
 ) {
-    val coroutineScope = rememberCoroutineScope()
+  val coroutineScope = rememberCoroutineScope()
 
-    val mapVisible by remember { mutableStateOf(true) }
+  val mapVisible by remember { mutableStateOf(true) }
 
-    val cameraPositionState = rememberCameraPositionState()
+  val cameraPositionState = rememberCameraPositionState()
 
-    LaunchedEffect(moveToCurrentLocation.value, Unit) {
-        if (moveToCurrentLocation.value == CameraAction.MOVE) {
-            coroutineScope.launch {
-                cameraPositionState.move(
-                    update =
-                    CameraUpdateFactory.newCameraPosition(
-                        CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)))
-                moveToCurrentLocation.value = CameraAction.NO_ACTION
-            }
-        } else if (moveToCurrentLocation.value == CameraAction.ANIMATE) {
-            coroutineScope.launch {
-                cameraPositionState.animate(
-                    update =
-                    CameraUpdateFactory.newCameraPosition(
-                        CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)),
-                    durationMs = 1000)
-                moveToCurrentLocation.value = CameraAction.NO_ACTION
-            }
-        }
+  LaunchedEffect(moveToCurrentLocation.value, Unit) {
+    if (moveToCurrentLocation.value == CameraAction.MOVE) {
+      coroutineScope.launch {
+        cameraPositionState.move(
+            update =
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)))
+        moveToCurrentLocation.value = CameraAction.NO_ACTION
+      }
+    } else if (moveToCurrentLocation.value == CameraAction.ANIMATE) {
+      coroutineScope.launch {
+        cameraPositionState.animate(
+            update =
+                CameraUpdateFactory.newCameraPosition(
+                    CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)),
+            durationMs = 1000)
+        moveToCurrentLocation.value = CameraAction.NO_ACTION
+      }
     }
+  }
 
-    val context = LocalContext.current
+  val context = LocalContext.current
 
-    if (mapVisible) {
-        Box(Modifier.fillMaxSize()) {
-            GoogleMap(modifier = modifier, cameraPositionState = cameraPositionState) {
-                currentPosition.value.let { location ->
-                    Marker(
-                        state = MarkerState(position = location),
-                        title = "You are here",
-                        icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
-                        anchor = Offset(0.5f, 0.5f))
-                    Circle(
-                        center = location,
-                        radius = radius,
-                        strokeColor = Color(0xFF5F2A83),
-                        strokeWidth = 3f,
-                        fillColor = Color(0x215F2A83))
-                }
-            }
-            Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
-                CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
-            }
+  if (mapVisible) {
+    Box(Modifier.fillMaxSize()) {
+      GoogleMap(modifier = modifier, cameraPositionState = cameraPositionState) {
+        currentPosition.value.let { location ->
+          Marker(
+              state = MarkerState(position = location),
+              title = "You are here",
+              icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
+              anchor = Offset(0.5f, 0.5f))
+          Circle(
+              center = location,
+              radius = radius,
+              strokeColor = Color(0xFF5F2A83),
+              strokeWidth = 3f,
+              fillColor = Color(0x215F2A83))
         }
+      }
+      Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
+        CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
+      }
     }
+  }
 }
 
 fun getBitmapDescriptorFromDrawableResource(resourceId: Int, context: Context): BitmapDescriptor {
-    val drawable = ContextCompat.getDrawable(context, resourceId)
-    val canvas = android.graphics.Canvas()
-    val bitmap =
-        Bitmap.createBitmap(
-            drawable!!.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
-    canvas.setBitmap(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
+  val drawable = ContextCompat.getDrawable(context, resourceId)
+  val canvas = android.graphics.Canvas()
+  val bitmap =
+      Bitmap.createBitmap(
+          drawable!!.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+  canvas.setBitmap(bitmap)
+  drawable.setBounds(0, 0, canvas.width, canvas.height)
+  drawable.draw(canvas)
+  return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
 
 @Composable
 fun PlayerCurrentMusicItem(musique: String?) {
-    if (musique != null) {
-        /*to do : musique is showing*/
-    } else {
-        Text(
-            modifier =
+  if (musique != null) {
+    /*to do : musique is showing*/
+  } else {
+    Text(
+        modifier =
             Modifier.fillMaxWidth().height(24.dp).padding(horizontal = 16.dp).testTag("playerText"),
-            text = "not listening yet",
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight(400),
-            color = Color(0xFF5F2A83),
-            textAlign = TextAlign.Center)
-    }
+        text = "not listening yet",
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight(400),
+        color = Color(0xFF5F2A83),
+        textAlign = TextAlign.Center)
+  }
 }
 
 @Composable
@@ -280,23 +280,23 @@ fun CurrentLocationCenterButton(
     currentLocation: LatLng?,
     cameraPositionState: CameraPositionState
 ) {
-    FloatingActionButton(
-        containerColor = Color.White,
-        onClick = {
-            currentLocation?.let { location ->
-                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(location, defaultZoom))
-            }
-        },
-        modifier =
-        Modifier.padding(16.dp)
-            .size(48.dp)
-            .shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp), clip = false)
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
-            .testTag("currentLocationFab")) {
+  FloatingActionButton(
+      containerColor = Color.White,
+      onClick = {
+        currentLocation?.let { location ->
+          cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(location, defaultZoom))
+        }
+      },
+      modifier =
+          Modifier.padding(16.dp)
+              .size(48.dp)
+              .shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp), clip = false)
+              .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+              .testTag("currentLocationFab")) {
         Icon(
             painter = painterResource(id = R.drawable.location_arrow_1),
             contentDescription = "Current Position",
             modifier = Modifier.size(30.dp).background(Color.White).testTag("currentLocationIcon"),
             tint = Color.Unspecified)
-    }
+      }
 }
