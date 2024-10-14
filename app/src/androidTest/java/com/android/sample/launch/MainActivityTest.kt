@@ -18,6 +18,7 @@ class MainActivityTest {
 
   @Test
   fun testMainActivityDisplaysContent() {
+    composeTestRule.waitForIdle()
     // Check if the main screen container is displayed
     composeTestRule.onNodeWithTag(C.Tag.main_screen_container).assertIsDisplayed()
   }
