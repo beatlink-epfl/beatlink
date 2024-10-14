@@ -2,7 +2,7 @@ package com.android.sample.model.spotify.objects
 
 import android.media.Image
 
-data class SpotifyTrack (
+data class SpotifyTrack(
     val name: String,
     val trackId: String,
     val cover: Image,
