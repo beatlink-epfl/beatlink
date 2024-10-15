@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -5,6 +8,14 @@ plugins {
     alias(libs.plugins.sonar)
     id("jacoco")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
 
 android {
     namespace = "com.android.sample"
@@ -154,6 +165,9 @@ dependencies {
     // --------- Kaspresso test framework ----------
     globalTestImplementation(libs.kaspresso)
     globalTestImplementation(libs.kaspresso.compose)
+
+    // -------------- Networking ---------------------
+    implementation(libs.okhttp)
 
     // ----------       Robolectric     ------------
     testImplementation(libs.robolectric)
