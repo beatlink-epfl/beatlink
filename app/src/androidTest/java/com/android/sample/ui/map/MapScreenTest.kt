@@ -16,8 +16,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MapScreenTest {
-  @get:Rule
-  val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @get:Rule
   var permissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -26,8 +25,7 @@ class MapScreenTest {
   fun mapScreen_initialUiElementsDisplayed() {
     composeTestRule.setContent {
       MapScreen(
-        navigationActions = NavigationActions(rememberNavController()), currentMusicPlayed = null
-      )
+          navigationActions = NavigationActions(rememberNavController()), currentMusicPlayed = null)
     }
 
     // Step 1: Verify initial UI elements
