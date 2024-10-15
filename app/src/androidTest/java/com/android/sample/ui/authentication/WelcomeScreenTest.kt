@@ -33,15 +33,16 @@ class WelcomeScreenTest {
         .assertIsDisplayed()
         .assertTextContains("Link Up Through Music")
 
-    // Check if the sign-in button is displayed
-    composeTestRule.onNodeWithTag("loginButton").assertIsDisplayed()
+    // Check if the sign up button is displayed
+    composeTestRule.onNodeWithTag("signUpButton").assertIsDisplayed()
 
-    // Check if the "Sign in with Spotify" text is displayed inside the button
-    composeTestRule.onNodeWithText("Sign in with Spotify").assertIsDisplayed()
+    // Check if the login button is displayed
+    composeTestRule.onNodeWithTag("loginButton").assertIsDisplayed()
   }
 
+  // TODO : Add tests linked to Firebase Authentication
   @Test
-  fun signInButton_clickTriggersAction() {
+  fun loginButton_clickTriggersAction() {
     // Launch the composable under test
     composeTestRule.setContent { WelcomeScreen() }
 

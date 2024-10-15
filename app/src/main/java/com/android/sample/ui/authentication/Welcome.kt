@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,10 +48,11 @@ fun WelcomeScreen() {
         Image(
             painter = painterResource(id = R.drawable.beatlink_logo),
             contentDescription = null,
-            modifier = Modifier.size(180.dp))
+            modifier = Modifier.size(180.dp).testTag("appLogo"))
 
         // App name
         Text(
+            modifier = Modifier.testTag("appName"),
             text =
             buildAnnotatedString {
                 append("Beat")
@@ -69,6 +71,7 @@ fun WelcomeScreen() {
             ))
 
         Text(
+            modifier = Modifier.testTag("appText"),
             text = "Link Up Through Music",
             style =
             TextStyle(
@@ -99,7 +102,8 @@ fun SignUpButton() {
         Modifier.border(
             width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
             .width(320.dp)
-            .height(48.dp),
+            .height(48.dp)
+            .testTag("signUpButton"),
         contentAlignment = Alignment.Center) {
         Button(
             onClick = { /* TODO: Handle sign up click */},
@@ -129,7 +133,8 @@ fun LoginButton() {
         modifier =
         Modifier.width(320.dp)
             .height(48.dp)
-            .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
+            .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+            .testTag("loginButton"),
         contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(
