@@ -262,7 +262,14 @@ fun getBitmapDescriptorFromDrawableResource(resourceId: Int, context: Context): 
 @Composable
 fun PlayerCurrentMusicItem(musique: String?) {
   if (musique != null) {
-    /*to do : musique is showing*/
+    Text(
+        modifier =
+            Modifier.fillMaxWidth().height(24.dp).padding(horizontal = 16.dp).testTag("playerText"),
+        text = "listening : $musique",
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight(400),
+        color = Color(0xFF5F2A83),
+        textAlign = TextAlign.Center)
   } else {
     Text(
         modifier =
