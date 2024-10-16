@@ -20,6 +20,8 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("searchButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addPlaylistButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").assertIsDisplayed()
   }
 
   @Test
