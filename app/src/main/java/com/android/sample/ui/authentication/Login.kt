@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -41,7 +42,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
@@ -54,6 +54,7 @@ import com.android.sample.ui.theme.SecondaryPurple
 @Composable
 fun LoginScreen() {
   Scaffold(
+      modifier = Modifier.testTag("loginScreen"),
       topBar = {
         TopAppBar(
             title = {
@@ -61,6 +62,7 @@ fun LoginScreen() {
                   modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
                   contentAlignment = Alignment.Center) {
                     Text(
+                        modifier = Modifier.testTag("appName"),
                         text =
                             buildAnnotatedString {
                               append("Beat")
@@ -80,19 +82,21 @@ fun LoginScreen() {
                   }
             },
             navigationIcon = {
-              IconButton(onClick = { /* TODO : Handle back navigation */}) {
-                Icon(
-                    modifier =
-                        Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                          onDrawWithContent {
-                            drawContent()
-                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                          }
-                        },
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Go back",
-                )
-              }
+              IconButton(
+                  onClick = { /* TODO : Handle back navigation */},
+                  modifier = Modifier.testTag("goBackButton")) {
+                    Icon(
+                        modifier =
+                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
+                              onDrawWithContent {
+                                drawContent()
+                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                              }
+                            },
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Go back",
+                    )
+                  }
             })
       }) { paddingValues ->
         Column(
@@ -111,7 +115,7 @@ fun LoginScreen() {
                           color = PrimaryPurple,
                           textAlign = TextAlign.Center,
                           letterSpacing = 0.32.sp),
-                  modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth())
+                  modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth().testTag("loginTitle"))
 
               // Email input field
               var email by remember { mutableStateOf("") }
@@ -120,7 +124,7 @@ fun LoginScreen() {
                   onValueChange = { email = it },
                   label = { Text("Email", color = PrimaryPurple) },
                   placeholder = { Text("Enter email address", color = SecondaryPurple) },
-                  modifier = Modifier.width(320.dp),
+                  modifier = Modifier.width(320.dp).testTag("inputEmail"),
                   singleLine = true,
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
 
@@ -131,7 +135,7 @@ fun LoginScreen() {
                   onValueChange = { password = it },
                   label = { Text("Password", color = PrimaryPurple) },
                   placeholder = { Text("Enter password", color = SecondaryPurple) },
-                  modifier = Modifier.width(320.dp),
+                  modifier = Modifier.width(320.dp).testTag("inputPassword"),
                   singleLine = true,
                   visualTransformation = PasswordVisualTransformation(),
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
@@ -145,6 +149,7 @@ fun LoginScreen() {
               // Text for sign up option
               Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text(
+                    modifier = Modifier.testTag("noAccountText"),
                     text = "Don’t have an account yet ?",
                     style =
                         TextStyle(
@@ -159,7 +164,9 @@ fun LoginScreen() {
                 // Sign up text with gradient color
                 Text(
                     text = "Sign up",
-                    modifier = Modifier.clickable(onClick = { /* TODO: Handle sign up click */}),
+                    modifier =
+                        Modifier.testTag("signUpText")
+                            .clickable(onClick = { /* TODO: Handle sign up click */}),
                     style =
                         TextStyle(
                             fontSize = 14.sp,
@@ -171,10 +178,4 @@ fun LoginScreen() {
               }
             }
       }
-}
-//TODO : remove after tests
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-  LoginScreen()
 }
