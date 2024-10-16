@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -77,10 +79,7 @@ fun SignUpScreen() {
                         text =
                             buildAnnotatedString {
                               append("Beat")
-                              withStyle(
-                                  style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
-                                    append("Link")
-                                  }
+                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                             },
                         style =
                             TextStyle(
@@ -105,13 +104,15 @@ fun SignUpScreen() {
                               }
                             },
                         imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Go back",
-                    )
+                        contentDescription = "Go back")
                   }
             })
       }) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues).padding(16.dp),
+            modifier =
+                Modifier.padding(paddingValues)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Greeting text
@@ -185,7 +186,6 @@ fun SignUpScreen() {
               // Link Spotify button
               LinkSpotifyButton()
 
-              // Spacer between password field and login button
               Spacer(modifier = Modifier.height(16.dp))
 
               // Create new account button
@@ -299,8 +299,7 @@ fun CreateNewAccountButton() {
                 ButtonDefaults.buttonColors(
                     containerColor = Color.White, contentColor = PrimaryPurple),
             shape = RoundedCornerShape(30.dp),
-            elevation = null // Optional: Remove button shadow
-            ) {
+            elevation = null) {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",
