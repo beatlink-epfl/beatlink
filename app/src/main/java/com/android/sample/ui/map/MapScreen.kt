@@ -2,7 +2,6 @@ package com.android.sample.ui.map
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -99,19 +98,16 @@ fun MapScreen(
       locationPermitted.value = true
     } else {
       locationPermissionLauncher.launch(locationPermissions)
-      Log.d("MapScreen", "Requesting location permission")
     }
 
     // wait for user input
     while (locationPermitted.value == null) {
       delay(100)
-      Log.d("MapScreen", "Waiting for location permission")
     }
 
     while (true) {
       coroutineScope.launch {
         if (locationPermitted.value == true) {
-          Log.d("MapScreen", "Fetching current location")
           val priority = PRIORITY_BALANCED_POWER_ACCURACY
           val result =
               locationClient
