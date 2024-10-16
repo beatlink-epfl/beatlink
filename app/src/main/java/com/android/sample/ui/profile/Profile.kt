@@ -28,20 +28,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileData
+import com.android.sample.ui.navigation.BottomNavigationMenu
+import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
-    user: ProfileData,
-    // navigationAction: NavigationActions
-) {
+fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
@@ -77,14 +76,13 @@ fun ProfileScreen(
             },
         )
       },
-      /*bottomBar = {
-          // Bottom navigation bar
-          BottomNavigationMenu(
-              onTabSelect = { route -> navigationAction.navigateTo(route) },
-              tabList = LIST_TOP_LEVEL_DESTINATION,
-              selectedItem = navigationAction.currentRoute()
-          )
-      },*/
+      bottomBar = {
+        // Bottom navigation bar
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationAction.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationAction.currentRoute())
+      },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
           Row(modifier = Modifier.padding(16.dp)) {
@@ -136,10 +134,4 @@ fun ProfilePicture(id: Int) {
       painter = painterResource(id = id),
       contentDescription = "Profile Picture",
       modifier = Modifier.size(150.dp).testTag("profilePicture"))
-}
-
-@Preview
-@Composable
-fun ProfileScreenPreview() {
-  ProfileScreen(ProfileData("John Doe", "james", "my name is jeff", 20, null))
 }
