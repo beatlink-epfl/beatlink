@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,8 +39,6 @@ fun GoogleMapView(
 ) {
   val coroutineScope = rememberCoroutineScope()
 
-  val mapVisible by remember { mutableStateOf(true) }
-
   val cameraPositionState = rememberCameraPositionState()
 
   LaunchedEffect(moveToCurrentLocation.value, Unit) {
@@ -54,23 +50,14 @@ fun GoogleMapView(
                     CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)))
         moveToCurrentLocation.value = CameraAction.NO_ACTION
       }
-    } else if (moveToCurrentLocation.value == CameraAction.ANIMATE) {
-      coroutineScope.launch {
-        cameraPositionState.animate(
-            update =
-                CameraUpdateFactory.newCameraPosition(
-                    CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)),
-            durationMs = 1000)
-        moveToCurrentLocation.value = CameraAction.NO_ACTION
-      }
     }
   }
 
   val context = LocalContext.current
 
-  if (mapVisible) {
-    Box(Modifier.fillMaxSize()) {
-      GoogleMap(modifier = modifier, cameraPositionState = cameraPositionState) {
+  Box(Modifier.fillMaxSize()) {
+    GoogleMap(modifier = modifier, cameraPositionState = cameraPositionState) {
+      if (locationPermitted) {
         currentPosition.value.let { location ->
           Marker(
               state = MarkerState(position = location),
@@ -85,9 +72,9 @@ fun GoogleMapView(
               fillColor = Color(0x215F2A83))
         }
       }
-      Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
-        CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
-      }
+    }
+    Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
+      CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
     }
   }
 }

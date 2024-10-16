@@ -18,7 +18,10 @@ fun PlayerCurrentMusicItem(musique: String?) {
   if (musique != null) {
     Text(
         modifier =
-            Modifier.fillMaxWidth().height(24.dp).padding(horizontal = 16.dp).testTag("playerText"),
+            Modifier.fillMaxWidth()
+                .height(24.dp)
+                .padding(horizontal = 16.dp)
+                .testTag("playerText music"),
         text = "listening : $musique",
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight(400),
@@ -27,7 +30,10 @@ fun PlayerCurrentMusicItem(musique: String?) {
   } else {
     Text(
         modifier =
-            Modifier.fillMaxWidth().height(24.dp).padding(horizontal = 16.dp).testTag("playerText"),
+            Modifier.fillMaxWidth()
+                .height(24.dp)
+                .padding(horizontal = 16.dp)
+                .testTag("playerText no music"),
         text = "not listening yet",
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight(400),

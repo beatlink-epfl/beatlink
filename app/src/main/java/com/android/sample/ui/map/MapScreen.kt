@@ -47,21 +47,31 @@ const val defaultZoom = 15f
 
 enum class CameraAction {
   NO_ACTION,
-  MOVE,
-  ANIMATE
+  MOVE
 }
 
 @Composable
-fun MapScreen(navigationActions: NavigationActions, currentMusicPlayed: String? = null) {
+fun MapScreen(
+    navigationActions: NavigationActions,
+    currentMusicPlayed: String? = null,
+    radius: Double = 1000.0
+) {
   val coroutineScope = rememberCoroutineScope()
   val context = LocalContext.current
 
   val locationPermitted: MutableState<Boolean?> = remember { mutableStateOf(null) }
   val locationPermissionsAlreadyGranted =
-      (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-          PackageManager.PERMISSION_GRANTED) ||
-          (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-              PackageManager.PERMISSION_GRANTED)
+      when {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED -> {
+          true
+        }
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED -> {
+          true
+        }
+        else -> false
+      }
   val locationPermissions =
       arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
   val locationPermissionLauncher =
@@ -131,7 +141,7 @@ fun MapScreen(navigationActions: NavigationActions, currentMusicPlayed: String? 
       },
       modifier = Modifier.fillMaxSize().testTag("MapScreen"),
   ) { innerPadding ->
-    Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+    Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
       // Map fills most of the screen
       Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
         if (isMapLoaded) {
@@ -140,7 +150,8 @@ fun MapScreen(navigationActions: NavigationActions, currentMusicPlayed: String? 
               currentPosition = currentPosition,
               moveToCurrentLocation = moveToCurrentLocation,
               modifier = Modifier.testTag("Map"),
-              locationPermitted = locationPermitted.value!!)
+              locationPermitted = locationPermitted.value!!,
+              radius = radius)
         } else {
           Text("Loading map...", modifier = Modifier.padding(16.dp))
         }

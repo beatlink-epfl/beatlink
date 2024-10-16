@@ -15,40 +15,32 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MapScreenTest {
+class MapScreenWithCoarseLocationPermissionTest {
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-  // Grant fine location permission
+  // Grant coarse location permission
   @get:Rule
-  var fineLocationPermissionRule =
-      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+  var coarseLocationPermissionRule =
+      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
   @Test
-  fun mapScreen_withFineLocationPermission() {
-
-    fineLocationPermissionRule.apply {
-      composeTestRule.setContent {
-        MapScreen(
-            navigationActions = NavigationActions(rememberNavController()),
-            currentMusicPlayed = "lalala",
-            radius = 2000.0)
-      }
+  fun mapScreen_withCoarseLocationPermission() {
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()), currentMusicPlayed = null)
     }
 
     // Verify UI elements
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapScreenColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
 
-    // Check for loading and map
-    composeTestRule.onNodeWithTag("playerText music").assertIsDisplayed()
-
+    // Wait for map to load
     composeTestRule.waitUntil(timeoutMillis = 10000) {
       composeTestRule.onNodeWithTag("Map").isDisplayed()
     }
 
-    // Verify current location button and click it
+    // Click current location button
     composeTestRule.onNodeWithTag("currentLocationFab").assertIsDisplayed()
     composeTestRule.onNodeWithTag("currentLocationFab").performClick()
   }
