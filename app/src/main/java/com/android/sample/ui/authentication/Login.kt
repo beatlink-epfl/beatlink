@@ -145,36 +145,39 @@ fun LoginScreen() {
               // Login button
               LoginButton()
 
-              // Text for sign up option
-              Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    modifier = Modifier.testTag("noAccountText"),
-                    text = "Don’t have an account yet ?",
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            color = PrimaryPurple,
-                            letterSpacing = 0.14.sp))
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Sign up text with gradient color
-                Text(
-                    text = "Sign up",
-                    modifier =
-                        Modifier.testTag("signUpText")
-                            .clickable(onClick = { /* TODO: Handle sign up click */}),
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            letterSpacing = 0.14.sp,
-                            brush = PrimaryGradientBrush,
-                            textDecoration = TextDecoration.Underline))
-              }
+              // Sign up text
+              SignUpText(onSignUpClick = { /* TODO: Handle sign up click */})
             }
       }
+}
+
+@Composable
+fun SignUpText(onSignUpClick: () -> Unit) {
+  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+    Text(
+        modifier = Modifier.testTag("noAccountText"),
+        text = "Don’t have an account yet ?",
+        style =
+            TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.roboto)),
+                fontWeight = FontWeight(500),
+                color = PrimaryPurple,
+                letterSpacing = 0.14.sp))
+
+    Spacer(modifier = Modifier.width(4.dp))
+
+    // Sign up text with gradient color
+    Text(
+        text = "Sign up",
+        modifier = Modifier.testTag("signUpText").clickable(onClick = onSignUpClick),
+        style =
+            TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.roboto)),
+                fontWeight = FontWeight(500),
+                letterSpacing = 0.14.sp,
+                brush = PrimaryGradientBrush,
+                textDecoration = TextDecoration.Underline))
+  }
 }
