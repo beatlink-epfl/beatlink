@@ -1,13 +1,10 @@
 package com.android.sample.ui.map
 
-import android.content.Context
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,11 +12,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.core.content.ContextCompat
 import com.android.sample.R
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Circle
@@ -77,16 +71,4 @@ fun GoogleMapView(
       CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
     }
   }
-}
-
-fun getBitmapDescriptorFromDrawableResource(resourceId: Int, context: Context): BitmapDescriptor {
-  val drawable = ContextCompat.getDrawable(context, resourceId)
-  val canvas = android.graphics.Canvas()
-  val bitmap =
-      Bitmap.createBitmap(
-          drawable!!.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
-  canvas.setBitmap(bitmap)
-  drawable.setBounds(0, 0, canvas.width, canvas.height)
-  drawable.draw(canvas)
-  return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
