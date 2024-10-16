@@ -36,8 +36,20 @@ class LoginScreenTest {
     // Check if the email input field is displayed
     composeTestRule.onNodeWithTag("inputEmail").assertIsDisplayed()
 
+    // Simulate clicking on the email input field and typing
+    composeTestRule.onNodeWithTag("inputEmail").performClick().performTextInput("test@example.com")
+
+    // Check email input
+    composeTestRule.onNodeWithTag("inputEmail").assertTextContains("test@example.com")
+
     // Check if the password input field is displayed
     composeTestRule.onNodeWithTag("inputPassword").assertIsDisplayed()
+
+    // Simulate typing into the password input field
+    composeTestRule.onNodeWithTag("inputPassword").performClick().performTextInput("password")
+
+    // Check password input
+    composeTestRule.onNodeWithTag("inputPassword").assertTextContains("••••••••")
 
     // Check if the "Don't have an account" text is displayed
     composeTestRule
