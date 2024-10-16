@@ -30,8 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.android.sample.ui.navigation.BottomNavigationMenu
-import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
@@ -116,8 +114,14 @@ fun MapScreen(
                       CancellationTokenSource().token,
                   )
                   .await()
-          result.let { fetchedLocation ->
-            currentPosition.value = LatLng(fetchedLocation.latitude, fetchedLocation.longitude)
+          if (result != null) {
+            result.let { fetchedLocation ->
+              currentPosition.value = LatLng(fetchedLocation.latitude, fetchedLocation.longitude)
+              isMapLoaded = true
+            }
+          } else {
+            locationPermitted.value = false
+            currentPosition.value = defaultLocation
             isMapLoaded = true
           }
         } else if (locationPermitted.value == false) {
@@ -130,10 +134,7 @@ fun MapScreen(
 
   Scaffold(
       bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+        // Todo Bottom bar with navigation
       },
       modifier = Modifier.fillMaxSize().testTag("MapScreen"),
   ) { innerPadding ->
