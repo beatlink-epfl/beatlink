@@ -94,8 +94,7 @@ fun LoginScreen() {
                               }
                             },
                         imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Go back",
-                    )
+                        contentDescription = "Go back")
                   }
             })
       }) { paddingValues ->
