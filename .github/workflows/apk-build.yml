@@ -39,9 +39,13 @@ jobs:
         env:
           GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
           LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
         run: |
-            echo "$GOOGLE_SERVICES" > app/google-services.json
-            echo "$LOCAL_PROPERTIES" > local.properties
+            echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+            echo $LOCAL_PROPERTIES > ./local.properties
+            echo $KEYSTORE > ./keystore.jks
+            echo $KEYSTORE_PROPERTIES > ./keystore.properties
 
       # Build the APK
       - name: Building APK
