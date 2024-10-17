@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.android.sample.ui.theme.PrimaryPurple
 
 @Composable
 fun PlayerCurrentMusicItem(musique: String?) {
@@ -25,7 +26,7 @@ fun PlayerCurrentMusicItem(musique: String?) {
         text = "listening : $musique",
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight(400),
-        color = Color(0xFF5F2A83),
+        color = PrimaryPurple,
         textAlign = TextAlign.Center)
   } else {
     Text(
@@ -37,7 +38,7 @@ fun PlayerCurrentMusicItem(musique: String?) {
         text = "not listening yet",
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight(400),
-        color = Color(0xFF5F2A83),
+        color = PrimaryPurple,
         textAlign = TextAlign.Center)
   }
 }

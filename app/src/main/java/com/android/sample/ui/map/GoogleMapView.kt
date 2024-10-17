@@ -9,10 +9,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.android.sample.R
+import com.android.sample.ui.theme.PrimaryPurple
+import com.android.sample.ui.theme.SecondaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -61,9 +62,9 @@ fun GoogleMapView(
           Circle(
               center = location,
               radius = radius,
-              strokeColor = Color(0xFF5F2A83),
+              strokeColor = PrimaryPurple,
               strokeWidth = 3f,
-              fillColor = Color(0x215F2A83))
+              fillColor = SecondaryPurple)
         }
       }
     }
