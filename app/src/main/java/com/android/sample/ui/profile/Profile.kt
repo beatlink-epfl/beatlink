@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -51,6 +53,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
               Text(
                   text = user.username,
                   fontWeight = FontWeight.Bold,
+                  fontSize = 20.sp,
                   modifier = Modifier.testTag("titleUsername"))
             },
             actions = {
@@ -90,23 +93,27 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
+          HorizontalDivider(
+              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
           Row(modifier = Modifier.padding(16.dp)) {
             ProfilePicture(user.profilePicture ?: R.drawable.default_profile_picture)
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(
                   text = "${user.links} Links",
                   fontWeight = FontWeight.Bold,
                   color = PrimaryPurple,
-                  fontSize = 27.sp,
+                  fontSize = 18.sp,
                   modifier =
                       Modifier.align(Alignment.CenterHorizontally)
                           .padding(18.dp)
                           .testTag("linksCount"))
               Box(
                   modifier =
-                      Modifier.border(2.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp))
-                          .testTag("editProfileButtonContainer")) {
+                      Modifier.border(1.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp))
+                          .testTag("editProfileButtonContainer")
+                          .width(233.dp)
+                          .height(32.dp)) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
@@ -114,6 +121,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                     ) {
                       Text(
                           text = "Edit Profile",
+                          fontSize = 12.sp,
                           fontWeight = FontWeight.Bold,
                           color = PrimaryPurple)
                     }
@@ -123,12 +131,14 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
           Text(
               text = user.name ?: "",
               fontWeight = FontWeight.Bold,
+              fontSize = 14.sp,
               color = PrimaryPurple,
-              modifier = Modifier.padding(horizontal = 16.dp).testTag("name"))
+              modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))
           Text(
               text = user.bio ?: "No description provided",
+              fontSize = 14.sp,
               color = Color.Black,
-              modifier = Modifier.padding(horizontal = 16.dp).testTag("bio"))
+              modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
         }
       })
 }
@@ -139,5 +149,5 @@ fun ProfilePicture(id: Int) {
   Image(
       painter = painterResource(id = id),
       contentDescription = "Profile Picture",
-      modifier = Modifier.size(150.dp).testTag("profilePicture"))
+      modifier = Modifier.size(100.dp).testTag("profilePicture"))
 }

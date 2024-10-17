@@ -53,6 +53,9 @@ class ProfileTest {
         .assertExists()
         .assertContentDescriptionEquals("Settings")
 
+    // Check if divider is displayed
+    composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
+
     // Check if the user's profile picture is displayed
     composeTestRule
         .onNodeWithTag("profilePicture")
