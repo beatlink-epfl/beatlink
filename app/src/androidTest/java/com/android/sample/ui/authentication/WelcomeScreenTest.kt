@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
@@ -33,15 +32,16 @@ class WelcomeScreenTest {
         .assertIsDisplayed()
         .assertTextContains("Link Up Through Music")
 
-    // Check if the sign-in button is displayed
-    composeTestRule.onNodeWithTag("loginButton").assertIsDisplayed()
+    // Check if the sign up button is displayed
+    composeTestRule.onNodeWithTag("signUpButton").assertIsDisplayed()
 
-    // Check if the "Sign in with Spotify" text is displayed inside the button
-    composeTestRule.onNodeWithText("Sign in with Spotify").assertIsDisplayed()
+    // Check if the login button is displayed
+    composeTestRule.onNodeWithTag("loginButton").assertIsDisplayed()
   }
 
+  // TODO : Add tests linked to Firebase Authentication
   @Test
-  fun signInButton_clickTriggersAction() {
+  fun loginButton_clickTriggersAction() {
     // Launch the composable under test
     composeTestRule.setContent { WelcomeScreen() }
 
