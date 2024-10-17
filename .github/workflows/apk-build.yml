@@ -7,6 +7,11 @@ on:
         type: string
         description: "Tag Name"
         default: "0.0.1"
+      build_type:
+        required: true
+        type: string
+        description: "debug or release"
+        default: "release"
 
 jobs:
   build:
@@ -60,5 +65,5 @@ jobs:
       - name: Upload release to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Release-apk-v${{ inputs.tag_name }}
+          name: ${{ inputs.build_type }}-apk-v${{ inputs.tag_name }}
           path: ${{ steps.apkPath.outputs.apkFile }}
