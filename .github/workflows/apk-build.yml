@@ -1,0 +1,64 @@
+name: APK Build
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+        description: "Tag Name"
+        default: "0.0.1"
+
+jobs:
+  build:
+    name: APK_Build
+    # Execute the CI on the course's runners
+    runs-on: ubuntu-latest
+
+    steps:
+      # First step : Checkout the repository on the runner
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of Sonar analysis (if we use Sonar Later)
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x ./gradlew
+
+      - name: Create secret files
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
+        run: |
+            echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+            echo $LOCAL_PROPERTIES > ./local.properties
+            echo $KEYSTORE > ./keystore.jks
+            echo $KEYSTORE_PROPERTIES > ./keystore.properties
+
+      # Build the APK
+      - name: Building APK
+        run: |
+          ./gradlew assembleRelease
+
+      - name: Get apk path
+        id: apkPath
+        run: echo "apkFile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
+
+      # Upload the APK to the artifacts
+      - name: Upload release to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Release-apk-v${{ inputs.tag_name }}
+          path: ${{ steps.apkPath.outputs.apkFile }}
