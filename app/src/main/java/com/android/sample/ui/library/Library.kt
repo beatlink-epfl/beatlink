@@ -43,14 +43,14 @@ import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
-import com.android.sample.ui.navigation.Route
+import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryScreen() {
+fun LibraryScreen(navigationActions: NavigationActions) {
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
@@ -110,9 +110,9 @@ fun LibraryScreen() {
       },
       bottomBar = {
         BottomNavigationMenu(
-            onTabSelect = {}, // to be changed with navActions
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
             tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = Route.LIBRARY // to be changed with navActions
+            selectedItem = navigationActions.currentRoute() // to be changed with navActions
             )
       },
       content = { innerPadding ->

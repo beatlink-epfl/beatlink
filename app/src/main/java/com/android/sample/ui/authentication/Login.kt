@@ -45,6 +45,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
+import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
@@ -52,7 +54,7 @@ import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navigationActions: NavigationActions) {
   Scaffold(
       modifier = Modifier.testTag("loginScreen"),
       topBar = {
@@ -83,7 +85,7 @@ fun LoginScreen() {
             },
             navigationIcon = {
               IconButton(
-                  onClick = { /* TODO : Handle back navigation */},
+                  onClick = { navigationActions.goBack() },
                   modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =
@@ -143,10 +145,10 @@ fun LoginScreen() {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Login button
-              LoginButton()
+              LoginButton(navigationActions)
 
               // Sign up text
-              SignUpText(onSignUpClick = { /* TODO: Handle sign up click */})
+              SignUpText(onSignUpClick = { navigationActions.navigateTo(Screen.REGISTER) })
             }
       }
 }
