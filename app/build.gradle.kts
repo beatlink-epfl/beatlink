@@ -24,7 +24,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val properties = Properties()
+        properties.load(project.rootProject.file("./local.properties").inputStream())
+        // Set API keys in BuildConfig
+        resValue("string", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\"")
     }
+
 
     val keystorePropertiesFile = project.rootProject.file("./keystore.properties")
     val keystoreProperties = Properties()
