@@ -38,14 +38,26 @@ class ProfileTest {
   @Test
   fun elementsAreDisplayed() {
     // Check if title is displayed
-    composeTestRule.onNodeWithTag("titleUsername").assertIsDisplayed().assertTextContains(user.username)
+    composeTestRule
+        .onNodeWithTag("titleUsername")
+        .assertIsDisplayed()
+        .assertTextContains(user.username)
 
     // Check if the icons are displayed
-    composeTestRule.onNodeWithTag("profileScreenNotificationsButton").assertExists().assertContentDescriptionEquals("Notifications")
-    composeTestRule.onNodeWithTag("profileScreenSettingsButton").assertExists().assertContentDescriptionEquals("Settings")
+    composeTestRule
+        .onNodeWithTag("profileScreenNotificationsButton")
+        .assertExists()
+        .assertContentDescriptionEquals("Notifications")
+    composeTestRule
+        .onNodeWithTag("profileScreenSettingsButton")
+        .assertExists()
+        .assertContentDescriptionEquals("Settings")
 
     // Check if the user's profile picture is displayed
-    composeTestRule.onNodeWithTag("profilePicture").assertExists().assertContentDescriptionEquals("Profile Picture")
+    composeTestRule
+        .onNodeWithTag("profilePicture")
+        .assertExists()
+        .assertContentDescriptionEquals("Profile Picture")
 
     // Check if the user's link's count is displayed
     composeTestRule
@@ -55,7 +67,10 @@ class ProfileTest {
 
     // Check if the edit button is displayed
     composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
-    composeTestRule.onNodeWithTag("editProfileButton").assertExists().assertTextContains("Edit Profile")
+    composeTestRule
+        .onNodeWithTag("editProfileButton")
+        .assertExists()
+        .assertTextContains("Edit Profile")
 
     // Check if the user's name is displayed
     composeTestRule.onNodeWithTag("name").assertExists().assertTextContains(user.name!!)

@@ -47,7 +47,12 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(titleContentColor = PrimaryPurple),
             // Username displayed
-            title = { Text(text = user.username, fontWeight = FontWeight.Bold, modifier = Modifier.testTag("titleUsername")) },
+            title = {
+              Text(
+                  text = user.username,
+                  fontWeight = FontWeight.Bold,
+                  modifier = Modifier.testTag("titleUsername"))
+            },
             actions = {
               // Notification icon
               IconButton(
@@ -81,8 +86,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
         BottomNavigationMenu(
             onTabSelect = { route -> navigationAction.navigateTo(route) },
             tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationAction.currentRoute()
-        )
+            selectedItem = navigationAction.currentRoute())
       },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
@@ -101,7 +105,8 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                           .testTag("linksCount"))
               Box(
                   modifier =
-                      Modifier.border(2.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp)).testTag("editProfileButtonContainer")) {
+                      Modifier.border(2.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp))
+                          .testTag("editProfileButtonContainer")) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
