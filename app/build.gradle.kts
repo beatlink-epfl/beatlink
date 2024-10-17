@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.ktfmt)
     alias(libs.plugins.sonar)
     id("jacoco")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -131,6 +133,18 @@ dependencies {
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
+
+    // ------------- Firebase ------------------
+    // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+
+    // Add the dependency for the Firebase Authentication library
+    implementation("com.google.firebase:firebase-auth")
+
+    // Add any other Firebase services you need
+    // implementation("com.google.firebase:firebase-database-ktx")
+    // implementation("com.google.firebase:firebase-firestore-ktx")
+
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)

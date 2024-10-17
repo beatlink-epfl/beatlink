@@ -1,6 +1,7 @@
 package com.android.sample.ui.authentication
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ fun WelcomeScreen() {
 
         // App name
         Text(
+            modifier = Modifier.testTag("appName"),
             text =
                 buildAnnotatedString {
                   append("Beat")
@@ -57,7 +59,6 @@ fun WelcomeScreen() {
                     append("Link")
                   }
                 },
-            modifier = Modifier.testTag("appName"),
             style =
                 TextStyle(
                     fontSize = 30.sp,
@@ -69,8 +70,8 @@ fun WelcomeScreen() {
                 ))
 
         Text(
-            text = "Link Up Through Music",
             modifier = Modifier.testTag("appText"),
+            text = "Link Up Through Music",
             style =
                 TextStyle(
                     fontSize = 18.sp,
@@ -84,38 +85,68 @@ fun WelcomeScreen() {
         Spacer(modifier = Modifier.height(100.dp))
 
         // Sign Up Button
-        SignInSpotifyButton()
+        SignUpButton()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Login Button
+        LoginButton()
       }
 }
 
 @Composable
-fun SignInSpotifyButton() {
+fun SignUpButton() {
   Box(
       modifier =
           Modifier.border(
                   width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
               .width(320.dp)
-              .height(48.dp),
+              .height(48.dp)
+              .testTag("signUpButton"),
       contentAlignment = Alignment.Center) {
         Button(
             onClick = { /* TODO: Handle sign up click */},
-            modifier = Modifier.fillMaxSize().testTag("loginButton"),
+            modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.White, contentColor = PrimaryPurple),
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow
             ) {
-              // Spotify icon
-              Image(
-                  painter = painterResource(id = R.drawable.spotify),
-                  contentDescription = "Spotify Icon",
-                  modifier = Modifier.size(32.dp))
-
-              Spacer(modifier = Modifier.width(16.dp))
-
               Text(
-                  text = "Sign in with Spotify",
+                  text = "Sign up",
+                  style =
+                      TextStyle(
+                          fontSize = 14.sp,
+                          lineHeight = 20.sp,
+                          fontFamily = FontFamily(Font(R.font.roboto)),
+                          fontWeight = FontWeight(500),
+                          letterSpacing = 0.14.sp))
+            }
+      }
+}
+
+@Composable
+fun LoginButton() {
+  Box(
+      modifier =
+          Modifier.width(320.dp)
+              .height(48.dp)
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+              .testTag("loginButton"),
+      contentAlignment = Alignment.Center) {
+        // Transparent Button to allow gradient background to show
+        Button(
+            onClick = { /* TODO: Handle login click */},
+            modifier = Modifier.fillMaxSize(),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, contentColor = Color.White),
+            shape = RoundedCornerShape(30.dp),
+            elevation = null // Optional: Remove button shadow if desired
+            ) {
+              Text(
+                  text = "Login",
                   style =
                       TextStyle(
                           fontSize = 14.sp,
