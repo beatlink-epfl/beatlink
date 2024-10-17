@@ -17,8 +17,11 @@ import com.android.sample.ui.theme.SecondaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -36,6 +39,13 @@ fun GoogleMapView(
 
   val cameraPositionState = rememberCameraPositionState()
 
+  val context = LocalContext.current
+
+  val mapProperties =
+      MapProperties(
+          mapType = MapType.NORMAL,
+          mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.style_maps))
+
   LaunchedEffect(moveToCurrentLocation.value, Unit) {
     if (moveToCurrentLocation.value == CameraAction.MOVE) {
       coroutineScope.launch {
@@ -48,26 +58,27 @@ fun GoogleMapView(
     }
   }
 
-  val context = LocalContext.current
-
   Box(Modifier.fillMaxSize()) {
-    GoogleMap(modifier = modifier, cameraPositionState = cameraPositionState) {
-      if (locationPermitted) {
-        currentPosition.value.let { location ->
-          Marker(
-              state = MarkerState(position = location),
-              title = "You are here",
-              icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
-              anchor = Offset(0.5f, 0.5f))
-          Circle(
-              center = location,
-              radius = radius,
-              strokeColor = PrimaryPurple,
-              strokeWidth = 3f,
-              fillColor = SecondaryPurple)
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = cameraPositionState,
+        properties = mapProperties) {
+          if (locationPermitted) {
+            currentPosition.value.let { location ->
+              Marker(
+                  state = MarkerState(position = location),
+                  title = "You are here",
+                  icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
+                  anchor = Offset(0.5f, 0.5f))
+              Circle(
+                  center = location,
+                  radius = radius,
+                  strokeColor = PrimaryPurple,
+                  strokeWidth = 3f,
+                  fillColor = SecondaryPurple)
+            }
+          }
         }
-      }
-    }
     Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
       CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
     }
