@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -126,21 +127,31 @@ fun LibraryScreen() {
 
           LazyRow(
               horizontalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth().height(115.dp)) {}
+              modifier = Modifier.fillMaxWidth().height(115.dp)) {
+                items(1) { FavoriteItem() }
+              }
 
           // PLAYLISTS
           TitleWithArrow("PLAYLISTS") {}
 
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth()) {}
+              modifier = Modifier.fillMaxWidth()) {
+                items(1) { PlaylistItem() }
+              }
         }
       })
 }
 
-@Composable fun FavoriteItem() {}
+@Composable
+fun FavoriteItem() {
+  Card(modifier = Modifier.testTag("favoriteItem")) { Text("one fav song") }
+}
 
-@Composable fun PlaylistItem() {}
+@Composable
+fun PlaylistItem() {
+  Card(modifier = Modifier.testTag("playlistItem")) { Text("playlist 1") }
+}
 
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
