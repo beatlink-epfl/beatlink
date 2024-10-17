@@ -1,5 +1,7 @@
 package com.android.sample.ui.profile
 
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -35,13 +37,15 @@ class ProfileTest {
 
   @Test
   fun elementsAreDisplayed() {
+    // Check if title is displayed
+    composeTestRule.onNodeWithTag("titleUsername").assertIsDisplayed().assertTextContains(user.username)
 
     // Check if the icons are displayed
-    composeTestRule.onNodeWithTag("profileScreenNotificationsButton").assertExists()
-    composeTestRule.onNodeWithTag("profileScreenSettingsButton").assertExists()
+    composeTestRule.onNodeWithTag("profileScreenNotificationsButton").assertExists().assertContentDescriptionEquals("Notifications")
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").assertExists().assertContentDescriptionEquals("Settings")
 
     // Check if the user's profile picture is displayed
-    composeTestRule.onNodeWithTag("profilePicture").assertExists()
+    composeTestRule.onNodeWithTag("profilePicture").assertExists().assertContentDescriptionEquals("Profile Picture")
 
     // Check if the user's link's count is displayed
     composeTestRule
@@ -50,7 +54,8 @@ class ProfileTest {
         .assertTextContains("${user.links} Links")
 
     // Check if the edit button is displayed
-    composeTestRule.onNodeWithTag("editProfileButton").assertExists()
+    composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
+    composeTestRule.onNodeWithTag("editProfileButton").assertExists().assertTextContains("Edit Profile")
 
     // Check if the user's name is displayed
     composeTestRule.onNodeWithTag("name").assertExists().assertTextContains(user.name!!)
