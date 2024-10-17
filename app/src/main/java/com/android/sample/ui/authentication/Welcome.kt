@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.navigation.TopLevelDestination
 import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple

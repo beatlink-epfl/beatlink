@@ -45,7 +45,6 @@ import com.android.sample.R
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
@@ -114,8 +113,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
         BottomNavigationMenu(
             onTabSelect = { route -> navigationActions.navigateTo(route) },
             tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute()
-            )
+            selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
         Column(

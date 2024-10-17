@@ -47,119 +47,86 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BeatLinkApp() {
-    val navController = rememberNavController()
-    val navigationActions = NavigationActions(navController)
+  val navController = rememberNavController()
+  val navigationActions = NavigationActions(navController)
 
-    NavHost(navController = navController, startDestination = Route.WELCOME) {
-        navigation(
-            startDestination = Screen.WELCOME,
-            route = Route.WELCOME
-        ) {
-            composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
-            composable(Screen.LOGIN) { LoginScreen(navigationActions) }
-            composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
+  NavHost(navController = navController, startDestination = Route.WELCOME) {
+    navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
+      composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
+      composable(Screen.LOGIN) { LoginScreen(navigationActions) }
+      composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
 
-            // Screen to be implemented
-            //composable(Screen.PROFILE_BUILD) { }
-        }
-
-        navigation(
-            startDestination = Screen.HOME,
-            route = Route.HOME
-        ) {
-            composable(Screen.HOME) { MapScreen(navigationActions) }
-        }
-
-        navigation(
-            startDestination = Screen.SEARCH,
-            route = Route.SEARCH
-        ) {
-            composable(Screen.SEARCH) { SearchScreen(navigationActions) }
-        }
-
-        navigation(
-            startDestination = Screen.LIBRARY,
-            route = Route.LIBRARY
-        ) {
-            composable(Screen.LIBRARY) { LibraryScreen(navigationActions) }
-        }
-
-        navigation(
-            startDestination = Screen.PROFILE,
-            route = Route.PROFILE
-        ) {
-            composable(Screen.PROFILE) { ProfileScreen(navigationActions) }
-        }
+      // Screen to be implemented
+      // composable(Screen.PROFILE_BUILD) { }
     }
+
+    navigation(startDestination = Screen.HOME, route = Route.HOME) {
+      composable(Screen.HOME) { MapScreen(navigationActions) }
+    }
+
+    navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
+      composable(Screen.SEARCH) { SearchScreen(navigationActions) }
+    }
+
+    navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
+      composable(Screen.LIBRARY) { LibraryScreen(navigationActions) }
+    }
+
+    navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
+      composable(Screen.PROFILE) { ProfileScreen(navigationActions) }
+    }
+  }
 }
 
-/**
- * Temporary screen to test navigation
- */
+/** Temporary screen to test navigation */
 @Composable
 fun MapScreen(navigationActions: NavigationActions) {
-    Scaffold(
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute()
-            )
-        },
-        content = { pd ->
-            Box(
-                modifier = Modifier.padding(pd).fillMaxSize()
-            ) {
-                Text(text = "Map Screen", modifier = Modifier.align(Alignment.Center))
-            }
-
+  Scaffold(
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { pd ->
+        Box(modifier = Modifier.padding(pd).fillMaxSize()) {
+          Text(text = "Map Screen", modifier = Modifier.align(Alignment.Center))
         }
-    )
+      })
 }
 
-/**
- * Temporary screen to test navigation
- */
+/** Temporary screen to test navigation */
 @Composable
 fun SearchScreen(navigationActions: NavigationActions) {
-    Scaffold(
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute()
-            )
-        },
-        content = { pd ->
-            Box(
-                modifier = Modifier.padding(pd).fillMaxSize()
-            ) {
-                Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
-            }
-
+  Scaffold(
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { pd ->
+        Box(modifier = Modifier.padding(pd).fillMaxSize()) {
+          Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
         }
-    )
+      })
 }
 
-/**
- * Temporary screen to test navigation
- */
+/** Temporary screen to test navigation */
 @Composable
 fun ProfileScreen(navigationActions: NavigationActions) {
-    Scaffold(
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute()
-            )
-        },
-        content = { pd ->
-            Box(
-                modifier = Modifier.padding(pd).fillMaxSize(),
-            ) {
-                Text(text = "Profile Screen", modifier = Modifier.align(Alignment.Center))
-            }
+  Scaffold(
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { pd ->
+        Box(
+            modifier = Modifier.padding(pd).fillMaxSize(),
+        ) {
+          Text(text = "Profile Screen", modifier = Modifier.align(Alignment.Center))
         }
-    )
+      })
 }

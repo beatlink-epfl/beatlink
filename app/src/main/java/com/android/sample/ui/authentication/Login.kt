@@ -85,7 +85,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
             },
             navigationIcon = {
               IconButton(
-                  onClick = { navigationActions.goBack()},
+                  onClick = { navigationActions.goBack() },
                   modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =
