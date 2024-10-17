@@ -29,6 +29,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.android.sample.ui.navigation.BottomNavigationMenu
+import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.Purple80
 import com.google.android.gms.location.LocationServices
@@ -134,7 +136,10 @@ fun MapScreen(
 
   Scaffold(
       bottomBar = {
-        // Todo Bottom bar with navigation
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            selectedItem = navigationActions.currentRoute(),
+            tabList = LIST_TOP_LEVEL_DESTINATION)
       },
       modifier = Modifier.fillMaxSize().testTag("MapScreen"),
   ) { innerPadding ->
