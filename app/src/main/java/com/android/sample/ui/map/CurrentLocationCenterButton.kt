@@ -34,7 +34,7 @@ fun CurrentLocationCenterButton(
           Modifier.padding(16.dp)
               .size(48.dp)
               .shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp), clip = false)
-              .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+              .background(color = Color.Transparent, shape = RoundedCornerShape(8.dp))
               .testTag("currentLocationFab")) {
         Icon(
             painter = painterResource(id = R.drawable.location_arrow_1),
