@@ -1,19 +1,26 @@
 package com.android.sample.ui.authentication
 
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,7 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,6 +51,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
@@ -49,10 +59,14 @@ import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen() {
+  var email by remember { mutableStateOf("") }
+  var password by remember { mutableStateOf("") }
+
   Scaffold(
       modifier = Modifier.testTag("loginScreen"),
       topBar = {
@@ -117,7 +131,6 @@ fun LoginScreen() {
                   modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth().testTag("loginTitle"))
 
               // Email input field
-              var email by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = email,
                   onValueChange = { email = it },
@@ -128,7 +141,6 @@ fun LoginScreen() {
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
 
               // Password input field
-              var password by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = password,
                   onValueChange = { password = it },
@@ -143,10 +155,60 @@ fun LoginScreen() {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Login button
-              LoginButton()
+              LoginFirebaseButton(email = email, password = password)
 
               // Sign up text
               SignUpText(onSignUpClick = { /* TODO: Handle sign up click */})
+            }
+      }
+}
+
+@Composable
+fun LoginFirebaseButton(email: String, password: String) {
+  val context = LocalContext.current
+  val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+  Box(
+      modifier =
+          Modifier.width(320.dp)
+              .height(48.dp)
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+              .testTag("loginButton"),
+      contentAlignment = Alignment.Center) {
+        Button(
+            onClick = {
+              // Firebase sign-in with email and password
+              auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                  // Sign-in success
+                    Log.d("LoginScreen", "signInWithEmail:success")
+                  Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                  // TODO : Handle successful login, navigate to the next screen
+                } else {
+                  // If sign in fails, display a message to the user
+                    Log.e("LoginScreen", "signInWithEmail:failure", task.exception)
+                  Toast.makeText(
+                          context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG)
+                      .show()
+                }
+              }
+            },
+            modifier = Modifier.fillMaxSize(),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, contentColor = Color.White),
+            shape = RoundedCornerShape(30.dp),
+            elevation = null // Optional: Remove button shadow if desired
+            ) {
+              Text(
+                  text = "Login",
+                  style =
+                      TextStyle(
+                          fontSize = 14.sp,
+                          lineHeight = 20.sp,
+                          fontFamily = FontFamily(Font(R.font.roboto)),
+                          fontWeight = FontWeight(500),
+                          letterSpacing = 0.14.sp))
             }
       }
 }
@@ -180,4 +242,10 @@ fun SignUpText(onSignUpClick: () -> Unit) {
                 brush = PrimaryGradientBrush,
                 textDecoration = TextDecoration.Underline))
   }
+}
+
+@Preview
+@Composable
+fun LoginScreenPreview() {
+  LoginScreen()
 }

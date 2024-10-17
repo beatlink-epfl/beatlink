@@ -1,5 +1,6 @@
 package com.android.sample.ui.authentication
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -55,6 +57,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
@@ -62,10 +65,19 @@ import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen() {
+  val context = LocalContext.current
+  var email by remember { mutableStateOf("") }
+  var username by remember { mutableStateOf("") }
+  var password by remember { mutableStateOf("") }
+  var confirmPassword by remember { mutableStateOf("") }
+
+  val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
@@ -136,7 +148,6 @@ fun SignUpScreen() {
                       Modifier.fillMaxWidth().padding(bottom = 15.dp).testTag("greetingText"))
 
               // Email input field
-              var email by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = email,
                   onValueChange = { email = it },
@@ -147,7 +158,6 @@ fun SignUpScreen() {
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
 
               // Username input field
-              var username by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = username,
                   onValueChange = { username = it },
@@ -158,7 +168,6 @@ fun SignUpScreen() {
                   singleLine = true)
 
               // Password input field
-              var password by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = password,
                   onValueChange = { password = it },
@@ -171,7 +180,6 @@ fun SignUpScreen() {
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
 
               // Confirm Password input field
-              var confirmPassword by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
@@ -189,9 +197,8 @@ fun SignUpScreen() {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Create new account button
-              CreateNewAccountButton()
+              CreateNewAccountButton(email, password, confirmPassword, auth, context)
 
-              // Text for sign up option
               Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     modifier = Modifier.testTag("loginText"),
@@ -206,7 +213,7 @@ fun SignUpScreen() {
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                // Sign up text with gradient color
+                // Text for login option
                 Text(
                     text = "Login",
                     modifier =
@@ -284,7 +291,13 @@ fun LinkSpotifyButton() {
 }
 
 @Composable
-fun CreateNewAccountButton() {
+fun CreateNewAccountButton(
+    email: String,
+    password: String,
+    confirmPassword: String,
+    auth: FirebaseAuth,
+    context: android.content.Context
+) {
   Box(
       modifier =
           Modifier.border(
@@ -293,7 +306,29 @@ fun CreateNewAccountButton() {
               .height(48.dp),
       contentAlignment = Alignment.Center) {
         Button(
-            onClick = { /* TODO: Handle sign up click */},
+            onClick = {
+              if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                if (password == confirmPassword) {
+                  auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task
+                    ->
+                    if (task.isSuccessful) {
+                      // Account creation success
+                      Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT)
+                          .show()
+                    } else {
+                      // Account creation failed
+                      Toast.makeText(
+                              context, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT)
+                          .show()
+                    }
+                  }
+                } else {
+                  Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                }
+              } else {
+                Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+              }
+            },
             modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
             colors =
                 ButtonDefaults.buttonColors(
@@ -312,4 +347,11 @@ fun CreateNewAccountButton() {
                           letterSpacing = 0.14.sp))
             }
       }
+}
+
+// Preview code
+@Preview
+@Composable
+fun SignUpScreenPreview() {
+  SignUpScreen()
 }
