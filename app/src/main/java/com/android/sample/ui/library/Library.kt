@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Search
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
@@ -50,7 +52,7 @@ import com.android.sample.ui.theme.PrimaryRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LibraryScreen() {
+fun LibraryScreen(navigationActions: NavigationActions) {
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
@@ -63,7 +65,7 @@ fun LibraryScreen() {
                       TextStyle(
                           fontSize = 20.sp,
                           lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                          fontFamily = FontFamily(Font(R.font.roboto)),
                           fontWeight = FontWeight(700),
                           color = PrimaryPurple,
                           letterSpacing = 0.2.sp),
@@ -110,9 +112,9 @@ fun LibraryScreen() {
       },
       bottomBar = {
         BottomNavigationMenu(
-            onTabSelect = {}, // to be changed with navActions
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
             tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = Route.LIBRARY // to be changed with navActions
+            selectedItem = navigationActions.currentRoute()
             )
       },
       content = { innerPadding ->
@@ -163,7 +165,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
                 TextStyle(
                     fontSize = 20.sp,
                     lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                    fontFamily = FontFamily(Font(R.font.roboto)),
                     fontWeight = FontWeight(700),
                     color = PrimaryRed,
                     letterSpacing = 0.2.sp,
@@ -177,7 +179,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
                 })
         Spacer(modifier = Modifier.width(5.dp)) // Spacing between text and arrow
         Icon(
-            imageVector = Icons.Outlined.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
             contentDescription = "arrow right",
             modifier =
                 Modifier.size(24.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
