@@ -13,8 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.android.sample.R
 import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.Purple40
-import com.android.sample.ui.theme.Purple80
 import com.android.sample.ui.theme.SecondaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
