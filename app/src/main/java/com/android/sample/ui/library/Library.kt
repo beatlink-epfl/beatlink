@@ -50,7 +50,6 @@ import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 fun LibraryScreen() {
 
