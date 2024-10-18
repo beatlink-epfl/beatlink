@@ -10,30 +10,26 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
 class LoginScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private lateinit var navigationDestination: NavDestination
-  private lateinit var navHostController: NavHostController
   private lateinit var navigationActions: NavigationActions
 
   @Before
   fun setUp() {
-    navigationDestination = mock(NavDestination::class.java)
-    navHostController = mock(NavHostController::class.java)
-    navigationActions = NavigationActions(navHostController)
+    navigationActions = mock(NavigationActions::class.java)
   }
 
   @Test
@@ -104,16 +100,14 @@ class LoginScreenTest {
     composeTestRule.setContent { LoginScreen(navigationActions) }
 
     composeTestRule.onNodeWithTag("goBackButton").performClick()
-
-    // TODO: Verify navigation back action is triggered
+    verify(navigationActions).goBack()
   }
 
-  /**
-   * @Test fun verifySignUpTextNavigatesToSignUpScreen() { composeTestRule.setContent {
-   *   LoginScreen(navigationActions) }
-   *
-   * composeTestRule.onNodeWithTag("signUpText").performClick()
-   *
-   * // TODO: Verify navigation to sign-up screen is triggered }
-   */
+  @Test
+  fun verifySignUpTextNavigatesToSignUpScreen() {
+    composeTestRule.setContent { LoginScreen(navigationActions) }
+
+    composeTestRule.onNodeWithTag("signUpText").performClick()
+    verify(navigationActions).navigateTo(Screen.REGISTER)
+  }
 }

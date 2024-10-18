@@ -141,37 +141,36 @@ fun MapScreen(
             selectedItem = navigationActions.currentRoute(),
             tabList = LIST_TOP_LEVEL_DESTINATION)
       },
-      modifier = Modifier.fillMaxSize().testTag("MapScreen"),
-  ) { innerPadding ->
-    Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
-      // Map fills most of the screen
-      Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
-        if (isMapLoaded) {
-          moveToCurrentLocation.value = CameraAction.MOVE
-          GoogleMapView(
-              currentPosition = currentPosition,
-              moveToCurrentLocation = moveToCurrentLocation,
-              modifier = Modifier.testTag("Map"),
-              locationPermitted = locationPermitted.value!!,
-              radius = radius)
-        } else {
-          Text("Loading map...", modifier = Modifier.padding(16.dp))
+      modifier = Modifier.fillMaxSize().testTag("mapScreen")) { innerPadding ->
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
+          // Map fills most of the screen
+          Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
+            if (isMapLoaded) {
+              moveToCurrentLocation.value = CameraAction.MOVE
+              GoogleMapView(
+                  currentPosition = currentPosition,
+                  moveToCurrentLocation = moveToCurrentLocation,
+                  modifier = Modifier.testTag("Map"),
+                  locationPermitted = locationPermitted.value!!,
+                  radius = radius)
+            } else {
+              Text("Loading map...", modifier = Modifier.padding(16.dp))
+            }
+          }
+
+          // Player is placed just above the bottom bar
+          Row(
+              modifier =
+                  Modifier.fillMaxWidth()
+                      .height(76.dp)
+                      .background(color = Purple80)
+                      .padding(horizontal = 32.dp, vertical = 26.dp)
+                      .testTag("playerContainer"),
+              horizontalArrangement = Arrangement.Center,
+              verticalAlignment = Alignment.CenterVertically,
+          ) {
+            PlayerCurrentMusicItem(currentMusicPlayed)
+          }
         }
       }
-
-      // Player is placed just above the bottom bar
-      Row(
-          modifier =
-              Modifier.fillMaxWidth()
-                  .height(76.dp)
-                  .background(color = Purple80)
-                  .padding(horizontal = 32.dp, vertical = 26.dp)
-                  .testTag("playerContainer"),
-          horizontalArrangement = Arrangement.Center,
-          verticalAlignment = Alignment.CenterVertically,
-      ) {
-        PlayerCurrentMusicItem(currentMusicPlayed)
-      }
-    }
-  }
 }
