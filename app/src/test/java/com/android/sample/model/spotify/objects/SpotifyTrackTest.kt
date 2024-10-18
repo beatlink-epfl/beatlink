@@ -1,6 +1,6 @@
 package com.android.sample.model.spotify.objects
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class SpotifyTrackTest {

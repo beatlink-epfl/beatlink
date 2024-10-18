@@ -29,6 +29,10 @@ android {
         properties.load(project.rootProject.file("./local.properties").inputStream())
         // Set API keys in BuildConfig
         resValue("string", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\"")
+
+        val mapsApiKey: String = properties.getProperty("MAPS_API_KEY") ?: ""
+
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
 
@@ -203,6 +207,10 @@ dependencies {
     androidTestImplementation(libs.kaspresso.compose.support)
 
     //testImplementation(libs.kotlinx.coroutines.test)
+    // Google Service and Maps
+    implementation(libs.play.services.maps)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
 }
 
 tasks.withType<Test> {
@@ -241,4 +249,12 @@ tasks.register("jacocoTestReport", JacocoReport::class) {
         include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
         include("outputs/code_coverage/debugAndroidTest/connected/*/coverage.ec")
     })
+
+    doLast {
+        val reportFile = reports.xml.outputLocation.asFile.get()
+        val newContent = reportFile.readText().replace("<line[^>]+nr=\"65535\"[^>]*>".toRegex(), "")
+        reportFile.writeText(newContent)
+
+        logger.quiet("Wrote summarized jacoco test coverage report xml to $reportFile.absolutePath}")
+    }
 }

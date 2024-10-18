@@ -1,4 +1,9 @@
 [versions]
+androidxJunit = "1.2.1"
+composeBomVersion = "2023.08.00"
+core = "1.6.1"
+espressoCoreVersion = "3.6.1"
+kotlinxCoroutinesPlayServices = "1.7.3"
 mockitoAndroid = "5.13.0"
 agp = "8.3.0"
 kotlin = "1.8.10"
@@ -6,6 +11,10 @@ coreKtx = "1.12.0"
 ktfmt = "0.17.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
+mockitoAndroidVersion = "5.11.0"
+mockitoCoreVersion = "3.11.2"
+navigationTesting = "2.8.2"
+runner = "1.6.2"
 uiTestJunit4 = "1.6.8"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
@@ -32,13 +41,30 @@ kaspressoComposeSupport = "1.5.5"
 mockkAgent = "1.13.7"
 mockkAndroid = "1.13.7"
 
+# Google Service and Maps
+playServicesAuth = "21.2.0"
+playServicesMaps = "19.0.0"
+mapsCompose = "4.3.3"
+mapsComposeUtils = "4.3.0"
+playServicesLocation = "21.3.0"
+uiTestJunit4Android = "1.7.3"
+uiTestJunit4Version = "1.4.0"
+
 [libraries]
+androidx-compose-bom-v20230800 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+androidx-core = { module = "androidx.test:core", version.ref = "core" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core-v361 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
+androidx-junit-v121 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationTesting" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
+androidx-ui-test-junit4-v140 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4Version" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4" }
@@ -59,6 +85,8 @@ kaspresso-compose = { group = "com.kaspersky.android-components", name = "kaspre
 kaspresso-allure-support = { module = "com.kaspersky.android-components:kaspresso-allure-support", version.ref = "kaspressoAllureSupport" }
 kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspressoComposeSupport" }
 
+mockito-android-v5110 = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroidVersion" }
+mockito-core-v3112 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
@@ -70,6 +98,10 @@ mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin" , version.ref="m
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent", version.ref = "mockkAgent" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
+maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
