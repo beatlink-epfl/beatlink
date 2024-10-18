@@ -35,7 +35,7 @@ android {
         }
 
         val properties = Properties()
-        properties.load(project.rootProject.file("./local.properties").inputStream())
+        properties.load(project.rootProject.file("local.properties").inputStream())
         // Set API keys in BuildConfig
         resValue("string", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\"")
 
