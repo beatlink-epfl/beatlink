@@ -33,11 +33,33 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Set API keys in BuildConfig
+        resValue("string", "MAPS_API_KEY", "\"${localProperties.getProperty("MAPS_API_KEY")}\"")
+
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+    }
+
+    if (project.rootProject.file("./keystore.properties").exists()) {
+        val keystorePropertiesFile = project.rootProject.file("./keystore.properties")
+        val keystoreProperties = Properties()
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
+        signingConfigs {
+            create("release") {
+                storeFile = project.rootProject.file("./keystore.jks")
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
+        }
     }
 
     buildTypes {
         release {
+            if(project.rootProject.file("./keystore.properties").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -141,12 +163,11 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.kotlinx.coroutines.play.services)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)
