@@ -36,16 +36,6 @@ android {
     val keystoreProperties = Properties()
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
-    if (keystoreProperties["storePassword"] == null) {
-        println("null storePassword")
-    }
-    if (keystoreProperties["keyAlias"] == null) {
-        println("null keyAlias")
-    }
-    if (keystoreProperties["keyPassword"] == null) {
-        println("null keyPassword")
-    }
-
     signingConfigs {
         create("release") {
             storeFile = project.rootProject.file("./keystore.jks")
