@@ -141,7 +141,7 @@ fun MapScreen(
             selectedItem = navigationActions.currentRoute(),
             tabList = LIST_TOP_LEVEL_DESTINATION)
       },
-      modifier = Modifier.fillMaxSize().testTag("mapScreen")) { innerPadding ->
+      modifier = Modifier.fillMaxSize().testTag("MapScreen")) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
           // Map fills most of the screen
           Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {

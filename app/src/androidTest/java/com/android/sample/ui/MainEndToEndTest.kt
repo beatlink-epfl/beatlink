@@ -30,7 +30,7 @@ class MainEndToEndTest {
 
     // Step 2: Click the login button and verify navigation to Map Screen
     composeTestRule.onNodeWithTag("loginButton").performClick()
-    composeTestRule.onNodeWithTag("mapScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
 
     // Step 3: Click the search button and verify navigation to Search Screen
     composeTestRule.onNodeWithTag("Search").isDisplayed()
@@ -50,6 +50,6 @@ class MainEndToEndTest {
     // Step 6 : Click the home button and verify navigation to Home Screen
     composeTestRule.onNodeWithTag("Home").isDisplayed()
     composeTestRule.onNodeWithTag("Home").performClick()
-    composeTestRule.onNodeWithTag("mapScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
   }
 }
