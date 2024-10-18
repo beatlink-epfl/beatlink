@@ -13,6 +13,15 @@ android {
     namespace = "com.android.sample"
     compileSdk = 34
 
+    // Load the API key from local.properties
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(FileInputStream(localPropertiesFile))
+    }
+
+    val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: ""
+
     defaultConfig {
         applicationId = "com.android.sample"
         minSdk = 28
@@ -29,8 +38,6 @@ android {
         properties.load(project.rootProject.file("./local.properties").inputStream())
         // Set API keys in BuildConfig
         resValue("string", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\"")
-
-        val mapsApiKey: String = properties.getProperty("MAPS_API_KEY") ?: ""
 
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
