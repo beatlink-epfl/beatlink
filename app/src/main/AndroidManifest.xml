@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <!-- Location permissions for accessing GPS and network location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,15 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SampleApp"
         tools:targetApi="31">
-
-        <!-- SecondActivity remains unchanged -->
         <activity
             android:name=".SecondActivity"
             android:exported="false"
             android:label="@string/title_activity_second"
             android:theme="@style/Theme.SampleApp" />
-
-        <!-- MainActivity now supports OAuth redirect handling -->
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
@@ -47,5 +47,8 @@
                     android:host="callback" />
             </intent-filter>
         </activity>
+            <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="${MAPS_API_KEY}" />
     </application>
 </manifest>
