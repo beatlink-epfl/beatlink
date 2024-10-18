@@ -22,14 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
@@ -37,6 +32,7 @@ import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
+import com.android.sample.ui.theme.TypographyBeatLink
 
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {
@@ -62,28 +58,12 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
                     append("Link")
                   }
                 },
-            style =
-                TextStyle(
-                    fontSize = 30.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(700),
-                    color = PrimaryPurple,
-                    letterSpacing = 0.3.sp,
-                ))
+            style = TypographyBeatLink.displayMedium)
 
         Text(
             modifier = Modifier.testTag("appText"),
             text = "Link Up Through Music",
-            style =
-                TextStyle(
-                    fontSize = 18.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(500),
-                    color = PrimaryPurple,
-                    letterSpacing = 0.18.sp,
-                ))
+            style = TypographyBeatLink.displaySmall)
 
         Spacer(modifier = Modifier.height(100.dp))
 
@@ -116,15 +96,7 @@ fun SignUpButton(navigationActions: NavigationActions) {
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow
             ) {
-              Text(
-                  text = "Sign up",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp))
+              Text(text = "Sign up", style = TypographyBeatLink.labelLarge)
             }
       }
 }
@@ -147,15 +119,7 @@ fun LoginButton(navigationActions: NavigationActions) {
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow if desired
             ) {
-              Text(
-                  text = "Login",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp))
+              Text(text = "Login", style = TypographyBeatLink.labelLarge)
             }
       }
 }

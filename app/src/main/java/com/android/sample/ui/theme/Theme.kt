@@ -58,5 +58,5 @@ fun SampleAppTheme(
     }
   }
 
-  MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+  MaterialTheme(colorScheme = colorScheme, typography = TypographyBeatLink, content = content)
 }

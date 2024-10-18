@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,7 +53,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -64,6 +64,7 @@ import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
+import com.android.sample.ui.theme.TypographyBeatLink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,14 +84,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                               append("Beat")
                               withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                             },
-                        style =
-                            TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto)),
-                                fontWeight = FontWeight(700),
-                                color = PrimaryPurple,
-                                letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center))
+                        style = TypographyBeatLink.headlineLarge)
                   }
             },
             navigationIcon = {
@@ -105,7 +99,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                                 drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
                               }
                             },
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
             })
@@ -125,15 +119,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                         withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) { append("now") }
                         append("\nto join our community")
                       },
-                  style =
-                      TextStyle(
-                          fontSize = 32.sp,
-                          lineHeight = 40.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          color = PrimaryPurple,
-                          textAlign = TextAlign.Center,
-                          letterSpacing = 0.32.sp),
+                  style = TypographyBeatLink.displayLarge,
                   modifier =
                       Modifier.fillMaxWidth().padding(bottom = 15.dp).testTag("greetingText"))
 
@@ -198,13 +184,8 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                 Text(
                     modifier = Modifier.testTag("loginText"),
                     text = "Already have an account ?",
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            color = PrimaryPurple,
-                            letterSpacing = 0.14.sp))
+                    style = TypographyBeatLink.bodyMedium
+                )
 
                 Spacer(modifier = Modifier.width(4.dp))
 
@@ -248,15 +229,7 @@ fun LinkSpotifyButton() {
         Text(
             modifier = Modifier.testTag("linkSpotifyText"),
             text = "Link My Spotify Account",
-            style =
-                TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(500),
-                    color = PrimaryPurple,
-                    letterSpacing = 0.14.sp,
-                ))
+            style = TypographyBeatLink.bodyMedium)
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -272,14 +245,8 @@ fun LinkSpotifyButton() {
               Text(
                   modifier = Modifier.testTag("linkText"),
                   text = "Link",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp,
-                          color = PrimaryPurple))
+                  style = TypographyBeatLink.labelSmall
+              )
             }
         Spacer(modifier = Modifier.width(8.dp))
       }
@@ -305,13 +272,8 @@ fun CreateNewAccountButton() {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp))
+                  style = TypographyBeatLink.labelLarge
+              )
             }
       }
 }
