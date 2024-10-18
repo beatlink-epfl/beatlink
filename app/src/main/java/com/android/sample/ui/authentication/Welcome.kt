@@ -41,7 +41,7 @@ import com.android.sample.ui.theme.PrimaryRed
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {
   Column(
-      modifier = Modifier.fillMaxSize().padding(16.dp),
+      modifier = Modifier.fillMaxSize().padding(16.dp).testTag("welcomeScreen"),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(80.dp))
@@ -135,13 +135,12 @@ fun LoginButton(navigationActions: NavigationActions) {
       modifier =
           Modifier.width(320.dp)
               .height(48.dp)
-              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-              .testTag("loginButton"),
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
       contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(
             onClick = { navigationActions.navigateTo(TopLevelDestinations.HOME) },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("loginButton"),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent, contentColor = Color.White),

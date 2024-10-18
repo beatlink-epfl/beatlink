@@ -6,8 +6,6 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.ui.navigation.NavigationActions
 import org.junit.Before
@@ -21,15 +19,11 @@ class SignUpScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private lateinit var navigationDestination: NavDestination
-  private lateinit var navHostController: NavHostController
   private lateinit var navigationActions: NavigationActions
 
   @Before
   fun setUp() {
-    navigationDestination = mock(NavDestination::class.java)
-    navHostController = mock(NavHostController::class.java)
-    navigationActions = NavigationActions(navHostController)
+    navigationActions = mock(NavigationActions::class.java)
   }
 
   @Test
