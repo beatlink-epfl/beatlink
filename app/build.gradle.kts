@@ -34,25 +34,24 @@ android {
             useSupportLibrary = true
         }
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
         // Set API keys in BuildConfig
-        resValue("string", "MAPS_API_KEY", "\"${properties.getProperty("MAPS_API_KEY")}\"")
+        resValue("string", "MAPS_API_KEY", "\"${localProperties.getProperty("MAPS_API_KEY")}\"")
 
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
+    if (project.rootProject.file("./keystore.properties").exists()) {
+        val keystorePropertiesFile = project.rootProject.file("./keystore.properties")
+        val keystoreProperties = Properties()
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
-    val keystorePropertiesFile = project.rootProject.file("./keystore.properties")
-    val keystoreProperties = Properties()
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-
-    signingConfigs {
-        create("release") {
-            storeFile = project.rootProject.file("./keystore.jks")
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+        signingConfigs {
+            create("release") {
+                storeFile = project.rootProject.file("./keystore.jks")
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
         }
     }
 
