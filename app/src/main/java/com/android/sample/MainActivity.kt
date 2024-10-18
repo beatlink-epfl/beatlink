@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.navigation.compose.NavHost
@@ -88,6 +89,7 @@ fun BeatLinkApp() {
 @Composable
 fun SearchScreen(navigationActions: NavigationActions) {
   Scaffold(
+      modifier = Modifier.testTag("searchScreen"),
       bottomBar = {
         BottomNavigationMenu(
             onTabSelect = { route -> navigationActions.navigateTo(route) },

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.ui.navigation.NavigationActions
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,14 +16,17 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 class WelcomeScreenTest {
 
-  private lateinit var navigationActions: NavigationActions
-
   @get:Rule val composeTestRule = createComposeRule()
 
-  @Test
-  fun elementsAreCorrectlyDisplayed() {
-    // Launch the composable under test
+  private lateinit var navigationActions: NavigationActions
+
+  @Before
+  fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
+  }
+
+  @Test
+  fun displayAllComponents() {
     composeTestRule.setContent { WelcomeScreen(navigationActions) }
 
     // Check if the app logo is displayed
@@ -44,11 +48,8 @@ class WelcomeScreenTest {
     composeTestRule.onNodeWithTag("loginButton").assertIsDisplayed()
   }
 
-  // TODO : Add tests linked to Firebase Authentication
   @Test
-  fun loginButton_clickTriggersAction() {
-    // Launch the composable under test
-    navigationActions = mock(NavigationActions::class.java)
+  fun verifyLoginButtonNavigatesToLoginScreen() {
     composeTestRule.setContent { WelcomeScreen(navigationActions) }
 
     // Perform click action on the sign-in button
