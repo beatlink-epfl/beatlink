@@ -163,9 +163,11 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)
