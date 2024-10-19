@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Search
@@ -31,22 +32,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.android.sample.R
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.theme.BorderColor
+import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.PrimaryRed
+import com.android.sample.ui.theme.PrimaryWhite
+import com.android.sample.ui.theme.ShadowColor
+import com.android.sample.ui.theme.TypographyBeatLink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,14 +56,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
             title = {
               Text(
                   text = "My Library",
-                  style =
-                      TextStyle(
-                          fontSize = 20.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto_bold)),
-                          fontWeight = FontWeight(700),
-                          color = PrimaryPurple,
-                          letterSpacing = 0.2.sp),
+                  style = TypographyBeatLink.headlineLarge,
                   modifier = Modifier.padding(top = 14.dp).testTag("libraryTitle"))
             },
             actions = {
@@ -79,7 +69,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
                         Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                           onDrawWithContent {
                             drawContent()
-                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                           }
                         })
               }
@@ -92,28 +82,25 @@ fun LibraryScreen(navigationActions: NavigationActions) {
                         Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                           onDrawWithContent {
                             drawContent()
-                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                           }
                         })
               }
             },
             modifier =
                 Modifier.shadow(
-                        elevation = 2.dp,
-                        spotColor = Color(0x1A000000),
-                        ambientColor = Color(0x1A000000))
-                    .border(width = 1.dp, color = Color(0xFFEADDFF))
+                        elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
+                    .border(width = 1.dp, color = BorderColor)
                     .width(412.dp)
                     .height(48.dp)
-                    .background(color = Color(0xFFFFFFFF)),
+                    .background(color = PrimaryWhite),
         )
       },
       bottomBar = {
         BottomNavigationMenu(
             onTabSelect = { route -> navigationActions.navigateTo(route) },
             tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute() // to be changed with navActions
-            )
+            selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
         Column(
@@ -159,15 +146,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
       verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = title,
-            style =
-                TextStyle(
-                    fontSize = 20.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto_bold)),
-                    fontWeight = FontWeight(700),
-                    color = PrimaryRed,
-                    letterSpacing = 0.2.sp,
-                ),
+            style = TypographyBeatLink.headlineLarge,
             modifier =
                 Modifier.graphicsLayer(alpha = 0.99f).drawWithCache {
                   onDrawWithContent {
@@ -175,9 +154,9 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
                     drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
                   }
                 })
-        Spacer(modifier = Modifier.width(5.dp)) // Spacing between text and arrow
+        Spacer(modifier = Modifier.width(6.dp)) // Spacing between text and arrow
         Icon(
-            imageVector = Icons.Outlined.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
             contentDescription = "arrow right",
             modifier =
                 Modifier.size(24.dp).graphicsLayer(alpha = 0.99f).drawWithCache {

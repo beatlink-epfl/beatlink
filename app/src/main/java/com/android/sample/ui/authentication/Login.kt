@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,25 +33,18 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.theme.PrimaryGradientBrush
+import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
+import com.android.sample.ui.theme.TypographyBeatLink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,14 +67,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
                                     append("Link")
                                   }
                             },
-                        style =
-                            TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto)),
-                                fontWeight = FontWeight(700),
-                                color = PrimaryPurple,
-                                letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center))
+                        style = TypographyBeatLink.headlineLarge)
                   }
             },
             navigationIcon = {
@@ -92,10 +79,10 @@ fun LoginScreen(navigationActions: NavigationActions) {
                             Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                               onDrawWithContent {
                                 drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                                drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                               }
                             },
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
             })
@@ -107,15 +94,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
               // Greeting text
               Text(
                   text = "Hello again,\nGood to see you back !",
-                  style =
-                      TextStyle(
-                          fontSize = 32.sp,
-                          lineHeight = 40.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          color = PrimaryPurple,
-                          textAlign = TextAlign.Center,
-                          letterSpacing = 0.32.sp),
+                  style = TypographyBeatLink.displayLarge,
                   modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth().testTag("loginTitle"))
 
               // Email input field
@@ -159,13 +138,7 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         modifier = Modifier.testTag("noAccountText"),
         text = "Don’t have an account yet ?",
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                color = PrimaryPurple,
-                letterSpacing = 0.14.sp))
+        style = TypographyBeatLink.bodyMedium)
 
     Spacer(modifier = Modifier.width(4.dp))
 
@@ -173,13 +146,6 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         text = "Sign up",
         modifier = Modifier.testTag("signUpText").clickable(onClick = onSignUpClick),
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                letterSpacing = 0.14.sp,
-                brush = PrimaryGradientBrush,
-                textDecoration = TextDecoration.Underline))
+        style = TypographyBeatLink.labelMedium)
   }
 }

@@ -32,7 +32,7 @@ import androidx.core.content.ContextCompat
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.theme.Purple80
+import com.android.sample.ui.theme.LightPurple
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
 import com.google.android.gms.maps.model.LatLng
@@ -163,7 +163,7 @@ fun MapScreen(
               modifier =
                   Modifier.fillMaxWidth()
                       .height(76.dp)
-                      .background(color = Purple80)
+                      .background(color = LightPurple)
                       .padding(horizontal = 32.dp, vertical = 26.dp)
                       .testTag("playerContainer"),
               horizontalArrangement = Arrangement.Center,
