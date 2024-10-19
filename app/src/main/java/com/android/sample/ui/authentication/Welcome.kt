@@ -32,6 +32,7 @@ import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
+import com.android.sample.ui.theme.PrimaryWhite
 import com.android.sample.ui.theme.TypographyBeatLink
 
 @Composable
@@ -44,8 +45,8 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
 
         // App logo
         Image(
-            painter = painterResource(id = R.drawable.beatlink_logo),
-            contentDescription = null,
+            painter = painterResource(id = R.drawable.logo_beatlink),
+            contentDescription = "beatlink logo",
             modifier = Modifier.size(180.dp).testTag("appLogo"))
 
         // App name
@@ -92,7 +93,7 @@ fun SignUpButton(navigationActions: NavigationActions) {
             modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = Color.White, contentColor = PrimaryPurple),
+                    containerColor = PrimaryWhite, contentColor = PrimaryPurple),
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow
             ) {

@@ -32,14 +32,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.theme.BorderColor
+import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
+import com.android.sample.ui.theme.PrimaryWhite
+import com.android.sample.ui.theme.ShadowColor
 import com.android.sample.ui.theme.TypographyBeatLink
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +69,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
                         Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                           onDrawWithContent {
                             drawContent()
-                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                           }
                         })
               }
@@ -79,20 +82,18 @@ fun LibraryScreen(navigationActions: NavigationActions) {
                         Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                           onDrawWithContent {
                             drawContent()
-                            drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                           }
                         })
               }
             },
             modifier =
                 Modifier.shadow(
-                        elevation = 2.dp,
-                        spotColor = Color(0x1A000000),
-                        ambientColor = Color(0x1A000000))
-                    .border(width = 1.dp, color = Color(0xFFEADDFF))
+                        elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
+                    .border(width = 1.dp, color = BorderColor)
                     .width(412.dp)
                     .height(48.dp)
-                    .background(color = Color(0xFFFFFFFF)),
+                    .background(color = PrimaryWhite),
         )
       },
       bottomBar = {

@@ -21,8 +21,8 @@ val TypographyBeatLink =
                 lineHeight = 40.sp,
                 fontFamily = FontFamily(Font(R.font.roboto_bold)),
                 fontWeight = FontWeight(500),
-                color = PrimaryPurple,
                 textAlign = TextAlign.Center,
+                color = PrimaryPurple,
                 letterSpacing = 0.32.sp),
         // BeatLink logo text
         displayMedium =
@@ -75,6 +75,15 @@ val TypographyBeatLink =
                 fontFamily = FontFamily(Font(R.font.roboto_bold)),
                 fontWeight = FontWeight(500),
                 letterSpacing = 0.14.sp),
+        // Button Underlined
+        labelMedium =
+            TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                fontWeight = FontWeight(500),
+                letterSpacing = 0.14.sp,
+                brush = PrimaryGradientBrush,
+                textDecoration = TextDecoration.Underline),
         // Button Small
         labelSmall =
             TextStyle(

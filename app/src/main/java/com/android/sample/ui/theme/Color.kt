@@ -8,15 +8,20 @@ val PrimaryRed = Color(0xFFEF3535)
 val PrimaryPurple = Color(0xFF5F2A83)
 val SecondaryPurple = Color(0x805F2A83) // label input
 
-// Music Listening
+// Music Listening Box
 val LightRed = Color(0xFFF0DDDD)
-val LightPurple = Color(0xFFE0DAE5)
+val LightPurple = Color(0xFFD3CDE3)
 
 val PrimaryGray = Color(0xFF6F6F6F) // text
 val SecondaryGray = Color(0xFFD9D9D9) // onglets
 val LightGray = Color(0xFFF2F2F2) // search bar
 
 val PrimaryWhite = Color(0xFFFAF8FE) // screen white
+
+// Shadow of the Box
+val ShadowColor = Color(0x1A000000)
+// Border of the Box
+val BorderColor = Color(0xFFEADDFF)
 
 // Define the vertical gradient brush
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))

@@ -45,21 +45,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
+import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
@@ -96,7 +91,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                             Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                               onDrawWithContent {
                                 drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                                drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                               }
                             },
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -184,8 +179,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                 Text(
                     modifier = Modifier.testTag("loginText"),
                     text = "Already have an account ?",
-                    style = TypographyBeatLink.bodyMedium
-                )
+                    style = TypographyBeatLink.bodyMedium)
 
                 Spacer(modifier = Modifier.width(4.dp))
 
@@ -195,14 +189,7 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                     modifier =
                         Modifier.testTag("loginClickableText")
                             .clickable(onClick = { navigationActions.navigateTo(Screen.LOGIN) }),
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            letterSpacing = 0.14.sp,
-                            brush = PrimaryGradientBrush,
-                            textDecoration = TextDecoration.Underline))
+                    style = TypographyBeatLink.labelMedium)
               }
             }
       }
@@ -245,8 +232,7 @@ fun LinkSpotifyButton() {
               Text(
                   modifier = Modifier.testTag("linkText"),
                   text = "Link",
-                  style = TypographyBeatLink.labelSmall
-              )
+                  style = TypographyBeatLink.labelSmall)
             }
         Spacer(modifier = Modifier.width(8.dp))
       }
@@ -272,8 +258,7 @@ fun CreateNewAccountButton() {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",
-                  style = TypographyBeatLink.labelLarge
-              )
+                  style = TypographyBeatLink.labelLarge)
             }
       }
 }
