@@ -17,6 +17,7 @@ val SecondaryGray = Color(0xFFD9D9D9) // onglets
 val LightGray = Color(0xFFF2F2F2) // search bar
 
 val PrimaryWhite = Color(0xFFFAF8FE) // screen white
+val PrimaryBlack = Color(0xFF230643) // screen black
 
 // Shadow of the Box
 val ShadowColor = Color(0x1A000000)
