@@ -1,6 +1,7 @@
 package com.android.sample.ui.map
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -8,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.android.sample.model.map.MapViewModel
+import com.android.sample.model.spotify.objects.SpotifyTrack
 import com.android.sample.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
@@ -21,8 +24,14 @@ class MapScreenWithoutLocationPermissionTest {
   @Test
   fun mapScreen_withNoLocationPermission() {
     composeTestRule.setContent {
+      val mapViewModel = MapViewModel(LocalContext.current)
+      mapViewModel.setLocationPermissionAsked(true)
+      mapViewModel.setLocationPermissionGranted(false)
       MapScreen(
-          navigationActions = NavigationActions(rememberNavController()), currentMusicPlayed = null)
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel,
+          currentMusicPlayed = SpotifyTrack("trackId", "trackName", "trackUri", 10, 10),
+      )
     }
 
     // Verify UI elements

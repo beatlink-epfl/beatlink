@@ -31,7 +31,7 @@ class MapScreenTest {
       composeTestRule.setContent {
         MapScreen(
             navigationActions = NavigationActions(rememberNavController()),
-            currentMusicPlayed = "lalala",
+            currentMusicPlayed = null,
             radius = 2000.0)
       }
     }
@@ -42,7 +42,7 @@ class MapScreenTest {
     composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
 
     // Check for loading and map
-    composeTestRule.onNodeWithTag("playerText music").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playerText no music").assertIsDisplayed()
 
     composeTestRule.waitUntil(timeoutMillis = 10000) {
       composeTestRule.onNodeWithTag("Map").isDisplayed()

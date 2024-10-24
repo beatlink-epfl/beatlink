@@ -11,10 +11,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.android.sample.model.spotify.objects.SpotifyTrack
 import com.android.sample.ui.theme.PrimaryPurple
 
 @Composable
-fun PlayerCurrentMusicItem(musique: String?) {
+fun PlayerCurrentMusicItem(musique: SpotifyTrack?) {
   if (musique != null) {
     Text(
         modifier =
@@ -22,7 +23,7 @@ fun PlayerCurrentMusicItem(musique: String?) {
                 .height(24.dp)
                 .padding(horizontal = 16.dp)
                 .testTag("playerText music"),
-        text = "listening : $musique",
+        text = "listening : ${musique.name}",
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight(400),
         color = PrimaryPurple,
