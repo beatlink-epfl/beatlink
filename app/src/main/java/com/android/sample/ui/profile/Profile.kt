@@ -26,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +36,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileData
 import com.android.sample.ui.navigation.BottomNavigationMenu
@@ -48,9 +45,7 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.BorderColor
 import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.ShadowColor
-import com.android.sample.ui.theme.lightThemeBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,18 +99,17 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                   }
             },
             modifier =
-                Modifier
-                    .drawWithCache {
-                        // Apply the bottom border or shadow in dark mode
-                        onDrawWithContent {
-                            drawContent()
-                            drawLine(
-                                color = BorderColor,
-                                strokeWidth = 1.dp.toPx(),
-                                start = Offset(0f, size.height),  // Bottom left
-                                end = Offset(size.width, size.height)  // Bottom right
+                Modifier.drawWithCache {
+                      // Apply the bottom border or shadow in dark mode
+                      onDrawWithContent {
+                        drawContent()
+                        drawLine(
+                            color = BorderColor,
+                            strokeWidth = 1.dp.toPx(),
+                            start = Offset(0f, size.height), // Bottom left
+                            end = Offset(size.width, size.height) // Bottom right
                             )
-                        }
+                      }
                     }
                     .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
                     .width(412.dp)
@@ -152,7 +146,9 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     ) {
                       Text(
                           text = "Edit Profile",

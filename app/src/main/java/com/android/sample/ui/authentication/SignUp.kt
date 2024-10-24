@@ -68,22 +68,17 @@ fun SignUpScreen(navigationActions: NavigationActions) {
         TopAppBar(
             title = {
               Box(
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .padding(end = 36.dp),
+                  modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
                   contentAlignment = Alignment.Center) {
                     Text(
                         modifier = Modifier.testTag("appName"),
                         text =
                             buildAnnotatedString {
-                                withStyle(
-                                    style = SpanStyle(
-                                        color = MaterialTheme.colorScheme.primary))
-                                { append("Beat") }
                               withStyle(
-                                  style = SpanStyle(
-                                      color = PrimaryRed))
-                              { append("Link") }
+                                  style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append("Beat")
+                                  }
+                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                             },
                         style = MaterialTheme.typography.headlineLarge)
                   }
@@ -117,9 +112,13 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   text =
                       buildAnnotatedString {
                         append("Create an account ")
-                        withStyle(style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontStyle = FontStyle.Italic)) { append("now") }
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontStyle = FontStyle.Italic)) {
+                              append("now")
+                            }
                         append("\nto join our community")
                       },
                   style = MaterialTheme.typography.displayLarge,
@@ -146,10 +145,10 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   label = { Text("My Username", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter username", color = SecondaryPurple) },
                   supportingText = {
-                      Text(
-                          text ="No special characters, no spaces",
-                          color = MaterialTheme.colorScheme.primary
-                      ) },
+                    Text(
+                        text = "No special characters, no spaces",
+                        color = MaterialTheme.colorScheme.primary)
+                  },
                   modifier = Modifier.width(320.dp).testTag("inputUsername"),
                   singleLine = true)
 
@@ -160,7 +159,9 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   onValueChange = { password = it },
                   label = { Text("My Password", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter password", color = SecondaryPurple) },
-                  supportingText = { Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary) },
+                  supportingText = {
+                    Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
+                  },
                   modifier = Modifier.width(320.dp).testTag("inputPassword"),
                   singleLine = true,
                   visualTransformation = PasswordVisualTransformation(),
@@ -173,7 +174,9 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   onValueChange = { confirmPassword = it },
                   label = { Text("Confirm Password", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter password", color = SecondaryPurple) },
-                  supportingText = { Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary) },
+                  supportingText = {
+                    Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
+                  },
                   modifier = Modifier.width(320.dp).testTag("inputConfirmPassword"),
                   singleLine = true,
                   visualTransformation = PasswordVisualTransformation(),

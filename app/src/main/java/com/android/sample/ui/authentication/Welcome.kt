@@ -36,10 +36,10 @@ import com.android.sample.ui.theme.PrimaryRed
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {
   Column(
-      modifier = Modifier
-          .fillMaxSize()
-          .background(MaterialTheme.colorScheme.background)
-          .testTag("welcomeScreen"),
+      modifier =
+          Modifier.fillMaxSize()
+              .background(MaterialTheme.colorScheme.background)
+              .testTag("welcomeScreen"),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(80.dp))
@@ -55,14 +55,10 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
             modifier = Modifier.testTag("appName"),
             text =
                 buildAnnotatedString {
-                    withStyle(style = SpanStyle(
-                        color = MaterialTheme.colorScheme.primary)) {
-                        append("Beat")
-                    }
-                  withStyle(
-                      style = SpanStyle(color = PrimaryRed)) {
-                    append("Link")
+                  withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    append("Beat")
                   }
+                  withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                 },
             style = MaterialTheme.typography.displayMedium)
 
@@ -88,7 +84,8 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
 fun SignUpButton(navigationActions: NavigationActions) {
   Box(
       modifier =
-          Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+          Modifier.border(
+                  width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
               .width(320.dp)
               .height(48.dp)
               .testTag("signUpButton"),

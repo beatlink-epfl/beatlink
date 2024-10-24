@@ -26,7 +26,6 @@ private val DarkColorScheme =
         surface = darkThemeBackground,
         surfaceVariant = darkThemeGray1,
         onSurfaceVariant = darkThemeGray2,
-
     )
 
 private val LightColorScheme =

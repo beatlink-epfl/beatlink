@@ -1,7 +1,6 @@
 package com.android.sample.ui.library
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +42,6 @@ import com.android.sample.ui.theme.BorderColor
 import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.ShadowColor
-import com.android.sample.ui.theme.lightThemeBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,18 +87,17 @@ fun LibraryScreen(navigationActions: NavigationActions) {
               }
             },
             modifier =
-                Modifier
-                    .drawWithCache {
-                        // Apply the bottom border or shadow in dark mode
-                        onDrawWithContent {
-                            drawContent()
-                            drawLine(
-                                color = BorderColor,
-                                strokeWidth = 1.dp.toPx(),
-                                start = Offset(0f, size.height),  // Bottom left
-                                end = Offset(size.width, size.height)  // Bottom right
+                Modifier.drawWithCache {
+                      // Apply the bottom border or shadow in dark mode
+                      onDrawWithContent {
+                        drawContent()
+                        drawLine(
+                            color = BorderColor,
+                            strokeWidth = 1.dp.toPx(),
+                            start = Offset(0f, size.height), // Bottom left
+                            end = Offset(size.width, size.height) // Bottom right
                             )
-                        }
+                      }
                     }
                     .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
                     .width(412.dp)
