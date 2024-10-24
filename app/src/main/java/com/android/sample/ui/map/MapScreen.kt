@@ -107,7 +107,7 @@ fun MapScreen(
                   currentPosition = mapViewModel.currentPosition,
                   moveToCurrentLocation = mapViewModel.moveToCurrentLocation,
                   modifier = Modifier.testTag("Map"),
-                  locationPermitted = locationPermitted!!,
+                  locationPermitted = locationPermitted,
                   radius = radius)
             } else {
               Text("Loading map...", modifier = Modifier.padding(16.dp))
