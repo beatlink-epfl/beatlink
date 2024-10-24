@@ -13,10 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,23 +33,15 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
+import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
 
@@ -67,20 +60,13 @@ fun LoginScreen(navigationActions: NavigationActions) {
                         modifier = Modifier.testTag("appName"),
                         text =
                             buildAnnotatedString {
-                              append("Beat")
                               withStyle(
-                                  style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
-                                    append("Link")
+                                  style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append("Beat")
                                   }
+                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                             },
-                        style =
-                            TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto)),
-                                fontWeight = FontWeight(700),
-                                color = PrimaryPurple,
-                                letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center))
+                        style = MaterialTheme.typography.headlineLarge)
                   }
             },
             navigationIcon = {
@@ -92,10 +78,10 @@ fun LoginScreen(navigationActions: NavigationActions) {
                             Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
                               onDrawWithContent {
                                 drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                                drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
                               }
                             },
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
             })
@@ -107,15 +93,8 @@ fun LoginScreen(navigationActions: NavigationActions) {
               // Greeting text
               Text(
                   text = "Hello again,\nGood to see you back !",
-                  style =
-                      TextStyle(
-                          fontSize = 32.sp,
-                          lineHeight = 40.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          color = PrimaryPurple,
-                          textAlign = TextAlign.Center,
-                          letterSpacing = 0.32.sp),
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.displayLarge,
                   modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth().testTag("loginTitle"))
 
               // Email input field
@@ -123,7 +102,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
               OutlinedTextField(
                   value = email,
                   onValueChange = { email = it },
-                  label = { Text("Email", color = PrimaryPurple) },
+                  label = { Text("Email", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter email address", color = SecondaryPurple) },
                   modifier = Modifier.width(320.dp).testTag("inputEmail"),
                   singleLine = true,
@@ -134,7 +113,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
               OutlinedTextField(
                   value = password,
                   onValueChange = { password = it },
-                  label = { Text("Password", color = PrimaryPurple) },
+                  label = { Text("Password", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter password", color = SecondaryPurple) },
                   modifier = Modifier.width(320.dp).testTag("inputPassword"),
                   singleLine = true,
@@ -159,13 +138,8 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         modifier = Modifier.testTag("noAccountText"),
         text = "Don’t have an account yet ?",
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                color = PrimaryPurple,
-                letterSpacing = 0.14.sp))
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.bodyMedium)
 
     Spacer(modifier = Modifier.width(4.dp))
 
@@ -173,13 +147,6 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         text = "Sign up",
         modifier = Modifier.testTag("signUpText").clickable(onClick = onSignUpClick),
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                letterSpacing = 0.14.sp,
-                brush = PrimaryGradientBrush,
-                textDecoration = TextDecoration.Underline))
+        style = MaterialTheme.typography.labelMedium)
   }
 }
