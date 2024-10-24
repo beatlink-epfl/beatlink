@@ -17,25 +17,30 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = Purple80, secondary = PurpleGrey80, tertiary = Pink80, background = PrimaryBlack)
+        primary = darkThemeWhite, // text
+        onPrimary = darkThemeLightPurple,
+        secondary = darkThemeLightPurple,
+        tertiary = darkThemePurple, // music listening box
+        onTertiary = darkThemeRed, // music listening box
+        background = darkThemeBackground,
+        surface = darkThemeBackground,
+        surfaceVariant = darkThemeGray1,
+        onSurfaceVariant = darkThemeGray2,
+
+    )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = PrimaryPurple,
+        primary = PrimaryPurple, // text
+        onPrimary = PrimaryPurple,
         secondary = PrimaryRed,
-        tertiary = PrimaryGray,
-        background = PrimaryRed
-
-        /* Other default colors to override
-        background = Color(0xFFFFFBFE),
-        surface = Color(0xFFFFFBFE),
-        onPrimary = Color.White,
-        onSecondary = Color.White,
-        onTertiary = Color.White,
-        onBackground = Color(0xFF1C1B1F),
-        onSurface = Color(0xFF1C1B1F),
-        */
-        )
+        tertiary = lightThemePurple, // music listening box
+        onTertiary = lightThemeRed, // music listening box
+        background = lightThemeBackground,
+        surface = lightThemeBackground,
+        surfaceVariant = lightThemeBackground,
+        onSurfaceVariant = lightThemeBackground,
+    )
 
 @Composable
 fun BeatLinkAppTheme(
@@ -57,7 +62,7 @@ fun BeatLinkAppTheme(
   if (!view.isInEditMode) {
     SideEffect {
       val window = (view.context as Activity).window
-      window.statusBarColor = colorScheme.primary.toArgb()
+      window.statusBarColor = PrimaryPurple.toArgb()
       WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
     }
   }

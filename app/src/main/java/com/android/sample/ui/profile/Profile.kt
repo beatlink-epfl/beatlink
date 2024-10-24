@@ -22,6 +22,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -31,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
@@ -47,9 +49,8 @@ import com.android.sample.ui.theme.BorderColor
 import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.PrimaryWhite
 import com.android.sample.ui.theme.ShadowColor
-import com.android.sample.ui.theme.TypographyBeatLink
+import com.android.sample.ui.theme.lightThemeBackground
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,12 +59,12 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
         TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(titleContentColor = PrimaryPurple),
             // Username displayed
             title = {
               Text(
                   text = user.username,
-                  style = TypographyBeatLink.headlineLarge,
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.headlineLarge,
                   modifier = Modifier.padding(top = 14.dp).testTag("titleUsername"))
             },
             actions = {
@@ -103,12 +104,23 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                   }
             },
             modifier =
-                Modifier.shadow(
-                        elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
-                    .border(width = 1.dp, color = BorderColor)
+                Modifier
+                    .drawWithCache {
+                        // Apply the bottom border or shadow in dark mode
+                        onDrawWithContent {
+                            drawContent()
+                            drawLine(
+                                color = BorderColor,
+                                strokeWidth = 1.dp.toPx(),
+                                start = Offset(0f, size.height),  // Bottom left
+                                end = Offset(size.width, size.height)  // Bottom right
+                            )
+                        }
+                    }
+                    .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
                     .width(412.dp)
                     .height(48.dp)
-                    .background(color = PrimaryWhite))
+                    .background(color = MaterialTheme.colorScheme.background))
       },
       bottomBar = {
         // Bottom navigation bar
@@ -125,7 +137,8 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
             Column {
               Text(
                   text = "${user.links} Links",
-                  style = TypographyBeatLink.bodyLarge,
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.bodyLarge,
                   modifier =
                       Modifier.align(Alignment.CenterHorizontally)
                           .padding(18.dp)
@@ -139,24 +152,25 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryWhite),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     ) {
                       Text(
                           text = "Edit Profile",
-                          fontSize = 12.sp,
-                          fontWeight = FontWeight.Bold,
-                          color = PrimaryPurple)
+                          style = MaterialTheme.typography.labelSmall,
+                          color = MaterialTheme.colorScheme.primary)
                     }
                   }
             }
           }
           Text(
               text = user.name ?: "",
-              style = TypographyBeatLink.bodyLarge,
+              color = MaterialTheme.colorScheme.onPrimary,
+              style = MaterialTheme.typography.bodyLarge,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))
           Text(
               text = user.bio ?: "No description provided",
-              style = TypographyBeatLink.bodyMedium,
+              color = MaterialTheme.colorScheme.primary,
+              style = MaterialTheme.typography.bodyMedium,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
         }
       })

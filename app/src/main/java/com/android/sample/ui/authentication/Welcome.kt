@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -30,15 +31,15 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
-import com.android.sample.ui.theme.PrimaryWhite
-import com.android.sample.ui.theme.TypographyBeatLink
 
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {
   Column(
-      modifier = Modifier.fillMaxSize().padding(16.dp).testTag("welcomeScreen"),
+      modifier = Modifier
+          .fillMaxSize()
+          .background(MaterialTheme.colorScheme.background)
+          .testTag("welcomeScreen"),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(80.dp))
@@ -54,17 +55,22 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
             modifier = Modifier.testTag("appName"),
             text =
                 buildAnnotatedString {
-                  append("Beat")
-                  withStyle(style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
+                    withStyle(style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary)) {
+                        append("Beat")
+                    }
+                  withStyle(
+                      style = SpanStyle(color = PrimaryRed)) {
                     append("Link")
                   }
                 },
-            style = TypographyBeatLink.displayMedium)
+            style = MaterialTheme.typography.displayMedium)
 
         Text(
             modifier = Modifier.testTag("appText"),
             text = "Link Up Through Music",
-            style = TypographyBeatLink.displaySmall)
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.displaySmall)
 
         Spacer(modifier = Modifier.height(100.dp))
 
@@ -82,8 +88,7 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
 fun SignUpButton(navigationActions: NavigationActions) {
   Box(
       modifier =
-          Modifier.border(
-                  width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+          Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
               .width(320.dp)
               .height(48.dp)
               .testTag("signUpButton"),
@@ -93,11 +98,12 @@ fun SignUpButton(navigationActions: NavigationActions) {
             modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = PrimaryWhite, contentColor = PrimaryPurple),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow
             ) {
-              Text(text = "Sign up", style = TypographyBeatLink.labelLarge)
+              Text(text = "Sign up", style = MaterialTheme.typography.labelLarge)
             }
       }
 }
@@ -120,7 +126,7 @@ fun LoginButton(navigationActions: NavigationActions) {
             shape = RoundedCornerShape(30.dp),
             elevation = null // Optional: Remove button shadow if desired
             ) {
-              Text(text = "Login", style = TypographyBeatLink.labelLarge)
+              Text(text = "Login", style = MaterialTheme.typography.labelLarge)
             }
       }
 }

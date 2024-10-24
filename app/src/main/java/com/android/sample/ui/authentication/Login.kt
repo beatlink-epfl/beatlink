@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,10 +42,8 @@ import androidx.compose.ui.unit.dp
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.IconsGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
-import com.android.sample.ui.theme.TypographyBeatLink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,13 +60,17 @@ fun LoginScreen(navigationActions: NavigationActions) {
                         modifier = Modifier.testTag("appName"),
                         text =
                             buildAnnotatedString {
-                              append("Beat")
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary)
+                                )
+                                { append("Beat") }
                               withStyle(
-                                  style = androidx.compose.ui.text.SpanStyle(color = PrimaryRed)) {
+                                  style = SpanStyle(color = PrimaryRed)) {
                                     append("Link")
                                   }
                             },
-                        style = TypographyBeatLink.headlineLarge)
+                        style = MaterialTheme.typography.headlineLarge)
                   }
             },
             navigationIcon = {
@@ -94,7 +97,8 @@ fun LoginScreen(navigationActions: NavigationActions) {
               // Greeting text
               Text(
                   text = "Hello again,\nGood to see you back !",
-                  style = TypographyBeatLink.displayLarge,
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.displayLarge,
                   modifier = Modifier.padding(bottom = 80.dp).fillMaxWidth().testTag("loginTitle"))
 
               // Email input field
@@ -102,7 +106,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
               OutlinedTextField(
                   value = email,
                   onValueChange = { email = it },
-                  label = { Text("Email", color = PrimaryPurple) },
+                  label = { Text("Email", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter email address", color = SecondaryPurple) },
                   modifier = Modifier.width(320.dp).testTag("inputEmail"),
                   singleLine = true,
@@ -113,7 +117,7 @@ fun LoginScreen(navigationActions: NavigationActions) {
               OutlinedTextField(
                   value = password,
                   onValueChange = { password = it },
-                  label = { Text("Password", color = PrimaryPurple) },
+                  label = { Text("Password", color = MaterialTheme.colorScheme.primary) },
                   placeholder = { Text("Enter password", color = SecondaryPurple) },
                   modifier = Modifier.width(320.dp).testTag("inputPassword"),
                   singleLine = true,
@@ -138,7 +142,8 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         modifier = Modifier.testTag("noAccountText"),
         text = "Don’t have an account yet ?",
-        style = TypographyBeatLink.bodyMedium)
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.bodyMedium)
 
     Spacer(modifier = Modifier.width(4.dp))
 
@@ -146,6 +151,6 @@ fun SignUpText(onSignUpClick: () -> Unit) {
     Text(
         text = "Sign up",
         modifier = Modifier.testTag("signUpText").clickable(onClick = onSignUpClick),
-        style = TypographyBeatLink.labelMedium)
+        style = MaterialTheme.typography.labelMedium)
   }
 }
