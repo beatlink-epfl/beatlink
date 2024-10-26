@@ -1,13 +1,9 @@
 package com.android.sample
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,8 +21,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.android.sample.model.profile.ProfileData
-import androidx.compose.ui.tooling.preview.Preview
-import com.android.sample.model.spotify.SpotifyViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.android.sample.model.spotify.SpotifyAuthRepository
+import com.android.sample.ui.authentication.SpotifyAuthViewModel
+import com.android.sample.ui.authentication.SpotifyAuthViewModelFactory
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen
 import com.android.sample.ui.authentication.SignUpScreen
@@ -41,26 +39,36 @@ import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
 import com.android.sample.ui.authentication.SpotifyLogin
 import com.android.sample.ui.theme.SampleAppTheme
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
-    private val spotifyViewModel = SpotifyViewModel()
+
+    private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContent {
-      SampleAppTheme {
-        // A surface container using the 'background' color from the theme
-        Surface(
-            modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-              BeatLinkApp()
-            }
+      super.onCreate(savedInstanceState)
+
+      val client = OkHttpClient()
+      val spotifyAuthRepository = SpotifyAuthRepository(client)
+      val factory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
+
+      spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
+
+      setContent {
+          SampleAppTheme {
+              Surface(
+                  modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }
+              ) {
+                  SpotifyLogin(spotifyAuthViewModel)
+                  // BeatLinkApp()
+              }
+          }
       }
-    }
   }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        spotifyViewModel.handleAuthorizationResponse(intent, applicationContext)
+        spotifyAuthViewModel.handleAuthorizationResponse(intent, applicationContext)
     }
 }
 

@@ -1,5 +1,5 @@
 package com.android.sample.model.spotify
 
-interface MusicService {
+interface MusicServiceAuthRepository {
 
 }
