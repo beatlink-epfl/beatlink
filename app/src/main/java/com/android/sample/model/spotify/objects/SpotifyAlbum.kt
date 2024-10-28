@@ -5,6 +5,7 @@ data class SpotifyAlbum(
     val name: String,
     val cover: String,
     val artist: String,
+    val year: Int,
     val tracks: List<String>, // Track IDs
     val size: Int,
     val genres: List<String>,

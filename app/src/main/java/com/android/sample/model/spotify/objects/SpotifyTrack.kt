@@ -5,5 +5,10 @@ data class SpotifyTrack(
     val trackId: String,
     val cover: String,
     val duration: Int,
-    val popularity: Int
+    val popularity: Int,
+    val state: State
 )
+
+enum class State{
+    PLAY, PAUSE
+}
