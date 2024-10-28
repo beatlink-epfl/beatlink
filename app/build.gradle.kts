@@ -203,6 +203,9 @@ dependencies {
     // -------------- Networking ---------------------
     implementation(libs.okhttp)
 
+    // -------------- AndroidX testing library ------------
+    testImplementation(libs.androidx.core.testing)
+
     // ----------       Robolectric     ------------
     testImplementation(libs.robolectric)
 
@@ -211,6 +214,7 @@ dependencies {
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
+    testImplementation(libs.json)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -227,7 +231,8 @@ dependencies {
     androidTestImplementation(libs.kaspresso.allure.support)
     androidTestImplementation(libs.kaspresso.compose.support)
 
-    //testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric.v473)
     // Google Service and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
