@@ -26,7 +26,6 @@ import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen
 import com.android.sample.ui.authentication.SignUpScreen
-import com.android.sample.ui.authentication.SpotifyAuth
 import com.android.sample.ui.authentication.SpotifyAuthViewModel
 import com.android.sample.ui.authentication.SpotifyAuthViewModelFactory
 import com.android.sample.ui.authentication.WelcomeScreen

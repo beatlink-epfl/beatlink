@@ -12,11 +12,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
@@ -28,52 +28,57 @@ fun SpotifyAuth(spotifyViewModel: SpotifyAuthViewModel) {
 
   Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
     OutlinedCard(
-        // Make the card fill the width of the screen
         shape = RoundedCornerShape(4.dp),
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-    ) {
-      Row(
-          modifier = Modifier.padding(4.dp, end = 4.dp),
-      ) {
-        Spacer(Modifier.width(8.dp))
-        Image(
-            painter = painterResource(id = R.drawable.spotify),
-            contentDescription = "Spotify Logo",
-            modifier = Modifier.size(32.dp).align(Alignment.CenterVertically))
+        modifier = Modifier.fillMaxWidth().padding(16.dp).testTag("SpotifyAuthCard")) {
+          Row(
+              modifier = Modifier.padding(4.dp, end = 4.dp),
+          ) {
+            Spacer(Modifier.width(8.dp))
+            Image(
+                painter = painterResource(id = R.drawable.spotify),
+                contentDescription = "Spotify Logo",
+                modifier =
+                    Modifier.size(32.dp).align(Alignment.CenterVertically).testTag("SpotifyLogo"))
 
-        Text(
-            text =
-                when (authState) {
-                  is AuthState.Authenticated -> "Spotify account Linked "
-                  AuthState.Idle -> "Link your Spotify account"
+            Text(
+                text =
+                    when (authState) {
+                      is AuthState.Authenticated -> "Spotify account Linked "
+                      AuthState.Idle -> "Link your Spotify account"
+                    },
+                color = MaterialTheme.colorScheme.primary,
+                modifier =
+                    Modifier.align(Alignment.CenterVertically)
+                        .padding(8.dp)
+                        .testTag("AuthStateText"))
+
+            Spacer(Modifier.width(48.dp))
+
+            OutlinedButton(
+                onClick = {
+                  when (authState) {
+                    is AuthState.Authenticated -> {
+                      spotifyViewModel.clearAuthData(context)
+                    }
+                    AuthState.Idle -> {
+                      spotifyViewModel.requestUserAuthorization(context)
+                    }
+                  }
                 },
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.align(Alignment.CenterVertically).padding(8.dp))
-        Spacer(Modifier.width(48.dp))
-        OutlinedButton(
-            onClick = {
-              when (authState) {
-                is AuthState.Authenticated -> {
-                  spotifyViewModel.clearAuthData(context)
+                shape = RoundedCornerShape(4.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier.testTag("AuthActionButton")) {
+                  Text(
+                      text =
+                          when (authState) {
+                            is AuthState.Authenticated -> "Unlink"
+                            AuthState.Idle -> "Link"
+                          })
                 }
-                AuthState.Idle -> {
-                  spotifyViewModel.requestUserAuthorization(context)
-                }
-              }
-            },
-            shape = RoundedCornerShape(4.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            colors =
-                ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary)) {
-              Text(
-                  text =
-                      when (authState) {
-                        is AuthState.Authenticated -> "Unlink"
-                        AuthState.Idle -> "Link"
-                      })
-            }
-      }
-    }
+          }
+        }
   }
 }
