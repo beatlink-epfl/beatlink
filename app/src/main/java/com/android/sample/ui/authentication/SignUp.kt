@@ -26,8 +26,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -57,7 +59,6 @@ import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryRed
-import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,10 +133,22 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   value = email,
                   onValueChange = { email = it },
                   label = { Text("My Email Address", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = { Text("Enter email address", color = SecondaryPurple) },
+                  placeholder = {
+                    Text("Enter email address", color = MaterialTheme.colorScheme.onSecondary)
+                  },
                   modifier = Modifier.width(320.dp).testTag("inputEmail"),
                   singleLine = true,
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                  textStyle =
+                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+                  colors =
+                      OutlinedTextFieldDefaults.colors(
+                          focusedTextColor = MaterialTheme.colorScheme.primary,
+                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                          cursorColor = MaterialTheme.colorScheme.onPrimary,
+                          errorTextColor = MaterialTheme.colorScheme.error,
+                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
 
               // Username input field
               var username by remember { mutableStateOf("") }
@@ -143,14 +156,26 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   value = username,
                   onValueChange = { username = it },
                   label = { Text("My Username", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = { Text("Enter username", color = SecondaryPurple) },
+                  placeholder = {
+                    Text("Enter username", color = MaterialTheme.colorScheme.onSecondary)
+                  },
                   supportingText = {
                     Text(
                         text = "No special characters, no spaces",
                         color = MaterialTheme.colorScheme.primary)
                   },
                   modifier = Modifier.width(320.dp).testTag("inputUsername"),
-                  singleLine = true)
+                  singleLine = true,
+                  textStyle =
+                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+                  colors =
+                      OutlinedTextFieldDefaults.colors(
+                          focusedTextColor = MaterialTheme.colorScheme.primary,
+                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                          cursorColor = MaterialTheme.colorScheme.onPrimary,
+                          errorTextColor = MaterialTheme.colorScheme.error,
+                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
 
               // Password input field
               var password by remember { mutableStateOf("") }
@@ -158,14 +183,26 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   value = password,
                   onValueChange = { password = it },
                   label = { Text("My Password", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = { Text("Enter password", color = SecondaryPurple) },
+                  placeholder = {
+                    Text("Enter password", color = MaterialTheme.colorScheme.onSecondary)
+                  },
                   supportingText = {
                     Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
                   },
                   modifier = Modifier.width(320.dp).testTag("inputPassword"),
                   singleLine = true,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
+                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                  textStyle =
+                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+                  colors =
+                      OutlinedTextFieldDefaults.colors(
+                          focusedTextColor = MaterialTheme.colorScheme.primary,
+                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                          cursorColor = MaterialTheme.colorScheme.onPrimary,
+                          errorTextColor = MaterialTheme.colorScheme.error,
+                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
 
               // Confirm Password input field
               var confirmPassword by remember { mutableStateOf("") }
@@ -173,14 +210,26 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
                   label = { Text("Confirm Password", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = { Text("Enter password", color = SecondaryPurple) },
+                  placeholder = {
+                    Text("Enter password", color = MaterialTheme.colorScheme.onSecondary)
+                  },
                   supportingText = {
                     Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
                   },
                   modifier = Modifier.width(320.dp).testTag("inputConfirmPassword"),
                   singleLine = true,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
+                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                  textStyle =
+                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+                  colors =
+                      OutlinedTextFieldDefaults.colors(
+                          focusedTextColor = MaterialTheme.colorScheme.primary,
+                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                          cursorColor = MaterialTheme.colorScheme.onPrimary,
+                          errorTextColor = MaterialTheme.colorScheme.error,
+                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
 
               // Link Spotify button
               LinkSpotifyButton()

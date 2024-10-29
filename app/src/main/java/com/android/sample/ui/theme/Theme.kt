@@ -20,26 +20,28 @@ private val DarkColorScheme =
         primary = darkThemeWhite, // text
         onPrimary = darkThemeLightPurple,
         secondary = darkThemeLightPurple,
+        onSecondary = darkThemeLightPurple,
         tertiary = darkThemePurple, // music listening box
         onTertiary = darkThemeRed, // music listening box
         background = darkThemeBackground,
         surface = darkThemeBackground,
         surfaceVariant = darkThemeGray1,
         onSurfaceVariant = darkThemeGray2,
-    )
+        error = PrimaryRed)
 
 private val LightColorScheme =
     lightColorScheme(
         primary = PrimaryPurple, // text
         onPrimary = PrimaryPurple,
         secondary = PrimaryRed,
+        onSecondary = SecondaryPurple,
         tertiary = lightThemePurple, // music listening box
         onTertiary = lightThemeRed, // music listening box
         background = lightThemeBackground,
         surface = lightThemeBackground,
         surfaceVariant = lightThemeBackground,
         onSurfaceVariant = lightThemeBackground,
-    )
+        error = PrimaryRed)
 
 @Composable
 fun BeatLinkAppTheme(
