@@ -34,6 +34,10 @@ class SpotifyAuthTest {
   fun spotifyAuth_showsCorrectUi() {
     composeTestRule.setContent { SampleAppTheme { SpotifyAuth(spotifyViewModel = viewModel) } }
 
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      composeTestRule.onAllNodesWithTag("SpotifyAuthCard").fetchSemanticsNodes().isNotEmpty()
+    }
+
     composeTestRule.onNodeWithTag("SpotifyAuthCard").assertIsDisplayed()
     composeTestRule.onNodeWithTag("SpotifyLogo").assertIsDisplayed()
 
