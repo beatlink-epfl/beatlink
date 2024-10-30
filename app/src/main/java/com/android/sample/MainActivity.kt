@@ -37,9 +37,8 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
-import com.android.sample.ui.theme.SampleAppTheme
-import okhttp3.OkHttpClient
 import com.android.sample.ui.theme.BeatLinkAppTheme
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
 

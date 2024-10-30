@@ -32,8 +32,11 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -60,31 +63,18 @@ fun LibraryScreen(navigationActions: NavigationActions) {
             },
             actions = {
               // ICON Search
-              IconButton(onClick = {}, modifier = Modifier.testTag("searchButton")) {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = "Search",
-                    modifier =
-                        Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                          onDrawWithContent {
-                            drawContent()
-                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
-                          }
-                        })
-              }
+              CornerIcons(
+                  onClick = {},
+                  icon = Icons.Outlined.Search,
+                  contentDescription = "Search",
+                  modifier = Modifier.testTag("searchButton"),
+              )
               // ICON Add playlist
-              IconButton(onClick = {}, modifier = Modifier.testTag("addPlaylistButton")) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "Add playlist",
-                    modifier =
-                        Modifier.size(28.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                          onDrawWithContent {
-                            drawContent()
-                            drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
-                          }
-                        })
-              }
+              CornerIcons(
+                  onClick = { /* handle add playlist action */},
+                  icon = Icons.Outlined.Add,
+                  contentDescription = "Add playlist",
+                  modifier = Modifier.testTag("addPlaylistButton"))
             },
             modifier =
                 Modifier.drawWithCache {
@@ -175,4 +165,27 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
                   }
                 })
       }
+}
+
+@Composable
+fun CornerIcons(
+    onClick: () -> Unit,
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    iconSize: Dp = 28.dp,
+    gradientBrush: Brush = IconsGradientBrush
+) {
+  IconButton(onClick = onClick, modifier = modifier) {
+    Icon(
+        imageVector = icon,
+        contentDescription = contentDescription,
+        modifier =
+            Modifier.size(iconSize).graphicsLayer(alpha = 0.99f).drawWithCache {
+              onDrawWithContent {
+                drawContent()
+                drawRect(gradientBrush, blendMode = BlendMode.SrcAtop)
+              }
+            })
+  }
 }

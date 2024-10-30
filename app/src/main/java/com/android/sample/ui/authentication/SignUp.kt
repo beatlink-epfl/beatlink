@@ -51,6 +51,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
@@ -129,108 +130,47 @@ fun SignUpScreen(navigationActions: NavigationActions) {
 
               // Email input field
               var email by remember { mutableStateOf("") }
-              OutlinedTextField(
+              CustomInputField(
                   value = email,
                   onValueChange = { email = it },
-                  label = { Text("My Email Address", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = {
-                    Text("Enter email address", color = MaterialTheme.colorScheme.onSecondary)
-                  },
-                  modifier = Modifier.width(320.dp).testTag("inputEmail"),
-                  singleLine = true,
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                  textStyle =
-                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-                  colors =
-                      OutlinedTextFieldDefaults.colors(
-                          focusedTextColor = MaterialTheme.colorScheme.primary,
-                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                          cursorColor = MaterialTheme.colorScheme.onPrimary,
-                          errorTextColor = MaterialTheme.colorScheme.error,
-                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+                  label = "My Email Address",
+                  placeholder = "Enter email address",
+                  keyboardType = KeyboardType.Email,
+                  modifier = Modifier.testTag("inputEmail"))
 
               // Username input field
               var username by remember { mutableStateOf("") }
-              OutlinedTextField(
+              CustomInputField(
                   value = username,
                   onValueChange = { username = it },
-                  label = { Text("My Username", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = {
-                    Text("Enter username", color = MaterialTheme.colorScheme.onSecondary)
-                  },
-                  supportingText = {
-                    Text(
-                        text = "No special characters, no spaces",
-                        color = MaterialTheme.colorScheme.primary)
-                  },
-                  modifier = Modifier.width(320.dp).testTag("inputUsername"),
-                  singleLine = true,
-                  textStyle =
-                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-                  colors =
-                      OutlinedTextFieldDefaults.colors(
-                          focusedTextColor = MaterialTheme.colorScheme.primary,
-                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                          cursorColor = MaterialTheme.colorScheme.onPrimary,
-                          errorTextColor = MaterialTheme.colorScheme.error,
-                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+                  label = "My Username",
+                  placeholder = "Enter username",
+                  supportingText = "No special characters, no spaces",
+                  modifier = Modifier.testTag("inputUsername"))
 
               // Password input field
               var password by remember { mutableStateOf("") }
-              OutlinedTextField(
+              CustomInputField(
                   value = password,
                   onValueChange = { password = it },
-                  label = { Text("My Password", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = {
-                    Text("Enter password", color = MaterialTheme.colorScheme.onSecondary)
-                  },
-                  supportingText = {
-                    Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
-                  },
-                  modifier = Modifier.width(320.dp).testTag("inputPassword"),
-                  singleLine = true,
+                  label = "My Password",
+                  placeholder = "Enter password",
+                  keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                  textStyle =
-                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-                  colors =
-                      OutlinedTextFieldDefaults.colors(
-                          focusedTextColor = MaterialTheme.colorScheme.primary,
-                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                          cursorColor = MaterialTheme.colorScheme.onPrimary,
-                          errorTextColor = MaterialTheme.colorScheme.error,
-                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+                  supportingText = "6-18 characters",
+                  modifier = Modifier.testTag("inputPassword"))
 
               // Confirm Password input field
               var confirmPassword by remember { mutableStateOf("") }
-              OutlinedTextField(
+              CustomInputField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
-                  label = { Text("Confirm Password", color = MaterialTheme.colorScheme.primary) },
-                  placeholder = {
-                    Text("Enter password", color = MaterialTheme.colorScheme.onSecondary)
-                  },
-                  supportingText = {
-                    Text(text = "6-18 characters", color = MaterialTheme.colorScheme.primary)
-                  },
-                  modifier = Modifier.width(320.dp).testTag("inputConfirmPassword"),
-                  singleLine = true,
+                  label = "Confirm Password",
+                  placeholder = "Enter password",
+                  keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                  textStyle =
-                      LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-                  colors =
-                      OutlinedTextFieldDefaults.colors(
-                          focusedTextColor = MaterialTheme.colorScheme.primary,
-                          unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                          cursorColor = MaterialTheme.colorScheme.onPrimary,
-                          errorTextColor = MaterialTheme.colorScheme.error,
-                          focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                          focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
-
+                  supportingText = "6-18 characters",
+                  modifier = Modifier.testTag("inputConfirmPassword"))
               // Link Spotify button
               LinkSpotifyButton()
 
@@ -330,4 +270,39 @@ fun CreateNewAccountButton() {
                   style = MaterialTheme.typography.labelLarge)
             }
       }
+}
+
+@Composable
+fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    singleLine: Boolean = true,
+    supportingText: String? = null
+) {
+  Column {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = MaterialTheme.colorScheme.primary) },
+        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSecondary) },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = visualTransformation,
+        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+        modifier = modifier.width(320.dp),
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                cursorColor = MaterialTheme.colorScheme.onPrimary,
+                errorTextColor = MaterialTheme.colorScheme.error,
+                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+    supportingText?.let { Text(text = it, color = MaterialTheme.colorScheme.primary) }
+  }
 }
