@@ -20,7 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.model.auth.AuthViewModel
+import com.android.sample.model.authentication.AuthViewModel
 import com.android.sample.model.profile.ProfileData
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen

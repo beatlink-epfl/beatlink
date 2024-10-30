@@ -1,4 +1,4 @@
-package com.android.sample.model.auth
+package com.android.sample.model.authentication
 
 import android.util.Log
 import com.android.sample.model.profile.ProfileData
@@ -7,7 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthRepositoryFirestore(private val db: FirebaseFirestore, private val auth: FirebaseAuth) :
     AuthRepository {
-  private val collectionPath = "userProfiles" // Define collection path as userProfiles
+  private val collectionPath = "userProfiles"
 
   override fun signUp(
       email: String,
@@ -57,7 +57,7 @@ class AuthRepositoryFirestore(private val db: FirebaseFirestore, private val aut
         onSuccess()
       } else {
         Log.e("AuthRepositoryFirestore", "Error adding username: ${task.exception?.message}")
-        task.exception?.let { exception -> onFailure(exception) } // Call onFailure on error
+        task.exception?.let { exception -> onFailure(exception) }
       }
     }
   }

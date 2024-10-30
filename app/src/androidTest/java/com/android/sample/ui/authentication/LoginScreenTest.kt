@@ -12,8 +12,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.android.sample.model.auth.AuthRepository
-import com.android.sample.model.auth.AuthViewModel
+import com.android.sample.model.authentication.AuthRepository
+import com.android.sample.model.authentication.AuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import org.junit.Before

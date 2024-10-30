@@ -1,4 +1,4 @@
-package com.android.sample.model.auth
+package com.android.sample.model.authentication
 
 sealed class AuthState {
   object Idle : AuthState() // Represents the initial state

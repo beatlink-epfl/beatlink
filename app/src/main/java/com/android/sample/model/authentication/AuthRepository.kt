@@ -1,4 +1,4 @@
-package com.android.sample.model.auth
+package com.android.sample.model.authentication
 
 interface AuthRepository {
   fun signUp(

@@ -56,8 +56,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
-import com.android.sample.model.auth.AuthState
-import com.android.sample.model.auth.AuthViewModel
+import com.android.sample.model.authentication.AuthState
+import com.android.sample.model.authentication.AuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush

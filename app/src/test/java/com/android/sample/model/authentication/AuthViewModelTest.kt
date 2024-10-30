@@ -1,4 +1,4 @@
-package com.android.sample.model.auth
+package com.android.sample.model.authentication
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

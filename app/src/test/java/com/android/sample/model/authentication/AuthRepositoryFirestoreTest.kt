@@ -1,4 +1,4 @@
-package com.android.sample.model.auth
+package com.android.sample.model.authentication
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
