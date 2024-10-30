@@ -32,7 +32,6 @@ import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryRed
 
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {

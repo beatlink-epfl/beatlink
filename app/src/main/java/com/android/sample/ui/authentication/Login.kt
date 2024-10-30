@@ -3,28 +3,22 @@ package com.android.sample.ui.authentication
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,10 +38,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.android.sample.ui.library.CornerIcons
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
@@ -55,8 +46,6 @@ import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,9 +93,8 @@ fun LoginScreen(
                   onValueChange = { email = it },
                   label = "Email",
                   placeholder = "Enter email address",
-                  modifier = Modifier.width(320.dp).testTag("inputEmail"),
-                  singleLine = true,
-                  )
+                  keyboardType = KeyboardType.Email,
+                  modifier = Modifier.testTag("inputEmail"))
 
               // Password input field
               CustomInputField(
@@ -181,35 +169,4 @@ fun LoginFirebaseButton(
                           letterSpacing = 0.14.sp))
             }
       }
-}
-
-@Composable
-fun SignUpText(onSignUpClick: () -> Unit) {
-  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-    Text(
-        modifier = Modifier.testTag("noAccountText"),
-        text = "Don’t have an account yet ?",
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                color = PrimaryPurple,
-                letterSpacing = 0.14.sp))
-
-    Spacer(modifier = Modifier.width(4.dp))
-
-    // Sign up text with gradient color
-    Text(
-        text = "Sign up",
-        modifier = Modifier.testTag("signUpText").clickable(onClick = onSignUpClick),
-        style =
-            TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily(Font(R.font.roboto)),
-                fontWeight = FontWeight(500),
-                letterSpacing = 0.14.sp,
-                brush = PrimaryGradientBrush,
-                textDecoration = TextDecoration.Underline))
-  }
 }

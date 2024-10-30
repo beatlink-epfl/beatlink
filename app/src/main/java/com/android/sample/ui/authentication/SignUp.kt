@@ -20,8 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,17 +49,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
-import com.android.sample.ui.library.CornerIcons
 import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryRed
-import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,16 +83,6 @@ fun SignUpScreen(
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
-        TopAppBar(
-            title = { BeatLinkTopLogo() },
-            navigationIcon = {
-              CornerIcons(
-                  onClick = { navigationActions.goBack() },
-                  icon = Icons.AutoMirrored.Filled.ArrowBack,
-                  contentDescription = "Go back",
-                  modifier = Modifier.testTag("backButton"),
-                  iconSize = 30.dp)
-            })
         AuthTopAppBar(navigationAction = { navigationActions.navigateTo(Screen.WELCOME) })
       }) { paddingValues ->
         Column(
@@ -339,22 +322,4 @@ fun NavigationTextRow(
         modifier = Modifier.testTag(clickableTextTag).clickable(onClick = onClick),
     )
   }
-}
-
-@Composable
-fun BeatLinkTopLogo() {
-  Box(
-      modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
-      contentAlignment = Alignment.Center) {
-        Text(
-            modifier = Modifier.testTag("appName"),
-            text =
-                buildAnnotatedString {
-                  withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                    append("Beat")
-                  }
-                  withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
-                },
-            style = MaterialTheme.typography.headlineLarge)
-      }
 }

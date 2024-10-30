@@ -54,6 +54,7 @@ mapsComposeUtils = "4.3.0"
 playServicesLocation = "21.3.0"
 uiTestJunit4Android = "1.7.3"
 uiTestJunit4Version = "1.4.0"
+firebaseCommonKtx = "21.0.0"
 
 [libraries]
 androidx-compose-bom-v20230800 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
@@ -115,6 +116,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 robolectric-v473 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
+firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
