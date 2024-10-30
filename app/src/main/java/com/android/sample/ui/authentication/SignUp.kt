@@ -1,5 +1,6 @@
 package com.android.sample.ui.authentication
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,28 +20,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -57,58 +52,43 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navigationActions: NavigationActions) {
+fun SignUpScreen(
+    navigationActions: NavigationActions,
+    firebaseAuthViewModel: FirebaseAuthViewModel =
+        viewModel(factory = FirebaseAuthViewModel.Factory)
+) {
+  var email by remember { mutableStateOf("") }
+  var username by remember { mutableStateOf("") }
+  var password by remember { mutableStateOf("") }
+  var confirmPassword by remember { mutableStateOf("") }
+
+  val context = LocalContext.current
+  val authState by firebaseAuthViewModel.authState.collectAsState()
+
+  // Handle authentication state
+  AuthStateHandler(
+      authState = authState,
+      context = context,
+      navigationActions = navigationActions,
+      authViewModel = firebaseAuthViewModel,
+      successMessage = "Sign up successful" // Success message for sign up
+      )
+
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
-        TopAppBar(
-            title = {
-              Box(
-                  modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
-                  contentAlignment = Alignment.Center) {
-                    Text(
-                        modifier = Modifier.testTag("appName"),
-                        text =
-                            buildAnnotatedString {
-                              append("Beat")
-                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
-                            },
-                        style =
-                            TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto)),
-                                fontWeight = FontWeight(700),
-                                color = PrimaryPurple,
-                                letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center))
-                  }
-            },
-            navigationIcon = {
-              IconButton(
-                  onClick = { navigationActions.goBack() },
-                  modifier = Modifier.testTag("backButton")) {
-                    Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Go back")
-                  }
-            })
+        AuthTopAppBar(navigationAction = { navigationActions.navigateTo(Screen.WELCOME) })
       }) { paddingValues ->
         Column(
             modifier =
@@ -138,7 +118,6 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                       Modifier.fillMaxWidth().padding(bottom = 15.dp).testTag("greetingText"))
 
               // Email input field
-              var email by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = email,
                   onValueChange = { email = it },
@@ -149,7 +128,6 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
 
               // Username input field
-              var username by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = username,
                   onValueChange = { username = it },
@@ -160,7 +138,6 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   singleLine = true)
 
               // Password input field
-              var password by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = password,
                   onValueChange = { password = it },
@@ -173,7 +150,6 @@ fun SignUpScreen(navigationActions: NavigationActions) {
                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
 
               // Confirm Password input field
-              var confirmPassword by remember { mutableStateOf("") }
               OutlinedTextField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
@@ -191,12 +167,16 @@ fun SignUpScreen(navigationActions: NavigationActions) {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Create new account button
-              CreateNewAccountButton()
+              CreateNewAccountButton(
+                  authViewModel = firebaseAuthViewModel,
+                  email = email,
+                  password = password,
+                  confirmPassword = confirmPassword,
+                  username = username)
 
-              // Text for sign up option
               Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    modifier = Modifier.testTag("loginText"),
+                    modifier = Modifier.testTag("accountText"),
                     text = "Already have an account ?",
                     style =
                         TextStyle(
@@ -208,11 +188,11 @@ fun SignUpScreen(navigationActions: NavigationActions) {
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                // Sign up text with gradient color
+                // Text for login option
                 Text(
                     text = "Login",
                     modifier =
-                        Modifier.testTag("loginClickableText")
+                        Modifier.testTag("loginText")
                             .clickable(onClick = { navigationActions.navigateTo(Screen.LOGIN) }),
                     style =
                         TextStyle(
@@ -286,7 +266,14 @@ fun LinkSpotifyButton() {
 }
 
 @Composable
-fun CreateNewAccountButton() {
+fun CreateNewAccountButton(
+    authViewModel: FirebaseAuthViewModel,
+    email: String,
+    password: String,
+    confirmPassword: String,
+    username: String
+) {
+  val context = LocalContext.current
   Box(
       modifier =
           Modifier.border(
@@ -295,7 +282,22 @@ fun CreateNewAccountButton() {
               .height(48.dp),
       contentAlignment = Alignment.Center) {
         Button(
-            onClick = { /* TODO: Handle sign up click */},
+            onClick = {
+              when {
+                email.isBlank() ||
+                    username.isBlank() ||
+                    password.isBlank() ||
+                    confirmPassword.isBlank() -> {
+                  Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
+                password != confirmPassword -> {
+                  Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                  authViewModel.signUp(email, password, username)
+                }
+              }
+            },
             modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
             colors =
                 ButtonDefaults.buttonColors(

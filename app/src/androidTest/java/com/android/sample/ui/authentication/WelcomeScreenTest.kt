@@ -7,11 +7,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
 class WelcomeScreenTest {
@@ -55,6 +57,6 @@ class WelcomeScreenTest {
     // Perform click action on the sign-in button
     composeTestRule.onNodeWithTag("loginButton").performClick()
 
-    // TODO: Verify the expected behavior when the button is clicked
+    verify(navigationActions).navigateTo(Screen.LOGIN)
   }
 }

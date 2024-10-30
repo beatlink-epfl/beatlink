@@ -38,14 +38,27 @@ import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
 import com.android.sample.ui.theme.SampleAppTheme
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
+  private lateinit var auth: FirebaseAuth
 
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
+    FirebaseApp.initializeApp(this)
+
+    // Initialize Firebase Auth
+    auth = FirebaseAuth.getInstance()
+    auth.currentUser?.let {
+      // Sign out the user if they are already signed in
+      // This is useful for testing purposes
+      auth.signOut()
+    }
 
     val client = OkHttpClient()
     val spotifyAuthRepository = SpotifyAuthRepository(client)

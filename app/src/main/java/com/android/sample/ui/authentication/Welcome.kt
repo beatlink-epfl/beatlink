@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
@@ -41,7 +40,7 @@ import com.android.sample.ui.theme.PrimaryRed
 @Composable
 fun WelcomeScreen(navigationActions: NavigationActions) {
   Column(
-      modifier = Modifier.fillMaxSize().padding(16.dp).testTag("welcomeScreen"),
+      modifier = Modifier.fillMaxSize().padding(16.dp),
       verticalArrangement = Arrangement.Top,
       horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.height(80.dp))
@@ -135,12 +134,13 @@ fun LoginButton(navigationActions: NavigationActions) {
       modifier =
           Modifier.width(320.dp)
               .height(48.dp)
-              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+              .testTag("loginButton"),
       contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(
-            onClick = { navigationActions.navigateTo(TopLevelDestinations.HOME) },
-            modifier = Modifier.fillMaxSize().testTag("loginButton"),
+            onClick = { navigationActions.navigateTo(Screen.LOGIN) },
+            modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent, contentColor = Color.White),
