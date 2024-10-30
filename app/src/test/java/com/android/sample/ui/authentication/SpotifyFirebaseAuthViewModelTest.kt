@@ -23,7 +23,7 @@ import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SpotifyAuthViewModelTest {
+class SpotifyFirebaseAuthViewModelTest {
 
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule() // Allows LiveData to update instantly

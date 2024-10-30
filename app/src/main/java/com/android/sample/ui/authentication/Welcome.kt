@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.android.sample.R
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.navigation.TopLevelDestinations
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryRed
 
@@ -61,7 +60,6 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
                   withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                     append("Beat")
                   }
-                  withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                 },
             style = MaterialTheme.typography.displayMedium)
 
@@ -114,12 +112,13 @@ fun LoginButton(navigationActions: NavigationActions) {
       modifier =
           Modifier.width(320.dp)
               .height(48.dp)
-              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+              .testTag("loginButton"),
       contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(
-            onClick = { navigationActions.navigateTo(TopLevelDestinations.HOME) },
-            modifier = Modifier.fillMaxSize().testTag("loginButton"),
+            onClick = { navigationActions.navigateTo(Screen.LOGIN) },
+            modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent, contentColor = Color.White),
