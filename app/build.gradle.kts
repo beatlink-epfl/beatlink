@@ -143,7 +143,7 @@ dependencies {
 
     // Add any other Firebase services you need
     // implementation("com.google.firebase:firebase-database-ktx")
-    // implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
 
     // ------------- Jetpack Compose ------------------

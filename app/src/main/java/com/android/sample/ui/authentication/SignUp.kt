@@ -21,7 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +32,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,27 +59,46 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
+import com.android.sample.model.auth.AuthState
+import com.android.sample.model.auth.AuthViewModel
+import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
-import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen() {
-  val context = LocalContext.current
+fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewModel) {
   var email by remember { mutableStateOf("") }
   var username by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
   var confirmPassword by remember { mutableStateOf("") }
 
-  val auth: FirebaseAuth = FirebaseAuth.getInstance()
+  val context = LocalContext.current
+  val authState by authViewModel.authState.collectAsState()
 
+  // Handle authentication state
+  LaunchedEffect(authState) {
+    when (authState) {
+      is AuthState.Success -> {
+        Toast.makeText(context, "Sign up successful", Toast.LENGTH_SHORT).show()
+        authViewModel.resetState()
+        navigationActions.navigateTo(Screen.HOME)
+      }
+      is AuthState.Error -> {
+        Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+        authViewModel.resetState()
+      }
+      is AuthState.Idle -> {
+        // No action needed
+      }
+    }
+  }
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
@@ -105,8 +126,8 @@ fun SignUpScreen() {
             },
             navigationIcon = {
               IconButton(
-                  onClick = { /* TODO : Handle back navigation */},
-                  modifier = Modifier.testTag("backButton")) {
+                  onClick = { navigationActions.goBack() },
+                  modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =
                             Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
@@ -115,7 +136,7 @@ fun SignUpScreen() {
                                 drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
                               }
                             },
-                        imageVector = Icons.Filled.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
             })
@@ -197,11 +218,16 @@ fun SignUpScreen() {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Create new account button
-              CreateNewAccountButton(email, password, confirmPassword, auth, context)
+              CreateNewAccountButton(
+                  authViewModel = authViewModel,
+                  email = email,
+                  password = password,
+                  confirmPassword = confirmPassword,
+                  username = username)
 
               Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    modifier = Modifier.testTag("loginText"),
+                    modifier = Modifier.testTag("accountText"),
                     text = "Already have an account ?",
                     style =
                         TextStyle(
@@ -217,8 +243,8 @@ fun SignUpScreen() {
                 Text(
                     text = "Login",
                     modifier =
-                        Modifier.testTag("loginClickableText")
-                            .clickable(onClick = { /* TODO: Handle sign up click */}),
+                        Modifier.testTag("loginText")
+                            .clickable(onClick = { navigationActions.navigateTo(Screen.LOGIN) }),
                     style =
                         TextStyle(
                             fontSize = 14.sp,
@@ -292,12 +318,13 @@ fun LinkSpotifyButton() {
 
 @Composable
 fun CreateNewAccountButton(
+    authViewModel: AuthViewModel,
     email: String,
     password: String,
     confirmPassword: String,
-    auth: FirebaseAuth,
-    context: android.content.Context
+    username: String
 ) {
+  val context = LocalContext.current
   Box(
       modifier =
           Modifier.border(
@@ -307,26 +334,19 @@ fun CreateNewAccountButton(
       contentAlignment = Alignment.Center) {
         Button(
             onClick = {
-              if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
-                if (password == confirmPassword) {
-                  auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task
-                    ->
-                    if (task.isSuccessful) {
-                      // Account creation success
-                      Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT)
-                          .show()
-                    } else {
-                      // Account creation failed
-                      Toast.makeText(
-                              context, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT)
-                          .show()
-                    }
-                  }
-                } else {
+              when {
+                email.isBlank() ||
+                    username.isBlank() ||
+                    password.isBlank() ||
+                    confirmPassword.isBlank() -> {
+                  Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
+                password != confirmPassword -> {
                   Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
-              } else {
-                Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                else -> {
+                  authViewModel.signUp(email, password, username)
+                }
               }
             },
             modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
@@ -347,11 +367,4 @@ fun CreateNewAccountButton(
                           letterSpacing = 0.14.sp))
             }
       }
-}
-
-// Preview code
-@Preview
-@Composable
-fun SignUpScreenPreview() {
-  SignUpScreen()
 }

@@ -31,12 +31,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
+import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(navigationActions: NavigationActions) {
   Column(
       modifier = Modifier.fillMaxSize().padding(16.dp),
       verticalArrangement = Arrangement.Top,
@@ -85,17 +87,17 @@ fun WelcomeScreen() {
         Spacer(modifier = Modifier.height(100.dp))
 
         // Sign Up Button
-        SignUpButton()
+        SignUpButton(navigationActions)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Login Button
-        LoginButton()
+        LoginButton(navigationActions)
       }
 }
 
 @Composable
-fun SignUpButton() {
+fun SignUpButton(navigationActions: NavigationActions) {
   Box(
       modifier =
           Modifier.border(
@@ -105,7 +107,7 @@ fun SignUpButton() {
               .testTag("signUpButton"),
       contentAlignment = Alignment.Center) {
         Button(
-            onClick = { /* TODO: Handle sign up click */},
+            onClick = { navigationActions.navigateTo(Screen.REGISTER) },
             modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(
@@ -127,7 +129,7 @@ fun SignUpButton() {
 }
 
 @Composable
-fun LoginButton() {
+fun LoginButton(navigationActions: NavigationActions) {
   Box(
       modifier =
           Modifier.width(320.dp)
@@ -137,7 +139,7 @@ fun LoginButton() {
       contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(
-            onClick = { /* TODO: Handle login click */},
+            onClick = { navigationActions.navigateTo(Screen.LOGIN) },
             modifier = Modifier.fillMaxSize(),
             colors =
                 ButtonDefaults.buttonColors(

@@ -1,6 +1,6 @@
 package com.android.sample.ui.authentication
 
-import android.util.Log
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +29,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,10 +53,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
+import com.android.sample.model.auth.AuthState
+import com.android.sample.model.auth.AuthViewModel
+import com.android.sample.ui.navigation.NavigationActions
+import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
 import com.android.sample.ui.theme.PrimaryRed
@@ -63,9 +68,30 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navigationActions: NavigationActions, authViewModel: AuthViewModel) {
   var email by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
+
+  val context = LocalContext.current
+  val authState by authViewModel.authState.collectAsState()
+
+  // Handle authentication state
+  LaunchedEffect(authState) {
+    when (authState) {
+      is AuthState.Success -> {
+        Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+        authViewModel.resetState()
+        navigationActions.navigateTo(Screen.HOME)
+      }
+      is AuthState.Error -> {
+        Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+        authViewModel.resetState()
+      }
+      is AuthState.Idle -> {
+        // No action needed
+      }
+    }
+  }
 
   Scaffold(
       modifier = Modifier.testTag("loginScreen"),
@@ -97,7 +123,7 @@ fun LoginScreen() {
             },
             navigationIcon = {
               IconButton(
-                  onClick = { /* TODO : Handle back navigation */},
+                  onClick = { navigationActions.goBack() },
                   modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =
@@ -155,17 +181,25 @@ fun LoginScreen() {
               Spacer(modifier = Modifier.height(16.dp))
 
               // Login button
-              LoginFirebaseButton(email = email, password = password)
+              LoginFirebaseButton(
+                  authViewModel = authViewModel,
+                  email = email,
+                  password = password,
+                  context = context)
 
               // Sign up text
-              SignUpText(onSignUpClick = { /* TODO: Handle sign up click */})
+              SignUpText(onSignUpClick = { navigationActions.navigateTo(Screen.REGISTER) })
             }
       }
 }
 
 @Composable
-fun LoginFirebaseButton(email: String, password: String) {
-  val context = LocalContext.current
+fun LoginFirebaseButton(
+    authViewModel: AuthViewModel,
+    email: String,
+    password: String,
+    context: Context
+) {
   val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
   Box(
@@ -177,20 +211,10 @@ fun LoginFirebaseButton(email: String, password: String) {
       contentAlignment = Alignment.Center) {
         Button(
             onClick = {
-              // Firebase sign-in with email and password
-              auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                  // Sign-in success
-                    Log.d("LoginScreen", "signInWithEmail:success")
-                  Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                  // TODO : Handle successful login, navigate to the next screen
-                } else {
-                  // If sign in fails, display a message to the user
-                    Log.e("LoginScreen", "signInWithEmail:failure", task.exception)
-                  Toast.makeText(
-                          context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG)
-                      .show()
-                }
+              if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+              } else {
+                authViewModel.login(email, password)
               }
             },
             modifier = Modifier.fillMaxSize(),
@@ -242,10 +266,4 @@ fun SignUpText(onSignUpClick: () -> Unit) {
                 brush = PrimaryGradientBrush,
                 textDecoration = TextDecoration.Underline))
   }
-}
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-  LoginScreen()
 }
