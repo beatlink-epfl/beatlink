@@ -20,17 +20,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,10 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -68,7 +60,6 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.PrimaryRed
 import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,44 +93,7 @@ fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewMo
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
-        TopAppBar(
-            title = {
-              Box(
-                  modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
-                  contentAlignment = Alignment.Center) {
-                    Text(
-                        modifier = Modifier.testTag("appName"),
-                        text =
-                            buildAnnotatedString {
-                              append("Beat")
-                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
-                            },
-                        style =
-                            TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto)),
-                                fontWeight = FontWeight(700),
-                                color = PrimaryPurple,
-                                letterSpacing = 0.2.sp,
-                                textAlign = TextAlign.Center))
-                  }
-            },
-            navigationIcon = {
-              IconButton(
-                  onClick = { navigationActions.navigateTo(Screen.WELCOME) },
-                  modifier = Modifier.testTag("goBackButton")) {
-                    Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Go back")
-                  }
-            })
+        AuthTopAppBar(navigationAction = { navigationActions.navigateTo(Screen.WELCOME) })
       }) { paddingValues ->
         Column(
             modifier =
