@@ -17,24 +17,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.android.sample.model.map.MapLocationRepository
 import com.android.sample.model.map.MapViewModel
 import com.android.sample.model.spotify.objects.SpotifyTrack
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.Purple80
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 
-val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
 const val defaultZoom = 15f
 
 enum class CameraAction {
@@ -45,20 +38,10 @@ enum class CameraAction {
 @Composable
 fun MapScreen(
     navigationActions: NavigationActions,
-    mapViewModel: MapViewModel =
-        viewModel(
-            factory =
-                MapViewModel.provideFactory(
-                    mapLocationRepository =
-                        MapLocationRepository(
-                            context = LocalContext.current.applicationContext,
-                            locationClient =
-                                LocationServices.getFusedLocationProviderClient(
-                                    LocalContext.current)))),
+    mapViewModel: MapViewModel,
     currentMusicPlayed: SpotifyTrack? = null,
     radius: Double = 1000.0
 ) {
-  val context = LocalContext.current
 
   // Permission launcher to handle permission request
   val permissionLauncher =
