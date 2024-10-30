@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
@@ -43,12 +44,12 @@ class LoginScreenTest {
     composeTestRule.onNodeWithTag("appName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("appName").assertTextContains("BeatLink")
 
-    composeTestRule.onNodeWithTag("loginTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("loginTitle").performScrollTo().assertIsDisplayed()
     composeTestRule
         .onNodeWithTag("loginTitle")
         .assertTextContains("Hello again,\nGood to see you back !")
 
-    composeTestRule.onNodeWithTag("inputEmail").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("inputEmail").performScrollTo().assertIsDisplayed()
 
     composeTestRule
         .onNodeWithTag("inputEmail", useUnmergedTree = true)
@@ -63,7 +64,7 @@ class LoginScreenTest {
         .filterToOne(hasText("Enter email address", substring = true))
         .assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("inputPassword").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("inputPassword").performScrollTo().assertIsDisplayed()
 
     composeTestRule
         .onNodeWithTag("inputPassword", useUnmergedTree = true)
@@ -78,10 +79,10 @@ class LoginScreenTest {
         .filterToOne(hasText("Enter password", substring = true))
         .assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("noAccountText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("noAccountText").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("noAccountText").assertTextContains("Don’t have an account yet ?")
 
-    composeTestRule.onNodeWithTag("signUpText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("signUpText").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("signUpText").assertTextEquals("Sign up")
     composeTestRule.onNodeWithTag("signUpText").assertHasClickAction()
   }
@@ -107,7 +108,7 @@ class LoginScreenTest {
   fun verifySignUpTextNavigatesToSignUpScreen() {
     composeTestRule.setContent { LoginScreen(navigationActions) }
 
-    composeTestRule.onNodeWithTag("signUpText").performClick()
+    composeTestRule.onNodeWithTag("signUpText").performScrollTo().performClick()
     verify(navigationActions).navigateTo(Screen.REGISTER)
   }
 }
