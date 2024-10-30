@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,8 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
-import com.android.sample.model.profile.ProfileData
+import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
@@ -42,7 +46,15 @@ import com.android.sample.ui.theme.PrimaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
+fun ProfileScreen(
+    userId: String,
+    profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory),
+    navigationAction: NavigationActions
+) {
+  val profileData by profileViewModel.profile.collectAsState()
+
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile(userId) }
+
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
@@ -51,7 +63,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
             // Username displayed
             title = {
               Text(
-                  text = user.username,
+                  text = profileData?.username ?: "",
                   fontWeight = FontWeight.Bold,
                   fontSize = 20.sp,
                   modifier = Modifier.testTag("titleUsername"))
@@ -96,11 +108,11 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
           HorizontalDivider(
               color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
           Row(modifier = Modifier.padding(16.dp)) {
-            ProfilePicture(user.profilePicture ?: R.drawable.default_profile_picture)
+            ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
             Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(
-                  text = "${user.links} Links",
+                  text = "${profileData?.links ?: 0} Links",
                   fontWeight = FontWeight.Bold,
                   color = PrimaryPurple,
                   fontSize = 18.sp,
@@ -129,13 +141,13 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
             }
           }
           Text(
-              text = user.name ?: "",
+              text = profileData?.name ?: "",
               fontWeight = FontWeight.Bold,
               fontSize = 14.sp,
               color = PrimaryPurple,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))
           Text(
-              text = user.bio ?: "No description provided",
+              text = profileData?.bio ?: "No description provided",
               fontSize = 14.sp,
               color = Color.Black,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
