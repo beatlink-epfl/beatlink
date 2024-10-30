@@ -3,6 +3,7 @@ package com.android.sample.ui.library
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -54,13 +55,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
       modifier = Modifier.testTag("libraryScreen"),
       topBar = {
         TopAppBar(
-            title = {
-              Text(
-                  text = "My Library",
-                  color = MaterialTheme.colorScheme.primary,
-                  style = MaterialTheme.typography.headlineLarge,
-                  modifier = Modifier.padding(top = 14.dp).testTag("libraryTitle"))
-            },
+            title = { PageTitle("My Library", "libraryTitle") },
             actions = {
               // ICON Search
               CornerIcons(
@@ -76,23 +71,6 @@ fun LibraryScreen(navigationActions: NavigationActions) {
                   contentDescription = "Add playlist",
                   modifier = Modifier.testTag("addPlaylistButton"))
             },
-            modifier =
-                Modifier.drawWithCache {
-                      // Apply the bottom border or shadow in dark mode
-                      onDrawWithContent {
-                        drawContent()
-                        drawLine(
-                            color = BorderColor,
-                            strokeWidth = 1.dp.toPx(),
-                            start = Offset(0f, size.height), // Bottom left
-                            end = Offset(size.width, size.height) // Bottom right
-                            )
-                      }
-                    }
-                    .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
-                    .width(412.dp)
-                    .height(48.dp)
-                    .background(color = MaterialTheme.colorScheme.background),
         )
       },
       bottomBar = {
@@ -164,6 +142,34 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
                     drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
                   }
                 })
+      }
+}
+
+@Composable
+fun PageTitle(mainTitle: String, mainTitleTag: String) {
+  Box(
+      modifier =
+          Modifier.fillMaxWidth()
+              .drawWithCache {
+                // Apply the bottom border or shadow in dark mode
+                onDrawWithContent {
+                  drawContent()
+                  drawLine(
+                      color = BorderColor,
+                      strokeWidth = 1.dp.toPx(),
+                      start = Offset(0f, size.height), // Bottom left
+                      end = Offset(size.width, size.height) // Bottom right
+                      )
+                }
+              }
+              .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
+              .height(48.dp)
+              .background(color = MaterialTheme.colorScheme.background)) {
+        Text(
+            text = mainTitle,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(top = 14.dp).testTag(mainTitleTag))
       }
 }
 

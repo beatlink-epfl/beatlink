@@ -1,7 +1,6 @@
 package com.android.sample.ui.profile
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,21 +26,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileData
 import com.android.sample.ui.library.CornerIcons
+import com.android.sample.ui.library.PageTitle
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.theme.BorderColor
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.ShadowColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,13 +46,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       topBar = {
         TopAppBar(
             // Username displayed
-            title = {
-              Text(
-                  text = user.username,
-                  color = MaterialTheme.colorScheme.primary,
-                  style = MaterialTheme.typography.headlineLarge,
-                  modifier = Modifier.padding(top = 14.dp).testTag("titleUsername"))
-            },
+            title = { PageTitle(user.username, "titleUsername") },
             actions = {
               // Notification icon
               CornerIcons(
@@ -72,23 +61,7 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                   contentDescription = "Settings",
                   modifier = Modifier.testTag("profileScreenSettingsButton"))
             },
-            modifier =
-                Modifier.drawWithCache {
-                      // Apply the bottom border or shadow in dark mode
-                      onDrawWithContent {
-                        drawContent()
-                        drawLine(
-                            color = BorderColor,
-                            strokeWidth = 1.dp.toPx(),
-                            start = Offset(0f, size.height), // Bottom left
-                            end = Offset(size.width, size.height) // Bottom right
-                            )
-                      }
-                    }
-                    .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
-                    .width(412.dp)
-                    .height(48.dp)
-                    .background(color = MaterialTheme.colorScheme.background))
+        )
       },
       bottomBar = {
         // Bottom navigation bar
