@@ -27,7 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +53,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
-import com.android.sample.model.authentication.AuthState
 import com.android.sample.model.authentication.AuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
@@ -74,22 +72,14 @@ fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewMo
   val authState by authViewModel.authState.collectAsState()
 
   // Handle authentication state
-  LaunchedEffect(authState) {
-    when (authState) {
-      is AuthState.Success -> {
-        Toast.makeText(context, "Sign up successful", Toast.LENGTH_SHORT).show()
-        authViewModel.resetState()
-        navigationActions.navigateTo(Screen.HOME)
-      }
-      is AuthState.Error -> {
-        Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
-        authViewModel.resetState()
-      }
-      is AuthState.Idle -> {
-        // No action needed
-      }
-    }
-  }
+  AuthStateHandler(
+      authState = authState,
+      context = context,
+      navigationActions = navigationActions,
+      authViewModel = authViewModel,
+      successMessage = "Sign up successful" // Success message for sign up
+      )
+
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
