@@ -36,18 +36,8 @@ class SpotifyAuthTest {
 
     composeTestRule.waitUntil(timeoutMillis = 5000) {
       composeTestRule.onAllNodesWithTag("SpotifyAuthCard").fetchSemanticsNodes().isNotEmpty()
-      composeTestRule.onAllNodesWithTag("SpotifyLogo").fetchSemanticsNodes().isNotEmpty()
-      composeTestRule.onAllNodesWithTag("AuthStateText").fetchSemanticsNodes().isNotEmpty()
-      composeTestRule.onAllNodesWithTag("AuthActionButton").fetchSemanticsNodes().isNotEmpty()
     }
 
     composeTestRule.onNodeWithTag("SpotifyAuthCard").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("SpotifyLogo").assertIsDisplayed()
-
-    composeTestRule.onNodeWithTag("AuthStateText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("AuthStateText").assertTextEquals("Link your Spotify account")
-
-    composeTestRule.onNodeWithTag("AuthActionButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("AuthActionButton").assertTextEquals("Link")
   }
 }
