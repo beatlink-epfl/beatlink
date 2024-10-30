@@ -95,9 +95,9 @@ class SignUpScreenTest {
   }
 
   @Test
-  fun verifyGoBackButtonNavigatesBack() {
+  fun verifyGoBackButtonNavigatesToWelcomeScreen() {
     composeTestRule.onNodeWithTag("goBackButton").performClick()
-    verify(navigationActions).goBack()
+    verify(navigationActions).navigateTo(Screen.WELCOME)
   }
 
   @Test
