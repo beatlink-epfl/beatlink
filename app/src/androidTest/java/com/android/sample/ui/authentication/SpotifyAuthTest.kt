@@ -36,6 +36,9 @@ class SpotifyAuthTest {
 
     composeTestRule.waitUntil(timeoutMillis = 5000) {
       composeTestRule.onAllNodesWithTag("SpotifyAuthCard").fetchSemanticsNodes().isNotEmpty()
+      composeTestRule.onAllNodesWithTag("SpotifyLogo").fetchSemanticsNodes().isNotEmpty()
+      composeTestRule.onAllNodesWithTag("AuthStateText").fetchSemanticsNodes().isNotEmpty()
+      composeTestRule.onAllNodesWithTag("AuthActionButton").fetchSemanticsNodes().isNotEmpty()
     }
 
     composeTestRule.onNodeWithTag("SpotifyAuthCard").assertIsDisplayed()
