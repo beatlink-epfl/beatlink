@@ -7,6 +7,11 @@ on:
         type: string
         description: "Tag Name"
         default: "0.0.1"
+      build_type:
+        required: true
+        type: string
+        description: "debug or release"
+        default: "release"
 
 jobs:
   build:
@@ -28,6 +33,11 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.4'
+
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v3
 
@@ -37,19 +47,24 @@ jobs:
 
       - name: Create secret files
         env:
-          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
-          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           KEYSTORE: ${{ secrets.KEYSTORE }}
-          KEYSTORE_PROPERTIES: ${{ secrets.KEYSTORE_PROPERTIES }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
             echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
-            echo $LOCAL_PROPERTIES > ./local.properties
-            echo $KEYSTORE > ./keystore.jks
-            echo $KEYSTORE_PROPERTIES > ./keystore.properties
+            echo -e "MAPS_API_KEY=$MAPS_API_KEY\nSPOTIFY_CLIENT_ID=$SPOTIFY_CLIENT_ID" > ./local.properties
+            echo $KEYSTORE | base64 -di > ./keystore.jks
+            echo -e "storePassword=$STORE_PASSWORD\nkeyAlias=$KEY_ALIAS\nkeyPassword=$KEY_PASSWORD" > ./keystore.properties
+
 
       # Build the APK
       - name: Building APK
         run: |
+          ./gradlew clean
           ./gradlew assembleRelease
 
       - name: Get apk path
@@ -60,5 +75,5 @@ jobs:
       - name: Upload release to artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Release-apk-v${{ inputs.tag_name }}
+          name: ${{ inputs.build_type }}-apk-v${{ inputs.tag_name }}
           path: ${{ steps.apkPath.outputs.apkFile }}

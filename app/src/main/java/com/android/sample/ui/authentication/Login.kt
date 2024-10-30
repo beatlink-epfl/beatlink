@@ -123,7 +123,7 @@ fun LoginScreen(navigationActions: NavigationActions, authViewModel: AuthViewMod
             },
             navigationIcon = {
               IconButton(
-                  onClick = { navigationActions.goBack() },
+                  onClick = { navigationActions.navigateTo(Screen.WELCOME) },
                   modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =

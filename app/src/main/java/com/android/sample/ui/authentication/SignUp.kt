@@ -126,7 +126,7 @@ fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewMo
             },
             navigationIcon = {
               IconButton(
-                  onClick = { navigationActions.goBack() },
+                  onClick = { navigationActions.navigateTo(Screen.WELCOME) },
                   modifier = Modifier.testTag("goBackButton")) {
                     Icon(
                         modifier =
