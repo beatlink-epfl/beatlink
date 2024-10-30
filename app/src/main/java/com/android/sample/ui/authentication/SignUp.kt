@@ -23,7 +23,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,27 +42,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
 import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
-import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,65 +97,59 @@ fun SignUpScreen(
                   text =
                       buildAnnotatedString {
                         append("Create an account ")
-                        withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) { append("now") }
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontStyle = FontStyle.Italic)) {
+                              append("now")
+                            }
                         append("\nto join our community")
                       },
-                  style =
-                      TextStyle(
-                          fontSize = 32.sp,
-                          lineHeight = 40.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          color = PrimaryPurple,
-                          textAlign = TextAlign.Center,
-                          letterSpacing = 0.32.sp),
+                  style = MaterialTheme.typography.displayLarge,
+                  color = MaterialTheme.colorScheme.primary,
                   modifier =
                       Modifier.fillMaxWidth().padding(bottom = 15.dp).testTag("greetingText"))
 
               // Email input field
-              OutlinedTextField(
+              CustomInputField(
                   value = email,
                   onValueChange = { email = it },
-                  label = { Text("My Email Address", color = PrimaryPurple) },
-                  placeholder = { Text("Enter email address", color = SecondaryPurple) },
-                  modifier = Modifier.width(320.dp).testTag("inputEmail"),
-                  singleLine = true,
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+                  label = "My Email Address",
+                  placeholder = "Enter email address",
+                  keyboardType = KeyboardType.Email,
+                  modifier = Modifier.testTag("inputEmail"))
 
               // Username input field
-              OutlinedTextField(
+              CustomInputField(
                   value = username,
                   onValueChange = { username = it },
-                  label = { Text("My Username", color = PrimaryPurple) },
-                  placeholder = { Text("Enter username", color = SecondaryPurple) },
-                  supportingText = { Text("No special characters, no spaces") },
-                  modifier = Modifier.width(320.dp).testTag("inputUsername"),
-                  singleLine = true)
+                  label = "My Username",
+                  placeholder = "Enter username",
+                  supportingText = "No special characters, no spaces",
+                  modifier = Modifier.testTag("inputUsername"))
 
               // Password input field
-              OutlinedTextField(
+              CustomInputField(
                   value = password,
                   onValueChange = { password = it },
-                  label = { Text("My Password", color = PrimaryPurple) },
-                  placeholder = { Text("Enter password", color = SecondaryPurple) },
-                  supportingText = { Text("6-18 characters") },
-                  modifier = Modifier.width(320.dp).testTag("inputPassword"),
-                  singleLine = true,
+                  label = "My Password",
+                  placeholder = "Enter password",
+                  keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
+                  supportingText = "6-18 characters",
+                  modifier = Modifier.testTag("inputPassword"))
 
               // Confirm Password input field
-              OutlinedTextField(
+              CustomInputField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
-                  label = { Text("Confirm Password", color = PrimaryPurple) },
-                  placeholder = { Text("Enter password", color = SecondaryPurple) },
-                  supportingText = { Text("6-18 characters") },
-                  modifier = Modifier.width(320.dp).testTag("inputConfirmPassword"),
-                  singleLine = true,
+                  label = "Confirm Password",
+                  placeholder = "Enter password",
+                  keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
-                  keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
-
+                  supportingText = "6-18 characters",
+                  modifier = Modifier.testTag("inputConfirmPassword"))
               // Link Spotify button
               LinkSpotifyButton()
 
@@ -174,35 +163,12 @@ fun SignUpScreen(
                   confirmPassword = confirmPassword,
                   username = username)
 
-              Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    modifier = Modifier.testTag("accountText"),
-                    text = "Already have an account ?",
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            color = PrimaryPurple,
-                            letterSpacing = 0.14.sp))
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Text for login option
-                Text(
-                    text = "Login",
-                    modifier =
-                        Modifier.testTag("loginText")
-                            .clickable(onClick = { navigationActions.navigateTo(Screen.LOGIN) }),
-                    style =
-                        TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = FontFamily(Font(R.font.roboto)),
-                            fontWeight = FontWeight(500),
-                            letterSpacing = 0.14.sp,
-                            brush = PrimaryGradientBrush,
-                            textDecoration = TextDecoration.Underline))
-              }
+              NavigationTextRow(
+                  mainText = "Already have an account ?",
+                  clickableText = "Login",
+                  onClick = { navigationActions.navigateTo(Screen.LOGIN) },
+                  mainTextTag = "accountText",
+                  clickableTextTag = "loginText")
             }
       }
 }
@@ -228,22 +194,15 @@ fun LinkSpotifyButton() {
         Text(
             modifier = Modifier.testTag("linkSpotifyText"),
             text = "Link My Spotify Account",
-            style =
-                TextStyle(
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
-                    fontFamily = FontFamily(Font(R.font.roboto)),
-                    fontWeight = FontWeight(500),
-                    color = PrimaryPurple,
-                    letterSpacing = 0.14.sp,
-                ))
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.width(8.dp))
 
         // Link button
         Box(
             modifier =
-                Modifier.border(1.dp, PrimaryPurple, RoundedCornerShape(5.dp))
+                Modifier.border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(5.dp))
                     .padding(horizontal = 20.dp, vertical = 6.dp)
                     .clickable(onClick = { /* TODO: Handle link action */})
                     .wrapContentSize()
@@ -252,14 +211,8 @@ fun LinkSpotifyButton() {
               Text(
                   modifier = Modifier.testTag("linkText"),
                   text = "Link",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp,
-                          color = PrimaryPurple))
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.labelSmall)
             }
         Spacer(modifier = Modifier.width(8.dp))
       }
@@ -301,19 +254,72 @@ fun CreateNewAccountButton(
             modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = Color.White, contentColor = PrimaryPurple),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(30.dp),
             elevation = null) {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",
-                  style =
-                      TextStyle(
-                          fontSize = 14.sp,
-                          lineHeight = 20.sp,
-                          fontFamily = FontFamily(Font(R.font.roboto)),
-                          fontWeight = FontWeight(500),
-                          letterSpacing = 0.14.sp))
+                  style = MaterialTheme.typography.labelLarge)
             }
       }
+}
+
+@Composable
+fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    singleLine: Boolean = true,
+    supportingText: String? = null
+) {
+  Column {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = MaterialTheme.colorScheme.primary) },
+        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSecondary) },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = visualTransformation,
+        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+        modifier = modifier.width(320.dp),
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                cursorColor = MaterialTheme.colorScheme.onPrimary,
+                errorTextColor = MaterialTheme.colorScheme.error,
+                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+    supportingText?.let { Text(text = it, color = MaterialTheme.colorScheme.primary) }
+  }
+}
+
+@Composable
+fun NavigationTextRow(
+    mainText: String,
+    clickableText: String,
+    onClick: () -> Unit,
+    mainTextTag: String,
+    clickableTextTag: String
+) {
+  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+    Text(
+        text = mainText,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.testTag(mainTextTag))
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(
+        text = clickableText,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.testTag(clickableTextTag).clickable(onClick = onClick),
+    )
+  }
 }

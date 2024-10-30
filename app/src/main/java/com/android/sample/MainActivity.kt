@@ -37,7 +37,7 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
-import com.android.sample.ui.theme.SampleAppTheme
+import com.android.sample.ui.theme.BeatLinkAppTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
@@ -67,7 +67,8 @@ class MainActivity : ComponentActivity() {
     spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
 
     setContent {
-      SampleAppTheme {
+      BeatLinkAppTheme {
+        // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
               // SpotifyAuth(spotifyAuthViewModel)

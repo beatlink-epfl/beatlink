@@ -13,32 +13,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileData
+import com.android.sample.ui.library.CornerIcons
+import com.android.sample.ui.library.PageTitle
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.PrimaryGradientBrush
-import com.android.sample.ui.theme.PrimaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,40 +45,21 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
         TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(titleContentColor = PrimaryPurple),
             // Username displayed
-            title = {
-              Text(
-                  text = user.username,
-                  fontWeight = FontWeight.Bold,
-                  fontSize = 20.sp,
-                  modifier = Modifier.testTag("titleUsername"))
-            },
+            title = { PageTitle(user.username, "titleUsername") },
             actions = {
               // Notification icon
-              IconButton(
-                  modifier = Modifier.testTag("profileScreenNotificationsButton"),
-                  onClick = {
-                    // Handle navigation icon click
-                  }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.bell_pin_fill),
-                        modifier = Modifier.size(28.dp),
-                        tint = Color.Unspecified,
-                        contentDescription = "Notifications")
-                  }
+              CornerIcons(
+                  onClick = {},
+                  icon = Icons.Filled.Notifications,
+                  contentDescription = "Notifications",
+                  modifier = Modifier.testTag("profileScreenNotificationsButton"))
               // Settings icon
-              IconButton(
-                  modifier = Modifier.testTag("profileScreenSettingsButton"),
-                  onClick = {
-                    // Handle navigation icon click
-                  }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.settings),
-                        modifier = Modifier.size(28.dp),
-                        tint = Color.Unspecified,
-                        contentDescription = "Settings")
-                  }
+              CornerIcons(
+                  onClick = {},
+                  icon = Icons.Filled.Settings,
+                  contentDescription = "Settings",
+                  modifier = Modifier.testTag("profileScreenSettingsButton"))
             },
         )
       },
@@ -93,17 +72,14 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
-          HorizontalDivider(
-              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
           Row(modifier = Modifier.padding(16.dp)) {
             ProfilePicture(user.profilePicture ?: R.drawable.default_profile_picture)
             Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(
                   text = "${user.links} Links",
-                  fontWeight = FontWeight.Bold,
-                  color = PrimaryPurple,
-                  fontSize = 18.sp,
+                  color = MaterialTheme.colorScheme.primary,
+                  style = MaterialTheme.typography.bodyLarge,
                   modifier =
                       Modifier.align(Alignment.CenterHorizontally)
                           .padding(18.dp)
@@ -117,27 +93,27 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     ) {
                       Text(
                           text = "Edit Profile",
-                          fontSize = 12.sp,
-                          fontWeight = FontWeight.Bold,
-                          color = PrimaryPurple)
+                          style = MaterialTheme.typography.labelSmall,
+                          color = MaterialTheme.colorScheme.primary)
                     }
                   }
             }
           }
           Text(
               text = user.name ?: "",
-              fontWeight = FontWeight.Bold,
-              fontSize = 14.sp,
-              color = PrimaryPurple,
+              color = MaterialTheme.colorScheme.onPrimary,
+              style = MaterialTheme.typography.bodyLarge,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))
           Text(
               text = user.bio ?: "No description provided",
-              fontSize = 14.sp,
-              color = Color.Black,
+              color = MaterialTheme.colorScheme.primary,
+              style = MaterialTheme.typography.bodyMedium,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
         }
       })
