@@ -9,6 +9,14 @@ plugins {
     id("jacoco")
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
+
 android {
     namespace = "com.android.sample"
     compileSdk = 34
@@ -192,6 +200,12 @@ dependencies {
     globalTestImplementation(libs.kaspresso)
     globalTestImplementation(libs.kaspresso.compose)
 
+    // -------------- Networking ---------------------
+    implementation(libs.okhttp)
+
+    // -------------- AndroidX testing library ------------
+    testImplementation(libs.androidx.core.testing)
+
     // ----------       Robolectric     ------------
     testImplementation(libs.robolectric)
 
@@ -200,8 +214,8 @@ dependencies {
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
+    testImplementation(libs.json)
     testImplementation(libs.mockk.v1135)
-    testImplementation (libs.kotlinx.coroutines.test)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -218,7 +232,8 @@ dependencies {
     androidTestImplementation(libs.kaspresso.allure.support)
     androidTestImplementation(libs.kaspresso.compose.support)
 
-    //testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric.v473)
     // Google Service and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
