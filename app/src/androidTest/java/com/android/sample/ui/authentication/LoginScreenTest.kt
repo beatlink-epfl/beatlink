@@ -12,8 +12,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.android.sample.model.authentication.AuthRepository
-import com.android.sample.model.authentication.AuthViewModel
+import com.android.sample.model.authentication.FirebaseAuthRepository
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import org.junit.Before
@@ -31,17 +31,17 @@ class LoginScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
-  private lateinit var authViewModel: AuthViewModel
-  private lateinit var authRepository: AuthRepository
+  private lateinit var firebaseAuthViewModel: FirebaseAuthViewModel
+  private lateinit var firebaseAuthRepository: FirebaseAuthRepository
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
-    authRepository = mock(AuthRepository::class.java)
-    authViewModel = AuthViewModel(authRepository)
+    firebaseAuthRepository = mock(FirebaseAuthRepository::class.java)
+    firebaseAuthViewModel = FirebaseAuthViewModel(firebaseAuthRepository)
 
     // Set the content for the composable
-    composeTestRule.setContent { LoginScreen(navigationActions, authViewModel) }
+    composeTestRule.setContent { LoginScreen(navigationActions, firebaseAuthViewModel) }
   }
 
   @Test
@@ -101,6 +101,6 @@ class LoginScreenTest {
     composeTestRule.onNodeWithTag("loginButton").performClick()
 
     // Verify that the login method was called with the correct credentials
-    verify(authRepository).login(eq("test@example.com"), eq("password123"), any(), any())
+    verify(firebaseAuthRepository).login(eq("test@example.com"), eq("password123"), any(), any())
   }
 }

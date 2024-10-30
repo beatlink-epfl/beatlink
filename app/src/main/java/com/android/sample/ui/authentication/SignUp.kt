@@ -52,8 +52,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
-import com.android.sample.model.authentication.AuthViewModel
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
@@ -62,21 +63,25 @@ import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewModel) {
+fun SignUpScreen(
+    navigationActions: NavigationActions,
+    firebaseAuthViewModel: FirebaseAuthViewModel =
+        viewModel(factory = FirebaseAuthViewModel.Factory)
+) {
   var email by remember { mutableStateOf("") }
   var username by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
   var confirmPassword by remember { mutableStateOf("") }
 
   val context = LocalContext.current
-  val authState by authViewModel.authState.collectAsState()
+  val authState by firebaseAuthViewModel.authState.collectAsState()
 
   // Handle authentication state
   AuthStateHandler(
       authState = authState,
       context = context,
       navigationActions = navigationActions,
-      authViewModel = authViewModel,
+      authViewModel = firebaseAuthViewModel,
       successMessage = "Sign up successful" // Success message for sign up
       )
 
@@ -163,7 +168,7 @@ fun SignUpScreen(navigationActions: NavigationActions, authViewModel: AuthViewMo
 
               // Create new account button
               CreateNewAccountButton(
-                  authViewModel = authViewModel,
+                  authViewModel = firebaseAuthViewModel,
                   email = email,
                   password = password,
                   confirmPassword = confirmPassword,
@@ -262,7 +267,7 @@ fun LinkSpotifyButton() {
 
 @Composable
 fun CreateNewAccountButton(
-    authViewModel: AuthViewModel,
+    authViewModel: FirebaseAuthViewModel,
     email: String,
     password: String,
     confirmPassword: String,

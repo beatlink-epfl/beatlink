@@ -1,5 +1,6 @@
 package com.android.sample
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,16 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.model.authentication.AuthViewModel
 import com.android.sample.model.profile.ProfileData
+import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen
 import com.android.sample.ui.authentication.SignUpScreen
+import com.android.sample.ui.authentication.SpotifyAuthViewModel
+import com.android.sample.ui.authentication.SpotifyAuthViewModelFactory
 import com.android.sample.ui.authentication.WelcomeScreen
 import com.android.sample.ui.library.LibraryScreen
 import com.android.sample.ui.map.MapScreen
@@ -37,9 +40,12 @@ import com.android.sample.ui.profile.ProfileScreen
 import com.android.sample.ui.theme.SampleAppTheme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
+
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -53,15 +59,27 @@ class MainActivity : ComponentActivity() {
       // This is useful for testing purposes
       auth.signOut()
     }
+
+    val client = OkHttpClient()
+    val spotifyAuthRepository = SpotifyAuthRepository(client)
+    val factory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
+
+    spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
+
     setContent {
       SampleAppTheme {
-        // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
+              // SpotifyAuth(spotifyAuthViewModel)
               BeatLinkApp()
             }
       }
     }
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    spotifyAuthViewModel.handleAuthorizationResponse(intent, applicationContext)
   }
 }
 
@@ -72,13 +90,12 @@ fun BeatLinkApp() {
 
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
-  val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
 
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
-      composable(Screen.LOGIN) { LoginScreen(navigationActions, authViewModel) }
-      composable(Screen.REGISTER) { SignUpScreen(navigationActions, authViewModel) }
+      composable(Screen.LOGIN) { LoginScreen(navigationActions) }
+      composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
 
       // Screen to be implemented
       // composable(Screen.PROFILE_BUILD) { }

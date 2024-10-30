@@ -24,7 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
-class AuthRepositoryFirestoreTest {
+class FirebaseAuthRepositoryFirestoreTest {
 
   @Mock private lateinit var mockFirestore: FirebaseFirestore
   @Mock private lateinit var mockAuth: FirebaseAuth
@@ -33,7 +33,7 @@ class AuthRepositoryFirestoreTest {
   @Mock private lateinit var mockDocumentReference: DocumentReference
   @Mock private lateinit var mockAuthResult: AuthResult
 
-  private lateinit var authRepositoryFirestore: AuthRepositoryFirestore
+  private lateinit var firebaseAuthRepositoryFirestore: FirebaseAuthRepositoryFirestore
 
   @Before
   fun setUp() {
@@ -52,7 +52,7 @@ class AuthRepositoryFirestoreTest {
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
     `when`(mockCollectionReference.document(any())).thenReturn(mockDocumentReference)
 
-    authRepositoryFirestore = AuthRepositoryFirestore(mockFirestore, mockAuth)
+    firebaseAuthRepositoryFirestore = FirebaseAuthRepositoryFirestore(mockFirestore, mockAuth)
   }
 
   @Test
@@ -61,7 +61,7 @@ class AuthRepositoryFirestoreTest {
         .thenReturn(Tasks.forResult(mockAuthResult))
     `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
 
-    authRepositoryFirestore.signUp(
+    firebaseAuthRepositoryFirestore.signUp(
         email = "test@example.com",
         password = "password123",
         username = "testUser",
@@ -81,7 +81,7 @@ class AuthRepositoryFirestoreTest {
         .thenReturn(Tasks.forResult(mockAuthResult))
     `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
 
-    authRepositoryFirestore.signUp(
+    firebaseAuthRepositoryFirestore.signUp(
         email = "test@example.com",
         password = "password123",
         username = "testUser",
@@ -100,7 +100,7 @@ class AuthRepositoryFirestoreTest {
     `when`(mockAuth.signInWithEmailAndPassword(any(), any()))
         .thenReturn(Tasks.forResult(mockAuthResult))
 
-    authRepositoryFirestore.login(
+    firebaseAuthRepositoryFirestore.login(
         email = "test@example.com",
         password = "password123",
         onSuccess = {},
@@ -123,7 +123,7 @@ class AuthRepositoryFirestoreTest {
         .thenReturn(Tasks.forResult(mockAuthResult))
     `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
 
-    authRepositoryFirestore.signUp(
+    firebaseAuthRepositoryFirestore.signUp(
         email = "test@example.com",
         password = "password123",
         username = "testUser",

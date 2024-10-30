@@ -5,8 +5,10 @@ import com.android.sample.model.profile.ProfileData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class AuthRepositoryFirestore(private val db: FirebaseFirestore, private val auth: FirebaseAuth) :
-    AuthRepository {
+class FirebaseAuthRepositoryFirestore(
+    private val db: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : FirebaseAuthRepository {
   private val collectionPath = "userProfiles"
 
   override fun signUp(

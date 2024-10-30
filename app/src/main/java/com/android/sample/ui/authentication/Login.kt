@@ -43,8 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
-import com.android.sample.model.authentication.AuthViewModel
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.theme.PrimaryGradientBrush
@@ -53,19 +54,23 @@ import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navigationActions: NavigationActions, authViewModel: AuthViewModel) {
+fun LoginScreen(
+    navigationActions: NavigationActions,
+    firebaseAuthViewModel: FirebaseAuthViewModel =
+        viewModel(factory = FirebaseAuthViewModel.Factory)
+) {
   var email by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
 
   val context = LocalContext.current
-  val authState by authViewModel.authState.collectAsState()
+  val authState by firebaseAuthViewModel.authState.collectAsState()
 
   // Handle authentication state
   AuthStateHandler(
       authState = authState,
       context = context,
       navigationActions = navigationActions,
-      authViewModel = authViewModel,
+      authViewModel = firebaseAuthViewModel,
       successMessage = "Login successful")
 
   Scaffold(
@@ -117,7 +122,7 @@ fun LoginScreen(navigationActions: NavigationActions, authViewModel: AuthViewMod
 
               // Login button
               LoginFirebaseButton(
-                  authViewModel = authViewModel,
+                  authViewModel = firebaseAuthViewModel,
                   email = email,
                   password = password,
                   context = context)
@@ -130,7 +135,7 @@ fun LoginScreen(navigationActions: NavigationActions, authViewModel: AuthViewMod
 
 @Composable
 fun LoginFirebaseButton(
-    authViewModel: AuthViewModel,
+    authViewModel: FirebaseAuthViewModel,
     email: String,
     password: String,
     context: Context

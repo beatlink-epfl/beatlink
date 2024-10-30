@@ -1,6 +1,6 @@
 package com.android.sample.model.authentication
 
-interface AuthRepository {
+interface FirebaseAuthRepository {
   fun signUp(
       email: String,
       password: String,

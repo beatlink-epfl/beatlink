@@ -9,8 +9,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.android.sample.model.authentication.AuthRepository
-import com.android.sample.model.authentication.AuthViewModel
+import com.android.sample.model.authentication.FirebaseAuthRepository
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import org.junit.Before
@@ -28,14 +28,14 @@ class SignUpScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
-  private lateinit var authViewModel: AuthViewModel
-  private lateinit var authRepository: AuthRepository
+  private lateinit var authViewModel: FirebaseAuthViewModel
+  private lateinit var authRepository: FirebaseAuthRepository
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
-    authRepository = mock(AuthRepository::class.java)
-    authViewModel = AuthViewModel(authRepository)
+    authRepository = mock(FirebaseAuthRepository::class.java)
+    authViewModel = FirebaseAuthViewModel(authRepository)
 
     // Set the content for the composable
     composeTestRule.setContent { SignUpScreen(navigationActions, authViewModel) }

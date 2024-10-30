@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
+class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) : ViewModel() {
   private val _authState = MutableStateFlow<AuthState>(AuthState.Idle) // Start with Idle state
   val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -54,7 +54,8 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
           override fun <T : ViewModel> create(modelClass: Class<T>): T {
             val firestore = FirebaseFirestore.getInstance()
             val firebaseAuth = FirebaseAuth.getInstance()
-            return AuthViewModel(AuthRepositoryFirestore(firestore, firebaseAuth)) as T
+            return FirebaseAuthViewModel(FirebaseAuthRepositoryFirestore(firestore, firebaseAuth))
+                as T
           }
         }
   }

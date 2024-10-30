@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.android.sample.model.authentication.AuthState
-import com.android.sample.model.authentication.AuthViewModel
+import com.android.sample.model.authentication.FirebaseAuthViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 
@@ -14,7 +14,7 @@ fun AuthStateHandler(
     authState: AuthState,
     context: Context,
     navigationActions: NavigationActions,
-    authViewModel: AuthViewModel,
+    authViewModel: FirebaseAuthViewModel,
     successMessage: String
 ) {
   LaunchedEffect(authState) {
