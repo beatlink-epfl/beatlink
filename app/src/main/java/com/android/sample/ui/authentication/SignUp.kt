@@ -24,8 +24,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -40,10 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -55,9 +50,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
+import com.android.sample.ui.library.CornerIcons
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
-import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.PrimaryRed
 
@@ -68,38 +63,14 @@ fun SignUpScreen(navigationActions: NavigationActions) {
       modifier = Modifier.testTag("signUpScreen"),
       topBar = {
         TopAppBar(
-            title = {
-              Box(
-                  modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
-                  contentAlignment = Alignment.Center) {
-                    Text(
-                        modifier = Modifier.testTag("appName"),
-                        text =
-                            buildAnnotatedString {
-                              withStyle(
-                                  style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                    append("Beat")
-                                  }
-                              withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
-                            },
-                        style = MaterialTheme.typography.headlineLarge)
-                  }
-            },
+            title = { BeatLinkTopLogo() },
             navigationIcon = {
-              IconButton(
+              CornerIcons(
                   onClick = { navigationActions.goBack() },
-                  modifier = Modifier.testTag("backButton")) {
-                    Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(IconsGradientBrush, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Go back")
-                  }
+                  icon = Icons.AutoMirrored.Filled.ArrowBack,
+                  contentDescription = "Go back",
+                  modifier = Modifier.testTag("backButton"),
+                  iconSize = 30.dp)
             })
       }) { paddingValues ->
         Column(
@@ -179,24 +150,12 @@ fun SignUpScreen(navigationActions: NavigationActions) {
               // Create new account button
               CreateNewAccountButton()
 
-              // Text for sign up option
-              Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    modifier = Modifier.testTag("loginText"),
-                    text = "Already have an account ?",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium)
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Sign up text with gradient color
-                Text(
-                    text = "Login",
-                    modifier =
-                        Modifier.testTag("loginClickableText")
-                            .clickable(onClick = { navigationActions.navigateTo(Screen.LOGIN) }),
-                    style = MaterialTheme.typography.labelMedium)
-              }
+              NavigationTextRow(
+                  mainText = "Already have an account ?",
+                  clickableText = "Login",
+                  onClick = { navigationActions.navigateTo(Screen.LOGIN) },
+                  mainTextTag = "loginText",
+                  clickableTextTag = "loginClickableText")
             }
       }
 }
@@ -305,4 +264,45 @@ fun CustomInputField(
                 focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
     supportingText?.let { Text(text = it, color = MaterialTheme.colorScheme.primary) }
   }
+}
+
+@Composable
+fun NavigationTextRow(
+    mainText: String,
+    clickableText: String,
+    onClick: () -> Unit,
+    mainTextTag: String,
+    clickableTextTag: String
+) {
+  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+    Text(
+        text = mainText,
+        color = MaterialTheme.colorScheme.primary,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.testTag(mainTextTag))
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(
+        text = clickableText,
+        style = MaterialTheme.typography.labelMedium,
+        modifier = Modifier.testTag(clickableTextTag).clickable(onClick = onClick),
+    )
+  }
+}
+
+@Composable
+fun BeatLinkTopLogo() {
+  Box(
+      modifier = Modifier.fillMaxWidth().padding(end = 36.dp),
+      contentAlignment = Alignment.Center) {
+        Text(
+            modifier = Modifier.testTag("appName"),
+            text =
+                buildAnnotatedString {
+                  withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    append("Beat")
+                  }
+                  withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
+                },
+            style = MaterialTheme.typography.headlineLarge)
+      }
 }
