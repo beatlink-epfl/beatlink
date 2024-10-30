@@ -200,6 +200,8 @@ dependencies {
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
+    testImplementation(libs.mockk.v1135)
+    testImplementation (libs.kotlinx.coroutines.test)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)

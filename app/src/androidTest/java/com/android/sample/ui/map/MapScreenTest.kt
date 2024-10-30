@@ -2,54 +2,65 @@ package com.android.sample.ui.map
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.rule.GrantPermissionRule
+import com.android.sample.model.map.MapViewModel
 import com.android.sample.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class MapScreenTest {
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-  // Grant fine location permission
-  @get:Rule
-  var fineLocationPermissionRule =
-      GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+  @Test
+  fun mapScreen_displaysLoadingMapText_whenMapIsNotLoaded() {
+    // Mock ViewModel with default states
+    val fakeMapLocationRepository = FakeMapLocationRepository()
+    val mapViewModel =
+        MapViewModel(fakeMapLocationRepository).apply {
+          isMapLoaded.value = false
+          permissionRequired.value = false
+        }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
+
+    // Verify that "Loading map..." text is displayed when the map is not loaded
+    composeTestRule.onNodeWithText("Loading map...").assertIsDisplayed()
+  }
 
   @Test
-  fun mapScreen_withFineLocationPermission() {
+  fun mapScreen_displaysMap_whenMapIsLoaded() {
+    // Mock ViewModel with map loaded
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply {
+          isMapLoaded.value = true // Simulate that the map is loaded
+        }
 
-    fineLocationPermissionRule.apply {
-      composeTestRule.setContent {
-        MapScreen(
-            navigationActions = NavigationActions(rememberNavController()),
-            currentMusicPlayed = null,
-            radius = 2000.0)
-      }
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
     }
 
-    // Verify UI elements
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("MapScreenColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
 
-    // Check for loading and map
-    composeTestRule.onNodeWithTag("playerText no music").assertIsDisplayed()
-
-    composeTestRule.waitUntil(timeoutMillis = 10000) {
-      composeTestRule.onNodeWithTag("Map").isDisplayed()
-    }
-
-    // Verify current location button and click it
+    // Verify that the map is displayed when loaded
+    composeTestRule.onNodeWithTag("Map").assertIsDisplayed()
     composeTestRule.onNodeWithTag("currentLocationFab").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("currentLocationFab").performClick()
   }
 }

@@ -4,6 +4,7 @@ composeBomVersion = "2023.08.00"
 core = "1.6.1"
 espressoCoreVersion = "3.6.1"
 kotlinxCoroutinesPlayServices = "1.7.3"
+kotlinxCoroutinesTest = "1.6.1"
 mockitoAndroid = "5.13.0"
 agp = "8.3.0"
 kotlin = "1.8.10"
@@ -13,6 +14,7 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 mockitoAndroidVersion = "5.11.0"
 mockitoCoreVersion = "3.11.2"
+mockkMockk = "1.13.5"
 navigationTesting = "2.8.2"
 runner = "1.6.2"
 uiTestJunit4 = "1.6.8"
@@ -65,6 +67,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4" }
@@ -87,6 +90,7 @@ kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspres
 
 mockito-android-v5110 = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroidVersion" }
 mockito-core-v3112 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
+mockk-v1135 = { module = "io.mockk:mockk", version.ref = "mockkMockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
