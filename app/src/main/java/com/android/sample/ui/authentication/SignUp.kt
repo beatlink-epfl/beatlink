@@ -167,8 +167,8 @@ fun SignUpScreen(
                   mainText = "Already have an account ?",
                   clickableText = "Login",
                   onClick = { navigationActions.navigateTo(Screen.LOGIN) },
-                  mainTextTag = "loginText",
-                  clickableTextTag = "loginClickableText")
+                  mainTextTag = "accountText",
+                  clickableTextTag = "loginText")
             }
       }
 }

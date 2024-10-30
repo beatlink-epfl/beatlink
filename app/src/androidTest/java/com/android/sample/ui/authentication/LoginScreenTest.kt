@@ -72,10 +72,10 @@ class LoginScreenTest {
         .filterToOne(hasText("Password", substring = true))
         .assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("noAccountText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("noAccountText").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("noAccountText").assertTextContains("Don’t have an account yet ?")
 
-    composeTestRule.onNodeWithTag("signUpText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("signUpText").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("signUpText").assertTextEquals("Sign up")
     composeTestRule.onNodeWithTag("signUpText").assertHasClickAction()
   }
@@ -88,7 +88,7 @@ class LoginScreenTest {
 
   @Test
   fun verifySignUpTextNavigatesToSignUpScreen() {
-    composeTestRule.onNodeWithTag("signUpText").performClick()
+    composeTestRule.onNodeWithTag("signUpText").performScrollTo().performClick()
     verify(navigationActions).navigateTo(Screen.REGISTER)
   }
 
@@ -99,7 +99,7 @@ class LoginScreenTest {
     composeTestRule.onNodeWithTag("inputPassword").performTextInput("password123")
 
     // Click login button
-    composeTestRule.onNodeWithTag("loginButton").performClick()
+    composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
     // Verify that the login method was called with the correct credentials
     verify(firebaseAuthRepository).login(eq("test@example.com"), eq("password123"), any(), any())
