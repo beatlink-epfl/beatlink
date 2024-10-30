@@ -57,12 +57,10 @@ fun WelcomeScreen(navigationActions: NavigationActions) {
             modifier = Modifier.testTag("appName"),
             text =
                 buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                        append("Beat")
-                    }
-                    withStyle(style = SpanStyle(color = PrimaryRed)) {
-                        append("Link")
-                    }
+                  withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    append("Beat")
+                  }
+                  withStyle(style = SpanStyle(color = PrimaryRed)) { append("Link") }
                 },
             style = MaterialTheme.typography.displayMedium)
 
