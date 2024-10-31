@@ -46,6 +46,7 @@ class MapScreenTest {
     val mapViewModel =
         MapViewModel(FakeMapLocationRepository()).apply {
           isMapLoaded.value = true // Simulate that the map is loaded
+          permissionRequired.value = false
         }
 
     composeTestRule.setContent {

@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.android.sample.model.spotify.SpotifyAuthRepository
-import com.android.sample.ui.theme.SampleAppTheme
+import com.android.sample.ui.theme.BeatLinkAppTheme
 import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
@@ -32,7 +32,7 @@ class SpotifyAuthTest {
 
   @Test
   fun spotifyAuth_showsCorrectUi() {
-    composeTestRule.setContent { SampleAppTheme { SpotifyAuth(spotifyViewModel = viewModel) } }
+    composeTestRule.setContent { BeatLinkAppTheme { SpotifyAuth(spotifyViewModel = viewModel) } }
 
     composeTestRule.waitUntil(timeoutMillis = 5000) {
       composeTestRule.onAllNodesWithTag("SpotifyAuthCard").fetchSemanticsNodes().isNotEmpty()
