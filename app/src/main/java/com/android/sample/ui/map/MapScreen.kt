@@ -20,13 +20,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.android.sample.model.map.MapLocationRepository
 import com.android.sample.model.map.MapViewModel
 import com.android.sample.model.spotify.objects.SpotifyTrack
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
+import com.google.android.gms.location.LocationServices
 
 const val defaultZoom = 15f
 
@@ -38,7 +42,17 @@ enum class CameraAction {
 @Composable
 fun MapScreen(
     navigationActions: NavigationActions,
-    mapViewModel: MapViewModel,
+    mapViewModel: MapViewModel =
+        viewModel(
+            factory =
+            MapViewModel.provideFactory(
+                mapLocationRepository =
+                MapLocationRepository(
+                    context = LocalContext.current.applicationContext,
+                    locationClient =
+                    LocationServices.getFusedLocationProviderClient(
+                        LocalContext.current))
+            )),
     currentMusicPlayed: SpotifyTrack? = null,
     radius: Double = 1000.0
 ) {

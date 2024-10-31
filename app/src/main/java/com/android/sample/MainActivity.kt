@@ -13,18 +13,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.model.map.MapLocationRepository
-import com.android.sample.model.map.MapViewModel
 import com.android.sample.model.profile.ProfileData
 import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
@@ -42,7 +38,6 @@ import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
 import com.android.sample.ui.theme.BeatLinkAppTheme
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
@@ -75,10 +70,10 @@ class MainActivity : ComponentActivity() {
       BeatLinkAppTheme {
         // A surface container using the 'background' color from the theme
         Surface(
-            modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-              // SpotifyAuth(spotifyAuthViewModel)
-              BeatLinkApp()
-            }
+          modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
+          // SpotifyAuth(spotifyAuthViewModel)
+          BeatLinkApp()
+        }
       }
     }
   }
@@ -96,12 +91,6 @@ fun BeatLinkApp() {
 
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
-  val locationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
-  val mapLocationRepository =
-      MapLocationRepository(
-          context = LocalContext.current.applicationContext, locationClient = locationClient)
-  val mapViewModel: MapViewModel =
-      viewModel(factory = MapViewModel.provideFactory(mapLocationRepository))
 
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
@@ -114,7 +103,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel) }
+      composable(Screen.HOME) { MapScreen(navigationActions) }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
@@ -135,16 +124,16 @@ fun BeatLinkApp() {
 @Composable
 fun SearchScreen(navigationActions: NavigationActions) {
   Scaffold(
-      modifier = Modifier.testTag("searchScreen"),
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      },
-      content = { pd ->
-        Box(modifier = Modifier.padding(pd).fillMaxSize()) {
-          Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
-        }
-      })
+    modifier = Modifier.testTag("searchScreen"),
+    bottomBar = {
+      BottomNavigationMenu(
+        onTabSelect = { route -> navigationActions.navigateTo(route) },
+        tabList = LIST_TOP_LEVEL_DESTINATION,
+        selectedItem = navigationActions.currentRoute())
+    },
+    content = { pd ->
+      Box(modifier = Modifier.padding(pd).fillMaxSize()) {
+        Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
+      }
+    })
 }
