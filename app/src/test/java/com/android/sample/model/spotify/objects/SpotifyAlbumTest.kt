@@ -7,13 +7,15 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbum() {
+    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum =
         SpotifyAlbum(
             "spotifyId",
             "name",
             "cover",
             "artist",
-            listOf("track1", "track2"),
+            2024,
+            listOf(track),
             10,
             listOf("genre1", "genre2"),
             100)
@@ -22,7 +24,8 @@ class SpotifyAlbumTest {
     assertEquals("name", spotifyAlbum.name)
     assertEquals("cover", spotifyAlbum.cover)
     assertEquals("artist", spotifyAlbum.artist)
-    assertEquals(listOf("track1", "track2"), spotifyAlbum.tracks)
+    assertEquals(2024, spotifyAlbum.year)
+    assertEquals(listOf(track), spotifyAlbum.tracks)
     assertEquals(10, spotifyAlbum.size)
     assertEquals(listOf("genre1", "genre2"), spotifyAlbum.genres)
     assertEquals(100, spotifyAlbum.popularity)
@@ -30,13 +33,15 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbumCopy() {
+    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum =
         SpotifyAlbum(
             "spotifyId",
             "name",
             "cover",
             "artist",
-            listOf("track1", "track2"),
+            2024,
+            listOf(track),
             10,
             listOf("genre1", "genre2"),
             100)
@@ -47,6 +52,7 @@ class SpotifyAlbumTest {
     assertEquals(spotifyAlbum.name, spotifyAlbumCopy.name)
     assertEquals(spotifyAlbum.cover, spotifyAlbumCopy.cover)
     assertEquals(spotifyAlbum.artist, spotifyAlbumCopy.artist)
+    assertEquals(spotifyAlbum.year, spotifyAlbumCopy.year)
     assertEquals(spotifyAlbum.tracks, spotifyAlbumCopy.tracks)
     assertEquals(spotifyAlbum.size, spotifyAlbumCopy.size)
     assertEquals(spotifyAlbum.genres, spotifyAlbumCopy.genres)
@@ -55,13 +61,15 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbumEquals() {
+    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum1 =
         SpotifyAlbum(
             "spotifyId",
             "name",
             "cover",
             "artist",
-            listOf("track1", "track2"),
+            2024,
+            listOf(track),
             10,
             listOf("genre1", "genre2"),
             100)
@@ -72,7 +80,8 @@ class SpotifyAlbumTest {
             "name",
             "cover",
             "artist",
-            listOf("track1", "track2"),
+            2024,
+            listOf(track),
             10,
             listOf("genre1", "genre2"),
             100)
