@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.ktfmt)
     alias(libs.plugins.sonar)
     id("jacoco")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 val localProperties = Properties()
@@ -172,11 +174,16 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
-    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.common.ktx)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)
+
+    // ------------- Firebase ------------------
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)

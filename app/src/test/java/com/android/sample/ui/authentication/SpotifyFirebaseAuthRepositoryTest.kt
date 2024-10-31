@@ -22,7 +22,7 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SpotifyAuthRepositoryTest {
+class SpotifyFirebaseAuthRepositoryTest {
 
   @Mock private lateinit var context: Context
 
