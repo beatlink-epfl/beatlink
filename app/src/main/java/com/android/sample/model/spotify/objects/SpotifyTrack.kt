@@ -9,6 +9,7 @@ data class SpotifyTrack(
     val state: State
 )
 
-enum class State{
-    PLAY, PAUSE
+enum class State {
+  PLAY,
+  PAUSE
 }
