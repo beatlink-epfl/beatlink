@@ -1,5 +1,6 @@
 package com.android.sample.ui.player
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,21 +48,7 @@ import com.android.sample.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayScreen(navigationActions: NavigationActions) {
-  val track = SpotifyTrack("Thank god", "trackId", "cover", 0, 0, State.PLAY)
-  val track1 = SpotifyTrack("Thank god1", "trackId1", "cover1", 0, 0, State.PLAY)
-  val album =
-      SpotifyAlbum(
-          "spotifyId",
-          "Utopia",
-          "cover",
-          "Travis Scott",
-          2023,
-          listOf(track, track, track, track1, track1, track1),
-          0,
-          listOf("genre"),
-          0)
-
+fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album: SpotifyAlbum) {
   Scaffold(
       modifier = Modifier.testTag("playScreen"),
       topBar = {
@@ -80,13 +67,16 @@ fun PlayScreen(navigationActions: NavigationActions) {
                   onClick = { navigationActions.goBack() }) {
                     Icon(
                         modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        imageVector = Icons.Filled.ArrowBack,
+                            Modifier.size(30.dp)
+                                .graphicsLayer(alpha = 0.99f)
+                                .drawWithCache {
+                                  onDrawWithContent {
+                                    drawContent()
+                                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                                  }
+                                }
+                                .testTag("backButtonIcon"),
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
             })
@@ -103,7 +93,8 @@ fun PlayScreen(navigationActions: NavigationActions) {
                 Modifier.fillMaxSize()
                     .padding(pd)
                     .background(
-                        Brush.verticalGradient(colors = listOf(Color.White, SecondaryPurple)))) {
+                        Brush.verticalGradient(colors = listOf(Color.White, SecondaryPurple)))
+                    .testTag("playScreenContent")) {
               PlayScreenUpperBox(track, album)
               PlayScreenLowerBox(album)
             }
@@ -180,6 +171,7 @@ fun PlayScreenUpperBox(track: SpotifyTrack, album: SpotifyAlbum) {
   }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PlayScreenLowerBox(album: SpotifyAlbum) {
   Scaffold(
@@ -221,7 +213,7 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                   }
             }
       },
-      content = { padding ->
+      content = { _ ->
         Column(
             modifier =
                 Modifier.padding(top = 35.dp)
@@ -230,7 +222,7 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                     .fillMaxWidth()) {
               if (album.tracks.isEmpty()) {
                 Text(
-                    text = "The tracklist is empty",
+                    text = "The track list is empty",
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 25.dp))
               } else {
                 for (i in 0 until album.tracks.size) {
@@ -244,7 +236,7 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                             modifier =
                                 Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),
                             verticalAlignment = Alignment.CenterVertically) {
-                              Icon(
+                              Image(
                                   painter =
                                       painterResource(
                                           id = R.drawable.beatlink_logo), // change to album.cover
