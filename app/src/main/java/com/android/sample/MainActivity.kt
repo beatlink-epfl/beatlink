@@ -17,11 +17,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.android.sample.model.profile.ProfileData
+import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen
@@ -77,6 +79,7 @@ fun BeatLinkApp() {
 
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
+  val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
 
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
@@ -101,7 +104,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen(tmpUser, navigationActions) }
+      composable(Screen.PROFILE) { ProfileScreen("shw6jHWkbPSDatSKbK4kQHB9r3E3", profileViewModel, navigationActions) }
     }
   }
 }
