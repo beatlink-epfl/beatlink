@@ -41,18 +41,38 @@ class MapViewModelTest {
   }
 
   @Test
-  fun `checkAndRequestLocationPermission updates locationPermitted and permissionAsked when permission is denied`() {
-    // Initially permission is denied in FakeMapLocationRepository
-    fakeMapLocationRepository.setLocationPermissionGranted(false)
-    mapViewModel.setLocationPermissionAsked(true) // Simulate that the permission has been requested
+  fun `checkAndRequestLocationPermission updates locationPermitted and permissionAsked when permission is granted`() =
+      runTest {
+        // Grant permission in FakeMapLocationRepository
+        fakeMapLocationRepository.setLocationPermissionGranted(true)
 
-    mapViewModel.setLocationPermissionGranted(
-        fakeMapLocationRepository.isLocationPermissionGranted())
+        // Call the function under test
+        mapViewModel.checkAndRequestLocationPermission()
 
-    // Verify permission states
-    assertThat(mapViewModel.locationPermitted.value, `is`(false))
-    assertThat(mapViewModel.permissionAsked.value, `is`(true))
-  }
+        // Wait for the coroutine to complete
+        advanceUntilIdle()
+
+        // Verify that locationPermitted is true and permissionAsked is false
+        assertThat(mapViewModel.locationPermitted.value, `is`(true))
+        assertThat(mapViewModel.permissionAsked.value, `is`(false))
+      }
+
+  @Test
+  fun `checkAndRequestLocationPermission updates locationPermitted and permissionAsked when permission is denied`() =
+      runTest {
+        // Deny permission in FakeMapLocationRepository
+        fakeMapLocationRepository.setLocationPermissionGranted(false)
+
+        // Call the function under test
+        mapViewModel.checkAndRequestLocationPermission()
+
+        // Wait for the coroutine to complete
+        advanceUntilIdle()
+
+        // Verify that locationPermitted is false and permissionAsked is true
+        assertThat(mapViewModel.locationPermitted.value, `is`(false))
+        assertThat(mapViewModel.permissionAsked.value, `is`(true))
+      }
 
   @Test
   fun `startLocationUpdates updates currentPosition and isMapLoaded when permission is granted`() =

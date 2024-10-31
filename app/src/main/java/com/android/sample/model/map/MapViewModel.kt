@@ -20,7 +20,7 @@ open class MapViewModel(private val mapLocationRepository: LocationRepository) :
   val moveToCurrentLocation: MutableState<CameraAction> = mutableStateOf(CameraAction.NO_ACTION)
   val permissionRequired: MutableState<Boolean> = mutableStateOf(true)
 
-  private fun checkAndRequestLocationPermission() {
+  fun checkAndRequestLocationPermission() {
     viewModelScope.launch {
       if (!mapLocationRepository.isLocationPermissionGranted()) {
         locationPermitted.value = false
