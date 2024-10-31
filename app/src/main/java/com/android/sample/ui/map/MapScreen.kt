@@ -45,14 +45,13 @@ fun MapScreen(
     mapViewModel: MapViewModel =
         viewModel(
             factory =
-            MapViewModel.provideFactory(
-                mapLocationRepository =
-                MapLocationRepository(
-                    context = LocalContext.current.applicationContext,
-                    locationClient =
-                    LocationServices.getFusedLocationProviderClient(
-                        LocalContext.current))
-            )),
+                MapViewModel.provideFactory(
+                    mapLocationRepository =
+                        MapLocationRepository(
+                            context = LocalContext.current.applicationContext,
+                            locationClient =
+                                LocationServices.getFusedLocationProviderClient(
+                                    LocalContext.current)))),
     currentMusicPlayed: SpotifyTrack? = null,
     radius: Double = 1000.0
 ) {

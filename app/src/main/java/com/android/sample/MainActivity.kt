@@ -70,10 +70,10 @@ class MainActivity : ComponentActivity() {
       BeatLinkAppTheme {
         // A surface container using the 'background' color from the theme
         Surface(
-          modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-          // SpotifyAuth(spotifyAuthViewModel)
-          BeatLinkApp()
-        }
+            modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
+              // SpotifyAuth(spotifyAuthViewModel)
+              BeatLinkApp()
+            }
       }
     }
   }
@@ -124,16 +124,16 @@ fun BeatLinkApp() {
 @Composable
 fun SearchScreen(navigationActions: NavigationActions) {
   Scaffold(
-    modifier = Modifier.testTag("searchScreen"),
-    bottomBar = {
-      BottomNavigationMenu(
-        onTabSelect = { route -> navigationActions.navigateTo(route) },
-        tabList = LIST_TOP_LEVEL_DESTINATION,
-        selectedItem = navigationActions.currentRoute())
-    },
-    content = { pd ->
-      Box(modifier = Modifier.padding(pd).fillMaxSize()) {
-        Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
-      }
-    })
+      modifier = Modifier.testTag("searchScreen"),
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { pd ->
+        Box(modifier = Modifier.padding(pd).fillMaxSize()) {
+          Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
+        }
+      })
 }
