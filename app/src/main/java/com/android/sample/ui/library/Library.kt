@@ -31,7 +31,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
       topBar = {
         PageTopBarApp(
             "My Library",
-            "libraryScreen",
+            "libraryTitle",
             {},
             Icons.Outlined.Search,
             "Search",
