@@ -1,5 +1,6 @@
 package com.android.sample.ui.map
 
+import android.Manifest
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -69,4 +70,48 @@ class MapScreenTest {
     composeTestRule.onNodeWithTag("Map").assertIsDisplayed()
     composeTestRule.onNodeWithTag("currentLocationFab").assertIsDisplayed()
   }
+
+  @Test
+  fun mapScreen_handlesPermissionResult_correctly() {
+    // Mock ViewModel with permission handling states
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
+
+    // Simulate permissions granted
+    val permissions =
+        mapOf(
+            Manifest.permission.ACCESS_FINE_LOCATION to true,
+            Manifest.permission.ACCESS_COARSE_LOCATION to true)
+    val granted =
+        permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+    mapViewModel.onPermissionResult(granted)
+    mapViewModel.setLocationPermissionGranted(granted)
+
+    // Verify that onPermissionResult updates permissionRequired and locationPermitted
+    assert(mapViewModel.locationPermitted.value)
+    assert(!mapViewModel.permissionRequired.value)
+  }
+
+  /*@Test
+  fun mapScreen_requestsPermissions_whenPermissionRequired() {
+      val mapViewModel = mockk<MapViewModel>(relaxed = true)
+      every { mapViewModel.permissionRequired.value } returns true
+
+      composeTestRule.setContent {
+          MapScreen(
+              navigationActions = NavigationActions(rememberNavController()),
+              mapViewModel = mapViewModel
+          )
+      }
+
+      // Verify that permissionLauncher.launch is triggered when permissionRequired is true
+      verify { mapViewModel.permissionRequired.value }
+  }*/
 }
