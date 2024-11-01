@@ -34,16 +34,16 @@ class SearchScreenTest {
   @Test
   fun everythingIsDisplayed() {
 
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchScreen").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchScreenColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScreenColumn").assertIsDisplayed()
     composeTestRule
         .onNodeWithTag("LIVE MUSIC PARTIESLazyColumn")
         .performScrollTo()
         .assertIsDisplayed()
     composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESTitle").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("nonWritableSearchBar").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("nonWritableSearchBar").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").assertIsDisplayed()
     composeTestRule.onNodeWithTag("TRENDING SONGSLazyColumn").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("TRENDING SONGSTitle").performScrollTo().assertIsDisplayed()
     composeTestRule
