@@ -1,5 +1,6 @@
 package com.android.sample.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,8 +31,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,13 +51,13 @@ import com.android.sample.ui.theme.PrimaryGradientBrush
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    userId: String,
     profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory),
     navigationAction: NavigationActions
 ) {
-  val profileData by profileViewModel.profile.collectAsState()
+    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    val profileData by profileViewModel.profile.collectAsState()
 
-  LaunchedEffect(Unit) { profileViewModel.fetchProfile(userId) }
+    Log.d("USER_FETCH", profileData.toString())
 
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
@@ -92,6 +96,7 @@ fun ProfileScreen(
             Column {
               Text(
                   text = "${profileData?.links ?: 0} Links",
+                  fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.primary,
                   style = MaterialTheme.typography.bodyLarge,
                   modifier =
@@ -109,10 +114,11 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                                containerColor = Color.White),
                     ) {
                       Text(
                           text = "Edit Profile",
+                          fontWeight = FontWeight.Bold,
                           style = MaterialTheme.typography.labelSmall,
                           color = MaterialTheme.colorScheme.primary)
                     }
@@ -121,6 +127,7 @@ fun ProfileScreen(
           }
           Text(
               text = profileData?.name ?: "",
+              fontWeight = FontWeight.Bold,
               color = MaterialTheme.colorScheme.onPrimary,
               style = MaterialTheme.typography.bodyLarge,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))

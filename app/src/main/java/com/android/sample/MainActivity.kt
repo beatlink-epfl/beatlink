@@ -89,7 +89,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BeatLinkApp() {
 
-  val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
+  //val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
 
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
@@ -118,7 +118,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen("shw6jHWkbPSDatSKbK4kQHB9r3E3", profileViewModel, navigationActions) }
+      composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
     }
   }
 }
