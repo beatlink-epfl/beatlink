@@ -37,7 +37,9 @@ fun GoogleMapView(
 ) {
   val coroutineScope = rememberCoroutineScope()
 
-  val cameraPositionState = rememberCameraPositionState()
+  val cameraPositionState = rememberCameraPositionState {
+    position = CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)
+  }
 
   val context = LocalContext.current
 
