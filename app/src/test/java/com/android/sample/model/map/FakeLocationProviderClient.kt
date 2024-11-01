@@ -24,7 +24,8 @@ import java.util.concurrent.Executor
 
 class FakeLocationProviderClient : FusedLocationProviderClient {
 
-  private var locationCallback: LocationCallback? = null
+  var locationCallback: LocationCallback? = null
+  var removeLocationUpdatesCalled = false
 
   override fun getApiKey(): ApiKey<Api.ApiOptions.NoOptions> {
     TODO("Not yet implemented")
@@ -97,6 +98,7 @@ class FakeLocationProviderClient : FusedLocationProviderClient {
 
   // Simulate stopping location updates
   override fun removeLocationUpdates(callback: LocationCallback): Task<Void> {
+    removeLocationUpdatesCalled = true
     if (locationCallback == callback) {
       locationCallback = null
     }

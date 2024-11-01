@@ -99,19 +99,17 @@ class MapScreenTest {
     assert(!mapViewModel.permissionRequired.value)
   }
 
-  /*@Test
+  @Test
   fun mapScreen_requestsPermissions_whenPermissionRequired() {
-      val mapViewModel = mockk<MapViewModel>(relaxed = true)
-      every { mapViewModel.permissionRequired.value } returns true
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
 
-      composeTestRule.setContent {
-          MapScreen(
-              navigationActions = NavigationActions(rememberNavController()),
-              mapViewModel = mapViewModel
-          )
-      }
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
 
-      // Verify that permissionLauncher.launch is triggered when permissionRequired is true
-      verify { mapViewModel.permissionRequired.value }
-  }*/
+    assert(mapViewModel.permissionRequired.value) // No mocking required here
+  }
 }

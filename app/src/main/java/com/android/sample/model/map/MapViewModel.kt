@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
 
-open class MapViewModel(private val mapLocationRepository: LocationRepository) : ViewModel() {
+open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewModel() {
 
   val permissionAsked: MutableState<Boolean> = mutableStateOf(false)
   val locationPermitted: MutableState<Boolean> = mutableStateOf(false)

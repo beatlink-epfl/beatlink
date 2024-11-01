@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.LatLng
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -81,5 +82,26 @@ class MapLocationRepositoryTest {
     // Collect the first emitted value from `locationUpdates` (it should emit null)
     val emittedLocation = mapLocationRepository.locationUpdates.first()
     assertNull(emittedLocation)
+  }
+
+  @Test
+  fun `stopLocationUpdates removes location updates callback`() = runTest {
+    // Start location updates to register the callback
+    whenever(
+            ContextCompat.checkSelfPermission(
+                mockContext, Manifest.permission.ACCESS_FINE_LOCATION))
+        .thenReturn(PackageManager.PERMISSION_GRANTED)
+
+    mapLocationRepository.startLocationUpdates()
+
+    // Verify that the callback is registered
+    assertNotNull(fakeLocationClient.locationCallback)
+
+    // Stop location updates
+    mapLocationRepository.stopLocationUpdates()
+
+    // Verify that removeLocationUpdates was called
+    assert(fakeLocationClient.removeLocationUpdatesCalled)
+    assertNull(fakeLocationClient.locationCallback)
   }
 }
