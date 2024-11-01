@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
@@ -33,53 +34,59 @@ class SearchScreenTest {
   @Test
   fun everythingIsDisplayed() {
 
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchScreenColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESLazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("nonWritableSearchBar").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("TRENDING SONGSLazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("MOST MATCHED SONGSLazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("MOST MATCHED SONGSTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("DISCOVER PEOPLELazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("DISCOVER PEOPLETitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchScreenDivider").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("bottomNavigationMenu").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScreen").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScreenColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule
+        .onNodeWithTag("LIVE MUSIC PARTIESLazyColumn")
+        .performScrollTo()
+        .assertIsDisplayed()
+    composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("nonWritableSearchBar").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TRENDING SONGSLazyColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule
+        .onNodeWithTag("MOST MATCHED SONGSLazyColumn")
+        .performScrollTo()
+        .assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MOST MATCHED SONGSTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("DISCOVER PEOPLELazyColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("DISCOVER PEOPLETitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScreenDivider").performScrollTo().assertIsDisplayed()
 
     // ProfileCard Component
-    composeTestRule.onNodeWithTag("profileCardItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("profileCardColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("profileCardImage").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("profileCardName").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("profileCardUsername").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("profileCardItem").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("profileCardColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("profileCardImage").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("profileCardName").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("profileCardUsername").performScrollTo().assertIsDisplayed()
 
     // PartyCard Component
-    composeTestRule.onNodeWithTag("partyCardItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardTextColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardUsername").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("partyCardDescription").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardItem").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardRow").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardTextColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardUsername").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("partyCardDescription").performScrollTo().assertIsDisplayed()
 
     // SongCard Component
-    composeTestRule.onNodeWithTag("Song1songCardItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardContainer").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardImage").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardTextBox").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardTextColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song1songCardText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardItem").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardContainer").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardImage").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardTextBox").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardTextColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song1songCardText").performScrollTo().assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("Song2songCardItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardContainer").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardImage").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardTextBox").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardTextColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Song2songCardText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardItem").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardContainer").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardImage").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardTextBox").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardTextColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Song2songCardText").performScrollTo().assertIsDisplayed()
   }
 
   @Test

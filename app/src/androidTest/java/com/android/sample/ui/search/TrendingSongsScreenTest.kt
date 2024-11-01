@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import org.junit.Before
@@ -31,14 +32,14 @@ class TrendingSongsScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("trendingSongsColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("lazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("writableSearchBar").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("shortSearchBarRow").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("backButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trendingSongsColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("divider").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("lazyColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("placeholderText").performScrollTo().assertIsDisplayed()
   }
 
   @Test

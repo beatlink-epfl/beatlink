@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Screen
 import org.junit.Before
@@ -31,17 +32,17 @@ class SearchBarScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("writableSearchBar").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("shortSearchBarRow").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("backButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("recentSearchesColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("lazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("SongscategoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("EventscategoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("PeoplecategoryButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("divider").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("lazyColumn").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("placeholderText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("SongscategoryButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("EventscategoryButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("PeoplecategoryButton").performScrollTo().assertIsDisplayed()
   }
 
   @Test
