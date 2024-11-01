@@ -1,9 +1,12 @@
 package com.android.sample.ui.navigation
 
-import androidx.annotation.DrawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.android.sample.R
 
 object Route {
   const val WELCOME = "Welcome"
@@ -27,8 +30,8 @@ object Screen {
 data class TopLevelDestination(
     val route: String,
     val screen: String,
-    @DrawableRes val unselectedIconResId: Int,
-    @DrawableRes val selectedIconResId: Int,
+    val unselectedIconResId: ImageVector,
+    val selectedIconResId: ImageVector,
     val textId: String
 )
 
@@ -37,29 +40,29 @@ object TopLevelDestinations {
       TopLevelDestination(
           route = Route.HOME,
           screen = Screen.HOME,
-          unselectedIconResId = R.drawable.home_unselected,
-          selectedIconResId = R.drawable.home_selected,
+          unselectedIconResId = Icons.Outlined.Home,
+          selectedIconResId = filledHome,
           textId = "Home")
   val SEARCH =
       TopLevelDestination(
           route = Route.SEARCH,
           screen = Screen.SEARCH,
-          unselectedIconResId = R.drawable.search_unselected,
-          selectedIconResId = R.drawable.search_selected,
+          unselectedIconResId = Icons.Outlined.Search,
+          selectedIconResId = filledSearch,
           textId = "Search")
   val LIBRARY =
       TopLevelDestination(
           route = Route.LIBRARY,
           screen = Screen.LIBRARY,
-          unselectedIconResId = R.drawable.bookmark_unselected,
-          selectedIconResId = R.drawable.bookmark_selected,
+          unselectedIconResId = outlinedLibrary,
+          selectedIconResId = filledLibrary,
           textId = "Library")
   val PROFILE =
       TopLevelDestination(
           route = Route.PROFILE,
           screen = Screen.PROFILE,
-          unselectedIconResId = R.drawable.profile_unselected,
-          selectedIconResId = R.drawable.profile_selected,
+          unselectedIconResId = Icons.Outlined.AccountCircle,
+          selectedIconResId = filledProfile,
           textId = "Profile")
 }
 

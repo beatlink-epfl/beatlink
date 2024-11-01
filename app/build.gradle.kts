@@ -7,7 +7,17 @@ plugins {
     alias(libs.plugins.ktfmt)
     alias(libs.plugins.sonar)
     id("jacoco")
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
 
 android {
     namespace = "com.android.sample"
@@ -164,10 +174,16 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
+    implementation(libs.firebase.common.ktx)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)
+
+    // ------------- Firebase ------------------
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)
@@ -192,6 +208,12 @@ dependencies {
     globalTestImplementation(libs.kaspresso)
     globalTestImplementation(libs.kaspresso.compose)
 
+    // -------------- Networking ---------------------
+    implementation(libs.okhttp)
+
+    // -------------- AndroidX testing library ------------
+    testImplementation(libs.androidx.core.testing)
+
     // ----------       Robolectric     ------------
     testImplementation(libs.robolectric)
 
@@ -200,6 +222,7 @@ dependencies {
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
+    testImplementation(libs.json)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -216,7 +239,8 @@ dependencies {
     androidTestImplementation(libs.kaspresso.allure.support)
     androidTestImplementation(libs.kaspresso.compose.support)
 
-    //testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric.v473)
     // Google Service and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
