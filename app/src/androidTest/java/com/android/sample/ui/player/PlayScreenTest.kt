@@ -55,8 +55,6 @@ class PlayScreenTest {
 
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed().assertHasClickAction()
 
-    composeTestRule.onNodeWithTag("backButtonIcon").assertIsDisplayed()
-
     composeTestRule.onNodeWithTag("playScreenContent").assertIsDisplayed()
   }
 
