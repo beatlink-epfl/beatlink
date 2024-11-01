@@ -67,14 +67,12 @@ fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album:
                   onClick = { navigationActions.goBack() }) {
                     Icon(
                         modifier =
-                            Modifier.size(30.dp)
-                                .graphicsLayer(alpha = 0.99f)
-                                .drawWithCache {
-                                  onDrawWithContent {
-                                    drawContent()
-                                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                                  }
-                                },
+                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
+                              onDrawWithContent {
+                                drawContent()
+                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                              }
+                            },
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
