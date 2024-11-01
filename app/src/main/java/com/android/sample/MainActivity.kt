@@ -37,16 +37,16 @@ import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.navigation.Route
 import com.android.sample.ui.navigation.Screen
 import com.android.sample.ui.profile.ProfileScreen
-import com.android.sample.ui.theme.BeatLinkAppTheme
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import okhttp3.OkHttpClient
 import com.android.sample.ui.search.DiscoverPeopleScreen
 import com.android.sample.ui.search.LiveMusicPartiesScreen
 import com.android.sample.ui.search.MostMatchedSongsScreen
 import com.android.sample.ui.search.SearchBarScreen
 import com.android.sample.ui.search.SearchScreen
 import com.android.sample.ui.search.TrendingSongsScreen
+import com.android.sample.ui.theme.BeatLinkAppTheme
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
   private lateinit var auth: FirebaseAuth
