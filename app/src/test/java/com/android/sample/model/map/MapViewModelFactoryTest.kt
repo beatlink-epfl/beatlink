@@ -14,10 +14,8 @@ class MapViewModelFactoryTest {
   fun `provideFactory creates MapViewModel instance`() {
     val factory = MapViewModel.provideFactory(mockRepository)
 
-    // Verify that the factory returns a MapViewModel instance
     val viewModel = factory.create(MapViewModel::class.java)
 
-    // Check that the ViewModel was created with the correct repository
     val mapViewModel = viewModel
     assertEquals(mockRepository, mapViewModel.mapLocationRepository)
   }
