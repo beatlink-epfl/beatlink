@@ -74,8 +74,7 @@ fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album:
                                     drawContent()
                                     drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
                                   }
-                                }
-                                .testTag("backButtonIcon"),
+                                },
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Go back")
                   }
