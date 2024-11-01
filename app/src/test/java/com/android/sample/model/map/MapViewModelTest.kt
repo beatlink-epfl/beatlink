@@ -9,6 +9,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MapViewModelTest {
@@ -109,4 +111,37 @@ class MapViewModelTest {
         assertThat(mapViewModel.currentPosition.value, `is`(defaultLocation))
         assertThat(mapViewModel.isMapLoaded.value, `is`(true))
       }
+
+  @Test
+  fun `onCleared stops location updates in repository`() {
+    // Mock repository to verify interaction
+    val mockRepository = mock<LocationRepository>()
+    val viewModel = MapViewModel(mockRepository)
+
+    // Call onCleared, which should stop location updates
+    viewModel.onCleared()
+
+    // Verify that stopLocationUpdates was called in the repository
+    verify(mockRepository).stopLocationUpdates()
+  }
+
+  @Test
+  fun `onPermissionResult sets permission states correctly when granted is true`() {
+    // Call onPermissionResult with granted = true
+    mapViewModel.onPermissionResult(true)
+
+    // Verify that permissionRequired is set to false and locationPermitted to true
+    assertThat(mapViewModel.permissionRequired.value, `is`(false))
+    assertThat(mapViewModel.locationPermitted.value, `is`(false))
+  }
+
+  @Test
+  fun `onPermissionResult sets permission states correctly when granted is false`() {
+    // Call onPermissionResult with granted = false
+    mapViewModel.onPermissionResult(false)
+
+    // Verify that permissionRequired is true and locationPermitted remains false
+    assertThat(mapViewModel.permissionRequired.value, `is`(true))
+    assertThat(mapViewModel.locationPermitted.value, `is`(false))
+  }
 }

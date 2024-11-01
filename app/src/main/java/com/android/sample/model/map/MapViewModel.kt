@@ -37,10 +37,6 @@ open class MapViewModel(private val mapLocationRepository: LocationRepository) :
     locationPermitted.value = granted
   }
 
-  fun setLocationPermissionAsked(asked: Boolean) {
-    permissionAsked.value = asked
-  }
-
   fun startLocationUpdates() {
     if (!locationPermitted.value) {
       isMapLoaded.value = true
@@ -69,7 +65,7 @@ open class MapViewModel(private val mapLocationRepository: LocationRepository) :
     }
   }
 
-  override fun onCleared() {
+  public override fun onCleared() {
     super.onCleared()
     mapLocationRepository.stopLocationUpdates()
   }
