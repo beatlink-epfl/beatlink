@@ -105,7 +105,7 @@ fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album:
 fun PlayScreenUpperBox(track: SpotifyTrack, album: SpotifyAlbum) {
   Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.65F)) {
     Image(
-        painter = painterResource(id = R.drawable.beatlink_logo), // change to album.cover
+        painter = painterResource(id = R.drawable.play), // change to album.cover
         contentDescription = "Album cover",
         modifier =
             Modifier.testTag("albumCover")
@@ -239,7 +239,7 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                               Image(
                                   painter =
                                       painterResource(
-                                          id = R.drawable.beatlink_logo), // change to album.cover
+                                          id = R.drawable.play), // change to album.cover
                                   contentDescription = "Album cover",
                                   modifier =
                                       Modifier.testTag("albumCover")
