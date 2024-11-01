@@ -297,7 +297,7 @@ fun CustomInputField(
                 errorTextColor = MaterialTheme.colorScheme.error,
                 focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
                 focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
-    supportingText?.let { Text(text = it, color = MaterialTheme.colorScheme.primary) }
+    supportingText?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
   }
 }
 
