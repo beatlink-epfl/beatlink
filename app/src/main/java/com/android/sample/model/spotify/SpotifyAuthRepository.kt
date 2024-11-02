@@ -2,17 +2,17 @@ package com.android.sample.model.spotify
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import java.io.IOException
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.security.SecureRandom
-import java.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.IOException
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.Base64
 
 const val REDIRECT_URI = "myapp://callback"
 const val CLIENT_ID = "5025edc6cd4b4e508839ae45296d1c82"
