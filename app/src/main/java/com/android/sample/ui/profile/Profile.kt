@@ -39,8 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileViewModel
-import com.android.sample.ui.library.CornerIcons
-import com.android.sample.ui.library.PageTitle
+import com.android.sample.ui.components.PageTopBarApp
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
@@ -60,24 +59,17 @@ fun ProfileScreen(
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
-        TopAppBar(
-            // Username displayed
-            title = { PageTitle(profileData?.username ?: "", "titleUsername") },
-            actions = {
-              // Notification icon
-              CornerIcons(
-                  onClick = {},
-                  icon = Icons.Filled.Notifications,
-                  contentDescription = "Notifications",
-                  modifier = Modifier.testTag("profileScreenNotificationsButton"))
-              // Settings icon
-              CornerIcons(
-                  onClick = {},
-                  icon = Icons.Filled.Settings,
-                  contentDescription = "Settings",
-                  modifier = Modifier.testTag("profileScreenSettingsButton"))
-            },
-        )
+          PageTopBarApp(
+              profileData?.username ?: "",
+              "titleUsername",
+              {},
+              Icons.Filled.Notifications,
+              "Notifications",
+              "profileScreenNotificationsButton",
+              {},
+              Icons.Filled.Settings,
+              "Settings",
+              "profileScreenSettingsButton")
       },
       bottomBar = {
         // Bottom navigation bar
