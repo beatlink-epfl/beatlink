@@ -1,7 +1,6 @@
 package com.android.sample.ui.profile
 
 import androidx.compose.ui.test.assertContentDescriptionEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -26,8 +25,7 @@ class ProfileTest {
   private lateinit var navigationActions: NavigationActions
 
   private val user =
-      ProfileData(
-          username = "", name = null, bio = null, links = 0, profilePicture = null)
+      ProfileData(username = "", name = null, bio = null, links = 0, profilePicture = null)
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -36,21 +34,23 @@ class ProfileTest {
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
 
-      // Initialize Firebase if necessary
-      if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
-          FirebaseApp.initializeApp(ApplicationProvider.getApplicationContext())
-      }
+    // Initialize Firebase if necessary
+    if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
+      FirebaseApp.initializeApp(ApplicationProvider.getApplicationContext())
+    }
     // Launch the composable under test
-    composeTestRule.setContent { ProfileScreen(viewModel(factory = ProfileViewModel.Factory), navigationActions) }
+    composeTestRule.setContent {
+      ProfileScreen(viewModel(factory = ProfileViewModel.Factory), navigationActions)
+    }
   }
 
   @Test
   fun elementsAreDisplayed() {
     // Check if title is displayed
     /*composeTestRule
-        .onNodeWithTag("titleUsername")
-        .assertIsDisplayed()
-        .assertTextContains(user.username)*/
+    .onNodeWithTag("titleUsername")
+    .assertIsDisplayed()
+    .assertTextContains(user.username)*/
 
     // Check if the icons are displayed
     composeTestRule

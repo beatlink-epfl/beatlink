@@ -22,7 +22,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.model.profile.ProfileData
 import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
@@ -89,7 +88,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BeatLinkApp() {
 
-  //val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
+  // val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
 
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)

@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -37,13 +36,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.sample.R
-import com.android.sample.model.profile.ProfileData
+import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.ui.library.CornerIcons
 import com.android.sample.ui.library.PageTitle
-import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
@@ -55,10 +52,10 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory),
     navigationAction: NavigationActions
 ) {
-    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
-    val profileData by profileViewModel.profile.collectAsState()
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+  val profileData by profileViewModel.profile.collectAsState()
 
-    Log.d("USER_FETCH", profileData.toString())
+  Log.d("USER_FETCH", profileData.toString())
 
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
@@ -91,7 +88,7 @@ fun ProfileScreen(
       },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
-            HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+          HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
           Row(modifier = Modifier.padding(16.dp)) {
             ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
             Spacer(modifier = Modifier.width(24.dp))
@@ -114,9 +111,7 @@ fun ProfileScreen(
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     ) {
                       Text(
                           text = "Edit Profile",

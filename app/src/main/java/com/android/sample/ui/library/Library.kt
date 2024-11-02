@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
@@ -44,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.theme.BorderColor
 import com.android.sample.ui.theme.IconsGradientBrush
 import com.android.sample.ui.theme.PrimaryGradientBrush
 import com.android.sample.ui.theme.ShadowColor
@@ -157,15 +155,15 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
                 onDrawWithContent {
                   drawContent()
                   /*drawLine(
-                      color = BorderColor,
-                      strokeWidth = 1.dp.toPx(),
-                      start = Offset(0f, size.height), // Bottom left
-                      end = Offset(size.width, size.height) // Bottom right
-                      )*/
+                  color = BorderColor,
+                  strokeWidth = 1.dp.toPx(),
+                  start = Offset(0f, size.height), // Bottom left
+                  end = Offset(size.width, size.height) // Bottom right
+                  )*/
                 }
               }
               .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
-              //.height(48.dp)
+              // .height(48.dp)
               .background(color = MaterialTheme.colorScheme.background)) {
         Text(
             text = mainTitle,

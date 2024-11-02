@@ -6,10 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 
-class ProfileRepository(
-  private val db: FirebaseFirestore,
-  private val auth: FirebaseAuth
-) {
+class ProfileRepository(private val db: FirebaseFirestore, private val auth: FirebaseAuth) {
   suspend fun getProfile(userId: String): ProfileData? {
     return try {
       val snapshot = db.collection("userProfiles").document(userId).get().await()
@@ -29,4 +26,3 @@ class ProfileRepository(
     return userId
   }
 }
-
