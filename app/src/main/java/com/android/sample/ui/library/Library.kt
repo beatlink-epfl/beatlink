@@ -37,8 +37,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
@@ -154,21 +156,23 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
                 // Apply the bottom border or shadow in dark mode
                 onDrawWithContent {
                   drawContent()
-                  drawLine(
+                  /*drawLine(
                       color = BorderColor,
                       strokeWidth = 1.dp.toPx(),
                       start = Offset(0f, size.height), // Bottom left
                       end = Offset(size.width, size.height) // Bottom right
-                      )
+                      )*/
                 }
               }
               .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
-              .height(48.dp)
+              //.height(48.dp)
               .background(color = MaterialTheme.colorScheme.background)) {
         Text(
             text = mainTitle,
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp,
             modifier = Modifier.padding(top = 14.dp).testTag(mainTitleTag))
       }
 }
