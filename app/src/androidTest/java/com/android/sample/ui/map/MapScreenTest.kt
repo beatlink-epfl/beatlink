@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import com.android.sample.model.map.MapViewModel
 import com.android.sample.model.spotify.objects.SpotifyTrack
+import com.android.sample.model.spotify.objects.State
 import com.android.sample.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +32,7 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           mapViewModel = mapViewModel,
-          currentMusicPlayed = SpotifyTrack("trackId", "trackName", "trackUri", 10, 10),
+          currentMusicPlayed = SpotifyTrack("trackId", "trackName", "trackUri", 10, 10, State.PLAY),
           radius = 700.0)
     }
 
