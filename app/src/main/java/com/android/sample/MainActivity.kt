@@ -25,7 +25,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.android.sample.model.map.MapLocationRepository
 import com.android.sample.model.map.MapViewModel
-import com.android.sample.model.profile.ProfileData
+import com.android.sample.model.profile.ProfileViewModel
 import com.android.sample.model.spotify.SpotifyAuthRepository
 import com.android.sample.resources.C
 import com.android.sample.ui.authentication.LoginScreen
@@ -93,10 +93,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BeatLinkApp() {
 
-  val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
-
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
+  val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
   val locationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
   val mapLocationRepository =
       MapLocationRepository(
@@ -128,7 +127,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen(tmpUser, navigationActions) }
+      composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
     }
   }
 }

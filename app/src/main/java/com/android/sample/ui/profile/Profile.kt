@@ -18,17 +18,24 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
+import com.android.sample.model.profile.ProfileViewModel
+import com.android.sample.ui.components.PageTopBarApp
 import com.android.sample.model.profile.ProfileData
 import com.android.sample.ui.components.CornerIcons
 import com.android.sample.ui.components.PageTopAppBar
@@ -36,15 +43,18 @@ import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
 import com.android.sample.ui.theme.PrimaryGradientBrush
+import com.android.sample.ui.theme.lightThemeBackground
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
+fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: NavigationActions) {
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+  val profileData by profileViewModel.profile.collectAsState()
+
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
-        PageTopAppBar(
-            user.username,
+        PageTopBarApp(
+            profileData?.username ?: "",
             "titleUsername",
             listOf {
               CornerIcons(
@@ -68,12 +78,14 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
       },
       content = { paddingValue ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
+          HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
           Row(modifier = Modifier.padding(16.dp)) {
-            ProfilePicture(user.profilePicture ?: R.drawable.default_profile_picture)
+            ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
             Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(
-                  text = "${user.links} Links",
+                  text = "${profileData?.links ?: 0} Links",
+                  fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.primary,
                   style = MaterialTheme.typography.bodyLarge,
                   modifier =
@@ -89,12 +101,11 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
                     Button(
                         onClick = { /* Handle button click */},
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                        colors = ButtonDefaults.buttonColors(containerColor = lightThemeBackground),
                     ) {
                       Text(
                           text = "Edit Profile",
+                          fontWeight = FontWeight.Bold,
                           style = MaterialTheme.typography.labelSmall,
                           color = MaterialTheme.colorScheme.primary)
                     }
@@ -102,13 +113,14 @@ fun ProfileScreen(user: ProfileData, navigationAction: NavigationActions) {
             }
           }
           Text(
-              text = user.name ?: "",
-              color = MaterialTheme.colorScheme.onPrimary,
+              text = profileData?.name ?: "",
+              fontWeight = FontWeight.Bold,
+              color = MaterialTheme.colorScheme.primary,
               style = MaterialTheme.typography.bodyLarge,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("name"))
           Text(
-              text = user.bio ?: "No description provided",
-              color = MaterialTheme.colorScheme.primary,
+              text = profileData?.bio ?: "No description provided",
+              color = Color.Black,
               style = MaterialTheme.typography.bodyMedium,
               modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
         }
