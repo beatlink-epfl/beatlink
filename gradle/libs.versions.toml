@@ -56,6 +56,8 @@ playServicesLocation = "21.3.0"
 uiTestJunit4Android = "1.7.3"
 uiTestJunit4Version = "1.4.0"
 firebaseCommonKtx = "21.0.0"
+firebaseFirestore = "25.1.1"
+firebaseAuthKtx = "23.1.0"
 
 [libraries]
 androidx-compose-bom-v20230800 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
@@ -117,14 +119,13 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 robolectric-v473 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 sonar = { id = "org.sonarqube", version.ref = "sonar" }
-
-
-

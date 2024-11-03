@@ -40,11 +40,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.android.sample.R
-import com.android.sample.model.spotify.objects.*
+import com.android.sample.model.spotify.objects.SpotifyAlbum
+import com.android.sample.model.spotify.objects.SpotifyTrack
 import com.android.sample.ui.navigation.BottomNavigationMenu
 import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.theme.*
+import com.android.sample.ui.theme.PrimaryGradientBrush
+import com.android.sample.ui.theme.PrimaryPurple
+import com.android.sample.ui.theme.SecondaryPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
