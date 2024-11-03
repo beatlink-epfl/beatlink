@@ -29,6 +29,7 @@ import com.android.sample.ui.authentication.SignUpScreen
 import com.android.sample.ui.authentication.SpotifyAuthViewModel
 import com.android.sample.ui.authentication.SpotifyAuthViewModelFactory
 import com.android.sample.ui.authentication.WelcomeScreen
+import com.android.sample.ui.library.CreateNewPlaylistScreen
 import com.android.sample.ui.library.LibraryScreen
 import com.android.sample.ui.map.MapScreen
 import com.android.sample.ui.navigation.BottomNavigationMenu
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
     spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
 
     setContent {
-      BeatLinkAppTheme {
+      BeatLinkAppTheme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
@@ -92,8 +93,8 @@ fun BeatLinkApp() {
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
 
-  NavHost(navController = navController, startDestination = Route.WELCOME) {
-    navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
+  NavHost(navController = navController, startDestination = Route.HOME) {
+    navigation(startDestination = Screen.HOME, route = Route.HOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
       composable(Screen.LOGIN) { LoginScreen(navigationActions) }
       composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
@@ -112,6 +113,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
       composable(Screen.LIBRARY) { LibraryScreen(navigationActions) }
+      composable(Screen.CREATE_NEW_PLAYLIST) { CreateNewPlaylistScreen(navigationActions) }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
