@@ -35,8 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.android.sample.R
 import com.android.sample.model.profile.ProfileViewModel
-import com.android.sample.ui.components.PageTopBarApp
-import com.android.sample.model.profile.ProfileData
 import com.android.sample.ui.components.CornerIcons
 import com.android.sample.ui.components.PageTopAppBar
 import com.android.sample.ui.navigation.BottomNavigationMenu
@@ -53,7 +51,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
       topBar = {
-        PageTopBarApp(
+        PageTopAppBar(
             profileData?.username ?: "",
             "titleUsername",
             listOf {
