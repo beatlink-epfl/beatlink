@@ -1,4 +1,4 @@
-package com.android.sample.ui.navigation
+package com.epfl.beatlink.ui.navigation
 
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController

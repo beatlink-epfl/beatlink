@@ -1,4 +1,4 @@
-package com.android.sample.model.spotify.objects
+package com.epfl.beatlink.model.spotify.objects
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

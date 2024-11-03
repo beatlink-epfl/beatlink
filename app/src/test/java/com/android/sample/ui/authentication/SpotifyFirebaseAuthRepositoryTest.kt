@@ -1,10 +1,10 @@
-package com.android.sample.ui.authentication
+package com.epfl.beatlink.ui.authentication
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.android.sample.model.spotify.CLIENT_ID
-import com.android.sample.model.spotify.REDIRECT_URI
-import com.android.sample.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.model.spotify.CLIENT_ID
+import com.epfl.beatlink.model.spotify.REDIRECT_URI
+import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import okhttp3.*

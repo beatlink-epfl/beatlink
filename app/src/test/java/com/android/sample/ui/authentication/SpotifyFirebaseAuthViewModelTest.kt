@@ -3,9 +3,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.android.sample.model.spotify.SpotifyAuthRepository
-import com.android.sample.ui.authentication.AuthState
-import com.android.sample.ui.authentication.SpotifyAuthViewModel
+import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.ui.authentication.AuthState
+import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher

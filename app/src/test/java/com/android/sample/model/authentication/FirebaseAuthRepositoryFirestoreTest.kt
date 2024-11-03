@@ -1,8 +1,8 @@
-package com.android.sample.model.authentication
+package com.epfl.beatlink.model.authentication
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
-import com.android.sample.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult

@@ -1,4 +1,4 @@
-package com.android.sample.model.authentication
+package com.epfl.beatlink.model.authentication
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
