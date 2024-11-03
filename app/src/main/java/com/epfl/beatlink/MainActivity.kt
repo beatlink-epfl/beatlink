@@ -13,15 +13,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.map.MapLocationRepository
+import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.authentication.LoginScreen
@@ -38,6 +42,7 @@ import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
@@ -87,10 +92,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BeatLinkApp() {
 
-  val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
-
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
+  val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
+  val locationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
+  val mapLocationRepository =
+      MapLocationRepository(
+          context = LocalContext.current.applicationContext, locationClient = locationClient)
+  val mapViewModel: MapViewModel =
+      viewModel(factory = MapViewModel.provideFactory(mapLocationRepository))
 
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
@@ -103,7 +113,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) { MapScreen(navigationActions) }
+      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel) }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
@@ -115,7 +125,7 @@ fun BeatLinkApp() {
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen(tmpUser, navigationActions) }
+      composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
     }
   }
 }

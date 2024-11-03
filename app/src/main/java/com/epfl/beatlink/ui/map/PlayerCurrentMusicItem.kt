@@ -10,10 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.theme.TypographySongs
 
 @Composable
-fun PlayerCurrentMusicItem(musique: String?) {
+fun PlayerCurrentMusicItem(musique: SpotifyTrack?) {
   if (musique != null) {
     Text(
         modifier =
@@ -21,7 +22,7 @@ fun PlayerCurrentMusicItem(musique: String?) {
                 .height(24.dp)
                 .padding(horizontal = 16.dp)
                 .testTag("playerText music"),
-        text = "listening : $musique",
+        text = "listening : ${musique.name}",
         style = TypographySongs.titleMedium,
         color = MaterialTheme.colorScheme.primary,
         textAlign = TextAlign.Center)

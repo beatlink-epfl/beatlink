@@ -15,13 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun BottomNavigationMenu(
@@ -30,52 +24,36 @@ fun BottomNavigationMenu(
     selectedItem: String
 ) {
   NavigationBar(
-      modifier = Modifier.fillMaxWidth().height(75.dp).testTag("bottomNavigationMenu"),
+      modifier = Modifier.fillMaxWidth().height(56.dp).testTag("bottomNavigationMenu"),
       containerColor = MaterialTheme.colorScheme.background,
+      tonalElevation = 0.dp,
       content = {
         tabList.forEach { tab ->
           val selected = tab.screen == selectedItem
           NavigationBarItem(
               icon = {
                 Icon(
-                    painter =
-                        if (selected) {
-                          painterResource(id = tab.selectedIconResId)
-                        } else {
-                          painterResource(id = tab.unselectedIconResId)
-                        },
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(40.dp))
+                    imageVector = if (selected) tab.selectedIconResId else tab.unselectedIconResId,
+                    contentDescription = tab.textId,
+                    tint = if (selected) Color.Unspecified else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp))
               },
               label = {
                 Text(
                     text = tab.textId,
+                    color = MaterialTheme.colorScheme.primary,
                     style =
-                        TextStyle(
-                            fontSize = Variables.BodyLargeSize,
-                            lineHeight = Variables.BodyLargeLineHeight,
-                            fontWeight = FontWeight(400),
-                            color =
-                                if (selected) {
-                                  Color(0xFFEF3535)
-                                } else {
-                                  Color(0xFF5F2A83)
-                                },
-                            textAlign = TextAlign.Center,
-                            letterSpacing = Variables.BodyLargeTracking,
-                        ))
+                        if (selected) {
+                          MaterialTheme.typography.headlineMedium
+                        } else {
+                          MaterialTheme.typography.headlineSmall
+                        },
+                )
               },
-              selected = false,
+              selected = selectedItem == tab.route,
               onClick = { onTabSelect(tab) },
               modifier = Modifier.testTag(tab.textId))
         }
       },
   )
-}
-
-object Variables {
-  val BodyLargeSize: TextUnit = 16.sp
-  val BodyLargeLineHeight: TextUnit = 24.sp
-  val BodyLargeTracking: TextUnit = 0.5.sp
 }

@@ -50,6 +50,24 @@ val TypographyBeatLink =
                 color = PrimaryPurple,
                 letterSpacing = 0.2.sp,
             ),
+        // Bottom Nav Bar Highlighted
+        headlineMedium =
+            TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                fontWeight = FontWeight(500),
+                brush = PrimaryGradientBrush,
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.5.sp),
+        // Bottom Nav Bar
+        headlineSmall =
+            TextStyle(
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(R.font.roboto)),
+                fontWeight = FontWeight(500),
+                color = PrimaryPurple,
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.5.sp),
         // Body Title
         bodyLarge =
             TextStyle(
@@ -57,6 +75,7 @@ val TypographyBeatLink =
                 fontFamily = FontFamily(Font(R.font.roboto_bold)),
                 fontWeight = FontWeight(700),
                 color = PrimaryPurple),
+
         // Body Text
         bodyMedium =
             TextStyle(
@@ -67,6 +86,16 @@ val TypographyBeatLink =
                 color = PrimaryPurple,
                 letterSpacing = 0.14.sp,
             ),
+        // Gray Text
+        bodySmall =
+            TextStyle(
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontFamily = FontFamily(Font(R.font.roboto)),
+                fontWeight = FontWeight(400),
+                fontStyle = FontStyle.Italic,
+                color = PrimaryGray,
+                letterSpacing = 0.14.sp),
         // Button Large
         labelLarge =
             TextStyle(
