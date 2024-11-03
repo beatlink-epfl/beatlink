@@ -92,8 +92,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BeatLinkApp() {
 
-  // val tmpUser = ProfileData("john_doe", "John Doe", "I'm a cool guy", 42, null)
-
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
   val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
