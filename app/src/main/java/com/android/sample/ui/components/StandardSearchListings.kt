@@ -31,7 +31,7 @@ fun StandardLazyColumn(title: String, list: List<String>) {
               text = list[index],
               fontSize = 20.sp,
               modifier =
-                  Modifier.testTag("placeholderText")
+                  Modifier.testTag("recentSearch_${list[index]}")
                       .fillMaxWidth()
                       .height(67.dp)
                       .padding(bottom = 11.dp),

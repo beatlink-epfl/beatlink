@@ -23,19 +23,21 @@ import com.android.sample.ui.navigation.NavigationActions
 fun LiveMusicPartiesScreen(navigationActions: NavigationActions) {
   val liveMusicPartiesList = remember { mutableStateOf(listOf("Party 1")) }
 
-  Scaffold(topBar = { ShortSearchBarLayout(navigationActions) }) { paddingValues ->
-    Column(
-        modifier =
-            Modifier.testTag("partiesSearchColumn")
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(color = Color.White)) {
-          HorizontalDivider(
-              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
+  Scaffold(
+      topBar = { ShortSearchBarLayout(navigationActions) },
+      modifier = Modifier.testTag("liveMusicPartiesScreen")) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.testTag("partiesSearchColumn")
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(color = Color.White)) {
+              HorizontalDivider(
+                  color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 
-          Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
+              Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
 
-          StandardLazyColumn(title = "LIVE MUSIC PARTIES", list = liveMusicPartiesList.value)
-        }
-  }
+              StandardLazyColumn(title = "LIVE MUSIC PARTIES", list = liveMusicPartiesList.value)
+            }
+      }
 }

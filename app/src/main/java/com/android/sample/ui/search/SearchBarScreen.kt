@@ -41,45 +41,48 @@ fun SearchBarScreen(navigationActions: NavigationActions) {
   val selectedCategory = remember { mutableStateOf("Songs") }
   val recentSearches = remember { mutableStateOf(listOf("Song 1")) }
 
-  Scaffold(topBar = { ShortSearchBarLayout(navigationActions) }) { paddingValues ->
-    Column(
-        modifier =
-            Modifier.testTag("recentSearchesColumn")
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(color = Color.White)) {
-          HorizontalDivider(
-              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
+  Scaffold(
+      topBar = { ShortSearchBarLayout(navigationActions) },
+      modifier = Modifier.testTag("searchBarScreen")) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.testTag("recentSearchesColumn")
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(color = Color.White)) {
+              HorizontalDivider(
+                  color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 
-          Spacer(modifier = Modifier.testTag("spacer").height(8.dp))
+              Spacer(modifier = Modifier.testTag("spacer").height(8.dp))
 
-          Row(
-              horizontalArrangement = Arrangement.SpaceEvenly,
-              verticalAlignment = Alignment.CenterVertically,
-              modifier =
-                  Modifier.testTag("categoryRow")
-                      .fillMaxWidth()
-                      .padding(horizontal = 12.dp, vertical = 8.dp)) {
-                CategoryButton("Songs", selectedCategory.value, PrimaryRed) {
-                  selectedCategory.value = "Songs"
-                  recentSearches.value = listOf("Song A", "Song B", "Song C")
-                }
-                CategoryButton(
-                    "Events", selectedCategory.value, Color(0xFFFFA500)) { // Orange color
-                      selectedCategory.value = "Events"
-                      recentSearches.value = listOf("Event A", "Event B", "Event C")
+              Row(
+                  horizontalArrangement = Arrangement.SpaceEvenly,
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier =
+                      Modifier.testTag("categoryRow")
+                          .fillMaxWidth()
+                          .padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    CategoryButton("Songs", selectedCategory.value, PrimaryRed) {
+                      selectedCategory.value = "Songs"
+                      recentSearches.value = listOf("Song A", "Song B", "Song C")
                     }
-                CategoryButton("People", selectedCategory.value, PrimaryPurple) { // Purple color
-                  selectedCategory.value = "People"
-                  recentSearches.value = listOf("Person A", "Person B", "Person C")
-                }
-              }
+                    CategoryButton(
+                        "Events", selectedCategory.value, Color(0xFFFFA500)) { // Orange color
+                          selectedCategory.value = "Events"
+                          recentSearches.value = listOf("Event A", "Event B", "Event C")
+                        }
+                    CategoryButton(
+                        "People", selectedCategory.value, PrimaryPurple) { // Purple color
+                          selectedCategory.value = "People"
+                          recentSearches.value = listOf("Person A", "Person B", "Person C")
+                        }
+                  }
 
-          Spacer(modifier = Modifier.testTag("spacer").height(22.dp))
+              Spacer(modifier = Modifier.testTag("spacer").height(22.dp))
 
-          StandardLazyColumn(title = "RECENT SEARCHES", list = recentSearches.value)
-        }
-  }
+              StandardLazyColumn(title = "RECENT SEARCHES", list = recentSearches.value)
+            }
+      }
 }
 
 @Composable

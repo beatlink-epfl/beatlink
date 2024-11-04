@@ -19,19 +19,21 @@ import com.android.sample.ui.navigation.NavigationActions
 
 @Composable
 fun MostMatchedSongsScreen(navigationActions: NavigationActions) {
-  Scaffold(topBar = { ShortSearchBarLayout(navigationActions) }) { paddingValues ->
-    Column(
-        modifier =
-            Modifier.testTag("mostMatchedSearchColumn")
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(color = Color.White)) {
-          HorizontalDivider(
-              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
+  Scaffold(
+      topBar = { ShortSearchBarLayout(navigationActions) },
+      modifier = Modifier.testTag("mostMatchedSongsScreen")) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.testTag("mostMatchedSearchColumn")
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(color = Color.White)) {
+              HorizontalDivider(
+                  color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 
-          Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
+              Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
 
-          Text(text = "Not Drawn In Figma Yet", modifier = Modifier.testTag("placeholderText"))
-        }
-  }
+              Text(text = "Not Drawn In Figma Yet", modifier = Modifier.testTag("placeholderText"))
+            }
+      }
 }

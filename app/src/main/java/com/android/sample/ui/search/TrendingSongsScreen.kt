@@ -23,19 +23,21 @@ import com.android.sample.ui.navigation.NavigationActions
 fun TrendingSongsScreen(navigationActions: NavigationActions) {
   val trendingSongsList = remember { mutableStateOf(listOf("Song 1")) }
 
-  Scaffold(topBar = { ShortSearchBarLayout(navigationActions) }) { paddingValues ->
-    Column(
-        modifier =
-            Modifier.testTag("trendingSongsColumn")
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(color = Color.White)) {
-          HorizontalDivider(
-              color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
+  Scaffold(
+      topBar = { ShortSearchBarLayout(navigationActions) },
+      modifier = Modifier.testTag("trendingSongsScreen")) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.testTag("trendingSongsColumn")
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(color = Color.White)) {
+              HorizontalDivider(
+                  color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 
-          Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
+              Spacer(modifier = Modifier.testTag("spacer").height(17.dp))
 
-          StandardLazyColumn(title = "TRENDING SONGS", list = trendingSongsList.value)
-        }
-  }
+              StandardLazyColumn(title = "TRENDING SONGS", list = trendingSongsList.value)
+            }
+      }
 }
