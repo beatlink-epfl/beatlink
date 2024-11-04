@@ -1,4 +1,4 @@
-package com.android.sample.ui.library
+package com.epfl.beatlink.ui.library
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -6,8 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.navigation.Route
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Route
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

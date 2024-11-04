@@ -1,4 +1,4 @@
-package com.android.sample.ui.library
+package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,18 +28,18 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.android.sample.model.profile.ProfileData
-import com.android.sample.ui.authentication.CustomInputField
-import com.android.sample.ui.components.CollabButton
-import com.android.sample.ui.components.CollabList
-import com.android.sample.ui.components.PrincipalButton
-import com.android.sample.ui.components.ScreenTopAppBar
-import com.android.sample.ui.components.SettingsSwitch
-import com.android.sample.ui.navigation.BottomNavigationMenu
-import com.android.sample.ui.navigation.LIST_TOP_LEVEL_DESTINATION
-import com.android.sample.ui.navigation.NavigationActions
-import com.android.sample.ui.theme.PrimaryGray
-import com.android.sample.ui.theme.SecondaryGray
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.ui.authentication.CustomInputField
+import com.epfl.beatlink.ui.components.CollabButton
+import com.epfl.beatlink.ui.components.CollabList
+import com.epfl.beatlink.ui.components.PrincipalButton
+import com.epfl.beatlink.ui.components.ScreenTopAppBar
+import com.epfl.beatlink.ui.components.SettingsSwitch
+import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
+import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.SecondaryGray
 
 @Composable
 fun CreateNewPlaylistScreen(

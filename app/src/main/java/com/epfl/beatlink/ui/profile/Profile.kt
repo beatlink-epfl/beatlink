@@ -35,7 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.profile.ProfileViewModel
-import com.epfl.beatlink.ui.components.PageTopBarApp
+import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions

@@ -50,10 +50,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.ui.theme.BorderColor
-import com.epfl.beatlink.ui.theme.IconsGradientBrush
-import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
-import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.collabAdd
