@@ -33,6 +33,7 @@ import com.epfl.beatlink.ui.authentication.SignUpScreen
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
+import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -72,7 +73,7 @@ class MainActivity : ComponentActivity() {
     spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
 
     setContent {
-      BeatLinkAppTheme {
+      BeatLinkAppTheme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
@@ -122,6 +123,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
       composable(Screen.LIBRARY) { LibraryScreen(navigationActions) }
+      composable(Screen.CREATE_NEW_PLAYLIST) { CreateNewPlaylistScreen(navigationActions) }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {

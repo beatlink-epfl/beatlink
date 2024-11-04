@@ -5,27 +5,26 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Route
+import com.epfl.beatlink.ui.navigation.Screen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 class LibraryScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private lateinit var navigationDestination: NavDestination
-  private lateinit var navHostController: NavHostController
   private lateinit var navigationActions: NavigationActions
 
   @Before
   fun setUp() {
-    navigationDestination = mock(NavDestination::class.java)
-    navHostController = mock(NavHostController::class.java)
-    navigationActions = NavigationActions(navHostController)
+    navigationActions = mock(NavigationActions::class.java)
+    `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
   }
 
   @Test
@@ -62,5 +61,15 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
     composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").performClick()
     composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+  }
+
+  @Test
+  fun verifyAddPlaylistButtonNavigatesToCreateNewPlaylistScreen() {
+    composeTestRule.setContent { LibraryScreen(navigationActions) }
+
+    // Perform click action on the sign-in button
+    composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
+
+    verify(navigationActions).navigateTo(Screen.CREATE_NEW_PLAYLIST)
   }
 }
