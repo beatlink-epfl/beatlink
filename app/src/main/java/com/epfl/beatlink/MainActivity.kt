@@ -103,8 +103,8 @@ fun BeatLinkApp() {
   val mapViewModel: MapViewModel =
       viewModel(factory = MapViewModel.provideFactory(mapLocationRepository))
 
-  NavHost(navController = navController, startDestination = Route.HOME) {
-    navigation(startDestination = Screen.HOME, route = Route.HOME) {
+  NavHost(navController = navController, startDestination = Route.WELCOME) {
+    navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
       composable(Screen.LOGIN) { LoginScreen(navigationActions) }
       composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
