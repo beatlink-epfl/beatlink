@@ -31,6 +31,7 @@ class DiscoverPeopleScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("discoverPeopleScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()

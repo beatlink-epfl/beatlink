@@ -31,6 +31,7 @@ class LiveMusicPartiesScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("liveMusicPartiesScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
@@ -38,7 +39,7 @@ class LiveMusicPartiesScreenTest {
     composeTestRule.onNodeWithTag("partiesSearchColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
     composeTestRule.onNodeWithTag("lazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("recentSearch_Party 1").assertIsDisplayed()
   }
 
   @Test

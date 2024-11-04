@@ -31,6 +31,7 @@ class MostMatchedSongsScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("mostMatchedSongsScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()

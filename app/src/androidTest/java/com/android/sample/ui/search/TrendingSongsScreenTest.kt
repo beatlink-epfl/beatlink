@@ -31,6 +31,7 @@ class TrendingSongsScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("trendingSongsScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
@@ -38,7 +39,7 @@ class TrendingSongsScreenTest {
     composeTestRule.onNodeWithTag("trendingSongsColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
     composeTestRule.onNodeWithTag("lazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("recentSearch_Song 1").assertIsDisplayed()
   }
 
   @Test

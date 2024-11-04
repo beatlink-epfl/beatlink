@@ -31,6 +31,7 @@ class SearchBarScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("searchBarScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
@@ -38,7 +39,7 @@ class SearchBarScreenTest {
     composeTestRule.onNodeWithTag("recentSearchesColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
     composeTestRule.onNodeWithTag("lazyColumn").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("recentSearch_Song 1").assertIsDisplayed()
     composeTestRule.onNodeWithTag("SongscategoryButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("EventscategoryButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("PeoplecategoryButton").assertIsDisplayed()
@@ -58,5 +59,41 @@ class SearchBarScreenTest {
 
     composeTestRule.onNodeWithTag("backButton").performClick()
     verify(navigationActions).goBack()
+  }
+
+  @Test
+  fun selectCategoryTest() {
+    // Select the "Songs" category and verify recent searches for "Songs"
+    composeTestRule.onNodeWithTag("SongscategoryButton").performClick()
+    composeTestRule.onNodeWithTag("recentSearch_Song A").assertExists().assertTextEquals("Song A")
+
+    composeTestRule.onNodeWithTag("recentSearch_Song B").assertExists().assertTextEquals("Song B")
+
+    composeTestRule.onNodeWithTag("recentSearch_Song C").assertExists().assertTextEquals("Song C")
+
+    // Select the "Events" category and verify recent searches for "Events"
+    composeTestRule.onNodeWithTag("EventscategoryButton").performClick()
+    composeTestRule.onNodeWithTag("recentSearch_Event A").assertExists().assertTextEquals("Event A")
+
+    composeTestRule.onNodeWithTag("recentSearch_Event B").assertExists().assertTextEquals("Event B")
+
+    composeTestRule.onNodeWithTag("recentSearch_Event C").assertExists().assertTextEquals("Event C")
+
+    // Select the "People" category and verify recent searches for "People"
+    composeTestRule.onNodeWithTag("PeoplecategoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("recentSearch_Person A")
+        .assertExists()
+        .assertTextEquals("Person A")
+
+    composeTestRule
+        .onNodeWithTag("recentSearch_Person B")
+        .assertExists()
+        .assertTextEquals("Person B")
+
+    composeTestRule
+        .onNodeWithTag("recentSearch_Person C")
+        .assertExists()
+        .assertTextEquals("Person C")
   }
 }
