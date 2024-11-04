@@ -23,7 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.ui.library.LibraryScreen
+import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
