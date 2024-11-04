@@ -20,7 +20,7 @@ if (localPropertiesFile.exists()) {
 val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
 
 android {
-    namespace = "com.android.sample"
+    namespace = "com.epfl.beatlink"
     compileSdk = 34
 
     // Load the API key from local.properties
@@ -33,7 +33,7 @@ android {
     val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: ""
 
     defaultConfig {
-        applicationId = "com.android.sample"
+        applicationId = "com.epfl.beatlink"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
