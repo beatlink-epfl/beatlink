@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
@@ -57,28 +58,28 @@ class SearchScreenTest {
   @Test
   fun testNavigationToTrendingSongs() {
 
-    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").performClick()
+    composeTestRule.onNodeWithTag("TRENDING SONGSTitle").performScrollTo().performClick()
     verify(navigationActions).navigateTo(screen = Screen.TRENDING_SONGS)
   }
 
   @Test
   fun testNavigationToMostMatchedSongs() {
 
-    composeTestRule.onNodeWithTag("MOST MATCHED SONGSTitle").performClick()
+    composeTestRule.onNodeWithTag("MOST MATCHED SONGSTitle").performScrollTo().performClick()
     verify(navigationActions).navigateTo(screen = Screen.MOST_MATCHED_SONGS)
   }
 
   @Test
   fun testNavigationToLiveMusicParties() {
 
-    composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESTitle").performClick()
+    composeTestRule.onNodeWithTag("LIVE MUSIC PARTIESTitle").performScrollTo().performClick()
     verify(navigationActions).navigateTo(screen = Screen.LIVE_MUSIC_PARTIES)
   }
 
   @Test
   fun testNavigationToDiscoverPeople() {
 
-    composeTestRule.onNodeWithTag("DISCOVER PEOPLETitle").performClick()
+    composeTestRule.onNodeWithTag("DISCOVER PEOPLETitle").performScrollTo().performClick()
     verify(navigationActions).navigateTo(screen = Screen.DISCOVER_PEOPLE)
   }
 
