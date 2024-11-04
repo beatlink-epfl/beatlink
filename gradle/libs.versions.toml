@@ -6,7 +6,7 @@ coreTesting = "2.2.0"
 espressoCoreVersion = "3.6.1"
 json = "20240303"
 kotlinxCoroutinesPlayServices = "1.7.3"
-kotlinxCoroutinesTest = "1.6.0"
+kotlinxCoroutinesTest = "1.6.1"
 mockitoAndroid = "5.13.0"
 agp = "8.3.0"
 kotlin = "1.8.10"
@@ -16,6 +16,7 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 mockitoAndroidVersion = "5.11.0"
 mockitoCoreVersion = "3.11.2"
+mockkMockk = "1.13.5"
 navigationTesting = "2.8.2"
 robolectricVersion = "4.7.3"
 runner = "1.6.2"
@@ -55,6 +56,8 @@ playServicesLocation = "21.3.0"
 uiTestJunit4Android = "1.7.3"
 uiTestJunit4Version = "1.4.0"
 firebaseCommonKtx = "21.0.0"
+firebaseFirestore = "25.1.1"
+firebaseAuthKtx = "23.1.0"
 
 [libraries]
 androidx-compose-bom-v20230800 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
@@ -100,6 +103,7 @@ kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspres
 
 mockito-android-v5110 = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroidVersion" }
 mockito-core-v3112 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
+mockk-v1135 = { module = "io.mockk:mockk", version.ref = "mockkMockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
@@ -115,14 +119,13 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 robolectric-v473 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 sonar = { id = "org.sonarqube", version.ref = "sonar" }
-
-
-

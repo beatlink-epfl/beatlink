@@ -20,7 +20,7 @@ if (localPropertiesFile.exists()) {
 val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
 
 android {
-    namespace = "com.android.sample"
+    namespace = "com.epfl.beatlink"
     compileSdk = 34
 
     // Load the API key from local.properties
@@ -33,7 +33,7 @@ android {
     val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: ""
 
     defaultConfig {
-        applicationId = "com.android.sample"
+        applicationId = "com.epfl.beatlink"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
@@ -175,6 +175,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
     implementation(libs.firebase.common.ktx)
+    implementation(libs.firebase.auth.ktx)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
@@ -223,6 +224,7 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
     testImplementation(libs.json)
+    testImplementation(libs.mockk.v1135)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
