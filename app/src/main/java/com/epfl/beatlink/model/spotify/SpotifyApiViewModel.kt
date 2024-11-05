@@ -1,6 +1,5 @@
-package com.android.sample.model.spotify
+package com.epfl.beatlink.model.spotify
 
-import SpotifyApiRepository
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -13,26 +12,21 @@ class SpotifyApiViewModel(
 	private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
-	fun fetchUserProfile(onResult: (Result<JSONObject>) -> Unit) {
+	fun fetchCurrentUserProfile(onResult: (Result<JSONObject>) -> Unit) {
 		viewModelScope.launch {
-			val result = apiRepository.get("me/top/artists")
-			val value = parseItemNames(result.getOrNull().toString())
-			Log.d("SpotifyApiViewModel", "Result: $result")
-			Log.d("SpotifyApiViewModel", "Result: $value")
+			val result = apiRepository.get("me")
+			if (result.isSuccess) Log.d("SpotifyApiViewModel", "User profile fetched successfully")
+			else Log.e("SpotifyApiViewModel", "Failed to fetch user profile")
 			onResult(result)
 		}
 	}
 
-	fun parseItemNames(response: String): List<String> {
-		val jsonResponse = JSONObject(response)
-		val itemsArray = jsonResponse.getJSONArray("items")
-
-		val namesList = mutableListOf<String>()
-		for (i in 0 until itemsArray.length()) {
-			val item = itemsArray.getJSONObject(i)
-			val name = item.getString("name")
-			namesList.add(name)
+	fun pausePlayback(onResult: (Result<JSONObject>) -> Unit) {
+		viewModelScope.launch {
+			val result = apiRepository.put("me/player/pause")
+			if (result.isSuccess) Log.d("SpotifyApiViewModel", "Playback paused successfully")
+			else Log.e("SpotifyApiViewModel", "Failed to pause playback")
+			onResult(result)
 		}
-		return namesList
 	}
 }
