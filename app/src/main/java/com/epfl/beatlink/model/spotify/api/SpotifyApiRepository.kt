@@ -38,12 +38,8 @@ class SpotifyApiRepository(
         response.body?.let { Result.success(JSONObject(it.string())) }
             ?: Result.failure(Exception("Empty response body"))
       } else {
-        Log.e(
-            "com.epfl.beatlink.model.spotify.api.SpotifyApiRepository",
-            "API call failed with code ${response.code}")
-        Log.e(
-            "com.epfl.beatlink.model.spotify.api.SpotifyApiRepository",
-            "Response: ${response.body?.string()}")
+        Log.e("SpotifyApiRepository", "API call failed with code ${response.code}")
+        Log.e("SpotifyApiRepository", "Response: ${response.body?.string()}")
         Result.failure(Exception("API call failed with code ${response.code}"))
       }
     } catch (e: Exception) {
