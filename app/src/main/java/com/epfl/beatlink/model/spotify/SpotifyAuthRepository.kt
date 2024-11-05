@@ -1,6 +1,7 @@
 package com.epfl.beatlink.model.spotify
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -17,6 +18,7 @@ import org.json.JSONObject
 const val REDIRECT_URI = "myapp://callback"
 const val CLIENT_ID = "5025edc6cd4b4e508839ae45296d1c82"
 const val SPOTIFY_AUTH_PREFS = "spotify_auth"
+const val SCOPES = "user-read-private user-read-email user-top-read"
 
 open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServiceAuthRepository {
   suspend fun refreshAccessToken(refreshToken: String, context: Context): Result<Unit> {
@@ -100,6 +102,8 @@ open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServic
           val refreshToken = jsonResponse.getString("refresh_token")
           val expiresIn = jsonResponse.getInt("expires_in")
 
+          Log.d("SpotifyAuthRepository", "Scopes: ${jsonResponse.getString("scope")}")
+
           val expiryTime = System.currentTimeMillis() + expiresIn * 1000
 
           // Store the new data in SharedPreferences
@@ -131,7 +135,7 @@ open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServic
     return "https://accounts.spotify.com/authorize?" +
         "response_type=code&" +
         "client_id=$CLIENT_ID&" +
-        "scope=user-read-private user-read-email&" +
+        "scope=$SCOPES&" +
         "redirect_uri=$REDIRECT_URI&" +
         "code_challenge_method=S256&" +
         "code_challenge=$codeChallenge"

@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.android.sample.ui.Playground
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
@@ -77,7 +78,8 @@ class MainActivity : ComponentActivity() {
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
               // SpotifyAuth(spotifyAuthViewModel)
-              BeatLinkApp()
+              // BeatLinkApp()
+              Playground(application)
             }
       }
     }

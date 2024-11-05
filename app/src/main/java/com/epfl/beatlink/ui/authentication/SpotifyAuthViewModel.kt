@@ -18,8 +18,8 @@ open class SpotifyAuthViewModel(
     application: Application,
     private val repository: SpotifyAuthRepository
 ) : AndroidViewModel(application) {
-  private val _authState = mutableStateOf<AuthState>(AuthState.Idle)
-  val authState: State<AuthState> = _authState
+  private var _authState = mutableStateOf<AuthState>(AuthState.Idle)
+  val authState: State<AuthState> get() = _authState
 
   @VisibleForTesting internal val _accessToken = mutableStateOf<String?>(null)
   @VisibleForTesting internal val _refreshToken = mutableStateOf<String?>(null)
