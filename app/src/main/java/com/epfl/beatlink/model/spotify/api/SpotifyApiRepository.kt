@@ -5,6 +5,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 class SpotifyApiRepository(
@@ -60,7 +61,7 @@ class SpotifyApiRepository(
   // PUT request function
   override suspend fun put(endpoint: String, body: RequestBody?): Result<JSONObject> {
     return makeRequest(endpoint) { builder ->
-      if (body != null) builder.put(body) else builder.put(RequestBody.create(null, ""))
+      if (body != null) builder.put(body) else builder.put("".toRequestBody())
     }
   }
 
