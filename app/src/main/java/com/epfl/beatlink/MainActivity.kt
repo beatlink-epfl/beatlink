@@ -26,7 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
-import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.authentication.LoginScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
