@@ -1,7 +1,6 @@
-package com.epfl.beatlink.model.spotify
+package com.epfl.beatlink.model.spotify.auth
 
 import android.content.Context
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -101,8 +100,6 @@ open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServic
           val accessToken = jsonResponse.getString("access_token")
           val refreshToken = jsonResponse.getString("refresh_token")
           val expiresIn = jsonResponse.getInt("expires_in")
-
-          Log.d("SpotifyAuthRepository", "Scopes: ${jsonResponse.getString("scope")}")
 
           val expiryTime = System.currentTimeMillis() + expiresIn * 1000
 

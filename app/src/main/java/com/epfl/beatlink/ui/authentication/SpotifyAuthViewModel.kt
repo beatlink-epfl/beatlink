@@ -11,7 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import kotlinx.coroutines.launch
 
 open class SpotifyAuthViewModel(
@@ -19,7 +19,8 @@ open class SpotifyAuthViewModel(
     private val repository: SpotifyAuthRepository
 ) : AndroidViewModel(application) {
   private var _authState = mutableStateOf<AuthState>(AuthState.Idle)
-  val authState: State<AuthState> get() = _authState
+  val authState: State<AuthState>
+    get() = _authState
 
   @VisibleForTesting internal val accessToken = mutableStateOf<String?>(null)
   @VisibleForTesting internal val refreshToken = mutableStateOf<String?>(null)
