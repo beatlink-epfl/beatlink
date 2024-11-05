@@ -23,7 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.android.sample.ui.Playground
+import com.epfl.beatlink.ui.Playground
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
@@ -31,6 +31,7 @@ import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.authentication.LoginScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
+import com.epfl.beatlink.ui.authentication.SpotifyAuth
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
@@ -79,7 +80,7 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
               // SpotifyAuth(spotifyAuthViewModel)
               // BeatLinkApp()
-              Playground(application)
+              Playground(application, spotifyAuthViewModel)
             }
       }
     }
@@ -93,7 +94,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BeatLinkApp() {
-
+  
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
   val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)

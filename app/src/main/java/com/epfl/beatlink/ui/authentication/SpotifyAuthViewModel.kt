@@ -21,9 +21,9 @@ open class SpotifyAuthViewModel(
   private var _authState = mutableStateOf<AuthState>(AuthState.Idle)
   val authState: State<AuthState> get() = _authState
 
-  @VisibleForTesting internal val _accessToken = mutableStateOf<String?>(null)
-  @VisibleForTesting internal val _refreshToken = mutableStateOf<String?>(null)
-  @VisibleForTesting internal val _expiryTime = mutableStateOf<Long?>(null)
+  @VisibleForTesting internal val accessToken = mutableStateOf<String?>(null)
+  @VisibleForTesting internal val refreshToken = mutableStateOf<String?>(null)
+  @VisibleForTesting internal val expiryTime = mutableStateOf<Long?>(null)
 
   init {
     loadTokens(application)
@@ -32,13 +32,13 @@ open class SpotifyAuthViewModel(
 
   /** Updates the data values in the view model */
   fun loadTokens(context: Context) {
-    val accessToken = repository.getAccessToken(context)
-    val refreshToken = repository.getRefreshToken(context)
-    val expiryTime = repository.getExpiryTime(context)
+    val newAccessToken = repository.getAccessToken(context)
+    val newRefreshToken = repository.getRefreshToken(context)
+    val newExpiryTime = repository.getExpiryTime(context)
 
-    _accessToken.value = accessToken
-    _refreshToken.value = refreshToken
-    _expiryTime.value = expiryTime
+    accessToken.value = newAccessToken
+    refreshToken.value = newRefreshToken
+    expiryTime.value = newExpiryTime
   }
 
   /** Loads the authentication state based on the tokens' values */
@@ -58,20 +58,20 @@ open class SpotifyAuthViewModel(
     repository.clearAuthData(context)
 
     // Clear the data values in the view model
-    _accessToken.value = null
-    _refreshToken.value = null
-    _expiryTime.value = null
+    accessToken.value = null
+    refreshToken.value = null
+    expiryTime.value = null
     _authState.value = AuthState.Idle
   }
 
   /** Checks if an access token exists in the view model */
   private fun doesTokenExist(): Boolean {
-    return _accessToken.value != null
+    return accessToken.value != null
   }
 
   /** Checks if the access token is still valid */
   private fun isTokenValid(): Boolean {
-    val expiryTime = _expiryTime.value
+    val expiryTime = expiryTime.value
 
     return expiryTime != null && expiryTime > System.currentTimeMillis()
   }
@@ -107,7 +107,7 @@ open class SpotifyAuthViewModel(
 
   /** Refreshes the access token using the refresh token */
   fun refreshAccessToken(context: Context) {
-    val refreshToken = _refreshToken.value
+    val refreshToken = refreshToken.value
     if (refreshToken != null) {
       viewModelScope.launch {
         // Call the repository function and check the result
