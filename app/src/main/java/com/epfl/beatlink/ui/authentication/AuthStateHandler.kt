@@ -25,7 +25,7 @@ fun AuthStateHandler(
         navigationActions.navigateTo(Screen.HOME)
       }
       is AuthState.Error -> {
-        Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, (authState).message, Toast.LENGTH_SHORT).show()
         authViewModel.resetState()
       }
       is AuthState.Idle -> {
