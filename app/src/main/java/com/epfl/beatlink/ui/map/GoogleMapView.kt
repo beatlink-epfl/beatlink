@@ -12,8 +12,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.epfl.beatlink.R
+import com.epfl.beatlink.ui.theme.CircleColor
+import com.epfl.beatlink.ui.theme.CircleStrokeColor
 import com.epfl.beatlink.ui.theme.PrimaryPurple
-import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -33,7 +34,7 @@ fun GoogleMapView(
     moveToCurrentLocation: MutableState<CameraAction>,
     modifier: Modifier,
     locationPermitted: Boolean,
-    radius: Double = 1000.0
+    radius: Double = 100.0
 ) {
   val coroutineScope = rememberCoroutineScope()
 
@@ -46,7 +47,7 @@ fun GoogleMapView(
   val mapProperties =
       MapProperties(
           mapType = MapType.NORMAL,
-          mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.style_maps))
+          mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.style_maps_dark))
 
   LaunchedEffect(moveToCurrentLocation.value, Unit) {
     if (moveToCurrentLocation.value == CameraAction.MOVE) {
@@ -70,14 +71,16 @@ fun GoogleMapView(
               Marker(
                   state = MarkerState(position = location),
                   title = "You are here",
-                  icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
+                  icon =
+                      getBitmapDescriptorFromDrawableResource(
+                          R.drawable.me_position, context, 100, 100),
                   anchor = Offset(0.5f, 0.5f))
               Circle(
                   center = location,
                   radius = radius,
-                  strokeColor = PrimaryPurple,
+                  strokeColor = CircleStrokeColor,
                   strokeWidth = 3f,
-                  fillColor = SecondaryPurple)
+                  fillColor = CircleColor)
             }
           }
         }

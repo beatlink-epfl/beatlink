@@ -29,8 +29,7 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.google.android.gms.maps.model.LatLng
 
-val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
-const val defaultZoom = 15f
+const val defaultZoom = 17f
 
 enum class CameraAction {
   NO_ACTION,
@@ -42,7 +41,7 @@ fun MapScreen(
     navigationActions: NavigationActions,
     mapViewModel: MapViewModel,
     currentMusicPlayed: SpotifyTrack? = null,
-    radius: Double = 1000.0
+    radius: Double = 200.0
 ) {
 
   // Permission launcher to handle permission request
