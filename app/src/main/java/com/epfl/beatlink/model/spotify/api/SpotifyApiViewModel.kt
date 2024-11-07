@@ -13,9 +13,9 @@ class SpotifyApiViewModel(
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
-  private var deviceId: String? = null
+  var deviceId: String? = null
 
-  private fun getDeviceId() {
+  fun getDeviceId() {
     viewModelScope.launch {
       val result = apiRepository.get("me/player/devices")
       if (result.isSuccess) {
@@ -55,7 +55,7 @@ class SpotifyApiViewModel(
     }
   }
 
-  private fun transferPlayback() {
+  fun transferPlayback() {
     viewModelScope.launch {
       val requestBody =
           "{\"device_ids\":[\"${deviceId.toString()}\"]}"
@@ -77,7 +77,8 @@ class SpotifyApiViewModel(
   fun pausePlayback(onResult: (Result<JSONObject>) -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.put("me/player/pause")
-      Log.d("SpotifyApiViewModel", "Playback paused")
+      if (result.isSuccess) Log.d("SpotifyApiViewModel", "Playback paused")
+      else Log.e("SpotifyApiViewModel", "Failed to pause playback")
       onResult(result)
     }
   }
@@ -110,7 +111,8 @@ class SpotifyApiViewModel(
   fun previousSong(onResult: (Result<JSONObject>) -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.post("me/player/previous", "".toRequestBody())
-      Log.d("SpotifyApiViewModel", "Previous song play")
+      if (result.isSuccess) Log.d("SpotifyApiViewModel", "Previous song played")
+      else Log.e("SpotifyApiViewModel", "Failed to play previous song")
       onResult(result)
     }
   }
