@@ -100,7 +100,11 @@ fun EditProfileScreen(navigationActions: NavigationActions) {
       },
       content = { paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).verticalScroll(scrollState).testTag("editProfileContent"),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(scrollState)
+                    .testTag("editProfileContent"),
             horizontalAlignment = Alignment.CenterHorizontally) {
               HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
               Spacer(modifier = Modifier.height(50.dp))
