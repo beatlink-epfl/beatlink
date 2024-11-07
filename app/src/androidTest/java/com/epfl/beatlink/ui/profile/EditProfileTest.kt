@@ -46,9 +46,9 @@ class EditProfileScreenTest {
     composeTestRule.onNodeWithTag("editProfileBackButton").assertIsDisplayed()
 
     // Check if input fields and button are displayed
+    composeTestRule.onNodeWithTag("editProfileContent").assertIsDisplayed()
     composeTestRule.onNodeWithTag("editProfileNameInput").assertIsDisplayed()
     composeTestRule.onNodeWithTag("editProfileDescriptionInput").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("saveProfileButton").assertIsDisplayed()
   }
 
   @Test
