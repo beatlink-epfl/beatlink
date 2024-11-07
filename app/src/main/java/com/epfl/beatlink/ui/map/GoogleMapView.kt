@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.testTag
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.theme.CircleColor
 import com.epfl.beatlink.ui.theme.CircleStrokeColor
-import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -47,7 +46,7 @@ fun GoogleMapView(
   val mapProperties =
       MapProperties(
           mapType = MapType.NORMAL,
-          mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.style_maps_dark))
+          mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.style_maps))
 
   LaunchedEffect(moveToCurrentLocation.value, Unit) {
     if (moveToCurrentLocation.value == CameraAction.MOVE) {

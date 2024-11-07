@@ -27,7 +27,6 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.google.android.gms.maps.model.LatLng
 
 const val defaultZoom = 17f
 
