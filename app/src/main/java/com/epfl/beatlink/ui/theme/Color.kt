@@ -13,7 +13,7 @@ val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, Pr
 val IconsGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryPurple, PrimaryRed))
 
 // Define the circle color
-val CircleColor = Color(0x3EEF3535)
+val CircleColor = Color(0x3E5F2A83)
 val CircleStrokeColor = Color(0xA35F2A83)
 val CircleColorDark = Color(0x3EEF3535)
 val CircleStrokeColorDark = Color(0xA3EF3535)
