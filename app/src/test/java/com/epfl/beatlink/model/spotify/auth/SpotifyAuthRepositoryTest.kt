@@ -1,10 +1,7 @@
-package com.epfl.beatlink.ui.authentication
+package com.epfl.beatlink.model.spotify.auth
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.epfl.beatlink.model.spotify.CLIENT_ID
-import com.epfl.beatlink.model.spotify.REDIRECT_URI
-import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import okhttp3.Call
@@ -27,7 +24,7 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SpotifyFirebaseAuthRepositoryTest {
+class SpotifyAuthRepositoryTest {
 
   @Mock private lateinit var context: Context
 
@@ -60,7 +57,6 @@ class SpotifyFirebaseAuthRepositoryTest {
     val refreshToken = "valid_refresh_token"
     val accessToken = "new_access_token"
     val expiresIn = 3600
-    val expiryTime = System.currentTimeMillis() + expiresIn * 1000
 
     // Create the mock JSON response with access_token and expires_in
     val jsonResponse =
@@ -96,7 +92,6 @@ class SpotifyFirebaseAuthRepositoryTest {
     val accessToken = "new_access_token"
     val refreshToken = "new_refresh_token"
     val expiresIn = 3600
-    val expiryTime = System.currentTimeMillis() + expiresIn * 1000
 
     // Mock the fetch function to return a valid code verifier
     whenever(repository.fetch(context, "code_verifier")).thenReturn(codeVerifier)

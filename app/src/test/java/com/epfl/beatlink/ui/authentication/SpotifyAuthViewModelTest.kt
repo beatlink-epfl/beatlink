@@ -3,7 +3,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.authentication.AuthState
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SpotifyFirebaseAuthViewModelTest {
+class SpotifyAuthViewModelTest {
 
   @get:Rule
   val instantExecutorRule = InstantTaskExecutorRule() // Allows LiveData to update instantly
@@ -85,7 +85,7 @@ class SpotifyFirebaseAuthViewModelTest {
   @Test
   fun `authState becomes Authenticated on successful access token refresh`() = runTest {
     // Arrange: Set up initial state for the ViewModel directly
-    viewModel._refreshToken.value = "valid_refresh_token" // Set initial refresh token directly
+    viewModel.refreshToken.value = "valid_refresh_token" // Set initial refresh token directly
     `when`(repository.refreshAccessToken("valid_refresh_token", context))
         .thenReturn(Result.success(Unit))
 
