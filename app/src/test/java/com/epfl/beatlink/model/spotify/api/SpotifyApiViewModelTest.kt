@@ -198,8 +198,7 @@ class SpotifyApiViewModelTest {
     // Arrange
     val mockResult = Result.success(JSONObject())
     // Use argument matchers for request body
-    `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>()))
-      .thenReturn(mockResult)
+    `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>())).thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
 
     // Act
@@ -219,8 +218,7 @@ class SpotifyApiViewModelTest {
     val exception = Exception("Network error")
     val mockResult = Result.failure<JSONObject>(exception)
     // Use argument matchers for request body
-    `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>()))
-      .thenReturn(mockResult)
+    `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>())).thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
 
     // Act
@@ -239,7 +237,7 @@ class SpotifyApiViewModelTest {
     // Arrange
     val mockResult = Result.success(JSONObject())
     `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
-      .thenReturn(mockResult)
+        .thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
 
     // Act
@@ -259,7 +257,7 @@ class SpotifyApiViewModelTest {
     val exception = Exception("Network error")
     val mockResult = Result.failure<JSONObject>(exception)
     `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
-      .thenReturn(mockResult)
+        .thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
 
     // Act
@@ -299,15 +297,19 @@ class SpotifyApiViewModelTest {
   @Test
   fun `getDeviceId fetches devices and selects a smartphone device`() = runTest {
     // Arrange
-    val mockDevices = JSONObject().apply {
-      put("devices", JSONArray().apply {
-        put(JSONObject().apply {
-          put("id", "12345")
-          put("type", "Smartphone")
-          put("is_active", false)
-        })
-      })
-    }
+    val mockDevices =
+        JSONObject().apply {
+          put(
+              "devices",
+              JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                      put("id", "12345")
+                      put("type", "Smartphone")
+                      put("is_active", false)
+                    })
+              })
+        }
 
     val mockResult = Result.success(mockDevices)
     mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
@@ -330,15 +332,19 @@ class SpotifyApiViewModelTest {
   @Test
   fun `mock repository get method works as expected`() = runTest {
     // Arrange
-    val mockDevices = JSONObject().apply {
-      put("devices", JSONArray().apply {
-        put(JSONObject().apply {
-          put("id", "67890")
-          put("type", "Speaker")
-          put("is_active", true)
-        })
-      })
-    }
+    val mockDevices =
+        JSONObject().apply {
+          put(
+              "devices",
+              JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                      put("id", "67890")
+                      put("type", "Speaker")
+                      put("is_active", true)
+                    })
+              })
+        }
 
     val mockResult = Result.success(mockDevices)
     `when`(mockApiRepository.get("me/player/devices")).thenReturn(mockResult)
@@ -348,15 +354,17 @@ class SpotifyApiViewModelTest {
 
     // Assert
     assertTrue(result.isSuccess)
-    assertEquals("67890", result.getOrNull()?.getJSONArray("devices")?.getJSONObject(0)?.getString("id"))
+    assertEquals(
+        "67890", result.getOrNull()?.getJSONArray("devices")?.getJSONObject(0)?.getString("id"))
   }
 
   @Test
   fun `getDeviceId handles no devices case`() = runTest {
     // Arrange
-    val mockDevices = JSONObject().apply {
-      put("devices", JSONArray()) // Empty array of devices
-    }
+    val mockDevices =
+        JSONObject().apply {
+          put("devices", JSONArray()) // Empty array of devices
+        }
 
     val mockResult = Result.success(mockDevices)
     mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
@@ -374,15 +382,19 @@ class SpotifyApiViewModelTest {
   @Test
   fun `getDeviceId falls back to first device when no smartphone is found`() = runTest {
     // Arrange
-    val mockDevices = JSONObject().apply {
-      put("devices", JSONArray().apply {
-        put(JSONObject().apply {
-          put("id", "98765")
-          put("type", "Speaker")
-          put("is_active", true)
-        })
-      })
-    }
+    val mockDevices =
+        JSONObject().apply {
+          put(
+              "devices",
+              JSONArray().apply {
+                put(
+                    JSONObject().apply {
+                      put("id", "98765")
+                      put("type", "Speaker")
+                      put("is_active", true)
+                    })
+              })
+        }
 
     val mockResult = Result.success(mockDevices)
     mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
@@ -394,6 +406,7 @@ class SpotifyApiViewModelTest {
 
     // Assert
     verify(mockApiRepository).get("me/player/devices")
-    assertEquals("98765", viewModel.deviceId) // ID of the first (and only) device should be selected
+    assertEquals(
+        "98765", viewModel.deviceId) // ID of the first (and only) device should be selected
   }
 }
