@@ -25,6 +25,7 @@ object Screen {
   const val SEARCH = "Search Screen"
   const val LIBRARY = "Library Screen"
   const val PROFILE = "Profile Screen"
+  const val EDIT_PROFILE = "Edit Profile Screen"
 }
 
 data class TopLevelDestination(

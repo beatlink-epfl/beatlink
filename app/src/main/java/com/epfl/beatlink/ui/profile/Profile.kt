@@ -39,6 +39,7 @@ import com.epfl.beatlink.ui.components.PageTopBarApp
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
@@ -92,7 +93,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
                           .width(233.dp)
                           .height(32.dp)) {
                     Button(
-                        onClick = { /* Handle button click */},
+                        onClick = { navigationAction.navigateTo(Screen.EDIT_PROFILE) },
                         modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
                         colors = ButtonDefaults.buttonColors(containerColor = lightThemeBackground),
                     ) {

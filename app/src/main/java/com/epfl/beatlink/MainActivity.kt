@@ -40,6 +40,7 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
 import com.google.android.gms.location.LocationServices
@@ -126,6 +127,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
+      composable(Screen.EDIT_PROFILE) { EditProfileScreen(navigationActions) }
     }
   }
 }
