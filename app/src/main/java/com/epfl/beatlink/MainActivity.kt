@@ -78,8 +78,7 @@ class MainActivity : ComponentActivity() {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-              // SpotifyAuth(spotifyAuthViewModel)
-              ProfileBuildScreen(NavigationActions(rememberNavController()))
+              BeatLinkApp()
             }
       }
     }
@@ -109,7 +108,6 @@ fun BeatLinkApp() {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
       composable(Screen.LOGIN) { LoginScreen(navigationActions) }
       composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
-
       composable(Screen.PROFILE_BUILD) { ProfileBuildScreen(navigationActions) }
     }
 
