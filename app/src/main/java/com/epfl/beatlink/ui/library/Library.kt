@@ -17,11 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.ui.components.PageTopBarApp
+import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.TitleWithArrow
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 
 @Composable
 fun LibraryScreen(navigationActions: NavigationActions) {
@@ -29,17 +31,21 @@ fun LibraryScreen(navigationActions: NavigationActions) {
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
       topBar = {
-        PageTopBarApp(
+        PageTopAppBar(
             "My Library",
             "libraryTitle",
-            {},
-            Icons.Outlined.Search,
-            "Search",
-            "searchButton",
-            {},
-            Icons.Outlined.Add,
-            "Add playlist",
-            "addPlaylistButton")
+            listOf {
+              CornerIcons(
+                  onClick = {},
+                  icon = Icons.Outlined.Search,
+                  contentDescription = "Search",
+                  modifier = Modifier.testTag("searchButton"))
+              CornerIcons(
+                  onClick = { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) },
+                  icon = Icons.Outlined.Add,
+                  contentDescription = "Add playlist",
+                  modifier = Modifier.testTag("addPlaylistButton"))
+            })
       },
       bottomBar = {
         BottomNavigationMenu(

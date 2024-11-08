@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.model.spotify.SpotifyAuthRepository
+import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
 import okhttp3.OkHttpClient
 import org.junit.Before
