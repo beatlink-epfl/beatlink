@@ -193,5 +193,7 @@ class MapScreenTest {
     composeTestRule
         .onNodeWithTag("playButton", useUnmergedTree = true)
         .assertContentDescriptionEquals("Play")
+
+    composeTestRule.onNodeWithTag("skipButton", useUnmergedTree = true).performClick()
   }
 }
