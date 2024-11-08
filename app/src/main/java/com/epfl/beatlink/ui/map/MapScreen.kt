@@ -3,27 +3,26 @@ package com.epfl.beatlink.ui.map
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -68,6 +67,8 @@ fun MapScreen(
   val locationPermitted by mapViewModel.locationPermitted
   val isMapLoaded by mapViewModel.isMapLoaded
 
+  var connectedDevice by remember { mutableStateOf(false) }
+
   Scaffold(
       bottomBar = {
         BottomNavigationMenu(
@@ -89,21 +90,15 @@ fun MapScreen(
             } else {
               Text("Loading map...", modifier = Modifier.padding(16.dp))
             }
+
+            Button(
+                onClick = { connectedDevice = !connectedDevice },
+                modifier = Modifier.align(Alignment.BottomCenter).testTag("deviceButton")) {
+                  Text(if (connectedDevice) "Disconnect Device" else "Connect Device")
+                }
           }
 
-          // Player is placed just above the bottom bar
-          Row(
-              modifier =
-                  Modifier.fillMaxWidth()
-                      .height(76.dp)
-                      .background(color = MaterialTheme.colorScheme.tertiary) // TBD if...else...
-                      .padding(horizontal = 32.dp, vertical = 26.dp)
-                      .testTag("playerContainer"),
-              horizontalArrangement = Arrangement.Center,
-              verticalAlignment = Alignment.CenterVertically,
-          ) {
-            PlayerCurrentMusicItem(currentMusicPlayed)
-          }
+          MusicPlayerUI(connectedDevice = connectedDevice)
         }
       }
 }
