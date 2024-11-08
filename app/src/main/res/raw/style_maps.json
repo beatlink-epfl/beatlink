@@ -1,57 +1,6 @@
 [
   {
-    "featureType": "administrative.neighborhood",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.province",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.man_made",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.natural",
-    "stylers": [
-      {
-        "color": "#f5f0f3"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "stylers": [
-      {
-        "color": "#dfece5"
-      },
-      {
-        "visibility": "on"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
+    "featureType": "administrative.land_parcel",
     "elementType": "labels",
     "stylers": [
       {
@@ -60,8 +9,8 @@
     ]
   },
   {
-    "featureType": "poi.park",
-    "elementType": "labels.text",
+    "featureType": "landscape.natural",
+    "elementType": "labels",
     "stylers": [
       {
         "visibility": "off"
@@ -69,7 +18,43 @@
     ]
   },
   {
+    "featureType": "poi",
+    "elementType": "labels",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.medical",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "stylers": [
+      {
+        "lightness": 30
+      }
+    ]
+  },
+  {
     "featureType": "transit.station",
+    "elementType": "labels",
     "stylers": [
       {
         "visibility": "off"

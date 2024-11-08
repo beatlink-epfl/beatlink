@@ -22,15 +22,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.map.MapViewModel
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.google.android.gms.maps.model.LatLng
 
-val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
-const val defaultZoom = 15f
+const val defaultZoom = 17f
+const val radius = 200.0
 
 enum class CameraAction {
   NO_ACTION,
@@ -38,12 +36,7 @@ enum class CameraAction {
 }
 
 @Composable
-fun MapScreen(
-    navigationActions: NavigationActions,
-    mapViewModel: MapViewModel,
-    currentMusicPlayed: SpotifyTrack? = null,
-    radius: Double = 1000.0
-) {
+fun MapScreen(navigationActions: NavigationActions, mapViewModel: MapViewModel) {
 
   // Permission launcher to handle permission request
   val permissionLauncher =
@@ -86,8 +79,7 @@ fun MapScreen(
                   currentPosition = mapViewModel.currentPosition,
                   moveToCurrentLocation = mapViewModel.moveToCurrentLocation,
                   modifier = Modifier.testTag("Map"),
-                  locationPermitted = locationPermitted,
-                  radius = radius)
+                  locationPermitted = locationPermitted)
             } else {
               Text("Loading map...", modifier = Modifier.padding(16.dp))
             }
