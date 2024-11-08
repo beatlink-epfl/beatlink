@@ -17,7 +17,8 @@ import org.json.JSONObject
 const val REDIRECT_URI = "myapp://callback"
 const val CLIENT_ID = "5025edc6cd4b4e508839ae45296d1c82"
 const val SPOTIFY_AUTH_PREFS = "spotify_auth"
-const val SCOPES = "user-read-private user-read-email user-top-read user-modify-playback-state"
+const val SCOPES =
+    "user-read-private user-read-email user-top-read user-modify-playback-state user-read-playback-state"
 
 open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServiceAuthRepository {
   suspend fun refreshAccessToken(refreshToken: String, context: Context): Result<Unit> {

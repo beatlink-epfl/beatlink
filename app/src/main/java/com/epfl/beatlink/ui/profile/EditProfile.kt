@@ -48,7 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.authentication.CustomInputField
+import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.components.PrincipalButton
+import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -71,26 +74,7 @@ fun EditProfileScreen(navigationActions: NavigationActions) {
   Scaffold(
       modifier = Modifier.testTag("editProfileScreen"),
       topBar = {
-        TopAppBar(
-            title = {
-              Text(
-                  text = "Edit profile",
-                  textAlign = TextAlign.Center,
-                  color = MaterialTheme.colorScheme.primary,
-                  style = MaterialTheme.typography.headlineLarge,
-                  fontSize = 20.sp,
-                  fontWeight = FontWeight.Bold,
-                  modifier =
-                      Modifier.fillMaxWidth().offset(x = (-28).dp).testTag("editProfileTitle"))
-            },
-            navigationIcon = {
-              CornerIcons(
-                  onClick = { navigationActions.goBack() },
-                  icon = Icons.AutoMirrored.Filled.ArrowBack,
-                  contentDescription = "GoBack",
-                  modifier = Modifier.testTag("editProfileBackButton"),
-              )
-            })
+          ScreenTopAppBar("Edit profile", "editProfileTitle", navigationActions)
       },
       bottomBar = {
         BottomNavigationMenu(
@@ -144,38 +128,7 @@ fun EditProfileScreen(navigationActions: NavigationActions) {
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
               Spacer(modifier = Modifier.height(120.dp))
-              Box(
-                  modifier =
-                      Modifier.border(1.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp))
-                          .width(320.dp)
-                          .height(48.dp)) {
-                    Button(
-                        onClick = { /* Handle button click */},
-                        modifier = Modifier.fillMaxWidth().testTag("saveProfileButton"),
-                        colors =
-                            ButtonDefaults.buttonColors(containerColor = lightThemeBackground)) {
-                          Text(
-                              text = "Save",
-                              fontWeight = FontWeight.Bold,
-                              fontSize = 16.sp,
-                              color = MaterialTheme.colorScheme.primary)
-                        }
-                  }
+            PrincipalButton("Save", "saveProfileButton") { }
             }
       })
-}
-
-@Composable
-fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
-  Box(
-      modifier =
-          Modifier.size(32.dp)
-              .background(color = backgroundColor, shape = CircleShape)
-              .clickable { /* Handle click */}) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "Edit",
-            tint = LightGray,
-            modifier = Modifier.padding(6.dp))
-      }
 }

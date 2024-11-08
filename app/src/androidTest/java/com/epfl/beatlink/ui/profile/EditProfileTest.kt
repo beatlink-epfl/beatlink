@@ -43,7 +43,7 @@ class EditProfileScreenTest {
         .assertTextContains("Edit profile")
 
     // Check if the Back Button exists
-    composeTestRule.onNodeWithTag("editProfileBackButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
 
     // Check if input fields and button are displayed
     composeTestRule.onNodeWithTag("editProfileContent").assertIsDisplayed()

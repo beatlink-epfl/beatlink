@@ -55,6 +55,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.collabAdd
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
+import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
@@ -332,4 +333,19 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
               Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
             }
       }
+}
+
+@Composable
+fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
+    Box(
+        modifier =
+        Modifier.size(32.dp)
+            .background(color = backgroundColor, shape = CircleShape)
+            .clickable { /* Handle click */}) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "Edit",
+            tint = LightGray,
+            modifier = Modifier.padding(6.dp))
+    }
 }
