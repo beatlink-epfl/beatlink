@@ -30,8 +30,7 @@ class GoogleMapViewTest {
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
-          locationPermitted = true,
-          radius = 2000.0)
+          locationPermitted = true)
     }
 
     // Verify that the map is displayed
@@ -56,8 +55,7 @@ class GoogleMapViewTest {
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
-          locationPermitted = false,
-          radius = 2000.0)
+          locationPermitted = false)
     }
 
     // Verify that the map is displayed
@@ -82,8 +80,7 @@ class GoogleMapViewTest {
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
-          locationPermitted = true,
-          radius = 2000.0)
+          locationPermitted = true)
     }
 
     // Verify that the map is displayed

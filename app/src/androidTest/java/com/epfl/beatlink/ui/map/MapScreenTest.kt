@@ -12,8 +12,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapViewModel
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
@@ -35,9 +33,7 @@ class MapScreenTest {
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
-          mapViewModel = mapViewModel,
-          currentMusicPlayed = SpotifyTrack("trackId", "trackName", "trackUri", 10, 10, State.PLAY),
-          radius = 700.0)
+          mapViewModel = mapViewModel)
     }
 
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
