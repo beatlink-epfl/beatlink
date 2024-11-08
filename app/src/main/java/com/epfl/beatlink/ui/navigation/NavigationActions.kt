@@ -26,6 +26,11 @@ object Screen {
   const val LIBRARY = "Library Screen"
   const val CREATE_NEW_PLAYLIST = "Create New Playlist Screen"
   const val PROFILE = "Profile Screen"
+  const val SEARCH_BAR = "Search Bar Screen"
+  const val TRENDING_SONGS = "Trending Songs screen"
+  const val MOST_MATCHED_SONGS = "Most Matched Songs Screen"
+  const val LIVE_MUSIC_PARTIES = "Live Music Parties screen"
+  const val DISCOVER_PEOPLE = "Discover People screen"
 }
 
 data class TopLevelDestination(
