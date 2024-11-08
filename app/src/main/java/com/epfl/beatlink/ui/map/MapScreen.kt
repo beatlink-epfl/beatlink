@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.map.MapViewModel
@@ -94,7 +95,10 @@ fun MapScreen(
             Button(
                 onClick = { connectedDevice = !connectedDevice },
                 modifier = Modifier.align(Alignment.BottomCenter).testTag("deviceButton")) {
-                  Text(if (connectedDevice) "Disconnect Device" else "Connect Device")
+                  Text(
+                      if (connectedDevice) "Disconnect Device" else "Connect Device",
+                      color = Color.White
+                  )
                 }
           }
 
