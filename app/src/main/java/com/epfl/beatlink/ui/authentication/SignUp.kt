@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -276,7 +278,8 @@ fun CustomInputField(
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
-    supportingText: String? = null
+    supportingText: String? = null,
+    trailingIcon: ImageVector? = null
 ) {
   Column {
     OutlinedTextField(
@@ -296,7 +299,17 @@ fun CustomInputField(
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 errorTextColor = MaterialTheme.colorScheme.error,
                 focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
+                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+        trailingIcon = {
+          trailingIcon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onValueChange("") })
+          }
+        },
+        maxLines = Int.MAX_VALUE)
     supportingText?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
   }
 }
