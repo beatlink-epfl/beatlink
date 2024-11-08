@@ -2,10 +2,14 @@ package com.epfl.beatlink.ui.map
 
 import android.Manifest
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -39,7 +43,7 @@ class MapScreenTest {
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapScreenColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("noPlayerContainer").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
 
     // Verify that "Loading map..." text is displayed when the map is not loaded
@@ -64,7 +68,7 @@ class MapScreenTest {
     composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapScreenColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MapContainer").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("noPlayerContainer").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
 
     // Verify that the map is displayed when loaded
@@ -112,5 +116,84 @@ class MapScreenTest {
     }
 
     assert(mapViewModel.permissionRequired.value) // No mocking required here
+  }
+
+  @Test
+  fun mapScreen_DeviceButtonToggle() {
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = false }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
+
+    // Find the device button by tag and verify initial state
+    val deviceButton = composeTestRule.onNodeWithTag("deviceButton")
+    deviceButton.assertIsDisplayed()
+    deviceButton.assert(hasText("Connect Device"))
+
+    // Click the device button to toggle connection state
+    deviceButton.performClick()
+    deviceButton.assert(hasText("Disconnect Device"))
+
+    // Click again to toggle back
+    deviceButton.performClick()
+    deviceButton.assert(hasText("Connect Device"))
+  }
+
+  @Test
+  fun mapScreen_PlayerComponentsVisibleWhenConnected() {
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = false }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("noPlayerContainer").assertIsDisplayed()
+
+    val deviceButton = composeTestRule.onNodeWithTag("deviceButton")
+    deviceButton.performClick()
+
+    // Verify that the play/pause button, skip button, and song information are displayed
+    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
+  }
+
+  @Test
+  fun mapScreen_PlayPauseButtonTogglesState() {
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = false }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          mapViewModel = mapViewModel)
+    }
+
+    val deviceButton = composeTestRule.onNodeWithTag("deviceButton")
+    deviceButton.performClick()
+
+    // Initial state should be PAUSE, so the play icon should be displayed
+    composeTestRule
+        .onNodeWithTag("playButton", useUnmergedTree = true)
+        .assertContentDescriptionEquals("Play")
+
+    // Click to toggle state to PLAY, should show pause icon
+    composeTestRule.onNodeWithTag("playButton", useUnmergedTree = true).performClick()
+    composeTestRule
+        .onNodeWithTag("pauseButton", useUnmergedTree = true)
+        .assertContentDescriptionEquals("Pause")
+
+    // Click again to toggle state back to PAUSE, should show play icon
+    composeTestRule.onNodeWithTag("pauseButton", useUnmergedTree = true).performClick()
+    composeTestRule
+        .onNodeWithTag("playButton", useUnmergedTree = true)
+        .assertContentDescriptionEquals("Play")
+
+    composeTestRule.onNodeWithTag("skipButton", useUnmergedTree = true).performClick()
   }
 }
