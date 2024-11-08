@@ -20,6 +20,7 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.ui.search.components.StandardLazyColumn
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun LiveMusicPartiesScreen(navigationActions: NavigationActions) {
@@ -39,7 +40,7 @@ fun LiveMusicPartiesScreen(navigationActions: NavigationActions) {
                 Modifier.testTag("partiesSearchColumn")
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(color = Color.White)) {
+                    .background(color = lightThemeBackground)) {
               HorizontalDivider(
                   color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 

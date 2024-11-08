@@ -34,6 +34,7 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryPurple
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun ProfileCard(profile: ProfileData) {
@@ -41,7 +42,9 @@ fun ProfileCard(profile: ProfileData) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            Modifier.testTag("profileCardColumn").fillMaxSize().background(color = Color.White)) {
+            Modifier.testTag("profileCardColumn")
+                .fillMaxSize()
+                .background(color = lightThemeBackground)) {
           Image(
               painter = painterResource(id = R.drawable.default_profile_picture),
               contentDescription = null,
@@ -92,7 +95,7 @@ fun PartyCard(title: String, username: String, description: String) {
         modifier =
             Modifier.testTag("partyCardColumn")
                 .fillMaxSize()
-                .background(color = Color.White)
+                .background(color = lightThemeBackground)
                 .padding(12.dp)) {
           // First Row: Icon + Title and Username
           Row(
@@ -145,7 +148,7 @@ fun SongCard(song: SpotifyTrack) {
             modifier =
                 Modifier.testTag(song.name + "songCardColumn")
                     .fillMaxSize()
-                    .background(color = Color.White)) {
+                    .background(color = lightThemeBackground)) {
               Card(
                   modifier = Modifier.testTag(song.name + "songCardContainer").size(65.dp),
                   shape = RoundedCornerShape(5.dp)) {
@@ -163,7 +166,7 @@ fun SongCard(song: SpotifyTrack) {
                       Modifier.testTag(song.name + "songCardTextBox")
                           .width(53.dp)
                           .height(20.dp)
-                          .background(color = Color.White)) {
+                          .background(color = lightThemeBackground)) {
                     Column(
                         modifier = Modifier.testTag(song.name + "songCardTextColumn").fillMaxSize(),
                         verticalArrangement = Arrangement.Center, // Center vertically

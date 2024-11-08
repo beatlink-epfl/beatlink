@@ -37,6 +37,7 @@ import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.ui.search.components.StandardLazyColumn
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun SearchBarScreen(navigationActions: NavigationActions) {
@@ -57,7 +58,7 @@ fun SearchBarScreen(navigationActions: NavigationActions) {
                 Modifier.testTag("recentSearchesColumn")
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(color = Color.White)) {
+                    .background(color = lightThemeBackground)) {
               HorizontalDivider(
                   color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 

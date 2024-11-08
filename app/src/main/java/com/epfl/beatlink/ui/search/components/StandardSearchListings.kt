@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun StandardLazyColumn(title: String, list: List<String>) {
@@ -75,7 +76,7 @@ fun StandardFillerColumn(tag: String, paddingValues: PaddingValues) {
           Modifier.testTag(tag)
               .fillMaxSize()
               .padding(paddingValues)
-              .background(color = Color.White)) {
+              .background(color = lightThemeBackground)) {
         HorizontalDivider(
             color = Color.LightGray, thickness = 1.dp, modifier = Modifier.testTag("divider"))
 

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 
 @Composable
-fun GradientTitle(title: String, button: Boolean, onClick: () -> Unit) {
+fun GradientTitle(title: String, arrowNeed: Boolean, onClick: () -> Unit) {
   Row(
       modifier =
           Modifier.testTag(title + "Title").clickable { onClick() }.padding(horizontal = 16.dp),
@@ -38,7 +38,7 @@ fun GradientTitle(title: String, button: Boolean, onClick: () -> Unit) {
                   }
                 })
 
-        if (button) {
+        if (arrowNeed) {
           Spacer(modifier = Modifier.width(6.dp)) // Spacing between text and arrow
           Icon(
               imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,

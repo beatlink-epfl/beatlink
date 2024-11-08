@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun FullSearchBar(navigationActions: NavigationActions) {
@@ -51,7 +51,7 @@ fun FullSearchBar(navigationActions: NavigationActions) {
       modifier =
           Modifier.testTag("nonWritableSearchBar")
               .padding(start = 8.dp, top = 6.dp, end = 8.dp, bottom = 6.dp)
-              .background(color = Color.White)) {
+              .background(color = lightThemeBackground)) {
         Box(
             modifier =
                 Modifier.testTag("nonWritableSearchBarBox")
@@ -100,9 +100,8 @@ fun FullSearchBar(navigationActions: NavigationActions) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShortSearchBar() {
-  var searchQuery = remember { mutableStateOf(TextFieldValue("")) }
+  val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
   val focusRequester = remember { FocusRequester() }
-  val focusManager = LocalFocusManager.current
 
   // Automatically request focus when the composable is first loaded
   LaunchedEffect(Unit) { focusRequester.requestFocus() }

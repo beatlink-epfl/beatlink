@@ -31,6 +31,7 @@ import com.epfl.beatlink.ui.search.components.PartyCard
 import com.epfl.beatlink.ui.search.components.ProfileCard
 import com.epfl.beatlink.ui.search.components.SongCard
 import com.epfl.beatlink.ui.search.components.StandardLazyRow
+import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
 fun SearchScreen(navigationActions: NavigationActions) {
@@ -77,7 +78,7 @@ fun SearchScreen(navigationActions: NavigationActions) {
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .background(color = Color.White)) {
+                    .background(color = lightThemeBackground)) {
               HorizontalDivider(
                   color = Color.LightGray,
                   thickness = 1.dp,
