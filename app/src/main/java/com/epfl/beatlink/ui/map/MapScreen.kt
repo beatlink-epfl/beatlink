@@ -97,8 +97,7 @@ fun MapScreen(
                 modifier = Modifier.align(Alignment.BottomCenter).testTag("deviceButton")) {
                   Text(
                       if (connectedDevice) "Disconnect Device" else "Connect Device",
-                      color = Color.White
-                  )
+                      color = Color.White)
                 }
           }
 
