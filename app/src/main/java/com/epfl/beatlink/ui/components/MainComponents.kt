@@ -337,15 +337,15 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 
 @Composable
 fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
-    Box(
-        modifier =
-        Modifier.size(32.dp)
-            .background(color = backgroundColor, shape = CircleShape)
-            .clickable { /* Handle click */}) {
+  Box(
+      modifier =
+          Modifier.size(32.dp)
+              .background(color = backgroundColor, shape = CircleShape)
+              .clickable { /* Handle click */}) {
         Icon(
             imageVector = icon,
             contentDescription = "Edit",
             tint = LightGray,
             modifier = Modifier.padding(6.dp))
-    }
+      }
 }
