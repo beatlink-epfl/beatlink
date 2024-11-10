@@ -12,6 +12,12 @@ val SecondaryPurple = Color(0x805F2A83) // label input
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 val IconsGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryPurple, PrimaryRed))
 
+// Define the circle color
+val CircleColor = Color(0x3E5F2A83)
+val CircleStrokeColor = Color(0xA35F2A83)
+val CircleColorDark = Color(0x3EEF3535)
+val CircleStrokeColorDark = Color(0xA3EF3535)
+
 // Music Listening Box LIGHT THEME
 val lightThemeRed = Color(0xFFF0DDDD)
 val lightThemePurple = Color(0xFFD3CDE3)

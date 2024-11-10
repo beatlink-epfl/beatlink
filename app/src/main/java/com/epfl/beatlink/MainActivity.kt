@@ -4,17 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.ViewModelProvider
@@ -37,12 +31,17 @@ import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.map.MapScreen
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
+import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
+import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
+import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
+import com.epfl.beatlink.ui.search.SearchBarScreen
+import com.epfl.beatlink.ui.search.SearchScreen
+import com.epfl.beatlink.ui.search.TrendingSongsScreen
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.FirebaseApp
@@ -117,6 +116,11 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
       composable(Screen.SEARCH) { SearchScreen(navigationActions) }
+      composable(Screen.SEARCH_BAR) { SearchBarScreen(navigationActions) }
+      composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
+      composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
+      composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
+      composable(Screen.DISCOVER_PEOPLE) { DiscoverPeopleScreen(navigationActions) }
     }
 
     navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
@@ -126,24 +130,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
+      composable(Screen.EDIT_PROFILE) { EditProfileScreen(navigationActions) }
     }
   }
-}
-
-/** Temporary screen to test navigation */
-@Composable
-fun SearchScreen(navigationActions: NavigationActions) {
-  Scaffold(
-      modifier = Modifier.testTag("searchScreen"),
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      },
-      content = { pd ->
-        Box(modifier = Modifier.padding(pd).fillMaxSize()) {
-          Text(text = "Search Screen", modifier = Modifier.align(Alignment.Center))
-        }
-      })
 }

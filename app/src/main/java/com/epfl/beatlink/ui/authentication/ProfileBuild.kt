@@ -38,11 +38,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
@@ -86,7 +86,6 @@ fun ProfileBuildScreen(
                   onValueChange = { name = it },
                   label = "Name",
                   placeholder = "Enter name",
-                  keyboardType = KeyboardType.Email,
                   modifier = Modifier.testTag("inputName"))
 
               // Description input field

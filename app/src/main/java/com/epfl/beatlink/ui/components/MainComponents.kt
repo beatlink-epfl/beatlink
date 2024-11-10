@@ -3,11 +3,13 @@ package com.epfl.beatlink.ui.components
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,18 +23,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -46,18 +57,29 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.R
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.collabAdd
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
+import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
+import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
@@ -124,6 +146,52 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
         style = MaterialTheme.typography.headlineLarge,
         modifier = Modifier.align(Alignment.CenterStart).testTag(mainTitleTag),
     )
+  }
+}
+
+@Composable
+fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    singleLine: Boolean = true,
+    supportingText: String? = null,
+    trailingIcon: ImageVector? = null
+) {
+  Column {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = MaterialTheme.colorScheme.primary) },
+        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSecondary) },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = visualTransformation,
+        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+        modifier = modifier.width(320.dp),
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                cursorColor = MaterialTheme.colorScheme.onPrimary,
+                errorTextColor = MaterialTheme.colorScheme.error,
+                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+        trailingIcon = {
+          trailingIcon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onValueChange("") })
+          }
+        },
+        maxLines = Int.MAX_VALUE)
+    supportingText?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
   }
 }
 
@@ -331,5 +399,150 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
             elevation = null) {
               Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
             }
+      }
+}
+
+@Composable
+fun MusicPlayerUI(connectedDevice: Boolean) {
+
+  var trackState by remember { mutableStateOf(State.PAUSE) }
+  val playerBackgroundColor = Color(0xFFE0DAE5)
+
+  if (connectedDevice) {
+    // get those variables with api calls in the future and
+    // stock them in the objects and pass these objects as arguments
+    // to this function instead of hardcoding like below
+    val track =
+        SpotifyTrack(
+            name = "song_name",
+            trackId = "songId",
+            cover = "songCover",
+            duration = 120,
+            popularity = 80,
+            state = trackState)
+
+    val artist =
+        SpotifyArtist(
+            image = "artistImage",
+            name = "artistName",
+            genres = listOf("genre1", "genre2"),
+            popularity = 70)
+
+    val album =
+        SpotifyAlbum(
+            spotifyId = "albumId",
+            name = "albumName",
+            cover = "albumCover",
+            artist = "albumArtist",
+            year = 2010,
+            tracks = listOf(track),
+            size = 1,
+            genres = listOf("genres1", "genres2"),
+            popularity = 60)
+
+    Row(
+        modifier =
+            Modifier.fillMaxWidth()
+                .height(76.dp)
+                .background(color = playerBackgroundColor) // TBD if...else...
+                .testTag("playerContainer"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+      // Cover image
+      Card(
+          modifier =
+              Modifier.padding(start = 11.dp, top = 11.dp, bottom = 11.dp)
+                  .testTag(track.name + "songCardContainer")
+                  .size(55.dp),
+          shape = RoundedCornerShape(5.dp),
+      ) {
+        Image(
+            painter = painterResource(id = R.drawable.default_profile_picture),
+            contentDescription = null, // Provide a description for accessibility
+            modifier = Modifier.fillMaxSize().testTag(track.cover))
+      }
+
+      Spacer(modifier = Modifier.width(8.dp))
+
+      // Song title and artist/album information
+      Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
+        Text(text = track.name, style = TypographySongs.titleLarge)
+        Text(text = "${artist.name} - ${album.name}", style = TypographySongs.titleSmall)
+      }
+
+      Spacer(modifier = Modifier.width(8.dp))
+
+      // Play/Stop button
+      IconButton(
+          onClick = {
+            if (trackState == State.PAUSE) {
+              trackState = State.PLAY
+            } else {
+              trackState = State.PAUSE
+            }
+          }) {
+            if (track.state == State.PLAY) {
+              Icon(
+                  painter = painterResource(R.drawable.pause),
+                  contentDescription = "Pause",
+                  tint = Color.Unspecified,
+                  modifier = Modifier.size(35.dp).testTag("pauseButton"))
+            } else {
+              Icon(
+                  painter = painterResource(R.drawable.play),
+                  contentDescription = "Play",
+                  tint = Color.Unspecified,
+                  modifier = Modifier.size(35.dp).testTag("playButton"))
+            }
+          }
+
+      // Skip button
+      IconButton(
+          onClick = {} // skip
+          ) {
+            Icon(
+                painter = painterResource(R.drawable.skip_forward),
+                contentDescription = "Skip",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(35.dp).testTag("skipButton"))
+          }
+    }
+  } else {
+    Row(
+        modifier =
+            Modifier.fillMaxWidth()
+                .height(76.dp)
+                .background(playerBackgroundColor) // TBD if...else...
+                .padding(horizontal = 32.dp, vertical = 26.dp)
+                .testTag("noPlayerContainer"),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Text(
+          modifier =
+              Modifier.fillMaxWidth()
+                  .height(24.dp)
+                  .padding(horizontal = 16.dp)
+                  .testTag("playerText no music"),
+          text = "not listening yet",
+          style = TypographySongs.titleMedium,
+          color = MaterialTheme.colorScheme.primary,
+          textAlign = TextAlign.Center)
+    }
+  }
+}
+
+@Composable
+fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
+  Box(
+      modifier =
+          Modifier.size(32.dp)
+              .background(color = backgroundColor, shape = CircleShape)
+              .clickable { /* Handle click */}) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "Edit",
+            tint = LightGray,
+            modifier = Modifier.padding(6.dp))
       }
 }

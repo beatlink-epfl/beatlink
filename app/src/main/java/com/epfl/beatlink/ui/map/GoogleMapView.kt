@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -12,8 +13,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.epfl.beatlink.R
-import com.epfl.beatlink.ui.theme.PrimaryPurple
-import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -32,8 +31,7 @@ fun GoogleMapView(
     currentPosition: MutableState<LatLng>,
     moveToCurrentLocation: MutableState<CameraAction>,
     modifier: Modifier,
-    locationPermitted: Boolean,
-    radius: Double = 1000.0
+    locationPermitted: Boolean
 ) {
   val coroutineScope = rememberCoroutineScope()
 
@@ -70,14 +68,16 @@ fun GoogleMapView(
               Marker(
                   state = MarkerState(position = location),
                   title = "You are here",
-                  icon = getBitmapDescriptorFromDrawableResource(R.drawable.me_position, context),
+                  icon =
+                      getBitmapDescriptorFromDrawableResource(
+                          R.drawable.me_position, context, 100, 100),
                   anchor = Offset(0.5f, 0.5f))
               Circle(
                   center = location,
                   radius = radius,
-                  strokeColor = PrimaryPurple,
+                  strokeColor = MaterialTheme.colorScheme.onSurface,
                   strokeWidth = 3f,
-                  fillColor = SecondaryPurple)
+                  fillColor = MaterialTheme.colorScheme.onBackground)
             }
           }
         }
