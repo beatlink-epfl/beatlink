@@ -33,7 +33,10 @@ import com.epfl.beatlink.ui.search.TrendingSongsScreen
 import com.google.android.gms.location.LocationServices
 
 @Composable
-fun BeatLinkApp(spotifyAuthViewModel: SpotifyAuthViewModel, spotifyApiViewModel: SpotifyApiViewModel) {
+fun BeatLinkApp(
+    spotifyAuthViewModel: SpotifyAuthViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel
+) {
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
 

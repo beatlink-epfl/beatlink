@@ -41,12 +41,12 @@ class MainActivity : ComponentActivity() {
     auth = FirebaseAuth.getInstance()
 
     val spotifyAuthFactory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
-    spotifyAuthViewModel = ViewModelProvider(this, spotifyAuthFactory)[SpotifyAuthViewModel::class.java]
+    spotifyAuthViewModel =
+        ViewModelProvider(this, spotifyAuthFactory)[SpotifyAuthViewModel::class.java]
 
     val sharedPreferences = getSharedPreferences(SPOTIFY_AUTH_PREFS, MODE_PRIVATE)
     val spotifyApiRepository = SpotifyApiRepository(client, sharedPreferences)
     val spotifyApiViewModel = SpotifyApiViewModel(application, spotifyApiRepository)
-
 
     setContent {
       BeatLinkAppTheme(darkTheme = false) {
