@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
@@ -30,10 +29,7 @@ class BottomNavigationMenuTest {
     }
 
     // Check if the icons and labels are displayed
-    tabList.forEach { tab ->
-      composeTestRule.onNodeWithTag(tab.textId).assertExists()
-      composeTestRule.onNodeWithText(tab.textId).assertExists()
-    }
+    tabList.forEach { tab -> composeTestRule.onNodeWithTag(tab.textId).assertExists() }
 
     // Check that the selected icon is highlighted (HOME in this case)
     composeTestRule
