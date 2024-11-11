@@ -38,18 +38,6 @@ fun BottomNavigationMenu(
                     tint = if (selected) Color.Unspecified else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(24.dp))
               },
-              label = {
-                Text(
-                    text = tab.textId,
-                    color = MaterialTheme.colorScheme.primary,
-                    style =
-                        if (selected) {
-                          MaterialTheme.typography.headlineMedium
-                        } else {
-                          MaterialTheme.typography.headlineSmall
-                        },
-                )
-              },
               selected = selectedItem == tab.route,
               onClick = { onTabSelect(tab) },
               modifier = Modifier.testTag(tab.textId))
