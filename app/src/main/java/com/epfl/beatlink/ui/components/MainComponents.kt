@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -32,7 +33,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -56,6 +60,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -69,6 +75,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.collabAdd
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
+import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
@@ -139,6 +146,52 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
         style = MaterialTheme.typography.headlineLarge,
         modifier = Modifier.align(Alignment.CenterStart).testTag(mainTitleTag),
     )
+  }
+}
+
+@Composable
+fun CustomInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    singleLine: Boolean = true,
+    supportingText: String? = null,
+    trailingIcon: ImageVector? = null
+) {
+  Column {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = MaterialTheme.colorScheme.primary) },
+        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSecondary) },
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = visualTransformation,
+        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
+        modifier = modifier.width(320.dp),
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                cursorColor = MaterialTheme.colorScheme.onPrimary,
+                errorTextColor = MaterialTheme.colorScheme.error,
+                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+        trailingIcon = {
+          trailingIcon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onValueChange("") })
+          }
+        },
+        maxLines = Int.MAX_VALUE)
+    supportingText?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
   }
 }
 
@@ -477,4 +530,19 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
           textAlign = TextAlign.Center)
     }
   }
+}
+
+@Composable
+fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
+  Box(
+      modifier =
+          Modifier.size(32.dp)
+              .background(color = backgroundColor, shape = CircleShape)
+              .clickable { /* Handle click */}) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "Edit",
+            tint = LightGray,
+            modifier = Modifier.padding(6.dp))
+      }
 }

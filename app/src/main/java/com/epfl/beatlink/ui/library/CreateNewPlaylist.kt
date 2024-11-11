@@ -29,9 +29,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.ui.authentication.CustomInputField
 import com.epfl.beatlink.ui.components.CollabButton
 import com.epfl.beatlink.ui.components.CollabList
+import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.SettingsSwitch

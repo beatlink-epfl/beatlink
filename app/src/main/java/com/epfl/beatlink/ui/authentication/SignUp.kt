@@ -18,15 +18,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,12 +42,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
@@ -75,7 +71,7 @@ fun SignUpScreen(
   AuthStateHandler(
       authState = authState,
       context = context,
-      navigationActions = navigationActions,
+      onSuccess = { navigationActions.navigateTo(Screen.PROFILE_BUILD) },
       authViewModel = firebaseAuthViewModel,
       successMessage = "Sign up successful" // Success message for sign up
       )
@@ -264,62 +260,4 @@ fun CreateNewAccountButton(
                   style = MaterialTheme.typography.labelLarge)
             }
       }
-}
-
-@Composable
-fun CustomInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    placeholder: String,
-    modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    singleLine: Boolean = true,
-    supportingText: String? = null
-) {
-  Column {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, color = MaterialTheme.colorScheme.primary) },
-        placeholder = { Text(placeholder, color = MaterialTheme.colorScheme.onSecondary) },
-        singleLine = singleLine,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        visualTransformation = visualTransformation,
-        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary),
-        modifier = modifier.width(320.dp),
-        colors =
-            OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.primary,
-                unfocusedTextColor = MaterialTheme.colorScheme.primary,
-                cursorColor = MaterialTheme.colorScheme.onPrimary,
-                errorTextColor = MaterialTheme.colorScheme.error,
-                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary))
-    supportingText?.let { Text(text = it, style = MaterialTheme.typography.bodySmall) }
-  }
-}
-
-@Composable
-fun NavigationTextRow(
-    mainText: String,
-    clickableText: String,
-    onClick: () -> Unit,
-    mainTextTag: String,
-    clickableTextTag: String
-) {
-  Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-    Text(
-        text = mainText,
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.testTag(mainTextTag))
-    Spacer(modifier = Modifier.width(4.dp))
-    Text(
-        text = clickableText,
-        style = MaterialTheme.typography.labelMedium,
-        modifier = Modifier.testTag(clickableTextTag).clickable(onClick = onClick),
-    )
-  }
 }
