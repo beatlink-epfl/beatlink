@@ -14,9 +14,9 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class ProfileRepositoryTest {
+class ProfileRepositoryFirestoreTest {
 
-  private lateinit var repository: ProfileRepository
+  private lateinit var repository: ProfileRepositoryFirestore
   private lateinit var mockDb: FirebaseFirestore
   private lateinit var mockAuth: FirebaseAuth
   private lateinit var mockDocumentSnapshot: DocumentSnapshot
@@ -40,7 +40,7 @@ class ProfileRepositoryTest {
     `when`(mockDb.collection("userProfiles")).thenReturn(mockCollectionReference)
     `when`(mockCollectionReference.document("testUserId")).thenReturn(mockDocumentReference)
 
-    repository = ProfileRepository(mockDb, mockAuth)
+    repository = ProfileRepositoryFirestore(mockDb, mockAuth)
   }
 
   @Test
@@ -60,7 +60,7 @@ class ProfileRepositoryTest {
     `when`(mockDocumentSnapshot.toObject(ProfileData::class.java)).thenReturn(profileData)
 
     // Act
-    val result = repository.getProfile(userId)
+    val result = repository.fetchProfile(userId)
 
     // Assert
     assert(result == profileData)
@@ -74,7 +74,7 @@ class ProfileRepositoryTest {
         .thenReturn(Tasks.forException(Exception("Fetch failed")))
 
     // Act
-    val result = repository.getProfile(userId)
+    val result = repository.fetchProfile(userId)
 
     // Assert
     assert(result == null)
