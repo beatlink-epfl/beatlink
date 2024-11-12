@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.profile
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,9 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -37,15 +43,16 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EditProfileScreen(navigationActions: NavigationActions) {
-  var name by remember { mutableStateOf("This is the current name") }
-  var description by remember {
-    mutableStateOf(
-        "This is the current description and it is very long because didier is such a cool guy that he has a lot of things to say about himself")
-  }
-  val scrollState = rememberScrollState()
-  val maxDescriptionLength = 100
-  val maxUsernameLength = 20
+fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: NavigationActions) {
+    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    val profileData by profileViewModel.profile.collectAsState()
+    val maxDescriptionLength = 100
+    val maxUsernameLength = 20
+    val context = LocalContext.current
+    var name by remember { mutableStateOf(profileData?.name ?: "This is your name. It can be up to $maxUsernameLength characters long") }
+    var description by remember {
+      mutableStateOf(profileData?.bio ?: "This is a description. It can be up to $maxDescriptionLength characters long.")}
+    val scrollState = rememberScrollState()
   Scaffold(
       modifier = Modifier.testTag("editProfileScreen"),
       topBar = { ScreenTopAppBar("Edit profile", "editProfileTitle", navigationActions) },
@@ -66,7 +73,7 @@ fun EditProfileScreen(navigationActions: NavigationActions) {
               HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
               Spacer(modifier = Modifier.height(50.dp))
               Box {
-                ProfilePicture(R.drawable.default_profile_picture) // TODO change to current image
+                ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
                 Box(modifier = Modifier.align(Alignment.BottomEnd)) {
                   CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
                 }
@@ -101,7 +108,27 @@ fun EditProfileScreen(navigationActions: NavigationActions) {
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
               Spacer(modifier = Modifier.height(120.dp))
-              PrincipalButton("Save", "saveProfileButton") {}
+              PrincipalButton("Save", "saveProfileButton",
+                  onClick = {
+                      try {
+                          val newData = ProfileData(
+                              bio = description,
+                              links = profileData?.links ?: 0,
+                              name = name,
+                              profilePicture = profileData?.profilePicture,
+                              username = profileData?.username ?: ""
+                          )
+                          profileViewModel.updateProfile(newData)
+                          Toast.makeText(
+                              context,
+                              "Profile updated",
+                              Toast.LENGTH_SHORT
+                          ).show()
+                          navigationActions.goBack()
+                      } catch (e: Exception) {
+                          e.printStackTrace()
+                      }
+                  })
             }
       })
 }

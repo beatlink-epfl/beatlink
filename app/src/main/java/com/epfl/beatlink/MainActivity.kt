@@ -130,7 +130,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
-      composable(Screen.EDIT_PROFILE) { EditProfileScreen(navigationActions) }
+      composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
     }
   }
 }
