@@ -115,7 +115,7 @@ class CreateNewPlaylistScreenTest {
         .performTextInput("Playlist Description")
 
     // Click the "Create" button
-    composeTestRule.onNodeWithTag("createPlaylist").performClick()
+    composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
 
     verify(playlistRepository).addPlaylist(any(), any(), any())
   }
