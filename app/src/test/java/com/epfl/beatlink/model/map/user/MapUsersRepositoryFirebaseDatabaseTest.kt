@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import junit.framework.Assert.assertTrue
 import junit.framework.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +21,7 @@ import org.mockito.Mockito.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.verify
 
 class MapUsersRepositoryFirebaseDatabaseTest {
@@ -51,12 +53,19 @@ class MapUsersRepositoryFirebaseDatabaseTest {
 
   @Test
   fun init_callsOnSuccessWhenUserIsAuthenticated() {
-    mapUsersRepository.init(onSuccess = {})
-    verify(mockFirebaseAuth).addAuthStateListener(any())
+    val mockAuthStateListener = argumentCaptor<FirebaseAuth.AuthStateListener>()
+    var onSuccessCalled = false
+    val onSuccess = { onSuccessCalled = true }
+
+    mapUsersRepository.init(onSuccess)
+    verify(mockFirebaseAuth).addAuthStateListener(mockAuthStateListener.capture())
+
+    mockAuthStateListener.firstValue.onAuthStateChanged(mockFirebaseAuth)
+    assertTrue("onSuccess should have been called when currentUser is not null", onSuccessCalled)
   }
 
   @Test
-  fun getMapUsers_callsGeoFireMethods() {
+  fun getMapUsers_successfulDatabaseTask() {
     val sampleLocation = Location(46.518, 6.567) // User's current location
     val radiusInMeters = 1000.0 // 1 km radius
     val radiusInKilometers = radiusInMeters / 1000.0 // Convert to kilometers
@@ -71,30 +80,42 @@ class MapUsersRepositoryFirebaseDatabaseTest {
     val mockDataSnapshot = mock(DataSnapshot::class.java)
     `when`(mockDataSnapshot.getValue(MapUser::class.java)).thenReturn(sampleMapUser)
 
-    // Mock the Task response for the get() method
+    // Mock a successful task
     val mockTask = mock(Task::class.java) as Task<DataSnapshot>
     `when`(mockTask.isSuccessful).thenReturn(true)
     `when`(mockTask.result).thenReturn(mockDataSnapshot)
 
-    // Mock the database reference call chain for getting MapUser
+    // Mock DatabaseReference to return the successful task
     val mockChildRef = mock(DatabaseReference::class.java)
     `when`(mockDatabaseReference.child("testUserId")).thenReturn(mockChildRef)
     `when`(mockChildRef.get()).thenReturn(mockTask)
 
-    // Mock addGeoQueryEventListener to simulate the onKeyEntered callback
+    // Simulate GeoQuery event listener
     `when`(mockGeoQuery.addGeoQueryEventListener(any(GeoQueryEventListener::class.java)))
         .thenAnswer { invocation ->
           val listener = invocation.getArgument<GeoQueryEventListener>(0)
           listener.onKeyEntered(
               "testUserId", GeoLocation(sampleLocation.latitude, sampleLocation.longitude))
+          listener.onKeyExited("testUserId")
+          listener.onKeyMoved("testUserId", GeoLocation(0.0, 0.0))
+          listener.onGeoQueryReady()
           null
         }
 
-    // Call the getMapUsers function
+    // Invoke onCompleteListener for the mock task to simulate async completion
+    `when`(mockTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnCompleteListener<DataSnapshot>>(0)
+      listener.onComplete(mockTask)
+      mockTask
+    }
+
+    val successMapUsers = mutableListOf<MapUser>()
+
+    // Call getMapUsers and capture success callback
     mapUsersRepository.getMapUsers(
         currentUserLocation = sampleLocation,
         radiusInMeters = radiusInMeters,
-        onSuccess = {},
+        onSuccess = { users -> successMapUsers.addAll(users) },
         onFailure = { fail("Failure callback should not be called") })
 
     // Verify queryAtLocation was called with the correct parameters
@@ -107,15 +128,56 @@ class MapUsersRepositoryFirebaseDatabaseTest {
     verify(mockDatabaseReference).child("testUserId")
     verify(mockChildRef).get()
 
-    // Simulate the completion of the task and verify the result
+    // Simulate completion of the task and verify the result
     mockTask.addOnCompleteListener {
       assert(it.isSuccessful)
       assert(it.result?.getValue(MapUser::class.java) == sampleMapUser)
     }
+
+    // Verify that mapUsers contains the expected MapUser from the successful task
+    assert(successMapUsers.contains(sampleMapUser))
   }
 
   @Test
-  fun getMapUsers_handlesFailure() {
+  fun getMapUsers_unsuccessfulDatabaseTask() {
+    val sampleLocation = Location(46.518, 6.567) // User's current location
+    val radiusInMeters = 1000.0 // 1 km radius
+    val radiusInKilometers = radiusInMeters / 1000.0 // Convert to kilometers
+
+    // Mock GeoFire query
+    `when`(mockGeoFire.queryAtLocation(any(GeoLocation::class.java), eq(radiusInKilometers)))
+        .thenReturn(mockGeoQuery)
+
+    // Mock an unsuccessful task with a specific exception for the database query
+    val sampleException = Exception("Error fetching mapUser data")
+    val mockFailureTask = mock(Task::class.java) as Task<DataSnapshot>
+    `when`(mockFailureTask.isSuccessful).thenReturn(false)
+    `when`(mockFailureTask.exception).thenReturn(sampleException)
+
+    // Mock DatabaseReference to return the unsuccessful task
+    val mockChildRef = mock(DatabaseReference::class.java)
+    `when`(mockDatabaseReference.child("testUserId")).thenReturn(mockChildRef)
+    `when`(mockChildRef.get()).thenReturn(mockFailureTask)
+
+    // Invoke onCompleteListener for the mock task to simulate async completion
+    `when`(mockFailureTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnCompleteListener<DataSnapshot>>(0)
+      listener.onComplete(mockFailureTask)
+      mockFailureTask
+    }
+
+    // Call getMapUsers and only expect a failure from the database task
+    mapUsersRepository.getMapUsers(
+        currentUserLocation = sampleLocation,
+        radiusInMeters = radiusInMeters,
+        onSuccess = { fail("Success callback should not be called on failure") },
+        onFailure = { exception ->
+          assert(exception.message?.contains("Error fetching mapUser data") == true)
+        })
+  }
+
+  @Test
+  fun getMapUsers_onGeoQueryError() {
     val sampleLocation = Location(46.518, 6.567)
     val radiusInMeters = 1000.0 // 1 km radius
     val radiusInKilometers = radiusInMeters / 1000.0 // Convert to kilometers
@@ -200,7 +262,7 @@ class MapUsersRepositoryFirebaseDatabaseTest {
   }
 
   @Test
-  fun addMapUser_handlesFailure() {
+  fun addMapUser_unsuccessfulTask() {
     val sampleLocation = Location(46.518, 6.567)
     val sampleMapUser =
         MapUser("testUser", CurrentPlayingTrack("Song", "Artist", "Album", "Cover"), sampleLocation)
@@ -210,6 +272,13 @@ class MapUsersRepositoryFirebaseDatabaseTest {
     `when`(mockDatabaseReference.setValue(any(MapUser::class.java))).thenAnswer {
       `when`(mockDatabaseTask.isSuccessful).thenReturn(false)
       `when`(mockDatabaseTask.exception).thenReturn(Exception("Error adding MapUser"))
+      mockDatabaseTask
+    }
+
+    // Invoke onCompleteListener for the mock task to simulate async completion
+    `when`(mockDatabaseTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+      listener.onComplete(mockDatabaseTask)
       mockDatabaseTask
     }
 
@@ -263,7 +332,7 @@ class MapUsersRepositoryFirebaseDatabaseTest {
   }
 
   @Test
-  fun updateMapUser_handlesFailure() {
+  fun updateMapUser_unsuccessfulTask() {
     val sampleLocation = Location(46.518, 6.567)
     val sampleMapUser =
         MapUser("testUser", CurrentPlayingTrack("Song", "Artist", "Album", "Cover"), sampleLocation)
@@ -273,6 +342,13 @@ class MapUsersRepositoryFirebaseDatabaseTest {
     `when`(mockDatabaseReference.setValue(any(MapUser::class.java))).thenAnswer {
       `when`(mockDatabaseTask.isSuccessful).thenReturn(false)
       `when`(mockDatabaseTask.exception).thenReturn(Exception("Error updating MapUser"))
+      mockDatabaseTask
+    }
+
+    // Invoke onCompleteListener for the mock task to simulate async completion
+    `when`(mockDatabaseTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+      listener.onComplete(mockDatabaseTask)
       mockDatabaseTask
     }
 
@@ -314,12 +390,19 @@ class MapUsersRepositoryFirebaseDatabaseTest {
   }
 
   @Test
-  fun deleteMapUser_handlesFailure() {
+  fun deleteMapUser_unsuccessfulTask() {
     // Simulate failure of removeValue call on DatabaseReference
     `when`(mockDatabaseReference.child("testUserId")).thenReturn(mockDatabaseReference)
     `when`(mockDatabaseReference.removeValue()).thenAnswer {
       `when`(mockDatabaseTask.isSuccessful).thenReturn(false)
       `when`(mockDatabaseTask.exception).thenReturn(Exception("Error deleting MapUser"))
+      mockDatabaseTask
+    }
+
+    // Invoke onCompleteListener for the mock task to simulate async completion
+    `when`(mockDatabaseTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+      listener.onComplete(mockDatabaseTask)
       mockDatabaseTask
     }
 
