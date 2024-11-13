@@ -163,7 +163,8 @@ fun CreateNewPlaylistScreen(
                     playlistSongs = emptyList(),
                     nbTracks = 0)
             playlistViewModel.addPlaylist(newPlaylist)
-            navigationActions.navigateTo(LIBRARY)
+            navigationActions.navigateTo(
+                LIBRARY) // TODO change to another screen not implemented yet
           }
         }
   }
