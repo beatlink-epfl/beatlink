@@ -28,9 +28,9 @@ class MainActivity : ComponentActivity() {
 
   // Firebase Auth
   private lateinit var auth: FirebaseAuth
-  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   // Spotify Auth
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
   private val spotifyAuthRepository = SpotifyAuthRepository(client)
 
   override fun onCreate(savedInstanceState: Bundle?) {
