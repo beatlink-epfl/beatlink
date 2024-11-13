@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import org.junit.Before
@@ -18,17 +20,23 @@ class CreateNewPlaylistScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+  private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var playlistViewModel: PlaylistViewModel
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
+    profileViewModel = mock(ProfileViewModel::class.java)
+    playlistViewModel = mock(PlaylistViewModel::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
   }
 
   @Test
   fun everythingIsDisplayed() {
     // Launch the composable under test
-    composeTestRule.setContent { CreateNewPlaylistScreen(navigationActions) }
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
 
     // The screen is displayed
     composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertIsDisplayed()
@@ -63,7 +71,9 @@ class CreateNewPlaylistScreenTest {
 
   @Test
   fun buttonsWorkCorrectly() {
-    composeTestRule.setContent { CreateNewPlaylistScreen(navigationActions) }
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
 
     composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
     composeTestRule.onNodeWithTag("collabButton").performScrollTo().performClick()

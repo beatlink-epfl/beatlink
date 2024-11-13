@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
@@ -20,17 +21,19 @@ class LibraryScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+  private lateinit var playlistViewModel: PlaylistViewModel
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
+    playlistViewModel = mock(PlaylistViewModel::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
   }
 
   @Test
   fun everythingIsDisplayed() {
     // Launch the composable under test
-    composeTestRule.setContent { LibraryScreen(navigationActions) }
+    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel) }
 
     composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("searchButton").assertIsDisplayed()
@@ -46,7 +49,7 @@ class LibraryScreenTest {
   fun displayTextsCorrectly() {
 
     // Launch the composable under test
-    composeTestRule.setContent { LibraryScreen(navigationActions) }
+    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel) }
 
     composeTestRule.onNodeWithTag("libraryTitle").assertTextEquals("My Library")
     composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertTextEquals("FAVORITES")
@@ -55,7 +58,7 @@ class LibraryScreenTest {
 
   @Test
   fun buttonsWorkCorrectly() {
-    composeTestRule.setContent { LibraryScreen(navigationActions) }
+    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel) }
 
     composeTestRule.onNodeWithTag("searchButton").performClick()
     composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
@@ -65,7 +68,7 @@ class LibraryScreenTest {
 
   @Test
   fun verifyAddPlaylistButtonNavigatesToCreateNewPlaylistScreen() {
-    composeTestRule.setContent { LibraryScreen(navigationActions) }
+    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel) }
 
     // Perform click action on the sign-in button
     composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
