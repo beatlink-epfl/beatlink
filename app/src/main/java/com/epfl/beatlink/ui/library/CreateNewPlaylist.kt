@@ -29,13 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.epfl.beatlink.model.playlist.Playlist
-import com.epfl.beatlink.model.playlist.PlaylistViewModel
-import com.epfl.beatlink.model.profile.ProfileViewModel
-import com.epfl.beatlink.ui.authentication.CustomInputField
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CollabButton
 import com.epfl.beatlink.ui.components.CollabList
+import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.SettingsSwitch

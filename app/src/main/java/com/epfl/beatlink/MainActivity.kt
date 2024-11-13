@@ -24,6 +24,7 @@ import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.authentication.LoginScreen
+import com.epfl.beatlink.ui.authentication.ProfileBuildScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
@@ -34,6 +35,7 @@ import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
 import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
@@ -76,7 +78,6 @@ class MainActivity : ComponentActivity() {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-              // SpotifyAuth(spotifyAuthViewModel)
               BeatLinkApp()
             }
       }
@@ -108,9 +109,7 @@ fun BeatLinkApp() {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
       composable(Screen.LOGIN) { LoginScreen(navigationActions) }
       composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
-
-      // Screen to be implemented
-      // composable(Screen.PROFILE_BUILD) { }
+      composable(Screen.PROFILE_BUILD) { ProfileBuildScreen(navigationActions) }
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
@@ -135,6 +134,7 @@ fun BeatLinkApp() {
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
+      composable(Screen.EDIT_PROFILE) { EditProfileScreen(navigationActions) }
     }
   }
 }

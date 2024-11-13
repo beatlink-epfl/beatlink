@@ -46,7 +46,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     _authState.value = AuthState.Idle
   }
 
-  // ViewModel factory
+  // Factory
   companion object {
     val Factory: ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
