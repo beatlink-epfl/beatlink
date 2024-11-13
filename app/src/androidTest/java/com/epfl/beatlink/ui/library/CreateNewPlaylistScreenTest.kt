@@ -10,10 +10,12 @@ import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
+import com.epfl.beatlink.ui.navigation.Screen.LIBRARY
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 
 class CreateNewPlaylistScreenTest {

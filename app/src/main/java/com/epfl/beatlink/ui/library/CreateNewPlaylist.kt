@@ -92,7 +92,7 @@ fun CreateNewPlaylistScreen(
                       .align(Alignment.CenterHorizontally)
                       .testTag("playlistCover"),
               contentAlignment = Alignment.Center) {
-                if (coverImage != null) {
+                if (coverImage == "something") {
                   // Show the selected cover image
                   // TODO
 
