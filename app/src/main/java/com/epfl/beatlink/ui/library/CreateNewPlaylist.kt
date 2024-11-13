@@ -29,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.profile.ProfileData
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.model.playlist.Playlist
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CollabButton
 import com.epfl.beatlink.ui.components.CollabList
 import com.epfl.beatlink.ui.components.CustomInputField
@@ -55,7 +58,7 @@ fun CreateNewPlaylistScreen(
   var playlistTitle by remember { mutableStateOf("") }
   var playlistDescription by remember { mutableStateOf("") }
   var playlistIsPublic by remember { mutableStateOf(false) }
-  val playlistCollab by remember { mutableStateOf<List<String>>(emptyList()) } // TODO
+  val playlistCollab by remember { mutableStateOf<List<String>>(emptyList()) } // user IDs
   val coverImage by remember { mutableStateOf("") }
 
   Scaffold(

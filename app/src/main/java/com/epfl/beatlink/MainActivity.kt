@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
     spotifyAuthViewModel = ViewModelProvider(this, factory)[SpotifyAuthViewModel::class.java]
 
     setContent {
-      BeatLinkAppTheme(darkTheme = true) {
+      BeatLinkAppTheme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {

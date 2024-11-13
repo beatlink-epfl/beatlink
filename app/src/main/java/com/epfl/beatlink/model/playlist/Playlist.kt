@@ -9,6 +9,6 @@ data class Playlist(
     val userId: String, // user ID
     val playlistOwner: String, // username
     val playlistCollaborators: List<String>, // list of user IDs
-    val playlistSongs: List<String>, // TODO change to SpotifyTrack
+    val playlistSongs: List<String>, // list of ids of SpotifyTrack
     val nbTracks: Int = 0
 )

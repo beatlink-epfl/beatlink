@@ -260,7 +260,7 @@ fun SettingsSwitch(
       }
 }
 
-/** Composable for Head Title */
+/** Composable for Gradient Title with an arrow to open it full screen */
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
   Row(
