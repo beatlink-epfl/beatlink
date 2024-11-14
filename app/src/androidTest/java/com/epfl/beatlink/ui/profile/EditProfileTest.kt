@@ -130,7 +130,7 @@ class EditProfileScreenTest {
   }
 
   @Test
-  fun editProfileScreen_saveButtonTriggersProfileUpdateAndNavigation() {
+  fun editProfileScreen_saveButtonTriggersProfileUpdate() {
     composeTestRule.onNodeWithTag("saveProfileButton").performClick()
 
     verify {
@@ -142,6 +142,5 @@ class EditProfileScreenTest {
               profilePicture = null,
               username = "johndoe"))
     }
-    verify { navigationActions.goBack() }
   }
 }
