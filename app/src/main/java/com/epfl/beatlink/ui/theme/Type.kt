@@ -246,7 +246,7 @@ val TypographyPlaylist =
         // Playlist owner in rectangle view
         titleMedium =
             TextStyle(
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontFamily = FontFamily(Font(R.font.roboto_bold)),
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight(700),

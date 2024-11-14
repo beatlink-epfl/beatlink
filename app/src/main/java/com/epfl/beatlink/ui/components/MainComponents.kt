@@ -66,7 +66,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -261,7 +260,7 @@ fun SettingsSwitch(
       }
 }
 
-/** Composable for Head Title */
+/** Composable for Gradient Title with an arrow to open it full screen */
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
   Row(
@@ -331,7 +330,7 @@ fun CollabButton(onClick: () -> Unit) {
               .clickable { onClick() }
               .semantics { contentDescription = "Invite Collaborators" }
               .background(
-                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                  color = MaterialTheme.colorScheme.surfaceVariant,
                   shape = RoundedCornerShape(size = 20.dp))
               .padding(start = 16.dp, end = 16.dp)
               .testTag("collabButton")) {
@@ -349,7 +348,7 @@ fun CollabButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun CollabList(collaborators: List<ProfileData>) {
+fun CollabList(collaborators: List<String>) {
   Box(
       modifier =
           Modifier.border(
@@ -359,7 +358,7 @@ fun CollabList(collaborators: List<ProfileData>) {
               .width(320.dp)
               .height(120.dp)
               .background(
-                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                  color = MaterialTheme.colorScheme.surfaceVariant,
                   shape = RoundedCornerShape(size = 5.dp))
               .testTag("collabBox")) {
         if (collaborators.isEmpty()) {

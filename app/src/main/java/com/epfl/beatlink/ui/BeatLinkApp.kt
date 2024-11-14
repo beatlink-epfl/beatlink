@@ -9,6 +9,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.ui.authentication.LoginScreen
@@ -41,6 +42,7 @@ fun BeatLinkApp(
   val navigationActions = NavigationActions(navController)
 
   val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
+  val playlistViewModel: PlaylistViewModel = viewModel(factory = PlaylistViewModel.Factory)
 
   val locationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
   val mapLocationRepository =
@@ -71,8 +73,10 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
-      composable(Screen.LIBRARY) { LibraryScreen(navigationActions) }
-      composable(Screen.CREATE_NEW_PLAYLIST) { CreateNewPlaylistScreen(navigationActions) }
+      composable(Screen.LIBRARY) { LibraryScreen(navigationActions, playlistViewModel) }
+      composable(Screen.CREATE_NEW_PLAYLIST) {
+        CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+      }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
