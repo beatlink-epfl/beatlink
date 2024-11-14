@@ -60,7 +60,7 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel) }
+      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel, spotifyApiViewModel) }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
