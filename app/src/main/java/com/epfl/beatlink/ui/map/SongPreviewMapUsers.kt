@@ -16,12 +16,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.R
+import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
+import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
@@ -51,11 +56,11 @@ fun SongPreviewMapUsers(mapUser: MapUser) {
                   modifier =
                       Modifier.testTag("SongPreviewMapUsers")
                           .width(384.dp)
-                          .height(159.dp)
+                          .height(130.dp)
                           .background(
                               color = MaterialTheme.colorScheme.background,
                               shape = RoundedCornerShape(16.dp))
-                          .padding(start = 26.dp, end = 10.dp, top = 37.dp, bottom = 10.dp)) {
+                          .padding(start = 20.dp, end = 10.dp, top = 20.dp, bottom = 20.dp)) {
                     // Content layout (album cover, song name, artist, album name, username)
                     Row(modifier = Modifier.fillMaxSize()) {
                       Image(
@@ -69,12 +74,12 @@ fun SongPreviewMapUsers(mapUser: MapUser) {
                                       width = 2.dp,
                                       color = MaterialTheme.colorScheme.primary,
                                       shape = RoundedCornerShape(size = 4.dp))
-                                  .size(80.dp)
+                                  .size(90.dp)
                                   .testTag("albumCover"))
 
                       Spacer(modifier = Modifier.width(16.dp))
 
-                      Column {
+                      Column(modifier = Modifier.align(CenterVertically)) {
                         Text(
                             text = mapUser.currentPlayingTrack.songName,
                             color = MaterialTheme.colorScheme.primary,
@@ -101,4 +106,20 @@ fun SongPreviewMapUsers(mapUser: MapUser) {
                   }
             }
       }
+}
+
+@Preview
+@Composable
+fun SongPreviewMapUsersPreview() {
+  SongPreviewMapUsers(
+      mapUser =
+          MapUser(
+              username = "testUser",
+              currentPlayingTrack =
+                  CurrentPlayingTrack(
+                      songName = "Die With A Smile",
+                      artistName = "Lady Gaga & Bruno Mars",
+                      albumName = "Die With A Smile",
+                      albumCover = R.drawable.cover_test1.toString()),
+              location = Location(0.0, 0.0)))
 }
