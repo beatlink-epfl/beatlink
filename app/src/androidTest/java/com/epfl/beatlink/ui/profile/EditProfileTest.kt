@@ -29,7 +29,8 @@ class EditProfileScreenTest {
   // Test variables
   private val testName = "John Doe"
   private val testDescription = "This is a test description."
-    private val mockUri = Uri.parse("content://com.android.providers.media.documents/document/image:1")
+  private val mockUri =
+      Uri.parse("content://com.android.providers.media.documents/document/image:1")
 
   // Mocks and instances
   private lateinit var profileViewModel: ProfileViewModel
@@ -146,25 +147,25 @@ class EditProfileScreenTest {
     }
   }
 
-    @Test
-    fun saveButton_updatesProfileWithValidData() {
-        val newName = "Jane Doe"
-        val newDescription = "Updated description."
-        val newProfileData = ProfileData(
+  @Test
+  fun saveButton_updatesProfileWithValidData() {
+    val newName = "Jane Doe"
+    val newDescription = "Updated description."
+    val newProfileData =
+        ProfileData(
             bio = newDescription,
             links = 5,
             name = newName,
             profilePicture = mockUri,
-            username = "janedoe"
-        )
+            username = "janedoe")
 
-        composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
-        composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput(newName)
-        composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextClearance()
-        composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextInput(newDescription)
-        composeTestRule.onNodeWithTag("saveProfileButton").performClick()
+    composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
+    composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput(newName)
+    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextClearance()
+    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextInput(newDescription)
+    composeTestRule.onNodeWithTag("saveProfileButton").performClick()
 
-        verify { profileViewModel.updateProfile(newProfileData) }
-        verify { navigationActions.goBack() }
-    }
+    verify { profileViewModel.updateProfile(newProfileData) }
+    verify { navigationActions.goBack() }
+  }
 }
