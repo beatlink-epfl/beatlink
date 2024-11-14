@@ -5,7 +5,6 @@ import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 
-
 class MapUsersList {
   companion object {
     private val track1 =
@@ -48,8 +47,7 @@ class MapUsersList {
             MapUser(
                 username = "melody_maven",
                 currentPlayingTrack = track1,
-                location = Location(latitude = 46.518680, 6.568270)
-            ),
+                location = Location(latitude = 46.518680, 6.568270)),
             MapUser(
                 username = "beats_fanatic",
                 currentPlayingTrack = track2,

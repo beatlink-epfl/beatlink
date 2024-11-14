@@ -11,9 +11,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.CurrentPlayingTrack
-import com.epfl.beatlink.model.Location
-import com.epfl.beatlink.model.MapUser
+import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
+import com.epfl.beatlink.model.map.user.Location
+import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.map.CameraAction
 import com.epfl.beatlink.ui.map.GoogleMapView
 import com.epfl.beatlink.ui.map.mutuableList

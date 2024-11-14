@@ -5,9 +5,9 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.CurrentPlayingTrack
-import com.epfl.beatlink.model.Location
-import com.epfl.beatlink.model.MapUser
+import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
+import com.epfl.beatlink.model.map.user.Location
+import com.epfl.beatlink.model.map.user.MapUser
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
