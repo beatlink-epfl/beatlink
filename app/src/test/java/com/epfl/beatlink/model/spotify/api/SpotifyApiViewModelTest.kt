@@ -3,6 +3,10 @@ package com.epfl.beatlink.model.spotify.api
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -92,74 +97,132 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun `pausePlayback calls repository and returns success result`() = runTest {
+  fun `pausePlayback calls repository and returns success result when playback is active`() =
+      runTest {
+        // Arrange
+        val mockResult = Result.success(JSONObject())
+        mockApiRepository.stub { onBlocking { put("me/player/pause") } doReturn mockResult }
+        val observer = mock<Observer<Result<JSONObject>>>()
+
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
+
+        // Act
+        viewModel.pausePlayback { result -> observer.onChanged(result) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).put("me/player/pause")
+      }
+
+  @Test
+  fun `pausePlayback does not call repository when playback is not active`() = runTest {
     // Arrange
-    val mockResult = Result.success(JSONObject())
-    mockApiRepository.stub { onBlocking { put("me/player/pause") } doReturn mockResult }
     val observer = mock<Observer<Result<JSONObject>>>()
+
+    // Set playbackActive to false to prevent the repository call
+    viewModel.playbackActive = false
 
     // Act
     viewModel.pausePlayback { result -> observer.onChanged(result) }
 
+    // Advance coroutine until idle
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).put("me/player/pause")
+    verify(observer, never()).onChanged(any())
+    verify(mockApiRepository, never()).put("me/player/pause")
   }
 
   @Test
-  fun `pausePlayback calls repository and returns failure result`() = runTest {
-    // Arrange
-    val exception = Exception("Network error")
-    val mockResult = Result.failure<JSONObject>(exception)
-    mockApiRepository.stub { onBlocking { put("me/player/pause") } doReturn mockResult }
-    val observer = mock<Observer<Result<JSONObject>>>()
+  fun `pausePlayback calls repository and returns failure result when playback is active`() =
+      runTest {
+        // Arrange
+        val exception = Exception("Network error")
+        val mockResult = Result.failure<JSONObject>(exception)
+        mockApiRepository.stub { onBlocking { put("me/player/pause") } doReturn mockResult }
+        val observer = mock<Observer<Result<JSONObject>>>()
 
-    // Act
-    viewModel.pausePlayback { result -> observer.onChanged(result) }
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
 
-    testDispatcher.scheduler.advanceUntilIdle()
+        // Act
+        viewModel.pausePlayback { result -> observer.onChanged(result) }
 
-    // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).put("me/player/pause")
-  }
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).put("me/player/pause")
+      }
 
   @Test
-  fun `playPlayback calls repository and returns success result`() = runTest {
+  fun `playPlayback calls repository and returns success result when playback is active`() =
+      runTest {
+        // Arrange
+        val mockResult = Result.success(JSONObject())
+        mockApiRepository.stub { onBlocking { put("me/player/play") } doReturn mockResult }
+        val observer = mock<Observer<Result<JSONObject>>>()
+
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
+
+        // Act
+        viewModel.playPlayback { result -> observer.onChanged(result) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).put("me/player/play")
+      }
+
+  @Test
+  fun `playPlayback does not call repository when playback is not active`() = runTest {
     // Arrange
-    val mockResult = Result.success(JSONObject())
-    mockApiRepository.stub { onBlocking { put("me/player/play") } doReturn mockResult }
     val observer = mock<Observer<Result<JSONObject>>>()
+
+    // Set playbackActive to false to prevent the repository call
+    viewModel.playbackActive = false
 
     // Act
     viewModel.playPlayback { result -> observer.onChanged(result) }
 
+    // Advance coroutine until idle
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).put("me/player/play")
+    verify(observer, never()).onChanged(any())
+    verify(mockApiRepository, never()).put("me/player/play")
   }
 
   @Test
-  fun `playPlayback calls repository and returns failure result`() = runTest {
-    // Arrange
-    val exception = Exception("Network error")
-    val mockResult = Result.failure<JSONObject>(exception)
-    mockApiRepository.stub { onBlocking { put("me/player/play") } doReturn mockResult }
-    val observer = mock<Observer<Result<JSONObject>>>()
+  fun `playPlayback calls repository and returns failure result when playback is active`() =
+      runTest {
+        // Arrange
+        val exception = Exception("Network error")
+        val mockResult = Result.failure<JSONObject>(exception)
+        mockApiRepository.stub { onBlocking { put("me/player/play") } doReturn mockResult }
+        val observer = mock<Observer<Result<JSONObject>>>()
 
-    // Act
-    viewModel.playPlayback { result -> observer.onChanged(result) }
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
 
-    testDispatcher.scheduler.advanceUntilIdle()
+        // Act
+        viewModel.playPlayback { result -> observer.onChanged(result) }
 
-    // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).put("me/player/play")
-  }
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).put("me/player/play")
+      }
 
   @Test
   fun `getPlaybackState calls repository and returns success result`() = runTest {
@@ -179,30 +242,37 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun `getPlaybackState calls repository and returns failure result`() = runTest {
-    // Arrange
-    val exception = Exception("Network error")
-    val mockResult = Result.failure<JSONObject>(exception)
-    mockApiRepository.stub { onBlocking { get("me/player") } doReturn mockResult }
-    val observer = mock<Observer<Result<JSONObject>>>()
+  fun `getPlaybackState calls repository, updates playbackActive to true, and returns success result`() =
+      runTest {
+        // Arrange
+        val mockResult = Result.success(JSONObject())
+        mockApiRepository.stub { onBlocking { get("me/player") } doReturn mockResult }
+        val observer = mock<Observer<Result<JSONObject>>>()
 
-    // Act
-    viewModel.getPlaybackState { result -> observer.onChanged(result) }
+        // Ensure deviceId is not null to skip getDeviceId call
+        viewModel.deviceId = "mockDeviceId"
 
-    testDispatcher.scheduler.advanceUntilIdle()
+        // Act
+        viewModel.getPlaybackState { result -> observer.onChanged(result) }
 
-    // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).get("me/player")
-  }
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertTrue(viewModel.playbackActive) // Verify playbackActive was set to true
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).get("me/player")
+      }
 
   @Test
-  fun `skipSong calls repository and returns success result`() = runTest {
+  fun `skipSong calls repository and returns success result when playback is active`() = runTest {
     // Arrange
     val mockResult = Result.success(JSONObject())
-    // Use argument matchers for request body
     `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>())).thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
+
+    // Set playbackActive to true to trigger the repository call
+    viewModel.playbackActive = true
 
     // Act
     viewModel.skipSong { result -> observer.onChanged(result) }
@@ -216,13 +286,12 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun `skipSong calls repository and returns failure result`() = runTest {
+  fun `skipSong does not call repository when playback is not active`() = runTest {
     // Arrange
-    val exception = Exception("Network error")
-    val mockResult = Result.failure<JSONObject>(exception)
-    // Use argument matchers for request body
-    `when`(mockApiRepository.post(eq("me/player/next"), any<RequestBody>())).thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
+
+    // Set playbackActive to false to prevent the repository call
+    viewModel.playbackActive = false
 
     // Act
     viewModel.skipSong { result -> observer.onChanged(result) }
@@ -231,17 +300,40 @@ class SpotifyApiViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).post(eq("me/player/next"), any<RequestBody>())
+    verify(observer, never()).onChanged(any())
+    verify(mockApiRepository, never()).post(eq("me/player/next"), any<RequestBody>())
   }
 
   @Test
-  fun `previousSong calls repository and returns success result`() = runTest {
+  fun `previousSong calls repository and returns success result when playback is active`() =
+      runTest {
+        // Arrange
+        val mockResult = Result.success(JSONObject())
+        `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
+            .thenReturn(mockResult)
+        val observer = mock<Observer<Result<JSONObject>>>()
+
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
+
+        // Act
+        viewModel.previousSong { result -> observer.onChanged(result) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).post(eq("me/player/previous"), any<RequestBody>())
+      }
+
+  @Test
+  fun `previousSong does not call repository when playback is not active`() = runTest {
     // Arrange
-    val mockResult = Result.success(JSONObject())
-    `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
-        .thenReturn(mockResult)
     val observer = mock<Observer<Result<JSONObject>>>()
+
+    // Set playbackActive to false to prevent the repository call
+    viewModel.playbackActive = false
 
     // Act
     viewModel.previousSong { result -> observer.onChanged(result) }
@@ -250,29 +342,33 @@ class SpotifyApiViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).post(eq("me/player/previous"), any<RequestBody>())
+    verify(observer, never()).onChanged(any())
+    verify(mockApiRepository, never()).post(eq("me/player/previous"), any<RequestBody>())
   }
 
   @Test
-  fun `previousSong calls repository and returns failure result`() = runTest {
-    // Arrange
-    val exception = Exception("Network error")
-    val mockResult = Result.failure<JSONObject>(exception)
-    `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
-        .thenReturn(mockResult)
-    val observer = mock<Observer<Result<JSONObject>>>()
+  fun `previousSong calls repository and returns failure result when playback is active`() =
+      runTest {
+        // Arrange
+        val exception = Exception("Network error")
+        val mockResult = Result.failure<JSONObject>(exception)
+        `when`(mockApiRepository.post(eq("me/player/previous"), any<RequestBody>()))
+            .thenReturn(mockResult)
+        val observer = mock<Observer<Result<JSONObject>>>()
 
-    // Act
-    viewModel.previousSong { result -> observer.onChanged(result) }
+        // Set playbackActive to true to trigger the repository call
+        viewModel.playbackActive = true
 
-    // Advance coroutine until idle
-    testDispatcher.scheduler.advanceUntilIdle()
+        // Act
+        viewModel.previousSong { result -> observer.onChanged(result) }
 
-    // Assert
-    verify(observer).onChanged(mockResult)
-    verify(mockApiRepository).post(eq("me/player/previous"), any<RequestBody>())
-  }
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(observer).onChanged(mockResult)
+        verify(mockApiRepository).post(eq("me/player/previous"), any<RequestBody>())
+      }
 
   @Test
   fun `transferPlayback calls repository with correct endpoint and body`() = runTest {
@@ -411,5 +507,233 @@ class SpotifyApiViewModelTest {
     verify(mockApiRepository).get("me/player/devices")
     assertEquals(
         "98765", viewModel.deviceId) // ID of the first (and only) device should be selected
+  }
+
+  @Test
+  fun `buildAlbum constructs SpotifyAlbum and returns it on success when playback is active`() =
+      runTest {
+        // Arrange
+        viewModel.playbackActive = true
+        val mockAlbumJson =
+            JSONObject(
+                """
+        {
+            "item": {
+                "album": {
+                    "id": "123",
+                    "name": "Test Album",
+                    "artists": [{"name": "Test Artist"}],
+                    "release_date": "2020-01-01",
+                    "total_tracks": 10
+                }
+            }
+        }
+    """)
+        val mockResult = Result.success(mockAlbumJson)
+        mockApiRepository.stub {
+          onBlocking { get("me/player/currently-playing") } doReturn mockResult
+        }
+        val observer = mock<Observer<SpotifyAlbum>>()
+
+        // Act
+        viewModel.buildAlbum { album -> observer.onChanged(album) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        val expectedAlbum =
+            SpotifyAlbum("123", "Test Album", "", "Test Artist", 2020, listOf(), 10, listOf(), 0)
+        verify(observer).onChanged(expectedAlbum)
+        verify(mockApiRepository).get("me/player/currently-playing")
+      }
+
+  @Test
+  fun `buildAlbum returns empty SpotifyAlbum when playback is not active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = false
+    val observer = mock<Observer<SpotifyAlbum>>()
+
+    // Act
+    viewModel.buildAlbum { album -> observer.onChanged(album) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyAlbum = SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0)
+    verify(observer).onChanged(emptyAlbum)
+    verify(mockApiRepository, never()).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `buildAlbum returns empty SpotifyAlbum on API failure when playback is active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = true
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+    mockApiRepository.stub { onBlocking { get("me/player/currently-playing") } doReturn mockResult }
+    val observer = mock<Observer<SpotifyAlbum>>()
+
+    // Act
+    viewModel.buildAlbum { album -> observer.onChanged(album) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyAlbum = SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0)
+    verify(observer).onChanged(emptyAlbum)
+    verify(mockApiRepository).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `buildTrack constructs SpotifyTrack and returns it on success when playback is active`() =
+      runTest {
+        // Arrange
+        viewModel.playbackActive = true
+        val mockTrackJson =
+            JSONObject(
+                """
+        {
+            "is_playing": true,
+            "item": {
+                "name": "Test Track",
+                "id": "456",
+                "duration_ms": 300000,
+                "popularity": 80
+            }
+        }
+    """)
+        val mockResult = Result.success(mockTrackJson)
+        mockApiRepository.stub {
+          onBlocking { get("me/player/currently-playing") } doReturn mockResult
+        }
+        val observer = mock<Observer<SpotifyTrack>>()
+
+        // Act
+        viewModel.buildTrack { track -> observer.onChanged(track) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        val expectedTrack = SpotifyTrack("Test Track", "456", "", 300000, 80, State.PLAY)
+        verify(observer).onChanged(expectedTrack)
+        verify(mockApiRepository).get("me/player/currently-playing")
+      }
+
+  @Test
+  fun `buildTrack returns empty SpotifyTrack when playback is not active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = false
+    val observer = mock<Observer<SpotifyTrack>>()
+
+    // Act
+    viewModel.buildTrack { track -> observer.onChanged(track) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    verify(observer).onChanged(emptyTrack)
+    verify(mockApiRepository, never()).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `buildTrack returns empty SpotifyTrack on API failure when playback is active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = true
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+    mockApiRepository.stub { onBlocking { get("me/player/currently-playing") } doReturn mockResult }
+    val observer = mock<Observer<SpotifyTrack>>()
+
+    // Act
+    viewModel.buildTrack { track -> observer.onChanged(track) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    verify(observer).onChanged(emptyTrack)
+    verify(mockApiRepository).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `buildArtist constructs SpotifyArtist and returns it on success when playback is active`() =
+      runTest {
+        // Arrange
+        viewModel.playbackActive = true
+        val mockArtistJson =
+            JSONObject(
+                """
+        {
+            "item": {
+                "artists": [
+                    {
+                        "name": "Test Artist"
+                    }
+                ]
+            }
+        }
+    """)
+        val mockResult = Result.success(mockArtistJson)
+        mockApiRepository.stub {
+          onBlocking { get("me/player/currently-playing") } doReturn mockResult
+        }
+        val observer = mock<Observer<SpotifyArtist>>()
+
+        // Act
+        viewModel.buildArtist { artist -> observer.onChanged(artist) }
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        val expectedArtist = SpotifyArtist("", "Test Artist", listOf(), 0)
+        verify(observer).onChanged(expectedArtist)
+        verify(mockApiRepository).get("me/player/currently-playing")
+      }
+
+  @Test
+  fun `buildArtist returns empty SpotifyArtist when playback is not active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = false
+    val observer = mock<Observer<SpotifyArtist>>()
+
+    // Act
+    viewModel.buildArtist { artist -> observer.onChanged(artist) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyArtist = SpotifyArtist("", "", listOf(), 0)
+    verify(observer).onChanged(emptyArtist)
+    verify(mockApiRepository, never()).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `buildArtist returns empty SpotifyArtist on API failure when playback is active`() = runTest {
+    // Arrange
+    viewModel.playbackActive = true
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+    mockApiRepository.stub { onBlocking { get("me/player/currently-playing") } doReturn mockResult }
+    val observer = mock<Observer<SpotifyArtist>>()
+
+    // Act
+    viewModel.buildArtist { artist -> observer.onChanged(artist) }
+
+    // Advance coroutine until idle
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val emptyArtist = SpotifyArtist("", "", listOf(), 0)
+    verify(observer).onChanged(emptyArtist)
+    verify(mockApiRepository).get("me/player/currently-playing")
   }
 }
