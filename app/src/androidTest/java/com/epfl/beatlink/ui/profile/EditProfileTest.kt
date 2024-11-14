@@ -16,9 +16,7 @@ import com.epfl.beatlink.model.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
-import io.mockk.Runs
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
@@ -156,9 +154,10 @@ class EditProfileScreenTest {
   fun testProfileUpdate_successful() {
     // Mock Toast.makeText and Toast.show()
     mockkStatic(Toast::class)
-    val mockToast = mockk<Toast>(relaxed = true)
-    every { Toast.makeText(any(), eq("Profile updated"), eq(Toast.LENGTH_SHORT)) } returns mockToast
-    every { mockToast.show() } just Runs
+    // val mockToast = mockk<Toast>(relaxed = true)
+    // every { Toast.makeText(any(), eq("Profile updated"), eq(Toast.LENGTH_SHORT)) } returns
+    // mockToast
+    // every { mockToast.show() } just Runs
 
     // Update fields with valid values
     composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput("New Test User")
@@ -186,7 +185,7 @@ class EditProfileScreenTest {
     verify { Toast.makeText(any(), eq("Profile updated"), eq(Toast.LENGTH_SHORT)) }
 
     // Verify that show() was called on the Toast instance
-    //verify { mockToast.show() }
+    // verify { mockToast.show() }
 
     // Wait for any asynchronous operations to complete
     composeTestRule.waitForIdle()
