@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -46,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -56,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -65,6 +68,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
@@ -537,15 +542,28 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
 
 @Composable
 fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
-  Box(
+  Box(modifier = Modifier.size(32.dp).background(color = backgroundColor, shape = CircleShape)) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "Edit",
+        tint = LightGray,
+        modifier = Modifier.padding(6.dp))
+  }
+}
+
+@Composable
+fun ProfilePicture(id: Uri?) {
+  // Profile picture
+  Image(
+      painter =
+          if (id == null) painterResource(id = R.drawable.default_profile_picture)
+          else
+              rememberAsyncImagePainter(
+                  model = ImageRequest.Builder(LocalContext.current).data(id).build()),
+      contentDescription = "Profile Picture",
       modifier =
-          Modifier.size(32.dp)
-              .background(color = backgroundColor, shape = CircleShape)
-              .clickable { /* Handle click */}) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "Edit",
-            tint = LightGray,
-            modifier = Modifier.padding(6.dp))
-      }
+          Modifier.size(100.dp)
+              .testTag("profilePicture")
+              .clip(CircleShape)
+              .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
 }

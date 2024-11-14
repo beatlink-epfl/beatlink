@@ -176,6 +176,8 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
@@ -185,6 +187,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage:20.0.0")
     implementation ("com.firebase:geofire-android:3.2.0")
 
 
@@ -227,6 +230,8 @@ dependencies {
     androidTestImplementation(libs.mockk.agent)
     testImplementation(libs.json)
     testImplementation(libs.mockk.v1135)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -249,6 +254,9 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
+    // Coil for image loading
+    implementation ("io.coil-kt:coil-compose:2.5.0")
+
 }
 
 tasks.withType<Test> {
