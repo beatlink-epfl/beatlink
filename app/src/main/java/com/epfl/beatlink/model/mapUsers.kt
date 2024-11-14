@@ -1,21 +1,10 @@
 package com.epfl.beatlink.model
 
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
+import com.epfl.beatlink.model.map.user.Location
+import com.epfl.beatlink.model.map.user.MapUser
 
-data class MapUser(
-    val username: String,
-    val currentPlayingTrack: CurrentPlayingTrack,
-    val location: Location
-)
-
-data class CurrentPlayingTrack(
-    val songName: String,
-    val artistName: String,
-    val albumName: String,
-    val albumCover: String
-)
-
-data class Location(val latitude: Double, val longitude: Double)
 
 class MapUsersList {
   companion object {
@@ -59,7 +48,8 @@ class MapUsersList {
             MapUser(
                 username = "melody_maven",
                 currentPlayingTrack = track1,
-                location = Location(latitude = 46.518680, 6.568270)),
+                location = Location(latitude = 46.518680, 6.568270)
+            ),
             MapUser(
                 username = "beats_fanatic",
                 currentPlayingTrack = track2,
