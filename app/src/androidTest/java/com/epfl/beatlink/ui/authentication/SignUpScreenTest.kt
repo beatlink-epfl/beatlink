@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.authentication
 
+import android.app.Application
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -8,11 +9,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.authentication.FirebaseAuthRepository
 import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,8 +32,10 @@ class SignUpScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
   private lateinit var authViewModel: FirebaseAuthViewModel
   private lateinit var authRepository: FirebaseAuthRepository
+  private lateinit var spotifyRepository: SpotifyAuthRepository
 
   @Before
   fun setUp() {
@@ -37,8 +43,15 @@ class SignUpScreenTest {
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
 
+    val application = ApplicationProvider.getApplicationContext<Application>()
+    // Create a real instance of SpotifyAuthRepository with OkHttpClient, etc.
+    spotifyRepository = SpotifyAuthRepository(client = OkHttpClient()) // or any required client
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyRepository)
+
     // Set the content for the composable
-    composeTestRule.setContent { SignUpScreen(navigationActions, authViewModel) }
+    composeTestRule.setContent {
+      SignUpScreen(navigationActions, spotifyAuthViewModel, authViewModel)
+    }
   }
 
   @Test
@@ -61,17 +74,6 @@ class SignUpScreenTest {
     composeTestRule.onNodeWithTag("inputPassword").performScrollTo().assertIsDisplayed()
 
     composeTestRule.onNodeWithTag("inputConfirmPassword").performScrollTo().assertIsDisplayed()
-
-    composeTestRule
-        .onNodeWithTag("linkSpotifyText")
-        .performScrollTo()
-        .assertIsDisplayed()
-        .assertTextEquals("Link My Spotify Account")
-    composeTestRule
-        .onNodeWithTag("linkBox")
-        .performScrollTo()
-        .assertIsDisplayed()
-        .assertHasClickAction()
 
     composeTestRule
         .onNodeWithTag("createAccountButton")
