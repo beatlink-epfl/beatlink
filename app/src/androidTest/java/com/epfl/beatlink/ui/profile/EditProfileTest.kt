@@ -1,12 +1,15 @@
 package com.epfl.beatlink.ui.profile
 
+import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import org.junit.Before
@@ -24,13 +27,17 @@ class EditProfileScreenTest {
 
   private val testName = "John Doe"
   private val testDescription = "This is a test description."
+  private val mockUri = Uri.parse("content://mockuri/profile.jpg")
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
 
-    composeTestRule.setContent { EditProfileScreen(navigationActions = navigationActions) }
+    composeTestRule.setContent {
+      EditProfileScreen(
+          viewModel(factory = ProfileViewModel.Factory), navigationActions = navigationActions)
+    }
   }
 
   @Test

@@ -1,7 +1,15 @@
 package com.epfl.beatlink.ui.profile
 
+import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.annotation.SuppressLint
+import android.net.Uri
+import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,29 +38,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.R
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
+import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: NavigationActions) {
-    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
-    val profileData by profileViewModel.profile.collectAsState()
-    val maxDescriptionLength = 100
-    val maxUsernameLength = 20
-    val context = LocalContext.current
-    var name by remember { mutableStateOf(profileData?.name ?: "This is your name. It can be up to $maxUsernameLength characters long") }
-    var description by remember {
-      mutableStateOf(profileData?.bio ?: "This is a description. It can be up to $maxDescriptionLength characters long.")}
-    val scrollState = rememberScrollState()
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+  val profileData by profileViewModel.profile.collectAsState()
+  val maxDescriptionLength = 100
+  val maxUsernameLength = 20
+  val context = LocalContext.current
+  val scrollState = rememberScrollState()
+
+  var name by remember {
+    mutableStateOf(
+        profileData?.name
+            ?: "This is your name. It can be up to $maxUsernameLength characters long")
+  }
+  var description by remember {
+    mutableStateOf(
+        profileData?.bio
+            ?: "This is a description. It can be up to $maxDescriptionLength characters long.")
+  }
+  var imageUri by remember { mutableStateOf(profileData?.profilePicture) }
+
+  val galleryLauncher =
+      rememberLauncherForActivityResult(
+          contract = ActivityResultContracts.GetContent(),
+          onResult = { uri: Uri? -> imageUri = uri })
+  val permissionLauncher =
+      rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+          isGranted: Boolean ->
+        Log.d("GRANTED", isGranted.toString())
+        if (isGranted) {
+          galleryLauncher.launch("image/*")
+        } else {
+          Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+      }
+
   Scaffold(
       modifier = Modifier.testTag("editProfileScreen"),
       topBar = { ScreenTopAppBar("Edit profile", "editProfileTitle", navigationActions) },
@@ -72,12 +106,15 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
             horizontalAlignment = Alignment.CenterHorizontally) {
               HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
               Spacer(modifier = Modifier.height(50.dp))
-              Box {
-                ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
-                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
-                  CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
-                }
-              }
+              Box(
+                  modifier =
+                      Modifier.clickable(
+                          onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })) {
+                    ProfilePicture(imageUri)
+                    Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                      CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
+                    }
+                  }
               Spacer(modifier = Modifier.height(66.dp))
               CustomInputField(
                   value = name,
@@ -108,26 +145,25 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
               Spacer(modifier = Modifier.height(120.dp))
-              PrincipalButton("Save", "saveProfileButton",
+              PrincipalButton(
+                  "Save",
+                  "saveProfileButton",
                   onClick = {
-                      try {
-                          val newData = ProfileData(
+                    try {
+                      val newData =
+                          ProfileData(
                               bio = description,
                               links = profileData?.links ?: 0,
                               name = name,
-                              profilePicture = profileData?.profilePicture,
-                              username = profileData?.username ?: ""
-                          )
-                          profileViewModel.updateProfile(newData)
-                          Toast.makeText(
-                              context,
-                              "Profile updated",
-                              Toast.LENGTH_SHORT
-                          ).show()
-                          navigationActions.goBack()
-                      } catch (e: Exception) {
-                          e.printStackTrace()
-                      }
+                              profilePicture = imageUri,
+                              username = profileData?.username ?: "",
+                              favoriteMusicGenres = emptyList())
+                      profileViewModel.updateProfile(newData)
+                      Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                      navigationActions.goBack()
+                    } catch (e: Exception) {
+                      e.printStackTrace()
+                    }
                   })
             }
       })

@@ -1,14 +1,22 @@
 package com.epfl.beatlink.model.profile
 
+import android.net.Uri
+
+/**
+ * A data class representing the user's profile.
+ *
+ * @param bio The description of the user's profile with a default value of null
+ * @param links The number of social media links in the user's profile with a default value of 0
+ * @param name The name of the user with a default value of null
+ * @param profilePicture The profile picture of the user with a default value of null
+ * @param username The username of the user with a default value of an empty string
+ * @param favoriteMusicGenres The user's favorite music genres with a default value of an empty list
+ */
 data class ProfileData(
-    // The description of the user's profile with a default value of null
     val bio: String? = null,
-    // The number of social media links in the user's profile with a default value of 0
     val links: Int = 0,
-    // The name of the user with a default value of null
     val name: String? = null,
-    // The profile picture of the user with a default value of null
-    val profilePicture: Int? = null,
-    // The username of the user with a default value of an empty string
+    val profilePicture: Uri? = null,
     val username: String = "",
+    val favoriteMusicGenres: List<String> = emptyList()
 )
