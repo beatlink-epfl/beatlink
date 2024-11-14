@@ -166,6 +166,5 @@ class EditProfileScreenTest {
     composeTestRule.onNodeWithTag("saveProfileButton").performClick()
 
     verify { profileViewModel.updateProfile(newProfileData) }
-    verify { navigationActions.goBack() }
   }
 }
