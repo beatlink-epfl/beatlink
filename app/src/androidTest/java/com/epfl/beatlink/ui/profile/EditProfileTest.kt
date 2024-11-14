@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.profile
 
-import android.net.Uri
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -8,14 +9,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
@@ -29,18 +34,18 @@ class EditProfileScreenTest {
   // Test variables
   private val testName = "John Doe"
   private val testDescription = "This is a test description."
-  private val mockUri =
-      Uri.parse("content://com.android.providers.media.documents/document/image:1")
 
   // Mocks and instances
   private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
   private lateinit var mockRepository: ProfileRepositoryFirestore
+  private lateinit var context: Context
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     mockRepository = mockk(relaxed = true)
+    context = ApplicationProvider.getApplicationContext()
 
     // Initialize ProfileViewModel with an initial profile state
     profileViewModel =
@@ -148,23 +153,45 @@ class EditProfileScreenTest {
   }
 
   @Test
-  fun saveButton_updatesProfileWithValidData() {
-    val newName = "Jane Doe"
-    val newDescription = "Updated description."
-    val newProfileData =
-        ProfileData(
-            bio = newDescription,
-            links = 5,
-            name = newName,
-            profilePicture = mockUri,
-            username = "janedoe")
+  fun testProfileUpdate_successful() {
+    // Mock Toast.makeText and Toast.show()
+    mockkStatic(Toast::class)
+    val mockToast = mockk<Toast>(relaxed = true)
+    every { Toast.makeText(any(), eq("Profile updated"), eq(Toast.LENGTH_SHORT)) } returns mockToast
+    every { mockToast.show() } just Runs
 
-    composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
-    composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput(newName)
-    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextClearance()
-    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextInput(newDescription)
+    // Update fields with valid values
+    composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput("New Test User")
+    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextInput("Updated bio")
+
+    // Trigger the Save button
     composeTestRule.onNodeWithTag("saveProfileButton").performClick()
 
-    verify { profileViewModel.updateProfile(newProfileData) }
+    // Ensure Compose is idle
+    composeTestRule.waitForIdle()
+    Thread.sleep(100)
+
+    // Verify that updateProfile is called with the new data
+    verify {
+      profileViewModel.updateProfile(
+          ProfileData(
+              bio = "Updated bio",
+              links = 5,
+              name = "New Test User",
+              profilePicture = null,
+              username = "johndoe"))
+    }
+
+    // Verify that Toast.makeText() was called with the "Profile updated" message
+    verify { Toast.makeText(any(), eq("Profile updated"), eq(Toast.LENGTH_SHORT)) }
+
+    // Verify that show() was called on the Toast instance
+    verify { mockToast.show() }
+
+    // Wait for any asynchronous operations to complete
+    composeTestRule.waitForIdle()
+
+    // Verify that navigation to the previous screen happens
+    verify(timeout = 500) { navigationActions.goBack() }
   }
 }
