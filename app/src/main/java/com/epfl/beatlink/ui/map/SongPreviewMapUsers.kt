@@ -22,11 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.R
-import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
-import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
@@ -106,20 +102,4 @@ fun SongPreviewMapUsers(mapUser: MapUser) {
                   }
             }
       }
-}
-
-@Preview
-@Composable
-fun SongPreviewMapUsersPreview() {
-  SongPreviewMapUsers(
-      mapUser =
-          MapUser(
-              username = "testUser",
-              currentPlayingTrack =
-                  CurrentPlayingTrack(
-                      songName = "Die With A Smile",
-                      artistName = "Lady Gaga & Bruno Mars",
-                      albumName = "Die With A Smile",
-                      albumCover = R.drawable.cover_test1.toString()),
-              location = Location(0.0, 0.0)))
 }
