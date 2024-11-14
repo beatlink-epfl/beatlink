@@ -66,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -77,6 +78,7 @@ import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
@@ -402,48 +404,43 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun MusicPlayerUI(connectedDevice: Boolean) {
+fun MusicPlayerUI(api: SpotifyApiViewModel) {
 
-  var trackState by remember { mutableStateOf(State.PAUSE) }
-  val playerBackgroundColor = Color(0xFFE0DAE5)
+  var showPlayer by remember { mutableStateOf(false) }
+  var isPlaying by remember { mutableStateOf(false) }
+  var currentAlbum by remember {
+    mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
+  }
+  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
+  var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
-  if (connectedDevice) {
-    // get those variables with api calls in the future and
-    // stock them in the objects and pass these objects as arguments
-    // to this function instead of hardcoding like below
-    val track =
-        SpotifyTrack(
-            name = "song_name",
-            trackId = "songId",
-            cover = "songCover",
-            duration = 120,
-            popularity = 80,
-            state = trackState)
+  api.getPlaybackState( // get the playback state
+      onResult = {
+        if (it.isSuccess) {
+          val playbackState = it.getOrNull()
+          if (playbackState != null) {
+            showPlayer = true
+            isPlaying = playbackState.getBoolean("is_playing")
+            currentAlbum = api.buildAlbum(playbackState.getJSONObject("item"))
+            currentTrack = api.buildTrack(playbackState.getJSONObject("item"))
+            currentTrack.state = if (isPlaying) State.PLAY else State.PAUSE
+            currentArtist = api.buildArtist(playbackState.getJSONObject("item"))
+          } else {
+            isPlaying = false
+            showPlayer = false
+          }
+        } else {
+          isPlaying = false
+          showPlayer = false
+        }
+      })
 
-    val artist =
-        SpotifyArtist(
-            image = "artistImage",
-            name = "artistName",
-            genres = listOf("genre1", "genre2"),
-            popularity = 70)
-
-    val album =
-        SpotifyAlbum(
-            spotifyId = "albumId",
-            name = "albumName",
-            cover = "albumCover",
-            artist = "albumArtist",
-            year = 2010,
-            tracks = listOf(track),
-            size = 1,
-            genres = listOf("genres1", "genres2"),
-            popularity = 60)
-
+  if (showPlayer) {
     Row(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = playerBackgroundColor) // TBD if...else...
+                .background(color = SecondaryGray) // TBD if...else...
                 .testTag("playerContainer"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -451,22 +448,24 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
       Card(
           modifier =
               Modifier.padding(start = 11.dp, top = 11.dp, bottom = 11.dp)
-                  .testTag(track.name + "songCardContainer")
+                  .testTag("songCardContainer")
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
       ) {
         Image(
             painter = painterResource(id = R.drawable.default_profile_picture),
             contentDescription = null, // Provide a description for accessibility
-            modifier = Modifier.fillMaxSize().testTag(track.cover))
+            modifier = Modifier.fillMaxSize())
       }
 
       Spacer(modifier = Modifier.width(8.dp))
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = track.name, style = TypographySongs.titleLarge)
-        Text(text = "${artist.name} - ${album.name}", style = TypographySongs.titleSmall)
+        Text(text = currentTrack.name, style = TypographySongs.titleLarge)
+        Text(
+            text = "${currentArtist.name} - ${currentAlbum.name}",
+            style = TypographySongs.titleSmall)
       }
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -474,13 +473,19 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
       // Play/Stop button
       IconButton(
           onClick = {
-            if (trackState == State.PAUSE) {
-              trackState = State.PLAY
+            if (currentTrack.state == State.PAUSE) {
+              api.playPlayback {
+                isPlaying = true
+                currentTrack.state = State.PLAY
+              }
             } else {
-              trackState = State.PAUSE
+              api.pausePlayback {
+                isPlaying = false
+                currentTrack.state = State.PAUSE
+              }
             }
           }) {
-            if (track.state == State.PLAY) {
+            if (currentTrack.state == State.PLAY) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
@@ -497,8 +502,27 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
 
       // Skip button
       IconButton(
-          onClick = {} // skip
-          ) {
+          onClick = {
+            api.skipSong {}
+            api.getPlaybackState(
+                onResult = {
+                  if (it.isSuccess) {
+                    val playbackState = it.getOrNull()
+                    if (playbackState != null) {
+                      showPlayer = true
+                      isPlaying = playbackState.getBoolean("is_playing")
+                      currentAlbum = api.buildAlbum(playbackState.getJSONObject("item"))
+                      currentTrack = api.buildTrack(playbackState.getJSONObject("item"))
+                      currentTrack.state = if (isPlaying) State.PLAY else State.PAUSE
+                      currentArtist = api.buildArtist(playbackState.getJSONObject("item"))
+                    } else {
+                      println("wtf1")
+                    }
+                  } else {
+                    println("wtf2")
+                  }
+                })
+          }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
                 contentDescription = "Skip",
@@ -511,7 +535,7 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(playerBackgroundColor) // TBD if...else...
+                .background(SecondaryGray) // TBD if...else...
                 .padding(horizontal = 32.dp, vertical = 26.dp)
                 .testTag("noPlayerContainer"),
         horizontalArrangement = Arrangement.Center,
