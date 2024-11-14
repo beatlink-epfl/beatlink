@@ -39,6 +39,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
+import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
@@ -55,20 +57,18 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: NavigationActions) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
   val profileData by profileViewModel.profile.collectAsState()
-  val maxDescriptionLength = 100
-  val maxUsernameLength = 20
   val context = LocalContext.current
   val scrollState = rememberScrollState()
 
   var name by remember {
     mutableStateOf(
         profileData?.name
-            ?: "This is your name. It can be up to $maxUsernameLength characters long")
+            ?: "This is your name. It can be up to $MAX_USERNAME_LENGTH characters long")
   }
   var description by remember {
     mutableStateOf(
         profileData?.bio
-            ?: "This is a description. It can be up to $maxDescriptionLength characters long.")
+            ?: "This is a description. It can be up to $MAX_DESCRIPTION_LENGTH characters long.")
   }
   var imageUri by remember { mutableStateOf(profileData?.profilePicture) }
 
@@ -119,13 +119,13 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
               CustomInputField(
                   value = name,
                   onValueChange = { newName ->
-                    if (newName.length <= maxUsernameLength) {
+                    if (newName.length <= MAX_USERNAME_LENGTH) {
                       name = newName
                     }
                   },
                   label = "Name",
                   placeholder = "Current name",
-                  supportingText = "Max $maxUsernameLength characters",
+                  supportingText = "Max $MAX_USERNAME_LENGTH characters",
                   trailingIcon = Icons.Filled.Clear,
                   modifier = Modifier.testTag("editProfileNameInput"))
               Spacer(modifier = Modifier.height(16.dp))
@@ -133,13 +133,13 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                 CustomInputField(
                     value = description,
                     onValueChange = { newDescription ->
-                      if (newDescription.length <= maxDescriptionLength) {
+                      if (newDescription.length <= MAX_DESCRIPTION_LENGTH) {
                         description = newDescription
                       }
                     },
                     label = "Description",
                     placeholder = "Current description",
-                    supportingText = "Max $maxDescriptionLength characters",
+                    supportingText = "Max $MAX_DESCRIPTION_LENGTH characters",
                     singleLine = false,
                     trailingIcon = Icons.Filled.Clear,
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
