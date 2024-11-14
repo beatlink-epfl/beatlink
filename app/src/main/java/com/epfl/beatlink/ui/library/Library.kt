@@ -10,15 +10,18 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.PageTopAppBar
+import com.epfl.beatlink.ui.components.PlaylistCard
+import com.epfl.beatlink.ui.components.SongCard
 import com.epfl.beatlink.ui.components.TitleWithArrow
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -26,7 +29,9 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 
 @Composable
-fun LibraryScreen(navigationActions: NavigationActions) {
+fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
+
+  val playlistListFlow by playlistViewModel.playlistList.collectAsState()
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
@@ -64,7 +69,7 @@ fun LibraryScreen(navigationActions: NavigationActions) {
           LazyRow(
               horizontalArrangement = Arrangement.spacedBy(16.dp),
               modifier = Modifier.fillMaxWidth().height(115.dp)) {
-                items(1) { FavoriteItem() }
+                items(1) { SongCard() }
               }
 
           // PLAYLISTS
@@ -73,18 +78,8 @@ fun LibraryScreen(navigationActions: NavigationActions) {
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
               modifier = Modifier.fillMaxWidth()) {
-                items(1) { PlaylistItem() }
+                items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
               }
         }
       })
-}
-
-@Composable
-fun FavoriteItem() {
-  Card(modifier = Modifier.testTag("favoriteItem")) { Text("one fav song") }
-}
-
-@Composable
-fun PlaylistItem() {
-  Card(modifier = Modifier.testTag("playlistItem")) { Text("playlist 1") }
 }
