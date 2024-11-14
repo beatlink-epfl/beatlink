@@ -414,24 +414,13 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
   var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
   var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
-  api.getPlaybackState( // get the playback state
-      onResult = {
-        if (it.isSuccess) {
-          val playbackState = it.getOrNull()
-          if (playbackState != null) {
-            showPlayer = true
-            isPlaying = playbackState.getBoolean("is_playing")
-            currentAlbum = api.buildAlbum(playbackState.getJSONObject("item"))
-            currentTrack = api.buildTrack(playbackState.getJSONObject("item"))
-            currentTrack.state = if (isPlaying) State.PLAY else State.PAUSE
-            currentArtist = api.buildArtist(playbackState.getJSONObject("item"))
-          } else {
-            isPlaying = false
-            showPlayer = false
-          }
-        } else {
-          isPlaying = false
-          showPlayer = false
+  api.getPlaybackState(
+      onResult = { result ->
+        showPlayer = result.isSuccess
+        if (showPlayer) {
+          api.buildAlbum { currentAlbum = it }
+          api.buildTrack { currentTrack = it }
+          api.buildArtist { currentArtist = it }
         }
       })
 
@@ -491,7 +480,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
                   modifier = Modifier.size(35.dp).testTag("pauseButton"))
-            } else {
+            } else if (currentTrack.state == State.PAUSE) {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
@@ -505,21 +494,12 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
           onClick = {
             api.skipSong {}
             api.getPlaybackState(
-                onResult = {
-                  if (it.isSuccess) {
-                    val playbackState = it.getOrNull()
-                    if (playbackState != null) {
-                      showPlayer = true
-                      isPlaying = playbackState.getBoolean("is_playing")
-                      currentAlbum = api.buildAlbum(playbackState.getJSONObject("item"))
-                      currentTrack = api.buildTrack(playbackState.getJSONObject("item"))
-                      currentTrack.state = if (isPlaying) State.PLAY else State.PAUSE
-                      currentArtist = api.buildArtist(playbackState.getJSONObject("item"))
-                    } else {
-                      println("wtf1")
-                    }
-                  } else {
-                    println("wtf2")
+                onResult = { result ->
+                  showPlayer = result.isSuccess
+                  if (showPlayer) {
+                    api.buildAlbum { currentAlbum = it }
+                    api.buildTrack { currentTrack = it }
+                    api.buildArtist { currentArtist = it }
                   }
                 })
           }) {
