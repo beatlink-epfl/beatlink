@@ -188,6 +188,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage:20.0.0")
+    implementation ("com.firebase:geofire-android:3.2.0")
+
 
     // ------------- Jetpack Compose ------------------
     val composeBom = platform(libs.compose.bom)

@@ -56,7 +56,7 @@ fun BeatLinkApp(
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
       composable(Screen.LOGIN) { LoginScreen(navigationActions) }
-      composable(Screen.REGISTER) { SignUpScreen(navigationActions) }
+      composable(Screen.REGISTER) { SignUpScreen(navigationActions, spotifyAuthViewModel) }
       composable(Screen.PROFILE_BUILD) { ProfileBuildScreen(navigationActions) }
     }
 

@@ -37,9 +37,9 @@ class SpotifyAuthTest {
     composeTestRule.setContent { BeatLinkAppTheme { SpotifyAuth(spotifyViewModel = viewModel) } }
 
     composeTestRule.waitUntil(timeoutMillis = 5000) {
-      composeTestRule.onAllNodesWithTag("SpotifyAuthCard").fetchSemanticsNodes().isNotEmpty()
+      composeTestRule.onAllNodesWithTag("linkSpotifyBox").fetchSemanticsNodes().isNotEmpty()
     }
 
-    composeTestRule.onNodeWithTag("SpotifyAuthCard").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("linkSpotifyBox").assertIsDisplayed()
   }
 }
