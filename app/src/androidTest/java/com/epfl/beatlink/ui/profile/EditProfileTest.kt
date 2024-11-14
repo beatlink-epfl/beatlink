@@ -1,42 +1,60 @@
 package com.epfl.beatlink.ui.profile
 
-import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 class EditProfileScreenTest {
-  private lateinit var navigationActions: NavigationActions
-
   @get:Rule val composeTestRule = createComposeRule()
 
+  // Test variables
   private val testName = "John Doe"
   private val testDescription = "This is a test description."
-  private val mockUri = Uri.parse("content://mockuri/profile.jpg")
+
+  // Mocks and instances
+  private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var navigationActions: NavigationActions
+  private lateinit var mockRepository: ProfileRepositoryFirestore
 
   @Before
   fun setUp() {
-    navigationActions = mock(NavigationActions::class.java)
-    `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
+    navigationActions = mockk(relaxed = true)
+    mockRepository = mockk(relaxed = true)
+
+    // Initialize ProfileViewModel with an initial profile state
+    profileViewModel =
+        ProfileViewModel(
+            repository = mockRepository,
+            initialProfile =
+                ProfileData(
+                    bio = testDescription,
+                    links = 5,
+                    name = testName,
+                    profilePicture = null,
+                    username = "johndoe"))
+
+    every { navigationActions.currentRoute() } returns Route.PROFILE
 
     composeTestRule.setContent {
-      EditProfileScreen(
-          viewModel(factory = ProfileViewModel.Factory), navigationActions = navigationActions)
+      EditProfileScreen(profileViewModel = profileViewModel, navigationActions = navigationActions)
     }
   }
 
@@ -109,5 +127,21 @@ class EditProfileScreenTest {
 
     // Verify the description was trimmed to max length
     composeTestRule.onNodeWithTag("editProfileNameInput").assertTextContains(longName)
+  }
+
+  @Test
+  fun editProfileScreen_saveButtonTriggersProfileUpdateAndNavigation() {
+    composeTestRule.onNodeWithTag("saveProfileButton").performClick()
+
+    verify {
+      profileViewModel.updateProfile(
+          ProfileData(
+              bio = testDescription,
+              links = 5,
+              name = testName,
+              profilePicture = null,
+              username = "johndoe"))
+    }
+    verify { navigationActions.goBack() }
   }
 }
