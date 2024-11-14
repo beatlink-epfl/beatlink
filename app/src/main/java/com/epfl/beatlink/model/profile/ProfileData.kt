@@ -22,8 +22,8 @@ data class ProfileData(
     val username: String = "",
     val favoriteMusicGenres: List<String> = emptyList()
 ) {
-    companion object {
-        const val MAX_USERNAME_LENGTH = 20
-        const val MAX_DESCRIPTION_LENGTH = 100
-    }
+  companion object {
+    const val MAX_USERNAME_LENGTH = 20
+    const val MAX_DESCRIPTION_LENGTH = 100
+  }
 }
