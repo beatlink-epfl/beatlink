@@ -18,17 +18,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.profile.ProfileData
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.model.playlist.Playlist
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CollabButton
 import com.epfl.beatlink.ui.components.CollabList
 import com.epfl.beatlink.ui.components.CustomInputField
@@ -38,19 +42,24 @@ import com.epfl.beatlink.ui.components.SettingsSwitch
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Route.LIBRARY
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.SecondaryGray
 
 @Composable
 fun CreateNewPlaylistScreen(
     navigationActions: NavigationActions,
+    profileViewModel: ProfileViewModel,
+    playlistViewModel: PlaylistViewModel = viewModel(factory = PlaylistViewModel.Factory),
     currentMusicPlayed: String? = null,
 ) {
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+  val profileData by profileViewModel.profile.collectAsState()
   var playlistTitle by remember { mutableStateOf("") }
   var playlistDescription by remember { mutableStateOf("") }
   var playlistIsPublic by remember { mutableStateOf(false) }
-  val playlistCollab by remember { mutableStateOf<List<ProfileData>>(emptyList()) } // TODO
-  val coverImage by remember { mutableStateOf<Painter?>(null) }
+  val playlistCollab by remember { mutableStateOf<List<String>>(emptyList()) } // user IDs
+  val coverImage by remember { mutableStateOf("") }
 
   Scaffold(
       modifier = Modifier.testTag("createNewPlaylistScreen"),
@@ -83,7 +92,7 @@ fun CreateNewPlaylistScreen(
                       .align(Alignment.CenterHorizontally)
                       .testTag("playlistCover"),
               contentAlignment = Alignment.Center) {
-                if (coverImage != null) {
+                if (coverImage == "something") {
                   // Show the selected cover image
                   // TODO
 
@@ -140,7 +149,23 @@ fun CreateNewPlaylistScreen(
 
           Spacer(modifier = Modifier.height(10.dp))
 
-          PrincipalButton("Create", "createPlaylist") {}
+          PrincipalButton("Create", "createPlaylist") {
+            val newPlaylist =
+                Playlist(
+                    playlistID = playlistViewModel.getNewUid(),
+                    playlistCover = coverImage,
+                    playlistName = playlistTitle,
+                    playlistDescription = playlistDescription,
+                    playlistPublic = playlistIsPublic,
+                    userId = "",
+                    playlistOwner = profileData?.username ?: "",
+                    playlistCollaborators = playlistCollab,
+                    playlistSongs = emptyList(),
+                    nbTracks = 0)
+            playlistViewModel.addPlaylist(newPlaylist)
+            navigationActions.navigateTo(
+                LIBRARY) // TODO change to another screen not implemented yet
+          }
         }
   }
 }

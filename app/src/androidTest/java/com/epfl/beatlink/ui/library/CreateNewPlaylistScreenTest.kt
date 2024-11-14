@@ -6,30 +6,63 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.model.playlist.Playlist
+import com.epfl.beatlink.model.playlist.PlaylistRepository
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Route
+import com.epfl.beatlink.ui.navigation.Screen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 
 class CreateNewPlaylistScreenTest {
-  @get:Rule val composeTestRule = createComposeRule()
-
+  private lateinit var playlistRepository: PlaylistRepository
+  // private  lateinit var profileRepository: ProfileRepository
+  private lateinit var playlistViewModel: PlaylistViewModel
+  // private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
+
+  private val playlist =
+      Playlist(
+          playlistID = "mockPlaylistID",
+          playlistCover = "",
+          playlistName = "playlist 1",
+          playlistDescription = "testingggg",
+          playlistPublic = false,
+          userId = "",
+          playlistOwner = "luna",
+          playlistCollaborators = emptyList(),
+          playlistSongs = emptyList(),
+          nbTracks = 0)
+
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Before
   fun setUp() {
+    playlistRepository = mock(PlaylistRepository::class.java)
+    // profileRepository = mock(ProfileRepository::class.java)
+    playlistViewModel = PlaylistViewModel(playlistRepository)
+    // profileViewModel = ProfileViewModel(profileRepository)
+
     navigationActions = mock(NavigationActions::class.java)
-    `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.CREATE_NEW_PLAYLIST)
+
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(
+          navigationActions, viewModel(factory = ProfileViewModel.Factory), playlistViewModel)
+    }
   }
 
   @Test
   fun everythingIsDisplayed() {
-    // Launch the composable under test
-    composeTestRule.setContent { CreateNewPlaylistScreen(navigationActions) }
-
     // The screen is displayed
     composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertIsDisplayed()
     // The title is displayed
@@ -63,11 +96,27 @@ class CreateNewPlaylistScreenTest {
 
   @Test
   fun buttonsWorkCorrectly() {
-    composeTestRule.setContent { CreateNewPlaylistScreen(navigationActions) }
-
     composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
     composeTestRule.onNodeWithTag("collabButton").performScrollTo().performClick()
     composeTestRule.onNodeWithTag("gradientSwitch").performScrollTo().performClick()
+  }
+
+  @Test
+  fun createPlaylistButtonWorks() {
+    // Mock the getNewUid() method to return a known value
+
+    val mockPlaylistID = "mockPlaylistID"
+    `when`(playlistViewModel.getNewUid()).thenReturn(mockPlaylistID)
+
+    // Set values for title and description
+    composeTestRule.onNodeWithTag("inputPlaylistTitle").performTextInput("New Playlist")
+    composeTestRule
+        .onNodeWithTag("inputPlaylistDescription")
+        .performTextInput("Playlist Description")
+
+    // Click the "Create" button
     composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
+
+    verify(playlistRepository).addPlaylist(any(), any(), any())
   }
 }
