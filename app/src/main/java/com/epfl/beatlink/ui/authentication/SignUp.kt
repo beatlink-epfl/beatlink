@@ -1,21 +1,16 @@
 package com.epfl.beatlink.ui.authentication
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,10 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -45,7 +38,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.epfl.beatlink.R
 import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -56,6 +48,7 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 @Composable
 fun SignUpScreen(
     navigationActions: NavigationActions,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel =
         viewModel(factory = FirebaseAuthViewModel.Factory)
 ) {
@@ -146,8 +139,9 @@ fun SignUpScreen(
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
                   modifier = Modifier.testTag("inputConfirmPassword"))
+
               // Link Spotify button
-              LinkSpotifyButton()
+              SpotifyAuth(spotifyAuthViewModel)
 
               Spacer(modifier = Modifier.height(16.dp))
 
@@ -166,51 +160,6 @@ fun SignUpScreen(
                   mainTextTag = "accountText",
                   clickableTextTag = "loginText")
             }
-      }
-}
-
-@Composable
-fun LinkSpotifyButton() {
-  Row(
-      modifier =
-          Modifier.border(1.dp, Color.Gray, RoundedCornerShape(5.dp)) // Border color and shape
-              .width(320.dp)
-              .height(48.dp)
-              .testTag("linkSpotifyBox"),
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween) {
-        // Spotify Icon
-        Box(modifier = Modifier.size(48.dp).padding(8.dp), contentAlignment = Alignment.Center) {
-          Image(
-              painter = painterResource(id = R.drawable.spotify),
-              contentDescription = "Spotify Icon",
-              modifier = Modifier.size(32.dp).testTag("spotifyIcon"))
-        }
-
-        Text(
-            modifier = Modifier.testTag("linkSpotifyText"),
-            text = "Link My Spotify Account",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.bodyMedium)
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Link button
-        Box(
-            modifier =
-                Modifier.border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(5.dp))
-                    .padding(horizontal = 20.dp, vertical = 6.dp)
-                    .clickable(onClick = { /* TODO: Handle link action */})
-                    .wrapContentSize()
-                    .testTag("linkBox"),
-            contentAlignment = Alignment.Center) {
-              Text(
-                  modifier = Modifier.testTag("linkText"),
-                  text = "Link",
-                  color = MaterialTheme.colorScheme.primary,
-                  style = MaterialTheme.typography.labelSmall)
-            }
-        Spacer(modifier = Modifier.width(8.dp))
       }
 }
 
