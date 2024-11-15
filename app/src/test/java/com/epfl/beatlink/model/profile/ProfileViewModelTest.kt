@@ -23,7 +23,7 @@ class ProfileViewModelTest {
   val instantTaskExecutorRule = InstantTaskExecutorRule() // Rule to allow LiveData testing
 
   private lateinit var viewModel: ProfileViewModel
-  private lateinit var mockRepository: ProfileRepository
+  private lateinit var mockRepository: ProfileRepositoryFirestore
 
   @Before
   fun setUp() {
@@ -31,7 +31,7 @@ class ProfileViewModelTest {
     Dispatchers.setMain(StandardTestDispatcher())
 
     // Create mock repository
-    mockRepository = mock(ProfileRepository::class.java)
+    mockRepository = mock(ProfileRepositoryFirestore::class.java)
 
     // Create the ViewModel with the mocked repository
     viewModel = ProfileViewModel(mockRepository)
@@ -55,7 +55,7 @@ class ProfileViewModelTest {
             username = "johndoe")
 
     `when`(mockRepository.getUserId()).thenReturn(userId)
-    `when`(mockRepository.getProfile(userId)).thenReturn(expectedProfile)
+    `when`(mockRepository.fetchProfile(userId)).thenReturn(expectedProfile)
 
     // Act
     viewModel.fetchProfile()

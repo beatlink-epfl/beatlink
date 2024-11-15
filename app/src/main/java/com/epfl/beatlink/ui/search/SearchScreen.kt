@@ -59,7 +59,7 @@ fun SearchScreen(navigationActions: NavigationActions) {
 
   val profile1 =
       ProfileData(
-          username = "@username1", name = "Name1", bio = "bio1", links = 3, profilePicture = 1)
+          username = "@username1", name = "Name1", bio = "bio1", links = 3, profilePicture = null)
   val listOfProfiles = listOf(profile1)
 
   Scaffold(
