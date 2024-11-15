@@ -2,49 +2,45 @@ package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.ui.components.CornerIcons
-import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.PlaylistCard
-import com.epfl.beatlink.ui.components.SongCard
-import com.epfl.beatlink.ui.components.TitleWithArrow
+import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.theme.primaryGray
 
 @Composable
-fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
+fun MyPlaylistsScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
 
   val playlistListFlow by playlistViewModel.playlistList.collectAsState()
 
   Scaffold(
-      modifier = Modifier.testTag("libraryScreen"),
+      modifier = Modifier.testTag("myPlaylistsScreen"),
       topBar = {
-        PageTopAppBar(
-            "My Library",
-            "libraryTitle",
+        ScreenTopAppBar(
+            "My Playlists",
+            "myPlaylistsTitle",
+            navigationActions,
             listOf {
-              CornerIcons(
-                  onClick = {},
-                  icon = Icons.Outlined.Search,
-                  contentDescription = "Search",
-                  modifier = Modifier.testTag("searchButton"))
               CornerIcons(
                   onClick = { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) },
                   icon = Icons.Outlined.Add,
@@ -61,25 +57,22 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
       content = { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-          // FAVORITES
-          TitleWithArrow("FAVORITES") {}
-
-          LazyRow(
-              horizontalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth().height(115.dp)) {
-                items(1) { SongCard() }
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              if (playlistListFlow.isEmpty()) {
+                Text(
+                    text = "No playlists yet",
+                    color = MaterialTheme.colorScheme.primaryGray,
+                    modifier = Modifier.testTag("emptyPlaylistsPrompt"))
+              } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                ) {
+                  items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
+                }
               }
-
-          // PLAYLISTS
-          TitleWithArrow("PLAYLISTS") { navigationActions.navigateTo(Screen.MY_PLAYLISTS) }
-
-          LazyColumn(
-              verticalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth()) {
-                items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
-              }
-        }
+            }
       })
 }

@@ -178,6 +178,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.volley)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)

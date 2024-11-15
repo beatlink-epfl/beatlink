@@ -30,7 +30,7 @@ class LibraryScreenTest {
           playlistID = "1",
           playlistCover = "",
           playlistName = "playlist 1",
-          playlistDescription = "testingggg",
+          playlistDescription = "testing",
           playlistPublic = false,
           userId = "",
           playlistOwner = "luna",
@@ -82,6 +82,14 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
 
     verify(navigationActions).navigateTo(Screen.CREATE_NEW_PLAYLIST)
+  }
+
+  @Test
+  fun verifyPlaylistsButtonNavigatesToMyPlaylistsScreen() {
+    // Perform click action on the sign-in button
+    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+
+    verify(navigationActions).navigateTo(Screen.MY_PLAYLISTS)
   }
 
   @Test
