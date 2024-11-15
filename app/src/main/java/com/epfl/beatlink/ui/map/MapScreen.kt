@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -34,7 +36,9 @@ enum class CameraAction {
 fun MapScreen(
     navigationActions: NavigationActions,
     mapViewModel: MapViewModel,
-    spotifyApiViewModel: SpotifyApiViewModel?
+    spotifyApiViewModel: SpotifyApiViewModel?,
+    profileViewModel: ProfileViewModel,
+    mapUsersViewModel: MapUsersViewModel
 ) {
   // Permission launcher to handle permission request
   val permissionLauncher =
@@ -81,8 +85,10 @@ fun MapScreen(
             }
           }
 
+          MapUserTrackingView(mapUsersViewModel, mapViewModel, profileViewModel, radius)
+
           if (spotifyApiViewModel != null) {
-            MusicPlayerUI(spotifyApiViewModel)
+            MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
           }
         }
       }

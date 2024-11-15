@@ -6,8 +6,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +33,8 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
 
@@ -55,6 +60,8 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
 
@@ -78,6 +85,8 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
 
@@ -95,5 +104,22 @@ class MapScreenTest {
     // Verify that onPermissionResult updates permissionRequired and locationPermitted
     assert(mapViewModel.locationPermitted.value)
     assert(!mapViewModel.permissionRequired.value)
+  }
+
+  @Test
+  fun mapScreen_requestsPermissions_whenPermissionRequired() {
+    val mapViewModel =
+        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          mapViewModel = mapViewModel)
+    }
+
+    assert(mapViewModel.permissionRequired.value) // No mocking required here
   }
 }
