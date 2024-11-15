@@ -25,6 +25,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +41,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -52,15 +54,13 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
 @SuppressLint("MutableCollectionMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileBuildScreen(
-    navigationActions: NavigationActions,
-    firebaseAuthViewModel: FirebaseAuthViewModel =
-        viewModel(factory = FirebaseAuthViewModel.Factory)
-) {
+fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: ProfileViewModel) {
   var name by remember { mutableStateOf("") }
   var description by remember { mutableStateOf("") }
   var favoriteGenres by remember { mutableStateOf(mutableListOf<String>()) }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
+  val currentProfile = profileViewModel.profile.collectAsState()
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
   Scaffold(
       modifier = Modifier.testTag("profileBuildScreen"),
@@ -103,7 +103,18 @@ fun ProfileBuildScreen(
                   onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
 
               // Save button
-              PrincipalButton("Save", "saveButton") { navigationActions.navigateTo(Screen.HOME) }
+              PrincipalButton("Save", "saveButton") {
+                val updatedProfile =
+                    ProfileData(
+                        bio = description,
+                        links = currentProfile.value?.links ?: 0,
+                        name = name,
+                        profilePicture = currentProfile.value?.profilePicture,
+                        username = currentProfile.value?.username ?: "",
+                        favoriteMusicGenres = favoriteGenres)
+                profileViewModel.updateProfile(updatedProfile)
+                navigationActions.navigateTo(Screen.HOME)
+              }
 
               // Show music genre selection dialog if visible
               if (isGenreSelectionVisible) {
