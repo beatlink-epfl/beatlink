@@ -238,7 +238,6 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
     testImplementation(libs.json)
-    testImplementation(libs.mockk.v1135)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -253,10 +252,8 @@ dependencies {
     testImplementation(libs.robolectric)
     androidTestImplementation(libs.kaspresso)
     androidTestImplementation(libs.kaspresso.allure.support)
-    androidTestImplementation(libs.kaspresso.compose.support)
 
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.robolectric.v473)
     // Google Service and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)

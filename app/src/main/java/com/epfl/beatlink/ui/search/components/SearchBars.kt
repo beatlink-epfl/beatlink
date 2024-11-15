@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -134,7 +135,7 @@ fun ShortSearchBar() {
                     .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
       },
       colors =
-          TextFieldDefaults.outlinedTextFieldColors(
+          OutlinedTextFieldDefaults.colors(
               focusedBorderColor = Color.Transparent, // Color when selected (focused)
               unfocusedBorderColor = Color.Transparent, // Color when not selected
               cursorColor = Color.Black),

@@ -1,45 +1,42 @@
 [versions]
 coreTesting = "2.2.0"
-firebaseBom = "33.4.0"
+firebaseBom = "33.5.1"
 geofireAndroid = "3.2.0"
 json = "20240303"
 kotlinxCoroutinesPlayServices = "1.7.3"
 kotlinxCoroutinesTest = "1.7.3"
 mockitoAndroid = "5.13.0"
-agp = "8.3.0"
+agp = "8.3.2"
 kotlin = "1.8.10"
 coreKtx = "1.12.0"
 ktfmt = "0.17.0"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-mockkMockk = "1.13.5"
-robolectricVersion = "4.7.3"
-uiTestJunit4 = "1.6.8"
-espressoCore = "3.5.1"
-appcompat = "1.6.1"
-material = "1.11.0"
-composeBom = "2024.02.02"
-composeActivity = "1.8.2"
-composeViewModel = "2.7.0"
-lifecycleRuntimeKtx = "2.7.0"
+junitVersion = "1.2.1"
+uiTestJunit4 = "1.7.5"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+composeBom = "2024.11.00"
+composeActivity = "1.9.3"
+composeViewModel = "2.8.7"
+lifecycleRuntimeKtx = "2.8.7"
 kaspresso = "1.5.5"
 robolectric = "4.11.1"
 sonar = "4.4.1.3373"
 okhttp = "4.12.0"
-navigationRuntimeKtx = "2.8.2"
-navigationCompose = "2.8.2"
+navigationRuntimeKtx = "2.8.4"
+navigationCompose = "2.8.4"
 
 # Testing Unit
-mockitoCore = "3.12.4"
+mockitoCore = "5.13.0"
 mockitoInline = "3.12.4"
 mockitoKotlin = "5.4.0"
-mockk = "1.13.7"
+mockk = "1.13.10"
 
 # Testing UI
 kaspressoAllureSupport = "1.4.3"
-kaspressoComposeSupport = "1.5.5"
-mockkAgent = "1.13.7"
-mockkAndroid = "1.13.7"
+mockkAgent = "1.13.10"
+mockkAndroid = "1.13.10"
 
 # Google Service and Maps
 playServicesMaps = "19.0.0"
@@ -86,9 +83,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
 kaspresso-compose = { group = "com.kaspersky.android-components", name = "kaspresso-compose-support", version.ref = "kaspresso" }
 kaspresso-allure-support = { module = "com.kaspersky.android-components:kaspresso-allure-support", version.ref = "kaspressoAllureSupport" }
-kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspressoComposeSupport" }
 
-mockk-v1135 = { module = "io.mockk:mockk", version.ref = "mockkMockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
@@ -104,7 +99,6 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
-robolectric-v473 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
