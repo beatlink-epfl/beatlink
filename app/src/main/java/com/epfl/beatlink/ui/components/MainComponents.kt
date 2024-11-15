@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -71,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
@@ -409,7 +411,7 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun MusicPlayerUI(api: SpotifyApiViewModel) {
+fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
   var showPlayer by remember { mutableStateOf(false) }
   var isPlaying by remember { mutableStateOf(false) }
@@ -427,6 +429,8 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
           api.buildTrack { currentTrack = it }
           api.buildArtist { currentArtist = it }
         }
+        Log.d("PLAYER", "PLAYER")
+        mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
       })
 
   if (showPlayer) {
@@ -498,6 +502,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
       IconButton(
           onClick = {
             api.skipSong {}
+            Log.d("SKIPPED", "SKIPPED")
             api.getPlaybackState(
                 onResult = { result ->
                   showPlayer = result.isSuccess
@@ -506,6 +511,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
                     api.buildTrack { currentTrack = it }
                     api.buildArtist { currentArtist = it }
                   }
+                  mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
                 })
           }) {
             Icon(
