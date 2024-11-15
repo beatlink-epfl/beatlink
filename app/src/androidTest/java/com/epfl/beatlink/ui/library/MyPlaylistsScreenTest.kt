@@ -71,7 +71,7 @@ class MyPlaylistsScreenTest {
   @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("myPlaylistsScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("addPlaylistButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("myPlaylistsTitle").assertIsDisplayed()
@@ -79,7 +79,7 @@ class MyPlaylistsScreenTest {
 
   @Test
   fun createPlaylistButtonCallsNavActions() {
-    composeTestRule.onNodeWithTag("addPlaylistButton").performClick()
+    composeTestRule.onNodeWithTag("addButton").performClick()
     org.mockito.kotlin.verify(navigationActions).navigateTo(screen = Screen.CREATE_NEW_PLAYLIST)
   }
 
