@@ -41,6 +41,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -419,15 +420,16 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
   var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
   var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
-  api.getPlaybackState(
-      onResult = { result ->
-        showPlayer = result.isSuccess
-        if (showPlayer) {
-          api.buildAlbum { currentAlbum = it }
-          api.buildTrack { currentTrack = it }
-          api.buildArtist { currentArtist = it }
-        }
-      })
+  LaunchedEffect(Unit) {
+    api.getPlaybackState { result ->
+      showPlayer = result.isSuccess
+      if (showPlayer) {
+        api.buildAlbum { currentAlbum = it }
+        api.buildTrack { currentTrack = it }
+        api.buildArtist { currentArtist = it }
+      }
+    }
+  }
 
   if (showPlayer) {
     Row(
@@ -470,12 +472,12 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
             if (currentTrack.state == State.PAUSE) {
               api.playPlayback {
                 isPlaying = true
-                currentTrack.state = State.PLAY
+                currentTrack = currentTrack.copy(state = State.PLAY)
               }
             } else {
               api.pausePlayback {
                 isPlaying = false
-                currentTrack.state = State.PAUSE
+                currentTrack = currentTrack.copy(state = State.PAUSE)
               }
             }
           }) {
@@ -497,16 +499,17 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
       // Skip button
       IconButton(
           onClick = {
-            api.skipSong {}
-            api.getPlaybackState(
-                onResult = { result ->
-                  showPlayer = result.isSuccess
-                  if (showPlayer) {
-                    api.buildAlbum { currentAlbum = it }
-                    api.buildTrack { currentTrack = it }
-                    api.buildArtist { currentArtist = it }
-                  }
-                })
+            api.skipSong {
+              api.getPlaybackState { result ->
+                showPlayer = result.isSuccess
+                if (showPlayer) {
+                  // Update track, album, and artist after skipping song to trigger recomposition
+                  api.buildAlbum { newAlbum -> currentAlbum = newAlbum }
+                  api.buildTrack { newTrack -> currentTrack = newTrack }
+                  api.buildArtist { newArtist -> currentArtist = newArtist }
+                }
+              }
+            }
           }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
