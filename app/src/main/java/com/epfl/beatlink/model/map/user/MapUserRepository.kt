@@ -9,7 +9,7 @@ interface MapUsersRepository {
   fun init(onSuccess: () -> Unit)
 
   /**
-   * Retrieve the map users within a given radius using GeoFire.
+   * Retrieve all map users within a given radius.
    *
    * @param currentUserLocation The current location of the user.
    * @param radiusInMeters The radius within which users will be queried (in meters).
@@ -24,7 +24,7 @@ interface MapUsersRepository {
   )
 
   /**
-   * Add a new MapUser to Firebase Realtime Database.
+   * Add a new MapUser to Firestore.
    *
    * @param mapUser The MapUser object to add.
    * @param onSuccess Callback for successful addition.
@@ -42,7 +42,7 @@ interface MapUsersRepository {
   fun updateMapUser(mapUser: MapUser, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Delete the current user's MapUser data from Firebase Realtime Database.
+   * Delete the current user's MapUser data from Firestore.
    *
    * @param onSuccess Callback for successful deletion.
    * @param onFailure Callback that is invoked if an error occurs.
