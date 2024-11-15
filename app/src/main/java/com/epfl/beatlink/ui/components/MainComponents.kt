@@ -41,7 +41,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
@@ -410,7 +410,7 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun MusicPlayerUI(api: SpotifyApiViewModel) {
+fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
   var showPlayer by remember { mutableStateOf(false) }
   var isPlaying by remember { mutableStateOf(false) }
@@ -420,14 +420,13 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
   var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
   var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
-  LaunchedEffect(Unit) {
-    api.getPlaybackState { result ->
-      showPlayer = result.isSuccess
-      if (showPlayer) {
-        api.buildAlbum { currentAlbum = it }
-        api.buildTrack { currentTrack = it }
-        api.buildArtist { currentArtist = it }
-      }
+  api.getPlaybackState { result ->
+    showPlayer = result.isSuccess
+    if (showPlayer) {
+      api.buildAlbum { currentAlbum = it }
+      api.buildTrack { currentTrack = it }
+      api.buildArtist { currentArtist = it }
+      mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
     }
   }
 
@@ -507,6 +506,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel) {
                   api.buildAlbum { newAlbum -> currentAlbum = newAlbum }
                   api.buildTrack { newTrack -> currentTrack = newTrack }
                   api.buildArtist { newArtist -> currentArtist = newArtist }
+                  mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
                 }
               }
             }
