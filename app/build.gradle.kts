@@ -227,6 +227,12 @@ dependencies {
     globalTestImplementation(libs.compose.test.junit)
     debugImplementation(libs.compose.test.manifest)
 
+    // For unit tests
+    testImplementation(libs.mockk)
+
+    // For Android instrumented tests
+    androidTestImplementation(libs.mockk.android)
+
     // --------- Kaspresso test framework ----------
     globalTestImplementation(libs.kaspresso)
     globalTestImplementation(libs.kaspresso.compose)

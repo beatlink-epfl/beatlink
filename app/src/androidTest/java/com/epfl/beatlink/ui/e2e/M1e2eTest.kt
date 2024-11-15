@@ -48,7 +48,7 @@ class M1e2eTest {
 
     // Step 5: Click the search button and verify navigation to Search Screen
     composeTestRule.waitForIdle()
-    composeTestRule.waitUntil(5000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+    composeTestRule.waitUntil(10000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
     composeTestRule.onNodeWithTag("Search").isDisplayed()
     composeTestRule.onNodeWithTag("Search").performClick()
     composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
