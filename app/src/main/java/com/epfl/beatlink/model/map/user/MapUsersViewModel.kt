@@ -21,21 +21,16 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
   private var _mapUser = MutableStateFlow<MapUser?>(null)
   private val _authState = MutableStateFlow<Boolean>(false)
   private val _playbackState = MutableStateFlow<CurrentPlayingTrack?>(null)
-  private val _playbackStateFetched = MutableStateFlow<Boolean>(false)
 
   // Public immutable StateFlows for observers
   val mapUsers: StateFlow<List<MapUser>> = _mapUsers.asStateFlow()
   val mapUser: StateFlow<MapUser?> = _mapUser.asStateFlow()
   val authState: StateFlow<Boolean> = _authState.asStateFlow()
   val playbackState: StateFlow<CurrentPlayingTrack?> = _playbackState.asStateFlow()
-  val playbackStateFetched: StateFlow<Boolean> = _playbackStateFetched.asStateFlow()
 
   init {
     // Initialize repository and listen to authentication state
-    repository.init {
-      _authState.value = true
-      Log.d("TRUE", "TRUE")
-    }
+    repository.init { _authState.value = true }
   }
 
   /** Fetch users within a certain radius from a given location. */
@@ -51,22 +46,18 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
 
   /** Add a new user to the database. */
   fun addMapUser(username: String, location: Location) {
-    Log.d("ADD", "ADD")
     viewModelScope.launch {
       _mapUser.value =
           _playbackState.value?.let {
             MapUser(username = username, currentPlayingTrack = it, location = location)
           }
       _mapUser.value?.let { Log.d("info", it.username) }
-      Log.d("add", "added")
       _mapUser.value?.let {
         repository.addMapUser(
             it,
             onSuccess = { fetchMapUsers(it.location, 1000.0) }, // Optionally refresh nearby users
             onFailure = { Log.d("failure", "failure") })
       }
-      _playbackStateFetched.value = false
-      Log.d("FALSE", "FALSE")
     }
   }
 
@@ -86,8 +77,6 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
             onSuccess = { fetchMapUsers(it.location, 1000.0) }, // Optionally refresh nearby users
             onFailure = { /* Handle any failures as needed */})
       }
-      _playbackStateFetched.value = false
-      Log.d("FALSE", "FALSE")
     }
   }
 
@@ -109,12 +98,8 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
               artistName = artist.name,
               albumName = album.name,
               albumCover = album.cover)
-      Log.d("HERE UP", "HERE UP")
-      _playbackStateFetched.value = true
       if (track.name.isEmpty() && artist.name.isEmpty() && album.name.isEmpty()) {
-        Log.d("HERE UP1", "HERE UP1")
         if (_mapUser.value != null) {
-          Log.d("HERE UP2", "HERE UP2")
           deleteMapUser()
         }
         _playbackState.value = null

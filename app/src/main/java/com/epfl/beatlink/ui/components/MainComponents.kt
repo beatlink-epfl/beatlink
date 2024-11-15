@@ -2,7 +2,6 @@ package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -427,7 +426,6 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       api.buildAlbum { currentAlbum = it }
       api.buildTrack { currentTrack = it }
       api.buildArtist { currentArtist = it }
-      Log.d("PLAYER", "PLAYER")
       mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
     }
   }
