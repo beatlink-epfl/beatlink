@@ -262,6 +262,38 @@ class MapUsersRepositoryFirestoreTest {
   }
 
   @Test
+  fun documentToMapUser_convertsDocumentSnapshotToMapUserCorrectly() {
+    // Set up a mock DocumentSnapshot with valid data
+    val location = mapOf("latitude" to 46.5191, "longitude" to 6.5668)
+    val currentPlayingTrack =
+        mapOf(
+            "songName" to "Imagine",
+            "artistName" to "John Lennon",
+            "albumName" to "Imagine",
+            "albumPicture" to "some_url")
+
+    `when`(mockDocumentSnapshot.get("location")).thenReturn(location)
+    `when`(mockDocumentSnapshot.get("currentPlayingTrack")).thenReturn(currentPlayingTrack)
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUser")
+
+    // Call documentToMapUser
+    val result = mapUsersRepositoryFirestore.documentToMapUser(mockDocumentSnapshot)
+
+    // Verify that the result is a MapUser with the expected values
+    val expectedLocation = Location(latitude = 46.5191, longitude = 6.5668)
+    val expectedTrack =
+        CurrentPlayingTrack(
+            songName = "Imagine",
+            artistName = "John Lennon",
+            albumName = "Imagine",
+            albumCover = "some_url")
+    val expectedMapUser =
+        MapUser(
+            username = "testUser", currentPlayingTrack = expectedTrack, location = expectedLocation)
+    assertEquals(expectedMapUser, result)
+  }
+
+  @Test
   fun mapUserToMap_convertsMapUserToMapCorrectly() {
     // Set up a MapUser object
     val location = Location(latitude = 46.5191, longitude = 6.5668) // Example coordinates
