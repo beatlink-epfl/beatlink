@@ -194,10 +194,10 @@ dependencies {
 
 
 
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation ("com.firebase:geofire-android:3.2.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore.ktx)
+    implementation (libs.geofire.android)
 
 
     // ------------- Jetpack Compose ------------------

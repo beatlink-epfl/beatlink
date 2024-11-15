@@ -19,14 +19,10 @@ import com.epfl.beatlink.ui.BeatLinkApp
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
-import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
   private val client = OkHttpClient()
-
-  // Firebase Auth
-  private lateinit var auth: FirebaseAuth
 
   // Spotify Auth
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel

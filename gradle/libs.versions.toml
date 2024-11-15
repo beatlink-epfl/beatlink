@@ -1,9 +1,7 @@
 [versions]
-androidxJunit = "1.2.1"
-composeBomVersion = "2023.08.00"
-core = "1.6.1"
 coreTesting = "2.2.0"
-espressoCoreVersion = "3.6.1"
+firebaseBom = "33.4.0"
+geofireAndroid = "3.2.0"
 json = "20240303"
 kotlinxCoroutinesPlayServices = "1.7.3"
 kotlinxCoroutinesTest = "1.7.3"
@@ -14,12 +12,8 @@ coreKtx = "1.12.0"
 ktfmt = "0.17.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-mockitoAndroidVersion = "5.11.0"
-mockitoCoreVersion = "3.11.2"
 mockkMockk = "1.13.5"
-navigationTesting = "2.8.2"
 robolectricVersion = "4.7.3"
-runner = "1.6.2"
 uiTestJunit4 = "1.6.8"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
@@ -48,27 +42,20 @@ mockkAgent = "1.13.7"
 mockkAndroid = "1.13.7"
 
 # Google Service and Maps
-playServicesAuth = "21.2.0"
 playServicesMaps = "19.0.0"
 mapsCompose = "4.3.3"
 mapsComposeUtils = "4.3.0"
 playServicesLocation = "21.3.0"
-uiTestJunit4Android = "1.7.3"
-uiTestJunit4Version = "1.4.0"
 firebaseCommonKtx = "21.0.0"
-firebaseFirestore = "25.1.1"
 firebaseAuthKtx = "23.1.0"
 
 [libraries]
-androidx-compose-bom-v20230800 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
-androidx-core = { module = "androidx.test:core", version.ref = "core" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
-androidx-espresso-core-v361 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
-androidx-junit-v121 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
-androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationTesting" }
-androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
-androidx-ui-test-junit4-v140 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestJunit4Version" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
+geofire-android = { module = "com.firebase:geofire-android", version.ref = "geofireAndroid" }
 json = { module = "org.json:json", version.ref = "json" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -101,8 +88,6 @@ kaspresso-compose = { group = "com.kaspersky.android-components", name = "kaspre
 kaspresso-allure-support = { module = "com.kaspersky.android-components:kaspresso-allure-support", version.ref = "kaspressoAllureSupport" }
 kaspresso-compose-support = { module = "com.kaspersky.android-components:kaspresso-compose-support", version.ref = "kaspressoComposeSupport" }
 
-mockito-android-v5110 = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroidVersion" }
-mockito-core-v3112 = { module = "org.mockito:mockito-core", version.ref = "mockitoCoreVersion" }
 mockk-v1135 = { module = "io.mockk:mockk", version.ref = "mockkMockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
@@ -119,7 +104,6 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-compose-utils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "mapsComposeUtils" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 robolectric-v473 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
