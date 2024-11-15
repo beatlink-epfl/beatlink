@@ -56,7 +56,7 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
         repository.addMapUser(
             it,
             onSuccess = { fetchMapUsers(it.location, 1000.0) }, // Optionally refresh nearby users
-            onFailure = { Log.d("failure", "failure") })
+            onFailure = {})
       }
     }
   }
@@ -64,11 +64,11 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
   /** Update an existing user in the database. */
   fun updateMapUser(location: Location) {
     viewModelScope.launch {
-      Log.d("UPDATE", "UPDATE")
       _mapUser.value =
           _mapUser.value?.let {
-            _playbackState.value?.let { it1 ->
-              MapUser(username = it.username, currentPlayingTrack = it1, location = location)
+            _playbackState.value?.let { playBackState ->
+              MapUser(
+                  username = it.username, currentPlayingTrack = playBackState, location = location)
             }
           }
       _mapUser.value?.let {
