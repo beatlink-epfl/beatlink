@@ -1,5 +1,7 @@
 package com.epfl.beatlink.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,6 +35,7 @@ import com.epfl.beatlink.ui.search.SearchScreen
 import com.epfl.beatlink.ui.search.TrendingSongsScreen
 import com.google.android.gms.location.LocationServices
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun BeatLinkApp(
     spotifyAuthViewModel: SpotifyAuthViewModel,
@@ -60,7 +63,7 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel) }
+      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel, spotifyApiViewModel) }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
@@ -81,7 +84,7 @@ fun BeatLinkApp(
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
-      composable(Screen.EDIT_PROFILE) { EditProfileScreen(navigationActions) }
+      composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
     }
   }
 }

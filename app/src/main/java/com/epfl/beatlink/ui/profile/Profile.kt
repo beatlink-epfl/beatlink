@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,13 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.R
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.PageTopAppBar
+import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -79,7 +76,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
           HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
           Row(modifier = Modifier.padding(16.dp)) {
-            ProfilePicture(profileData?.profilePicture ?: R.drawable.default_profile_picture)
+            ProfilePicture(profileData?.profilePicture)
             Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(
@@ -124,13 +121,4 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
               modifier = Modifier.padding(horizontal = 28.dp).testTag("bio"))
         }
       })
-}
-
-@Composable
-fun ProfilePicture(id: Int) {
-  // Profile picture
-  Image(
-      painter = painterResource(id = id),
-      contentDescription = "Profile Picture",
-      modifier = Modifier.size(100.dp).testTag("profilePicture"))
 }
