@@ -48,7 +48,7 @@ class WelcomeScreenTest {
     composeTestRule.onNodeWithTag("signUpButton").performScrollTo().assertIsDisplayed()
 
     // Check if the login button is displayed
-    composeTestRule.onNodeWithTag("loginButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().assertIsDisplayed()
   }
 
   @Test
@@ -56,7 +56,7 @@ class WelcomeScreenTest {
     composeTestRule.setContent { WelcomeScreen(navigationActions) }
 
     // Perform click action on the sign-in button
-    composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
+    composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().performClick()
 
     verify(navigationActions).navigateTo(Screen.LOGIN)
   }

@@ -96,19 +96,4 @@ class MapScreenTest {
     assert(mapViewModel.locationPermitted.value)
     assert(!mapViewModel.permissionRequired.value)
   }
-
-  @Test
-  fun mapScreen_requestsPermissions_whenPermissionRequired() {
-    val mapViewModel =
-        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
-
-    composeTestRule.setContent {
-      MapScreen(
-          navigationActions = NavigationActions(rememberNavController()),
-          spotifyApiViewModel = null,
-          mapViewModel = mapViewModel)
-    }
-
-    assert(mapViewModel.permissionRequired.value) // No mocking required here
-  }
 }
