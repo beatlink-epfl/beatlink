@@ -24,7 +24,7 @@ import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 
-const val defaultZoom = 17f
+const val defaultZoom = 16f
 const val radius = 200.0
 
 enum class CameraAction {

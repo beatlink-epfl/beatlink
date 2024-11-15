@@ -19,6 +19,7 @@ private val DarkColorScheme =
     darkColorScheme(
         primary = darkThemeWhite, // text
         onPrimary = darkThemeLightPurple,
+        primaryContainer = darkThemeGray1, // text user
         secondary = darkThemeLightPurple,
         onSecondary = darkThemeLightPurple,
         tertiary = darkThemePurple, // music listening box
@@ -29,12 +30,14 @@ private val DarkColorScheme =
         onSurface = CircleStrokeColorDark, // radius circle stroke
         surfaceVariant = darkThemeGray1,
         onSurfaceVariant = darkThemeGray2,
-        error = PrimaryRed)
+        error = PrimaryRed,
+        outline = ShadowColor) // shadow of the box
 
 private val LightColorScheme =
     lightColorScheme(
         primary = PrimaryPurple, // text
         onPrimary = PrimaryPurple,
+        primaryContainer = PrimaryGray, // text user
         secondary = PrimaryRed,
         onSecondary = SecondaryPurple,
         tertiary = lightThemePurple, // music listening box
@@ -45,7 +48,8 @@ private val LightColorScheme =
         onSurface = CircleStrokeColor, // radius circle stroke
         surfaceVariant = lightThemeBackground,
         onSurfaceVariant = lightThemeBackground,
-        error = PrimaryRed)
+        error = PrimaryRed,
+        outline = ShadowColor) // shadow of the box
 
 @Composable
 fun BeatLinkAppTheme(
