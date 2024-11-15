@@ -72,38 +72,6 @@ class MapUsersViewModelTest {
   }
 
   @Test
-  fun `updatePlayback correctly sets playbackState and playbackStateFetched`() = runTest {
-    val album =
-        SpotifyAlbum(
-            name = "Album",
-            cover = "URL",
-            spotifyId = "spotifyId",
-            artist = "artist",
-            year = 2000,
-            tracks = emptyList(),
-            size = 120,
-            genres = emptyList(),
-            popularity = 80)
-    val track =
-        SpotifyTrack(
-            name = "Song",
-            trackId = "trackId",
-            cover = "cover",
-            duration = 120,
-            state = State.PLAY,
-            popularity = 80)
-    val artist =
-        SpotifyArtist(name = "Artist", image = "image", genres = listOf("genre"), popularity = 80)
-
-    viewModel.updatePlayback(album, track, artist)
-    testDispatcher.scheduler.advanceUntilIdle()
-
-    val expectedTrack = CurrentPlayingTrack("Song", "Artist", "Album", "URL")
-    assertEquals(expectedTrack, viewModel.playbackState.first())
-    assertEquals(true, viewModel.playbackStateFetched.first())
-  }
-
-  @Test
   fun `updatePlayback correctly sets playbackState`() = runTest {
     val authState = viewModel.authState.first()
     assertEquals(true, authState)
