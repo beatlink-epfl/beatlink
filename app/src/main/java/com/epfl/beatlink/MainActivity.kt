@@ -1,9 +1,11 @@
 package com.epfl.beatlink
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -28,6 +30,7 @@ class MainActivity : ComponentActivity() {
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
   private val spotifyAuthRepository = SpotifyAuthRepository(client)
 
+  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 

@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -40,12 +41,14 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
@@ -56,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -65,7 +69,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -77,6 +84,7 @@ import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
@@ -402,48 +410,33 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 }
 
 @Composable
-fun MusicPlayerUI(connectedDevice: Boolean) {
+fun MusicPlayerUI(api: SpotifyApiViewModel) {
 
-  var trackState by remember { mutableStateOf(State.PAUSE) }
-  val playerBackgroundColor = Color(0xFFE0DAE5)
+  var showPlayer by remember { mutableStateOf(false) }
+  var isPlaying by remember { mutableStateOf(false) }
+  var currentAlbum by remember {
+    mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
+  }
+  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
+  var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
-  if (connectedDevice) {
-    // get those variables with api calls in the future and
-    // stock them in the objects and pass these objects as arguments
-    // to this function instead of hardcoding like below
-    val track =
-        SpotifyTrack(
-            name = "song_name",
-            trackId = "songId",
-            cover = "songCover",
-            duration = 120,
-            popularity = 80,
-            state = trackState)
+  LaunchedEffect(Unit) {
+    api.getPlaybackState { result ->
+      showPlayer = result.isSuccess
+      if (showPlayer) {
+        api.buildAlbum { currentAlbum = it }
+        api.buildTrack { currentTrack = it }
+        api.buildArtist { currentArtist = it }
+      }
+    }
+  }
 
-    val artist =
-        SpotifyArtist(
-            image = "artistImage",
-            name = "artistName",
-            genres = listOf("genre1", "genre2"),
-            popularity = 70)
-
-    val album =
-        SpotifyAlbum(
-            spotifyId = "albumId",
-            name = "albumName",
-            cover = "albumCover",
-            artist = "albumArtist",
-            year = 2010,
-            tracks = listOf(track),
-            size = 1,
-            genres = listOf("genres1", "genres2"),
-            popularity = 60)
-
+  if (showPlayer) {
     Row(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = playerBackgroundColor) // TBD if...else...
+                .background(color = SecondaryGray) // TBD if...else...
                 .testTag("playerContainer"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -451,22 +444,24 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
       Card(
           modifier =
               Modifier.padding(start = 11.dp, top = 11.dp, bottom = 11.dp)
-                  .testTag(track.name + "songCardContainer")
+                  .testTag("songCardContainer")
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
       ) {
         Image(
             painter = painterResource(id = R.drawable.default_profile_picture),
             contentDescription = null, // Provide a description for accessibility
-            modifier = Modifier.fillMaxSize().testTag(track.cover))
+            modifier = Modifier.fillMaxSize())
       }
 
       Spacer(modifier = Modifier.width(8.dp))
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = track.name, style = TypographySongs.titleLarge)
-        Text(text = "${artist.name} - ${album.name}", style = TypographySongs.titleSmall)
+        Text(text = currentTrack.name, style = TypographySongs.titleLarge)
+        Text(
+            text = "${currentArtist.name} - ${currentAlbum.name}",
+            style = TypographySongs.titleSmall)
       }
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -474,19 +469,25 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
       // Play/Stop button
       IconButton(
           onClick = {
-            if (trackState == State.PAUSE) {
-              trackState = State.PLAY
+            if (currentTrack.state == State.PAUSE) {
+              api.playPlayback {
+                isPlaying = true
+                currentTrack = currentTrack.copy(state = State.PLAY)
+              }
             } else {
-              trackState = State.PAUSE
+              api.pausePlayback {
+                isPlaying = false
+                currentTrack = currentTrack.copy(state = State.PAUSE)
+              }
             }
           }) {
-            if (track.state == State.PLAY) {
+            if (currentTrack.state == State.PLAY) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
                   modifier = Modifier.size(35.dp).testTag("pauseButton"))
-            } else {
+            } else if (currentTrack.state == State.PAUSE) {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
@@ -497,8 +498,19 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
 
       // Skip button
       IconButton(
-          onClick = {} // skip
-          ) {
+          onClick = {
+            api.skipSong {
+              api.getPlaybackState { result ->
+                showPlayer = result.isSuccess
+                if (showPlayer) {
+                  // Update track, album, and artist after skipping song to trigger recomposition
+                  api.buildAlbum { newAlbum -> currentAlbum = newAlbum }
+                  api.buildTrack { newTrack -> currentTrack = newTrack }
+                  api.buildArtist { newArtist -> currentArtist = newArtist }
+                }
+              }
+            }
+          }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
                 contentDescription = "Skip",
@@ -511,7 +523,7 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(playerBackgroundColor) // TBD if...else...
+                .background(SecondaryGray) // TBD if...else...
                 .padding(horizontal = 32.dp, vertical = 26.dp)
                 .testTag("noPlayerContainer"),
         horizontalArrangement = Arrangement.Center,
@@ -533,15 +545,28 @@ fun MusicPlayerUI(connectedDevice: Boolean) {
 
 @Composable
 fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
-  Box(
+  Box(modifier = Modifier.size(32.dp).background(color = backgroundColor, shape = CircleShape)) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "Edit",
+        tint = LightGray,
+        modifier = Modifier.padding(6.dp))
+  }
+}
+
+@Composable
+fun ProfilePicture(id: Uri?) {
+  // Profile picture
+  Image(
+      painter =
+          if (id == null) painterResource(id = R.drawable.default_profile_picture)
+          else
+              rememberAsyncImagePainter(
+                  model = ImageRequest.Builder(LocalContext.current).data(id).build()),
+      contentDescription = "Profile Picture",
       modifier =
-          Modifier.size(32.dp)
-              .background(color = backgroundColor, shape = CircleShape)
-              .clickable { /* Handle click */}) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "Edit",
-            tint = LightGray,
-            modifier = Modifier.padding(6.dp))
-      }
+          Modifier.size(100.dp)
+              .testTag("profilePicture")
+              .clip(CircleShape)
+              .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
 }

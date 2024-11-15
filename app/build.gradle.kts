@@ -176,12 +176,20 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // ------------- Firebase ------------------
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.google.firebase.auth)
+    implementation(libs.google.firebase.firestore.ktx)
+    implementation(libs.firebase.storage)
+    implementation (libs.geofire.android)
+
     configurations {
         getByName("androidTestImplementation") {
             exclude(module = "protobuf-lite")
@@ -238,6 +246,8 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
     testImplementation(libs.json)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
     // Test UI
     androidTestImplementation(libs.androidx.junit)
@@ -258,6 +268,9 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
+    // Coil for image loading
+    implementation (libs.coil.compose)
+
 }
 
 tasks.withType<Test> {

@@ -7,27 +7,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 
-const val defaultZoom = 17f
+const val defaultZoom = 16f
 const val radius = 200.0
 
 enum class CameraAction {
@@ -36,8 +31,11 @@ enum class CameraAction {
 }
 
 @Composable
-fun MapScreen(navigationActions: NavigationActions, mapViewModel: MapViewModel) {
-
+fun MapScreen(
+    navigationActions: NavigationActions,
+    mapViewModel: MapViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel?
+) {
   // Permission launcher to handle permission request
   val permissionLauncher =
       rememberLauncherForActivityResult(
@@ -61,8 +59,6 @@ fun MapScreen(navigationActions: NavigationActions, mapViewModel: MapViewModel) 
   val locationPermitted by mapViewModel.locationPermitted
   val isMapLoaded by mapViewModel.isMapLoaded
 
-  var connectedDevice by remember { mutableStateOf(false) }
-
   Scaffold(
       bottomBar = {
         BottomNavigationMenu(
@@ -83,17 +79,11 @@ fun MapScreen(navigationActions: NavigationActions, mapViewModel: MapViewModel) 
             } else {
               Text("Loading map...", modifier = Modifier.padding(16.dp))
             }
-
-            Button(
-                onClick = { connectedDevice = !connectedDevice },
-                modifier = Modifier.align(Alignment.BottomCenter).testTag("deviceButton")) {
-                  Text(
-                      if (connectedDevice) "Disconnect Device" else "Connect Device",
-                      color = Color.White)
-                }
           }
 
-          MusicPlayerUI(connectedDevice = connectedDevice)
+          if (spotifyApiViewModel != null) {
+            MusicPlayerUI(spotifyApiViewModel)
+          }
         }
       }
 }
