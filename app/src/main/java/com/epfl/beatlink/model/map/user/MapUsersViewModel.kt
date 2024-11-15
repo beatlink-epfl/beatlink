@@ -101,35 +101,6 @@ open class MapUsersViewModel(private val repository: MapUsersRepository) : ViewM
     }
   }
 
-  // Update playback state only
-  //    fun updatePlayback(json: JSONObject) {
-  //        Log.d("FIRST HERE", "FIRST HERE")
-  //        if (_authState.value) {
-  //            Log.d("AUTH YES", "AUTH YES")
-  //            val currentTrackJson = json.optJSONObject("item")
-  //            if (currentTrackJson != null) {
-  //                val songName = currentTrackJson.getString("name")
-  //                val artistName =
-  //                    currentTrackJson.getJSONArray("artists").getJSONObject(0).getString("name")
-  //                val albumName = currentTrackJson.getJSONObject("album").getString("name")
-  //                val albumCover = currentTrackJson.getJSONObject("album")
-  //                    .getJSONArray("images").getJSONObject(0).getString("url")
-  //
-  //                Log.d("newTrack","newTrack")
-  //
-  //                _playbackState.value =
-  //                    CurrentPlayingTrack(songName, artistName, albumName, albumCover)
-  //
-  //            } else {
-  //                if(_mapUser.value != null){
-  //                    _mapUser.value = null
-  //                    deleteMapUser()
-  //                }
-  //                _playbackState.value = null
-  //            }
-  //        }
-  //    }
-
   fun updatePlayback(album: SpotifyAlbum, track: SpotifyTrack, artist: SpotifyArtist) {
     if (_authState.value) {
       _playbackState.value =

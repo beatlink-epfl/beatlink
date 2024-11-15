@@ -25,7 +25,6 @@ fun MapUserTrackingView(
   val mapUser by mapUsersViewModel.mapUser.collectAsState()
   val profile by profileViewModel.profile.collectAsState()
   val locationPermitted by mapViewModel.locationPermitted
-  val playbackStateFetched by mapUsersViewModel.playbackStateFetched.collectAsState()
 
   LaunchedEffect(currentPosition, locationPermitted) {
     profileViewModel.fetchProfile()
