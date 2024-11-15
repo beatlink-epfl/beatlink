@@ -11,16 +11,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.model.authentication.FirebaseAuthRepository
-import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileRepositoryFirestore
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import io.mockk.coVerify
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
 class ProfileBuildScreenTest {
@@ -28,17 +30,17 @@ class ProfileBuildScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
-  private lateinit var firebaseAuthViewModel: FirebaseAuthViewModel
-  private lateinit var firebaseAuthRepository: FirebaseAuthRepository
+  private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var profileRepository: ProfileRepositoryFirestore
 
   @Before
   fun setUp() {
-    navigationActions = mock(NavigationActions::class.java)
-    firebaseAuthRepository = mock(FirebaseAuthRepository::class.java)
-    firebaseAuthViewModel = FirebaseAuthViewModel(firebaseAuthRepository)
+    navigationActions = mockk(relaxed = true)
+    profileRepository = mockk(relaxed = true)
+    profileViewModel = ProfileViewModel(profileRepository)
 
     // Set the content for the composable
-    composeTestRule.setContent { ProfileBuildScreen(navigationActions, firebaseAuthViewModel) }
+    composeTestRule.setContent { ProfileBuildScreen(navigationActions, profileViewModel) }
   }
 
   @Test
@@ -121,8 +123,9 @@ class ProfileBuildScreenTest {
   }
 
   @Test
-  fun saveButtonNavigatesToHomeScreen() {
+  fun saveButtonUpdatesProfileAndNavigatesToHomeScreen() {
     composeTestRule.onNodeWithTag("saveButton").performScrollTo().performClick()
-    verify(navigationActions).navigateTo(Screen.HOME)
+    coVerify { profileRepository.updateProfile(any(), any<ProfileData>()) }
+    verify { navigationActions.navigateTo(Screen.HOME) }
   }
 }
