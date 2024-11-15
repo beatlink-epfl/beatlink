@@ -166,11 +166,21 @@ val TypographySongs =
         // Artist / Album name in rectangle view
         titleMedium =
             TextStyle(
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontFamily = FontFamily(Font(R.font.roboto)),
                 fontWeight = FontWeight(400),
                 color = PrimaryPurple,
                 letterSpacing = 0.5.sp,
+            ),
+        // Username in rectangle view
+        labelMedium =
+            TextStyle(
+                fontSize = 16.sp,
+                fontFamily = FontFamily(Font(R.font.roboto)),
+                fontWeight = FontWeight(400),
+                fontStyle = FontStyle.Italic,
+                color = PrimaryGray,
+                letterSpacing = 0.18.sp,
             ))
 
 /** Typography of the display of the playlist */
