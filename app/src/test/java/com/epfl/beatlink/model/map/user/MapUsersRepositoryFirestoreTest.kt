@@ -1,6 +1,8 @@
 package com.epfl.beatlink.model.map.user
 
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +27,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.robolectric.RobolectricTestRunner
+import kotlin.math.abs
 
 @RunWith(RobolectricTestRunner::class)
 class MapUsersRepositoryFirestoreTest {
@@ -34,12 +37,15 @@ class MapUsersRepositoryFirestoreTest {
   @Mock private lateinit var mockDocumentReference: DocumentReference
   @Mock private lateinit var mockCollectionReference: CollectionReference
   @Mock private lateinit var mockDocumentSnapshot: DocumentSnapshot
+  @Mock private lateinit var documentTask: Task<Void>
   @Mock private lateinit var mockQuerySnapshot: QuerySnapshot
+  @Mock private lateinit var querySnapshotTask: Task<QuerySnapshot>
   @Mock private lateinit var mockQuery: Query
   @Mock private lateinit var mockFirebaseAuth: FirebaseAuth
 
   private lateinit var mapUsersRepositoryFirestore: MapUsersRepositoryFirestore
 
+  private val radiusInMeters = 1000.0
   private val sampleLocation = Location(latitude = 46.5196535, longitude = 6.6322734)
   private val mapUser =
       MapUser(
@@ -84,33 +90,45 @@ class MapUsersRepositoryFirestoreTest {
 
   @Test
   fun getMapUsers_successful() {
-    // Mock the Firestore query chain
-    `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.whereLessThan(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+      // Mock the Firestore query chain
+      `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+      `when`(mockQuery.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+      `when`(mockQuery.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+      `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
 
-    // Mock the query snapshot to return a list of mock document snapshots
-    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
-    `when`(mockDocumentSnapshot.toObject(MapUser::class.java)).thenReturn(mapUser)
+      // Mock the query snapshot to return a list of mock document snapshots
+      `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+      `when`(mockDocumentSnapshot.toObject(MapUser::class.java)).thenReturn(mapUser)
 
-    mapUsersRepositoryFirestore.getMapUsers(
-        currentUserLocation = sampleLocation,
-        radiusInMeters = 1000.0,
-        onSuccess = { mapUsers -> assertEquals(mapUser, mapUsers[0]) },
-        onFailure = { fail("Failure callback should not be called") })
+      mapUsersRepositoryFirestore.getMapUsers(
+          currentUserLocation = sampleLocation,
+          radiusInMeters = 1000.0,
+          onSuccess = { mapUsers -> assertEquals(mapUser, mapUsers[0]) },
+          onFailure = { fail("Failure callback should not be called") })
   }
 
   @Test
   fun getMapUsers_failure() {
-    // Mock the Firestore query chain
-    `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.whereLessThan(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+      // Mock the Firestore query chain
+      `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+      `when`(mockQuery.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+      `when`(mockQuery.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
 
-    // Mock the query to return a failed task
-    val exception = Exception("Firestore query failed")
-    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+      // Mock the documents returned by the query
+      `when`(mapUsersRepositoryFirestore.documentToMapUser(mockDocumentSnapshot)).thenReturn(mapUser)
+
+      // Create a mock Task for Firestore async operation
+      val exception = Exception("Firestore query failed")
+      `when`(mockQuery.get()).thenReturn(querySnapshotTask)
+      `when`(querySnapshotTask.isSuccessful).thenReturn(false)
+      `when`(querySnapshotTask.exception).thenReturn(exception)
+
+      // Simulate adding the OnCompleteListener to mockTask
+      `when`(querySnapshotTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<QuerySnapshot>>(0)
+          listener.onComplete(querySnapshotTask)  // Simulate task completion
+          querySnapshotTask
+      }
 
     // Call getMapUsers and test the failure callback
     mapUsersRepositoryFirestore.getMapUsers(
@@ -123,14 +141,21 @@ class MapUsersRepositoryFirestoreTest {
   @Test
   fun addMapUser_shouldCallFirestoreCollection() {
     // Simulate success
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
+    `when`(mockDocumentReference.set(any())).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(true)
+
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
 
     mapUsersRepositoryFirestore.addMapUser(
         mapUser = mapUser,
         onSuccess = {},
         onFailure = { fail("Failure callback should not be called") })
 
-    // Ensure Firestore collection method was called to reference the "mapUsers" collection
     verify(mockDocumentReference).set(any())
   }
 
@@ -138,9 +163,17 @@ class MapUsersRepositoryFirestoreTest {
   fun addMapUser_failure_shouldCallFailureCallback() {
     // Simulate failure by returning a failed task
     val exception = Exception("Firestore set failed")
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forException(exception))
+    `when`(mockDocumentReference.set(any())).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(false)
+        `when`(documentTask.exception).thenReturn(exception)
 
-    // Call addMapUser and test the failure callback
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
+
     mapUsersRepositoryFirestore.addMapUser(
         mapUser = mapUser,
         onSuccess = { fail("Success callback should not be called") },
@@ -149,52 +182,131 @@ class MapUsersRepositoryFirestoreTest {
 
   @Test
   fun updateMapUser_shouldCallFirestoreCollection() {
-    // Simulate success
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
+      // Simulate success
+      `when`(mockDocumentReference.set(any())).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(true)
 
-    mapUsersRepositoryFirestore.updateMapUser(
-        mapUser = mapUser,
-        onSuccess = {},
-        onFailure = { fail("Failure callback should not be called") })
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
 
-    // Ensure Firestore collection method was called to update the map user document
-    verify(mockDocumentReference).set(any())
+      mapUsersRepositoryFirestore.updateMapUser(
+          mapUser = mapUser,
+          onSuccess = {},
+          onFailure = { fail("Failure callback should not be called") })
+
+      verify(mockDocumentReference).set(any())
   }
 
   @Test
   fun updateMapUser_failure_shouldCallFailureCallback() {
-    // Simulate failure by returning a failed task
-    val exception = Exception("Firestore update failed")
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forException(exception))
+      // Simulate failure by returning a failed task
+      val exception = Exception("Firestore set failed")
+      `when`(mockDocumentReference.set(any())).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(false)
+      `when`(documentTask.exception).thenReturn(exception)
 
-    // Call updateMapUser and test the failure callback
-    mapUsersRepositoryFirestore.updateMapUser(
-        mapUser = mapUser,
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { e -> assertEquals("Firestore update failed", e.message) })
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
+
+      mapUsersRepositoryFirestore.updateMapUser(
+          mapUser = mapUser,
+          onSuccess = { fail("Success callback should not be called") },
+          onFailure = { e -> assertEquals("Firestore set failed", e.message) })
   }
 
   @Test
   fun deleteMapUser_shouldCallFirestoreCollection() {
-    // Simulate success
-    `when`(mockDocumentReference.delete()).thenReturn(Tasks.forResult(null))
+      // Simulate success
+      `when`(mockDocumentReference.delete()).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(true)
 
-    mapUsersRepositoryFirestore.deleteMapUser(
-        onSuccess = {}, onFailure = { fail("Failure callback should not be called") })
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
 
-    // Ensure Firestore collection method was called to delete the map user document
-    verify(mockDocumentReference).delete()
+      mapUsersRepositoryFirestore.deleteMapUser(
+          onSuccess = {},
+          onFailure = { fail("Failure callback should not be called") })
+
+      verify(mockDocumentReference).delete()
   }
 
   @Test
   fun deleteMapUser_failure_shouldCallFailureCallback() {
-    // Simulate failure by returning a failed task
-    val exception = Exception("Firestore delete failed")
-    `when`(mockDocumentReference.delete()).thenReturn(Tasks.forException(exception))
+      // Simulate failure by returning a failed task
+      val exception = Exception("Firestore set failed")
+      `when`(mockDocumentReference.delete()).thenReturn(documentTask)
+      `when`(documentTask.isSuccessful).thenReturn(false)
+      `when`(documentTask.exception).thenReturn(exception)
 
-    // Call deleteMapUser and test the failure callback
-    mapUsersRepositoryFirestore.deleteMapUser(
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { e -> assertEquals("Firestore delete failed", e.message) })
+      // Invoke onCompleteListener for the mock task to simulate async completion
+      `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
+          val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
+          listener.onComplete(documentTask)
+          documentTask
+      }
+
+      mapUsersRepositoryFirestore.deleteMapUser(
+          onSuccess = { fail("Success callback should not be called") },
+          onFailure = { e -> assertEquals("Firestore set failed", e.message) })
   }
+
+    @Test
+    fun mapUserToMap_convertsMapUserToMapCorrectly() {
+        // Set up a MapUser object
+        val location = Location(latitude = 46.5191, longitude = 6.5668)  // Example coordinates
+        val track = CurrentPlayingTrack(
+            songName = "Imagine",
+            artistName = "John Lennon",
+            albumName = "Imagine",
+            albumCover = "some_url"
+        )
+        val mapUser = MapUser(username = "testUser", currentPlayingTrack = track, location = location)
+
+        // Call mapUserToMap function
+        val result = mapUsersRepositoryFirestore.mapUserToMap(mapUser)
+
+        // Verify that the returned map matches the expected structure
+        val expectedMap = mapOf(
+            "username" to "testUser",
+            "currentPlayingTrack" to mapOf(
+                "songName" to "Imagine",
+                "artistName" to "John Lennon",
+                "albumName" to "Imagine"
+            ),
+            "location" to mapOf(
+                "latitude" to 46.5191,
+                "longitude" to 6.5668
+            )
+        )
+        assertEquals(expectedMap, result)
+    }
+
+    @Test
+    fun haversineDistance_calculatesCorrectDistanceBetweenTwoLocations() {
+        // Arrange: Set up two known locations with coordinates
+        val loc1 = Location(latitude = 46.5191, longitude = 6.5668)
+        val loc2 = Location(latitude = 46.2044, longitude = 6.1432)
+
+        // Act: Calculate the Haversine distance between loc1 and loc2
+        val distance = mapUsersRepositoryFirestore.haversineDistance(loc1, loc2)
+
+        // Assert: Check if the distance is within an acceptable range of the known distance
+        val expectedDistance = 47800.0  // Approximate distance in meters
+        val tolerance = 50.0           // Allowable tolerance in meters
+        assertTrue("Distance was off by more than $tolerance meters", abs(distance - expectedDistance) <= tolerance)
+    }
+
+
 }

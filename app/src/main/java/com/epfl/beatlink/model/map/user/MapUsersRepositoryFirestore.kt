@@ -131,7 +131,7 @@ class MapUsersRepositoryFirestore(
    * @return A MapUser object populated with data from the document, or null if the conversion
    *   fails.
    */
-  private fun documentToMapUser(document: DocumentSnapshot): MapUser? {
+  fun documentToMapUser(document: DocumentSnapshot): MapUser? {
     return try {
       val locationData = document.get("location") as Map<String, Any>
       val location =
@@ -169,7 +169,7 @@ class MapUsersRepositoryFirestore(
    * @param mapUser The MapUser object to be converted.
    * @return A Map<String, Any> representation of the MapUser object suitable for Firestore storage.
    */
-  private fun mapUserToMap(mapUser: MapUser): Map<String, Any> {
+  fun mapUserToMap(mapUser: MapUser): Map<String, Any> {
     return mapOf(
         "username" to mapUser.username,
         "currentPlayingTrack" to
@@ -189,7 +189,7 @@ class MapUsersRepositoryFirestore(
    * @param loc2 The second location with latitude and longitude.
    * @return The distance between loc1 and loc2 in meters.
    */
-  private fun haversineDistance(loc1: Location, loc2: Location): Double {
+  fun haversineDistance(loc1: Location, loc2: Location): Double {
     val earthRadiusMeters = 6371000.0 // Earth's radius in meters
 
     val latDiff = Math.toRadians(loc2.latitude - loc1.latitude)
