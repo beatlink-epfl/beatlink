@@ -182,6 +182,18 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
 
     // ------------- Firebase ------------------
+    configurations {
+        getByName("androidTestImplementation") {
+            exclude(module = "protobuf-lite")
+        }
+    }
+
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
+
+
+
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore-ktx")

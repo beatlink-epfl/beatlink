@@ -19,7 +19,6 @@ import com.epfl.beatlink.ui.BeatLinkApp
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.OkHttpClient
 
@@ -35,10 +34,6 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    // Initialize Firebase
-    FirebaseApp.initializeApp(this)
-    auth = FirebaseAuth.getInstance()
 
     val spotifyAuthFactory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
     spotifyAuthViewModel =
