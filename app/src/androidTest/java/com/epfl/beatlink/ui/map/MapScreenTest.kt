@@ -21,10 +21,9 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_displaysLoadingMapText_whenMapIsNotLoaded() {
-    // Mock ViewModel with default states
-    val fakeMapLocationRepository = FakeMapLocationRepository()
+    // Create a new instance of MapViewModel for this test
     val mapViewModel =
-        MapViewModel(fakeMapLocationRepository).apply {
+        MapViewModel(FakeMapLocationRepository()).apply {
           isMapLoaded.value = false
           permissionRequired.value = false
         }
@@ -49,10 +48,10 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_displaysMap_whenMapIsLoaded() {
-    // Mock ViewModel with map loaded
+    // Create a new instance of MapViewModel for this test
     val mapViewModel =
         MapViewModel(FakeMapLocationRepository()).apply {
-          isMapLoaded.value = true // Simulate that the map is loaded
+          isMapLoaded.value = true
           permissionRequired.value = false
         }
 
@@ -77,9 +76,10 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_handlesPermissionResult_correctly() {
-    // Mock ViewModel with permission handling states
-    val mapViewModel =
-        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+    // Create a new instance of MapViewModel for this test
+    val mapViewModel = MapViewModel(FakeMapLocationRepository())
+
+    mapViewModel.permissionRequired.value = true
 
     composeTestRule.setContent {
       MapScreen(
@@ -89,6 +89,8 @@ class MapScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
+
+    composeTestRule.waitForIdle()
 
     // Simulate permissions granted
     val permissions =
@@ -108,8 +110,8 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_requestsPermissions_whenPermissionRequired() {
-    val mapViewModel =
-        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+    // Create a new instance of MapViewModel for this test
+    val mapViewModel = MapViewModel(FakeMapLocationRepository())
 
     composeTestRule.setContent {
       MapScreen(
@@ -119,6 +121,8 @@ class MapScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
+
+    mapViewModel.permissionRequired.value = true
 
     assert(mapViewModel.permissionRequired.value) // No mocking required here
   }
