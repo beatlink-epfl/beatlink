@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,9 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.playlist.PlaylistViewModel
-import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.components.AddButton
 import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.PlaylistCard
+import com.epfl.beatlink.ui.components.SearchButton
 import com.epfl.beatlink.ui.components.SongCard
 import com.epfl.beatlink.ui.components.TitleWithArrow
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -40,16 +38,8 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
             "My Library",
             "libraryTitle",
             listOf {
-              CornerIcons(
-                  onClick = {},
-                  icon = Icons.Outlined.Search,
-                  contentDescription = "Search",
-                  modifier = Modifier.testTag("searchButton"))
-              CornerIcons(
-                  onClick = { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) },
-                  icon = Icons.Outlined.Add,
-                  contentDescription = "Add playlist",
-                  modifier = Modifier.testTag("addPlaylistButton"))
+              SearchButton {}
+              AddButton { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) }
             })
       },
       bottomBar = {
@@ -73,7 +63,7 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
               }
 
           // PLAYLISTS
-          TitleWithArrow("PLAYLISTS") {}
+          TitleWithArrow("PLAYLISTS") { navigationActions.navigateTo(Screen.MY_PLAYLISTS) }
 
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),

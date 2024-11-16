@@ -22,6 +22,7 @@ import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
+import com.epfl.beatlink.ui.library.MyPlaylistsScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -90,6 +91,7 @@ fun BeatLinkApp(
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
+      composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {

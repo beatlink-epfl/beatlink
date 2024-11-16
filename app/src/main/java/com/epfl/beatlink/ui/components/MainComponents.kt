@@ -187,6 +187,7 @@ fun CustomInputField(
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 errorTextColor = MaterialTheme.colorScheme.error,
                 focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                 focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
         trailingIcon = {
           trailingIcon?.let {
