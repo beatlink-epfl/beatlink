@@ -7,6 +7,11 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.epfl.beatlink.ui.navigation.AppIcons.filledHome
+import com.epfl.beatlink.ui.navigation.AppIcons.filledLibrary
+import com.epfl.beatlink.ui.navigation.AppIcons.filledProfile
+import com.epfl.beatlink.ui.navigation.AppIcons.filledSearch
+import com.epfl.beatlink.ui.navigation.AppIcons.outlinedLibrary
 
 object Route {
   const val WELCOME = "Welcome"
@@ -24,6 +29,7 @@ object Screen {
   const val HOME = "Home Screen"
   const val SEARCH = "Search Screen"
   const val LIBRARY = "Library Screen"
+  const val MY_PLAYLISTS = "My Playlists Screen"
   const val CREATE_NEW_PLAYLIST = "Create New Playlist Screen"
     const val EDIT_PLAYLIST = "Edit playlist Screen"
     const val PLAYLIST_OVERVIEW = "Playlist Overview Screen"

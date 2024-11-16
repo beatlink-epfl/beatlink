@@ -11,11 +11,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepositoryFirestore
-import com.epfl.beatlink.model.profile.ProfileViewModel
+import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify

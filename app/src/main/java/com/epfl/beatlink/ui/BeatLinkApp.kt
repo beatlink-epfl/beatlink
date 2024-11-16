@@ -9,19 +9,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.epfl.beatlink.model.map.MapLocationRepository
-import com.epfl.beatlink.model.map.MapViewModel
-import com.epfl.beatlink.model.map.user.MapUsersViewModel
-import com.epfl.beatlink.model.playlist.PlaylistViewModel
-import com.epfl.beatlink.model.profile.ProfileViewModel
-import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.repository.map.MapLocationRepository
 import com.epfl.beatlink.ui.authentication.LoginScreen
 import com.epfl.beatlink.ui.authentication.ProfileBuildScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
-import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
+import com.epfl.beatlink.ui.library.MyPlaylistsScreen
 import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -35,6 +30,12 @@ import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
 import com.epfl.beatlink.ui.search.SearchBarScreen
 import com.epfl.beatlink.ui.search.SearchScreen
 import com.epfl.beatlink.ui.search.TrendingSongsScreen
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.map.MapViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.google.android.gms.location.LocationServices
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -91,6 +92,7 @@ fun BeatLinkApp(
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
+      composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
       composable(Screen.PLAYLIST_OVERVIEW) { PlaylistOverviewScreen(navigationActions, playlistViewModel) }
     }
 

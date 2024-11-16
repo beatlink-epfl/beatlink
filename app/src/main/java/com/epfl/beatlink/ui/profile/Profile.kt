@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.ProfilePicture
@@ -40,6 +39,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: NavigationActions) {
