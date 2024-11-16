@@ -7,11 +7,11 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.epfl.beatlink.model.navigation.AppIcons.filledHome
-import com.epfl.beatlink.model.navigation.AppIcons.filledLibrary
-import com.epfl.beatlink.model.navigation.AppIcons.filledProfile
-import com.epfl.beatlink.model.navigation.AppIcons.filledSearch
-import com.epfl.beatlink.model.navigation.AppIcons.outlinedLibrary
+import com.epfl.beatlink.ui.navigation.AppIcons.filledHome
+import com.epfl.beatlink.ui.navigation.AppIcons.filledLibrary
+import com.epfl.beatlink.ui.navigation.AppIcons.filledProfile
+import com.epfl.beatlink.ui.navigation.AppIcons.filledSearch
+import com.epfl.beatlink.ui.navigation.AppIcons.outlinedLibrary
 
 object Route {
   const val WELCOME = "Welcome"

@@ -1,4 +1,4 @@
-package com.epfl.beatlink.model.navigation
+package com.epfl.beatlink.ui.navigation
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
