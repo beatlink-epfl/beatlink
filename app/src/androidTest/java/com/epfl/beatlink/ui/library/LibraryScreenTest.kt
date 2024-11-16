@@ -5,9 +5,9 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import com.epfl.beatlink.model.playlist.Playlist
-import com.epfl.beatlink.model.playlist.PlaylistRepository
-import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.model.library.Playlist
+import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen

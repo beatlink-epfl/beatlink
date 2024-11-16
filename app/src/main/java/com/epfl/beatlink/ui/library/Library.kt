@@ -17,11 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.PageTopAppBar
-import com.epfl.beatlink.ui.components.PlaylistCard
-import com.epfl.beatlink.ui.components.SongCard
 import com.epfl.beatlink.ui.components.TitleWithArrow
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION

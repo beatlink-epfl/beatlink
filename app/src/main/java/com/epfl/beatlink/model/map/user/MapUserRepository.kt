@@ -1,6 +1,6 @@
 package com.epfl.beatlink.model.map.user
 
-interface MapUsersRepository {
+interface MapUserRepository {
   /**
    * Initialize the repository.
    *

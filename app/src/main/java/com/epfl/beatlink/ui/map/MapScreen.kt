@@ -15,10 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.map.MapViewModel
-import com.epfl.beatlink.model.map.user.MapUsersViewModel
-import com.epfl.beatlink.model.profile.ProfileViewModel
-import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.map.MapViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION

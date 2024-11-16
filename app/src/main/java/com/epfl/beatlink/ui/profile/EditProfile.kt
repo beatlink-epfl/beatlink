@@ -38,10 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
-import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
-import com.epfl.beatlink.model.profile.ProfileViewModel
+import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.repository.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
+import com.epfl.beatlink.repository.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton

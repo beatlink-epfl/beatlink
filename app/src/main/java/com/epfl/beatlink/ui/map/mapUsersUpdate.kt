@@ -4,20 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
-import com.epfl.beatlink.model.map.user.MapUsersViewModel
-import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
 fun MapUserTrackingView(
-    mapUsersViewModel: MapUsersViewModel,
-    mapViewModel: MapViewModel,
-    profileViewModel: ProfileViewModel,
-    radius: Double
+	mapUsersViewModel: MapUsersViewModel,
+	mapViewModel: MapViewModel,
+	profileViewModel: ProfileViewModel,
+	radius: Double
 ) {
   val currentPosition by mapViewModel.currentPosition
   val playbackState by mapUsersViewModel.playbackState.collectAsState()
@@ -58,7 +58,8 @@ fun mapUserHandling(
       mapUsersViewModel.addMapUser(
           username = it.username,
           location =
-              Location(latitude = currentPosition.latitude, longitude = currentPosition.longitude))
+              Location(latitude = currentPosition.latitude, longitude = currentPosition.longitude)
+      )
     }
   } else {
     val newLocation =
