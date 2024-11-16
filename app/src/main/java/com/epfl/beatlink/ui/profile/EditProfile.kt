@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.repository.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
 import com.epfl.beatlink.repository.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
-import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -50,6 +49,7 @@ import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

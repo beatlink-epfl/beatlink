@@ -10,10 +10,10 @@ import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
-import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
-import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

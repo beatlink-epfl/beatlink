@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.epfl.beatlink.repository.map.MapLocationRepository
 import com.epfl.beatlink.model.map.LocationRepository
+import com.epfl.beatlink.repository.map.MapLocationRepository
 import com.epfl.beatlink.ui.map.CameraAction
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch

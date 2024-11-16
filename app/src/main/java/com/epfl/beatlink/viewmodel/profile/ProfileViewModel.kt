@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
  * @param repository The repository to use for fetching and updating user profiles.
  */
 class ProfileViewModel(
-	private val repository: ProfileRepositoryFirestore,
-	initialProfile: ProfileData? = null
+    private val repository: ProfileRepositoryFirestore,
+    initialProfile: ProfileData? = null
 ) : ViewModel() {
   private val _profileImageUrl = MutableLiveData<String?>()
   val profileImageUrl: LiveData<String?>
@@ -68,8 +68,7 @@ class ProfileViewModel(
             val firebaseAuth = FirebaseAuth.getInstance()
             val firebaseStorage = FirebaseStorage.getInstance()
             return ProfileViewModel(
-                ProfileRepositoryFirestore(Firebase.firestore, firebaseAuth, firebaseStorage)
-			)
+                ProfileRepositoryFirestore(Firebase.firestore, firebaseAuth, firebaseStorage))
                 as T
           }
         }

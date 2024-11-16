@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow

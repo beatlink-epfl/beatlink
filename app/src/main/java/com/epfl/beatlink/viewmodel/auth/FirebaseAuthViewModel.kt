@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.epfl.beatlink.repository.authentication.FirebaseAuthRepositoryFirestore
 import com.epfl.beatlink.model.auth.AuthState
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.repository.authentication.FirebaseAuthRepositoryFirestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow

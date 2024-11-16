@@ -47,28 +47,22 @@ class MapUsersList {
             MapUser(
                 username = "melody_maven",
                 currentPlayingTrack = track1,
-                location = Location(latitude = 46.518680, 6.568270)
-            ),
+                location = Location(latitude = 46.518680, 6.568270)),
             MapUser(
                 username = "beats_fanatic",
                 currentPlayingTrack = track2,
-                location = Location(latitude = 46.518194, 6.569130)
-            ),
+                location = Location(latitude = 46.518194, 6.569130)),
             MapUser(
                 username = "pilot_listener",
                 currentPlayingTrack = track3,
-                location = Location(latitude = 46.51848, 6.56852)
-            ),
+                location = Location(latitude = 46.51848, 6.56852)),
             MapUser(
                 username = "ctrl_soul",
                 currentPlayingTrack = track4,
-                location = Location(latitude = 46.517956, 6.569550)
-            ),
+                location = Location(latitude = 46.517956, 6.569550)),
             MapUser(
                 username = "rihanna_rebel",
                 currentPlayingTrack = track5,
-                location = Location(latitude = 46.517878, 6.566991)
-            )
-        )
+                location = Location(latitude = 46.517878, 6.566991)))
   }
 }

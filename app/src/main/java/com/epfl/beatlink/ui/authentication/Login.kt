@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.R
-import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
+import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,10 +131,10 @@ fun LoginScreen(
 
 @Composable
 fun LoginFirebaseButton(
-	authViewModel: FirebaseAuthViewModel,
-	email: String,
-	password: String,
-	context: Context
+    authViewModel: FirebaseAuthViewModel,
+    email: String,
+    password: String,
+    context: Context
 ) {
 
   Box(

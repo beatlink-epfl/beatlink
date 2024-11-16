@@ -35,10 +35,10 @@ class MapUsersRepositoryFirestore(
   }
 
   override fun getMapUsers(
-	  currentUserLocation: Location,
-	  radiusInMeters: Double,
-	  onSuccess: (List<MapUser>) -> Unit,
-	  onFailure: (Exception) -> Unit
+      currentUserLocation: Location,
+      radiusInMeters: Double,
+      onSuccess: (List<MapUser>) -> Unit,
+      onFailure: (Exception) -> Unit
   ) {
     // Convert radius from meters to degrees for latitude
     val radiusInDegreesLatitude = radiusInMeters / APPROX_METERS_PER_DEGREE
@@ -96,9 +96,9 @@ class MapUsersRepositoryFirestore(
   }
 
   override fun updateMapUser(
-	  mapUser: MapUser,
-	  onSuccess: () -> Unit,
-	  onFailure: (Exception) -> Unit
+      mapUser: MapUser,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
   ) {
     val uid = auth.currentUser?.uid ?: return
     db.collection(collectionPath).document(uid).set(mapUserToMap(mapUser)).addOnCompleteListener {

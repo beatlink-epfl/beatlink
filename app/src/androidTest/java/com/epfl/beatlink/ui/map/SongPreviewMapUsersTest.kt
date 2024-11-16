@@ -29,8 +29,7 @@ class SongPreviewMapUsersTest {
                     artistName = "Lady Gaga & Bruno Mars",
                     albumName = "Die With A Smile",
                     albumCover = R.drawable.cover_test1.toString()),
-            location = Location(0.0, 0.0)
-		)
+            location = Location(0.0, 0.0))
   }
 
   @Test

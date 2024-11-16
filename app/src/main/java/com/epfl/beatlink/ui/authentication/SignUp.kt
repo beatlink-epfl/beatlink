@@ -37,19 +37,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
+import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun SignUpScreen(
-	navigationActions: NavigationActions,
-	spotifyAuthViewModel: SpotifyAuthViewModel,
-	firebaseAuthViewModel: FirebaseAuthViewModel =
+    navigationActions: NavigationActions,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
+    firebaseAuthViewModel: FirebaseAuthViewModel =
         viewModel(factory = FirebaseAuthViewModel.Factory)
 ) {
   var email by remember { mutableStateOf("") }

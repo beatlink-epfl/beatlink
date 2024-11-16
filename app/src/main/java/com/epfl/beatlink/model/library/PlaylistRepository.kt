@@ -17,18 +17,18 @@ interface PlaylistRepository {
 
   /** Updates only the track count of a specific playlist in Firestore */
   fun updatePlaylistTrackCount(
-	  playlist: Playlist,
-	  newTrackCount: Int,
-	  onSuccess: () -> Unit,
-	  onFailure: (Exception) -> Unit
+      playlist: Playlist,
+      newTrackCount: Int,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
   )
 
   /** Updates only the list of songs contained in the playlist in Firestore */
   fun updatePlaylistSongs(
-	  playlist: Playlist,
-	  newListSongs: List<String>,
-	  onSuccess: () -> Unit,
-	  onFailure: (Exception) -> Unit
+      playlist: Playlist,
+      newListSongs: List<String>,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
   )
 
   /** Deletes a playlist by its ID from Firestore */
