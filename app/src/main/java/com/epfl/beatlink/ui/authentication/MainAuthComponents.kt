@@ -25,10 +25,10 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.authentication.AuthState
-import com.epfl.beatlink.model.authentication.FirebaseAuthViewModel
+import com.epfl.beatlink.model.auth.AuthState
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

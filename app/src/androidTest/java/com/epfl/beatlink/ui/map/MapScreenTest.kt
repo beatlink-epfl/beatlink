@@ -8,10 +8,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.epfl.beatlink.model.map.MapViewModel
-import com.epfl.beatlink.model.map.user.MapUsersViewModel
-import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.viewmodel.map.MapViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Rule
 import org.junit.Test
 

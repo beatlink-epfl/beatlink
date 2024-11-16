@@ -12,15 +12,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.ViewModelProvider
-import com.epfl.beatlink.model.spotify.api.SpotifyApiRepository
-import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
-import com.epfl.beatlink.model.spotify.auth.SPOTIFY_AUTH_PREFS
-import com.epfl.beatlink.model.spotify.auth.SpotifyAuthRepository
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
+import com.epfl.beatlink.repository.spotify.auth.SPOTIFY_AUTH_PREFS
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.BeatLinkApp
-import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModel
-import com.epfl.beatlink.ui.authentication.SpotifyAuthViewModelFactory
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModelFactory
 import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
