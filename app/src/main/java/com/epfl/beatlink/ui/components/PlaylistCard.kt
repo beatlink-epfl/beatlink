@@ -13,11 +13,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -36,16 +38,17 @@ fun PlaylistCard(playlist: Playlist,
   Card(
       modifier =
           Modifier.fillMaxWidth()
-              .background(
-                  color = MaterialTheme.colorScheme.surfaceVariant,
-                  shape = RoundedCornerShape(size = 5.dp))
               .clickable {
                   playlistViewModel.selectPlaylist(playlist)
                   navigationActions.navigateTo(PLAYLIST_OVERVIEW)
               }
-              .testTag("playlistItem")) {
+              .testTag("playlistItem"),
+      shape = RoundedCornerShape(size = 5.dp),
+      colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
               // Cover image
               Image(

@@ -218,10 +218,75 @@ val filledProfile: ImageVector
           }
           .build()
 
+val collab: ImageVector
+    get() = Builder(
+        name = "collab",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).apply {
+        path(
+            fill = iconsGradientBrush,
+        ) {
+            moveTo(8f, 12f)
+            curveTo(10.21f, 12f, 12f, 10.21f, 12f, 8f)
+            reflectiveCurveTo(10.21f, 4f, 8f, 4f)
+            reflectiveCurveTo(4f, 5.79f, 4f, 8f)
+            reflectiveCurveTo(5.79f, 12f, 8f, 12f)
+            close()
+            moveTo(8f, 6f)
+            curveTo(9.1f, 6f, 10f, 6.9f, 10f, 8f)
+            reflectiveCurveTo(9.1f, 10f, 8f, 10f)
+            reflectiveCurveTo(6f, 9.1f, 6f, 8f)
+            reflectiveCurveTo(6.9f, 6f, 8f, 6f)
+            close()
+        }
+        path(
+            fill = iconsGradientBrush,
+        ) {
+            moveTo(8f, 13f)
+            curveTo(5.33f, 13f, 0f, 14.34f, 0f, 17f)
+            verticalLineTo(20f)
+            horizontalLineTo(16f)
+            verticalLineTo(17f)
+            curveTo(16f, 14.34f, 10.67f, 13f, 8f, 13f)
+            close()
+            moveTo(14f, 18f)
+            horizontalLineTo(2f)
+            verticalLineTo(17.01f)
+            curveTo(2.2f, 16.29f, 5.3f, 15f, 8f, 15f)
+            reflectiveCurveTo(13.8f, 16.29f, 14f, 17.01f)
+            verticalLineTo(18f)
+            close()
+        }
+        path(
+            fill = iconsGradientBrush,
+        ) {
+            moveTo(12.51f, 4.05f)
+            curveTo(13.43f, 5.11f, 14f, 6.49f, 14f, 8f)
+            reflectiveCurveTo(13.43f, 10.89f, 12.51f, 11.95f)
+            curveTo(14.47f, 11.7f, 16f, 10.04f, 16f, 8f)
+            reflectiveCurveTo(14.47f, 4.3f, 12.51f, 4.05f)
+            close()
+        }
+        path(
+            fill = iconsGradientBrush,
+        ) {
+            moveTo(16.53f, 13.83f)
+            curveTo(17.42f, 14.66f, 18f, 15.7f, 18f, 17f)
+            verticalLineTo(20f)
+            horizontalLineTo(20f)
+            verticalLineTo(17f)
+            curveTo(20f, 15.55f, 18.41f, 14.49f, 16.53f, 13.83f)
+            close()
+        }
+    }.build()
+
 val collabAdd: ImageVector
   get() =
       Builder(
-              name = "collabApp",
+              name = "collabAdd",
               defaultWidth = 24.dp,
               defaultHeight = 24.dp,
               viewportWidth = 24f,
