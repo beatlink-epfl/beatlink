@@ -11,6 +11,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapLocationRepository
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
 import com.epfl.beatlink.model.playlist.PlaylistViewModel
 import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.model.spotify.api.SpotifyApiViewModel
@@ -55,6 +56,8 @@ fun BeatLinkApp(
   val mapViewModel: MapViewModel =
       viewModel(factory = MapViewModel.provideFactory(mapLocationRepository))
 
+  val mapUsersViewModel: MapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory)
+
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
@@ -64,7 +67,14 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) { MapScreen(navigationActions, mapViewModel, spotifyApiViewModel) }
+      composable(Screen.HOME) {
+        MapScreen(
+            navigationActions,
+            mapViewModel,
+            spotifyApiViewModel,
+            profileViewModel,
+            mapUsersViewModel)
+      }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {

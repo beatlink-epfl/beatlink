@@ -185,11 +185,28 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
 
     // ------------- Firebase ------------------
-    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-storage:20.0.0")
-    implementation ("com.firebase:geofire-android:3.2.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.google.firebase.auth)
+    implementation(libs.google.firebase.firestore.ktx)
+    implementation(libs.firebase.storage)
+    implementation (libs.geofire.android)
+
+    configurations {
+        getByName("androidTestImplementation") {
+            exclude(module = "protobuf-lite")
+        }
+    }
+
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.4.0") {
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
+
+
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore.ktx)
+    implementation (libs.geofire.android)
 
 
     // ------------- Jetpack Compose ------------------
@@ -211,6 +228,12 @@ dependencies {
     globalTestImplementation(libs.compose.test.junit)
     debugImplementation(libs.compose.test.manifest)
 
+    // For unit tests
+    testImplementation(libs.mockk)
+
+    // For Android instrumented tests
+    androidTestImplementation(libs.mockk.android)
+
     // --------- Kaspresso test framework ----------
     globalTestImplementation(libs.kaspresso)
     globalTestImplementation(libs.kaspresso.compose)
@@ -230,7 +253,6 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.mockk.agent)
     testImplementation(libs.json)
-    testImplementation(libs.mockk.v1135)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
 
@@ -247,16 +269,14 @@ dependencies {
     testImplementation(libs.robolectric)
     androidTestImplementation(libs.kaspresso)
     androidTestImplementation(libs.kaspresso.allure.support)
-    androidTestImplementation(libs.kaspresso.compose.support)
 
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.robolectric.v473)
     // Google Service and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.maps.compose.utils)
     // Coil for image loading
-    implementation ("io.coil-kt:coil-compose:2.5.0")
+    implementation (libs.coil.compose)
 
 }
 
