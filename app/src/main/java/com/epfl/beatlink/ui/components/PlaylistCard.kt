@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,19 +23,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.playlist.Playlist
+import com.epfl.beatlink.model.playlist.PlaylistViewModel
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
+import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 
 @Composable
-fun PlaylistCard(playlist: Playlist) {
+fun PlaylistCard(playlist: Playlist,
+                 navigationActions: NavigationActions,
+                 playlistViewModel: PlaylistViewModel) {
   Card(
       modifier =
           Modifier.fillMaxWidth()
               .background(
                   color = MaterialTheme.colorScheme.surfaceVariant,
                   shape = RoundedCornerShape(size = 5.dp))
+              .clickable {
+                  playlistViewModel.selectPlaylist(playlist)
+                  navigationActions.navigateTo(PLAYLIST_OVERVIEW)
+              }
               .testTag("playlistItem")) {
         Row(
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp).fillMaxWidth(),
+            modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
               // Cover image
               Image(

@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -552,6 +553,21 @@ fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
         tint = LightGray,
         modifier = Modifier.padding(6.dp))
   }
+}
+
+@Composable
+fun EditIcon(onClick: () -> Unit) {
+    IconButton(onClick) {
+        Box(
+            modifier = Modifier.size(28.dp)
+                .background(brush = IconsGradientBrush, shape = CircleShape)
+                .clickable { onClick() }) {
+            Icon(
+                imageVector = Icons.Filled.Edit,
+                contentDescription = "Edit",
+                modifier = Modifier.padding(6.dp))
+        }
+    }
 }
 
 @Composable

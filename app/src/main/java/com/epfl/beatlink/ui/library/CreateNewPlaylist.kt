@@ -51,7 +51,6 @@ fun CreateNewPlaylistScreen(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel = viewModel(factory = PlaylistViewModel.Factory),
-    currentMusicPlayed: String? = null,
 ) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
   val profileData by profileViewModel.profile.collectAsState()

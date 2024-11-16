@@ -78,7 +78,12 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
               modifier = Modifier.fillMaxWidth()) {
-                items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
+                items(playlistListFlow.size) { i ->
+                    PlaylistCard(
+                        playlistListFlow[i],
+                        navigationActions,
+                        playlistViewModel)
+                }
               }
         }
       })

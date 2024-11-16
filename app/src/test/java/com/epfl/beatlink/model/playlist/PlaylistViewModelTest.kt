@@ -21,6 +21,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PlaylistViewModelTest {
   @get:Rule val instantExecutorRule = InstantTaskExecutorRule()
 
@@ -73,6 +74,7 @@ class PlaylistViewModelTest {
     playlistViewModel = PlaylistViewModel(playlistRepository)
   }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
   @After
   fun tearDown() {
     Dispatchers.resetMain()
@@ -107,10 +109,12 @@ class PlaylistViewModelTest {
 
   @Test
   fun addPlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
-    doAnswer { invocation ->
-          (invocation.arguments[1] as () -> Unit).invoke() // invoke onSuccess callback
+      doAnswer { invocation ->
+          // Safely cast and invoke the callback
+          (invocation.arguments[1] as? () -> Unit)?.invoke()
+              ?: throw IllegalArgumentException("Argument at index 1 is not a valid callback function")
           null
-        }
+      }
         .`when`(playlistRepository)
         .addPlaylist(eq(playlist), any(), any())
 
@@ -123,7 +127,8 @@ class PlaylistViewModelTest {
   @Test
   fun updatePlaylist_shouldTriggerSuccessCallback_andUpdateSelectedPlaylist() = runTest {
     doAnswer { invocation ->
-          (invocation.arguments[1] as () -> Unit).invoke() // invoke onSuccess callback
+        val callback = invocation.arguments[1] as? () -> Unit
+        callback?.invoke() // Invoke the callback if it was correctly casted
           null
         }
         .`when`(playlistRepository)

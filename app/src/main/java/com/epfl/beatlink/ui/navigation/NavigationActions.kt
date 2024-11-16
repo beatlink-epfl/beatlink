@@ -25,6 +25,8 @@ object Screen {
   const val SEARCH = "Search Screen"
   const val LIBRARY = "Library Screen"
   const val CREATE_NEW_PLAYLIST = "Create New Playlist Screen"
+    const val EDIT_PLAYLIST = "Edit playlist Screen"
+    const val PLAYLIST_OVERVIEW = "Playlist Overview Screen"
   const val PROFILE = "Profile Screen"
   const val EDIT_PROFILE = "Edit Profile Screen"
   const val SEARCH_BAR = "Search Bar Screen"
