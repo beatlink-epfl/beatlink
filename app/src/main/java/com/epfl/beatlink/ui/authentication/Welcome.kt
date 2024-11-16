@@ -114,7 +114,7 @@ fun LoginButton(navigationActions: NavigationActions) {
           Modifier.width(320.dp)
               .height(48.dp)
               .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-              .testTag("loginButton"),
+              .testTag("welcomeLoginButton"),
       contentAlignment = Alignment.Center) {
         // Transparent Button to allow gradient background to show
         Button(

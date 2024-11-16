@@ -6,8 +6,11 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.epfl.beatlink.model.map.MapViewModel
+import com.epfl.beatlink.model.map.user.MapUsersViewModel
+import com.epfl.beatlink.model.profile.ProfileViewModel
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import org.junit.Rule
 import org.junit.Test
@@ -18,10 +21,9 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_displaysLoadingMapText_whenMapIsNotLoaded() {
-    // Mock ViewModel with default states
-    val fakeMapLocationRepository = FakeMapLocationRepository()
+    // Create a new instance of MapViewModel for this test
     val mapViewModel =
-        MapViewModel(fakeMapLocationRepository).apply {
+        MapViewModel(FakeMapLocationRepository()).apply {
           isMapLoaded.value = false
           permissionRequired.value = false
         }
@@ -30,6 +32,8 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
 
@@ -44,10 +48,10 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_displaysMap_whenMapIsLoaded() {
-    // Mock ViewModel with map loaded
+    // Create a new instance of MapViewModel for this test
     val mapViewModel =
         MapViewModel(FakeMapLocationRepository()).apply {
-          isMapLoaded.value = true // Simulate that the map is loaded
+          isMapLoaded.value = true
           permissionRequired.value = false
         }
 
@@ -55,6 +59,8 @@ class MapScreenTest {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
 
@@ -70,16 +76,21 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_handlesPermissionResult_correctly() {
-    // Mock ViewModel with permission handling states
-    val mapViewModel =
-        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+    // Create a new instance of MapViewModel for this test
+    val mapViewModel = MapViewModel(FakeMapLocationRepository())
+
+    mapViewModel.permissionRequired.value = true
 
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
+
+    composeTestRule.waitForIdle()
 
     // Simulate permissions granted
     val permissions =
@@ -99,15 +110,19 @@ class MapScreenTest {
 
   @Test
   fun mapScreen_requestsPermissions_whenPermissionRequired() {
-    val mapViewModel =
-        MapViewModel(FakeMapLocationRepository()).apply { permissionRequired.value = true }
+    // Create a new instance of MapViewModel for this test
+    val mapViewModel = MapViewModel(FakeMapLocationRepository())
 
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
           spotifyApiViewModel = null,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
     }
+
+    mapViewModel.permissionRequired.value = true
 
     assert(mapViewModel.permissionRequired.value) // No mocking required here
   }

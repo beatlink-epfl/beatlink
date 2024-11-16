@@ -141,8 +141,7 @@ fun LoginFirebaseButton(
       modifier =
           Modifier.width(320.dp)
               .height(48.dp)
-              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-              .testTag("loginButton"),
+              .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)),
       contentAlignment = Alignment.Center) {
         Button(
             onClick = {
@@ -152,7 +151,7 @@ fun LoginFirebaseButton(
                 authViewModel.login(email, password)
               }
             },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("loginButton"),
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent, contentColor = Color.White),
