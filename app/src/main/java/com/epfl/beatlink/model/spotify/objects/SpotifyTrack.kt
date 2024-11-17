@@ -2,6 +2,7 @@ package com.epfl.beatlink.model.spotify.objects
 
 data class SpotifyTrack(
     val name: String,
+    val artist: String,
     val trackId: String,
     val cover: String,
     val duration: Int,

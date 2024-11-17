@@ -600,6 +600,7 @@ class SpotifyApiViewModelTest {
             "is_playing": true,
             "item": {
                 "name": "Test Track",
+                "artists": [{"name": "Test Artist"}],
                 "id": "456",
                 "duration_ms": 300000,
                 "popularity": 80
@@ -619,7 +620,7 @@ class SpotifyApiViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Assert
-        val expectedTrack = SpotifyTrack("Test Track", "456", "", 300000, 80, State.PLAY)
+        val expectedTrack = SpotifyTrack("Test Track", "Test Artist","456", "", 300000, 80, State.PLAY)
         verify(observer).onChanged(expectedTrack)
         verify(mockApiRepository).get("me/player/currently-playing")
       }
@@ -637,7 +638,7 @@ class SpotifyApiViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    val emptyTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    val emptyTrack = SpotifyTrack("",  "", "", "", 0, 0, State.PAUSE)
     verify(observer).onChanged(emptyTrack)
     verify(mockApiRepository, never()).get("me/player/currently-playing")
   }
@@ -658,7 +659,7 @@ class SpotifyApiViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    val emptyTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    val emptyTrack = SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)
     verify(observer).onChanged(emptyTrack)
     verify(mockApiRepository).get("me/player/currently-playing")
   }

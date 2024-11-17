@@ -89,6 +89,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -125,6 +126,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -155,6 +157,7 @@ class MapUserViewModelTest {
     val track2 =
         SpotifyTrack(
             name = "",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -194,6 +197,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -233,6 +237,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -291,6 +296,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,
@@ -329,6 +335,7 @@ class MapUserViewModelTest {
     val track =
         SpotifyTrack(
             name = "Song",
+            artist = "Artist",
             trackId = "trackId",
             cover = "cover",
             duration = 120,

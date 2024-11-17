@@ -70,8 +70,10 @@ class SpotifyApiViewModel(
           val track = items.getJSONObject(i)
           val album = track.getJSONObject("album")
           val coverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
+          val artist = track.getJSONArray("artists").getJSONObject(0).getString("name")
           val spotifyTrack = SpotifyTrack(
             name = track.getString("name"),
+            artist = artist,
             trackId = track.getString("id"),
             cover = coverUrl,
             duration = track.getInt("duration_ms"),
@@ -280,16 +282,18 @@ class SpotifyApiViewModel(
    * @return The constructed SpotifyTrack object.
    */
   fun buildTrack(onResult: (SpotifyTrack) -> Unit) {
-    var retTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    var retTrack = SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)
     viewModelScope.launch {
       if (playbackActive) {
         val result = apiRepository.get("me/player/currently-playing")
         if (result.isSuccess) {
           val isPlaying = result.getOrNull()?.getBoolean("is_playing")
           val item = result.getOrNull()?.getJSONObject("item") ?: return@launch
+          val artist = item.getJSONArray("artists").getJSONObject(0).getString("name")
           retTrack =
               SpotifyTrack(
                   item.getString("name"),
+                  artist,
                   item.getString("id"),
                   "",
                   item.getInt("duration_ms"),

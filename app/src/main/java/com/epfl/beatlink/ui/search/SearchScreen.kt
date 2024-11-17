@@ -38,6 +38,7 @@ fun SearchScreen(navigationActions: NavigationActions) {
   val song1 =
       SpotifyTrack(
           name = "Song1",
+          artist = "Artist1",
           trackId = "1",
           cover = "cover1",
           duration = 120,
@@ -49,6 +50,7 @@ fun SearchScreen(navigationActions: NavigationActions) {
   val song2 =
       SpotifyTrack(
           name = "Song2",
+          artist = "Artist2",
           trackId = "1",
           cover = "cover1",
           duration = 120,
