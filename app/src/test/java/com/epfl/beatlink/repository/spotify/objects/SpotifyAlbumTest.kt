@@ -10,7 +10,7 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbum() {
-    val track = SpotifyTrack("track", "artist","trackId", "cover", 100, 100, State.PLAY)
+    val track = SpotifyTrack("track", "artist", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum =
         SpotifyAlbum(
             "spotifyId",

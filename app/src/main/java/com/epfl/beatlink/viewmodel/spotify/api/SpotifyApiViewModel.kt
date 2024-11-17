@@ -23,8 +23,8 @@ class SpotifyApiViewModel(
   var playbackActive = false
 
   fun getCurrentUserTopArtists(
-    onSuccess: (List<SpotifyArtist>) -> Unit,
-    onFailure: (List<SpotifyArtist>) -> Unit
+      onSuccess: (List<SpotifyArtist>) -> Unit,
+      onFailure: (List<SpotifyArtist>) -> Unit
   ) {
     viewModelScope.launch {
       val result = apiRepository.get("me/top/artists?time_range=short_term")
@@ -40,12 +40,12 @@ class SpotifyApiViewModel(
           for (j in 0 until genresArray.length()) {
             genres.add(genresArray.getString(j))
           }
-          val spotifyArtist = SpotifyArtist(
-            image = coverUrl,
-            name = artist.getString("name"),
-            genres = genres,
-            popularity = artist.getInt("popularity")
-          )
+          val spotifyArtist =
+              SpotifyArtist(
+                  image = coverUrl,
+                  name = artist.getString("name"),
+                  genres = genres,
+                  popularity = artist.getInt("popularity"))
           artists.add(spotifyArtist)
         }
         onSuccess(artists)
@@ -57,8 +57,8 @@ class SpotifyApiViewModel(
   }
 
   fun getCurrentUserTopTracks(
-    onSuccess: (List<SpotifyTrack>) -> Unit,
-    onFailure: (List<SpotifyTrack>) -> Unit
+      onSuccess: (List<SpotifyTrack>) -> Unit,
+      onFailure: (List<SpotifyTrack>) -> Unit
   ) {
     viewModelScope.launch {
       val result = apiRepository.get("me/top/tracks?time_range=short_term")
@@ -71,15 +71,15 @@ class SpotifyApiViewModel(
           val album = track.getJSONObject("album")
           val coverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
           val artist = track.getJSONArray("artists").getJSONObject(0).getString("name")
-          val spotifyTrack = SpotifyTrack(
-            name = track.getString("name"),
-            artist = artist,
-            trackId = track.getString("id"),
-            cover = coverUrl,
-            duration = track.getInt("duration_ms"),
-            popularity = track.getInt("popularity"),
-            state = State.PAUSE
-          )
+          val spotifyTrack =
+              SpotifyTrack(
+                  name = track.getString("name"),
+                  artist = artist,
+                  trackId = track.getString("id"),
+                  cover = coverUrl,
+                  duration = track.getInt("duration_ms"),
+                  popularity = track.getInt("popularity"),
+                  state = State.PAUSE)
           tracks.add(spotifyTrack)
         }
         onSuccess(tracks)
