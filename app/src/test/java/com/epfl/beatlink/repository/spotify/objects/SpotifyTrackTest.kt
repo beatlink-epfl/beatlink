@@ -8,7 +8,7 @@ import org.junit.Test
 class SpotifyTrackTest {
   @Test
   fun testSpotifyTrack() {
-    val spotifyTrack = SpotifyTrack("name", "trackId", "cover", 100, 100, State.PLAY)
+    val spotifyTrack = SpotifyTrack("name", "", "trackId", "cover", 100, 100, State.PLAY)
 
     assertEquals("name", spotifyTrack.name)
     assertEquals("trackId", spotifyTrack.trackId)
@@ -20,7 +20,7 @@ class SpotifyTrackTest {
 
   @Test
   fun testSpotifyTrackCopy() {
-    val spotifyTrack = SpotifyTrack("name", "trackId", "cover", 100, 100, State.PLAY)
+    val spotifyTrack = SpotifyTrack("name", "", "trackId", "cover", 100, 100, State.PLAY)
 
     val spotifyTrackCopy = spotifyTrack.copy()
 
@@ -34,8 +34,8 @@ class SpotifyTrackTest {
 
   @Test
   fun testSpotifyTrackEquals() {
-    val spotifyTrack1 = SpotifyTrack("name", "trackId", "cover", 100, 100, State.PLAY)
-    val spotifyTrack2 = SpotifyTrack("name", "trackId", "cover", 100, 100, State.PLAY)
+    val spotifyTrack1 = SpotifyTrack("name", "", "trackId", "cover", 100, 100, State.PLAY)
+    val spotifyTrack2 = SpotifyTrack("name", "", "trackId", "cover", 100, 100, State.PLAY)
 
     assertEquals(spotifyTrack1, spotifyTrack2)
   }
