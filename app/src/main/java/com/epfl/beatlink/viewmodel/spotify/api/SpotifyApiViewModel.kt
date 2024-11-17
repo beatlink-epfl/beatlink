@@ -22,6 +22,40 @@ class SpotifyApiViewModel(
   var deviceId: String? = null
   var playbackActive = false
 
+  fun getCurrentUserTopArtists(
+    onSuccess: (List<SpotifyArtist>) -> Unit,
+    onFailure: (List<SpotifyArtist>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/top/artists?time_range=short_term")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Top artists fetched successfully")
+        val items = result.getOrNull()!!.getJSONArray("items")
+        val artists = mutableListOf<SpotifyArtist>()
+        for (i in 0 until items.length()) {
+          val artist = items.getJSONObject(i)
+          val coverUrl = artist.getJSONArray("images").getJSONObject(0).getString("url")
+          val genres = mutableListOf<String>()
+          val genresArray = artist.getJSONArray("genres")
+          for (j in 0 until genresArray.length()) {
+            genres.add(genresArray.getString(j))
+          }
+          val spotifyArtist = SpotifyArtist(
+            image = coverUrl,
+            name = artist.getString("name"),
+            genres = genres,
+            popularity = artist.getInt("popularity")
+          )
+          artists.add(spotifyArtist)
+        }
+        onSuccess(artists)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch top artists")
+        onFailure(emptyList())
+      }
+    }
+  }
+
   fun getCurrentUserTopTracks(
     onSuccess: (List<SpotifyTrack>) -> Unit,
     onFailure: (List<SpotifyTrack>) -> Unit
