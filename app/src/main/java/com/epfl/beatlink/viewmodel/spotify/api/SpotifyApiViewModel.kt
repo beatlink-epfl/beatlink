@@ -22,6 +22,38 @@ class SpotifyApiViewModel(
   var deviceId: String? = null
   var playbackActive = false
 
+  fun getCurrentUserTopTracks(
+    onSuccess: (List<SpotifyTrack>) -> Unit,
+    onFailure: (List<SpotifyTrack>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/top/tracks?time_range=short_term")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Top tracks fetched successfully")
+        val items = result.getOrNull()!!.getJSONArray("items")
+        val tracks = mutableListOf<SpotifyTrack>()
+        for (i in 0 until items.length()) {
+          val track = items.getJSONObject(i)
+          val album = track.getJSONObject("album")
+          val coverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
+          val spotifyTrack = SpotifyTrack(
+            name = track.getString("name"),
+            trackId = track.getString("id"),
+            cover = coverUrl,
+            duration = track.getInt("duration_ms"),
+            popularity = track.getInt("popularity"),
+            state = State.PAUSE
+          )
+          tracks.add(spotifyTrack)
+        }
+        onSuccess(tracks)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch top tracks")
+        onFailure(emptyList())
+      }
+    }
+  }
+
   /** Fetches the device ID of the current active device. */
   fun getDeviceId() {
     viewModelScope.launch {
