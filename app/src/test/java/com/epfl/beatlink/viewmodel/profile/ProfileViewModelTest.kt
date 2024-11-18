@@ -1,7 +1,7 @@
 package com.epfl.beatlink.viewmodel.profile
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.lightThemeBackground

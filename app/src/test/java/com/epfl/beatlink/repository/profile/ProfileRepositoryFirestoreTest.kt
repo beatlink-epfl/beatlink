@@ -1,6 +1,7 @@
 package com.epfl.beatlink.repository.profile
 
 import android.net.Uri
+import com.epfl.beatlink.model.profile.ProfileData
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser

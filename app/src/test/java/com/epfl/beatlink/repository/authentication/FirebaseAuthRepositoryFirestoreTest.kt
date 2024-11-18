@@ -2,7 +2,7 @@ package com.epfl.beatlink.repository.authentication
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult

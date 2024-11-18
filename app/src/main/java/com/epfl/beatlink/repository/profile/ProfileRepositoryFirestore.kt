@@ -2,6 +2,7 @@ package com.epfl.beatlink.repository.profile
 
 import android.net.Uri
 import android.util.Log
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

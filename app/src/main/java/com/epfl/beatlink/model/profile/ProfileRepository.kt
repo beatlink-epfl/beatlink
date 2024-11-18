@@ -1,7 +1,5 @@
 package com.epfl.beatlink.model.profile
 
-import com.epfl.beatlink.repository.profile.ProfileData
-
 interface ProfileRepository {
   fun getUserId(): String?
 

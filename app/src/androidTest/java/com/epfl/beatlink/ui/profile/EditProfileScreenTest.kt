@@ -9,7 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -52,7 +52,8 @@ class EditProfileScreenTest {
                     links = 5,
                     name = testName,
                     profilePicture = null,
-                    username = "johndoe"))
+                    username = "johndoe")
+        )
 
     every { navigationActions.currentRoute() } returns Route.PROFILE
 
@@ -143,7 +144,8 @@ class EditProfileScreenTest {
               links = 5,
               name = testName,
               profilePicture = null,
-              username = "johndoe"))
+              username = "johndoe")
+      )
     }
   }
 
