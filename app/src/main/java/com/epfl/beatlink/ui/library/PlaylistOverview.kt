@@ -55,6 +55,7 @@ fun PlaylistOverviewScreen(
   val sample =
       SpotifyTrack(
           name = "This is a song",
+          artist = "john",
           trackId = "1",
           cover = "",
           duration = 1,

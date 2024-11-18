@@ -42,7 +42,7 @@ fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
                 style = TypographySongs.titleLarge,
                 color = MaterialTheme.colorScheme.primary)
             Text(
-                text = spotifyTrack.duration.toString(),
+                text = spotifyTrack.artist,
                 style = TypographySongs.titleMedium,
             )
           }
@@ -50,7 +50,7 @@ fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
           VoteButton(
               NegativeGradientBrush,
               MaterialTheme.colorScheme.primary,
-              painterResource(R.drawable.boring_face))
+              painterResource(R.drawable.boring_face_vote))
           Spacer(Modifier.width(10.dp))
           VoteButton(
               PositiveGradientBrush,
