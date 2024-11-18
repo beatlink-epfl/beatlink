@@ -70,4 +70,8 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         onSuccess = { getPlaylists() },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
   }
+    fun deletePlaylist(playlistUID: String) {
+        repository.deletePlaylistById(playlistUID, onSuccess = {}, onFailure = {})
+        getPlaylists()
+    }
 }

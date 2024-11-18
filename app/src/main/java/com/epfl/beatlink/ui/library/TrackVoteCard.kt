@@ -50,7 +50,7 @@ fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
           VoteButton(
               NegativeGradientBrush,
               MaterialTheme.colorScheme.primary,
-              painterResource(R.drawable.boring_face_vote))
+              painterResource(R.drawable.boring_face))
           Spacer(Modifier.width(10.dp))
           VoteButton(
               PositiveGradientBrush,

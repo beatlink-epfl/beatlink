@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,4 +55,17 @@ fun EditButton(onClick: () -> Unit) {
               tint = MaterialTheme.colorScheme.primaryWhite)
         }
   }
+}
+
+@Composable
+fun DeleteButton(onClick: () -> Unit) {
+    Icon(
+        imageVector = Icons.Outlined.Delete,
+        contentDescription = "delete",
+        modifier = Modifier
+            .size(28.dp)
+            .testTag("deleteButton")
+            .clickable { onClick() },
+        tint = MaterialTheme.colorScheme.error
+    )
 }
