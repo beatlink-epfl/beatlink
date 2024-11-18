@@ -22,6 +22,74 @@ class SpotifyApiViewModel(
   var deviceId: String? = null
   var playbackActive = false
 
+  fun getCurrentUserTopArtists(
+      onSuccess: (List<SpotifyArtist>) -> Unit,
+      onFailure: (List<SpotifyArtist>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/top/artists?time_range=short_term")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Top artists fetched successfully")
+        val items = result.getOrNull()!!.getJSONArray("items")
+        val artists = mutableListOf<SpotifyArtist>()
+        for (i in 0 until items.length()) {
+          val artist = items.getJSONObject(i)
+          val coverUrl = artist.getJSONArray("images").getJSONObject(0).getString("url")
+          val genres = mutableListOf<String>()
+          val genresArray = artist.getJSONArray("genres")
+          for (j in 0 until genresArray.length()) {
+            genres.add(genresArray.getString(j))
+          }
+          val spotifyArtist =
+              SpotifyArtist(
+                  image = coverUrl,
+                  name = artist.getString("name"),
+                  genres = genres,
+                  popularity = artist.getInt("popularity"))
+          artists.add(spotifyArtist)
+        }
+        onSuccess(artists)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch top artists")
+        onFailure(emptyList())
+      }
+    }
+  }
+
+  fun getCurrentUserTopTracks(
+      onSuccess: (List<SpotifyTrack>) -> Unit,
+      onFailure: (List<SpotifyTrack>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/top/tracks?time_range=short_term")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Top tracks fetched successfully")
+        val items = result.getOrNull()!!.getJSONArray("items")
+        val tracks = mutableListOf<SpotifyTrack>()
+        for (i in 0 until items.length()) {
+          val track = items.getJSONObject(i)
+          val album = track.getJSONObject("album")
+          val coverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
+          val artist = track.getJSONArray("artists").getJSONObject(0).getString("name")
+          val spotifyTrack =
+              SpotifyTrack(
+                  name = track.getString("name"),
+                  artist = artist,
+                  trackId = track.getString("id"),
+                  cover = coverUrl,
+                  duration = track.getInt("duration_ms"),
+                  popularity = track.getInt("popularity"),
+                  state = State.PAUSE)
+          tracks.add(spotifyTrack)
+        }
+        onSuccess(tracks)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch top tracks")
+        onFailure(emptyList())
+      }
+    }
+  }
+
   /** Fetches the device ID of the current active device. */
   fun getDeviceId() {
     viewModelScope.launch {
@@ -214,16 +282,18 @@ class SpotifyApiViewModel(
    * @return The constructed SpotifyTrack object.
    */
   fun buildTrack(onResult: (SpotifyTrack) -> Unit) {
-    var retTrack = SpotifyTrack("", "", "", 0, 0, State.PAUSE)
+    var retTrack = SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)
     viewModelScope.launch {
       if (playbackActive) {
         val result = apiRepository.get("me/player/currently-playing")
         if (result.isSuccess) {
           val isPlaying = result.getOrNull()?.getBoolean("is_playing")
           val item = result.getOrNull()?.getJSONObject("item") ?: return@launch
+          val artist = item.getJSONArray("artists").getJSONObject(0).getString("name")
           retTrack =
               SpotifyTrack(
                   item.getString("name"),
+                  artist,
                   item.getString("id"),
                   "",
                   item.getInt("duration_ms"),

@@ -24,8 +24,6 @@ class SpotifyApiRepository(
       requestConfig: (Request.Builder) -> Unit
   ): Result<JSONObject> {
     val token = getToken() ?: return Result.failure(Exception("Token not found"))
-    Log.d("SpotifyApiRepository", "Token: $token")
-
     val requestBuilder =
         Request.Builder()
             .url("https://api.spotify.com/v1/$endpoint")

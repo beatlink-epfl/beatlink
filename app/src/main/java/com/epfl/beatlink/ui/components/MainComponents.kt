@@ -419,7 +419,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
   var currentAlbum by remember {
     mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
   }
-  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", 0, 0, State.PAUSE)) }
+  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)) }
   var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
 
   api.getPlaybackState { result ->
