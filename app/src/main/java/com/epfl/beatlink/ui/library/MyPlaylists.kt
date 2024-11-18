@@ -61,7 +61,9 @@ fun MyPlaylistsScreen(navigationActions: NavigationActions, playlistViewModel: P
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
-                  items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
+                  items(playlistListFlow.size) { i ->
+                    PlaylistCard(playlistListFlow[i], navigationActions, playlistViewModel)
+                  }
                 }
               }
             }

@@ -93,7 +93,9 @@ fun BeatLinkApp(
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
       composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
-      composable(Screen.PLAYLIST_OVERVIEW) { PlaylistOverviewScreen(navigationActions, playlistViewModel) }
+      composable(Screen.PLAYLIST_OVERVIEW) {
+        PlaylistOverviewScreen(navigationActions, playlistViewModel)
+      }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {

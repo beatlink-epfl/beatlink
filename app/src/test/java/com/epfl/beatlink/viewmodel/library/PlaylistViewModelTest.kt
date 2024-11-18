@@ -41,7 +41,7 @@ class PlaylistViewModelTest {
           userId = "testUserId",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
   private val playlist1 =
       Playlist(
@@ -53,7 +53,7 @@ class PlaylistViewModelTest {
           userId = "testUserId",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
   private val playlist2 =
       Playlist(
@@ -65,7 +65,7 @@ class PlaylistViewModelTest {
           userId = "testUserId2",
           playlistOwner = "luna2",
           playlistCollaborators = emptyList(),
-          playlistSongs = listOf("thank god"),
+          playlistTracks = listOf("thank god"),
           nbTracks = 1)
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -76,7 +76,7 @@ class PlaylistViewModelTest {
     playlistViewModel = PlaylistViewModel(playlistRepository)
   }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+  @OptIn(ExperimentalCoroutinesApi::class)
   @After
   fun tearDown() {
     Dispatchers.resetMain()
@@ -111,12 +111,13 @@ class PlaylistViewModelTest {
 
   @Test
   fun addPlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
-      doAnswer { invocation ->
+    doAnswer { invocation ->
           // Safely cast and invoke the callback
           (invocation.arguments[1] as? () -> Unit)?.invoke()
-              ?: throw IllegalArgumentException("Argument at index 1 is not a valid callback function")
+              ?: throw IllegalArgumentException(
+                  "Argument at index 1 is not a valid callback function")
           null
-      }
+        }
         .`when`(playlistRepository)
         .addPlaylist(eq(playlist), any(), any())
 
@@ -129,8 +130,8 @@ class PlaylistViewModelTest {
   @Test
   fun updatePlaylist_shouldTriggerSuccessCallback_andUpdateSelectedPlaylist() = runTest {
     doAnswer { invocation ->
-        val callback = invocation.arguments[1] as? () -> Unit
-        callback?.invoke() // Invoke the callback if it was correctly casted
+          val callback = invocation.arguments[1] as? () -> Unit
+          callback?.invoke() // Invoke the callback if it was correctly casted
           null
         }
         .`when`(playlistRepository)

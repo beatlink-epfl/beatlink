@@ -159,7 +159,7 @@ fun CreateNewPlaylistScreen(
                     userId = "",
                     playlistOwner = profileData?.username ?: "",
                     playlistCollaborators = playlistCollab,
-                    playlistSongs = emptyList(),
+                    playlistTracks = emptyList(),
                     nbTracks = 0)
             playlistViewModel.addPlaylist(newPlaylist)
             navigationActions.navigateTo(

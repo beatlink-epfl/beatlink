@@ -1,9 +1,9 @@
 package com.epfl.beatlink.ui.library
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -15,9 +15,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
-import org.mockito.kotlin.any
 
-class MyPlaylistsScreenTest {
+class PlaylistOverviewScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
@@ -31,7 +30,7 @@ class MyPlaylistsScreenTest {
           playlistPublic = false,
           userId = "",
           playlistOwner = "luna",
-          playlistCollaborators = emptyList(),
+          playlistCollaborators = listOf("collab1"),
           playlistTracks = emptyList(),
           nbTracks = 0)
 
@@ -43,48 +42,39 @@ class MyPlaylistsScreenTest {
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
 
-    composeTestRule.setContent { MyPlaylistsScreen(navigationActions, playlistViewModel) }
-  }
-
-  @Test
-  fun displayTextWhenEmpty() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
-      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf())
-    }
-    playlistViewModel.getPlaylists()
-
-    composeTestRule.onNodeWithTag("emptyPlaylistsPrompt").assertIsDisplayed()
-  }
-
-  @Test
-  fun displayPlaylistsWhenNotEmpty() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
-      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
-    }
-    playlistViewModel.getPlaylists()
-
-    composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
+    playlistViewModel.selectPlaylist(playlist)
+    composeTestRule.setContent { PlaylistOverviewScreen(navigationActions, playlistViewModel) }
   }
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("myPlaylistsScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playlistOverviewScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playlistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("myPlaylistsTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("editButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playlistCoverCard").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playlistTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("ownerText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("collaboratorsText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("ownerText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("publicText").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("viewDescriptionButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("addToThisPlaylistButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("exportButton").assertIsDisplayed()
   }
 
   @Test
-  fun createPlaylistButtonCallsNavActions() {
-    composeTestRule.onNodeWithTag("addButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).navigateTo(screen = Screen.CREATE_NEW_PLAYLIST)
-  }
+  fun inputsHaveInitialValue() {
+    Thread.sleep(10000)
 
-  @Test
-  fun goBackCallsNavActions() {
-    composeTestRule.onNodeWithTag("goBackButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).goBack()
+    composeTestRule.onNodeWithTag("playlistTitle").assertTextContains(playlist.playlistName)
+    composeTestRule.onNodeWithTag("ownerText").assertTextContains("@" + playlist.playlistOwner)
+    composeTestRule.onNodeWithTag("publicText").assertTextContains("Private")
+    composeTestRule
+        .onNodeWithTag("collaboratorsText")
+        .assertTextContains(playlist.playlistCollaborators[0])
   }
 }

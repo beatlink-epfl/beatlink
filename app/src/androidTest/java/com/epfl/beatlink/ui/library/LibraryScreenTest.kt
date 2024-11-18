@@ -35,7 +35,7 @@ class LibraryScreenTest {
           userId = "",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
 
   @get:Rule val composeTestRule = createComposeRule()
@@ -56,24 +56,25 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("searchButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("favoriteItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").assertIsDisplayed()
   }
 
   @Test
   fun displayTextsCorrectly() {
     composeTestRule.onNodeWithTag("libraryTitle").assertTextEquals("My Library")
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertTextEquals("FAVORITES")
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").assertTextEquals("PLAYLISTS")
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertTextEquals("MY PLAYLISTS")
+    composeTestRule
+        .onNodeWithTag("SHARED PLAYLISTSTitleWithArrow")
+        .assertTextEquals("SHARED PLAYLISTS")
   }
 
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("searchButton").performClick()
     composeTestRule.onNodeWithTag("addButton").performClick()
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").performClick()
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").performClick()
   }
 
   @Test
@@ -87,7 +88,7 @@ class LibraryScreenTest {
   @Test
   fun verifyPlaylistsButtonNavigatesToMyPlaylistsScreen() {
     // Perform click action on the sign-in button
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
 
     verify(navigationActions).navigateTo(Screen.MY_PLAYLISTS)
   }

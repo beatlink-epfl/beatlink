@@ -2,8 +2,8 @@ package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,111 +28,127 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.playlist.PlaylistViewModel
-import com.epfl.beatlink.ui.components.EditIcon
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
+import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.ViewDescriptionButton
+import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.collab
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
-
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 
 @Composable
-fun PlaylistOverviewScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
-    val selectedPlaylistState = playlistViewModel.selectedPlaylist.collectAsState().value
-        ?: return Text("No Playlist selected.")
+fun PlaylistOverviewScreen(
+    navigationActions: NavigationActions,
+    playlistViewModel: PlaylistViewModel
+) {
+  val selectedPlaylistState =
+      playlistViewModel.selectedPlaylist.collectAsState().value
+          ?: return Text("No Playlist selected.")
 
-    Scaffold(
-        modifier = Modifier.testTag("playlistOverviewScreen"),
-        topBar = {
-            ScreenTopAppBar(
-                selectedPlaylistState.playlistName,
-                "playlistName",
-                navigationActions,
-                listOf { EditIcon { /* Opens the Edit Playlist Screen */ } })
-        },
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute())
-        },
-        content = { innerPadding ->
-            Column(
-                modifier = Modifier.padding(innerPadding).padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(36.dp),
-                    modifier = Modifier.padding(20.dp).height(132.dp)
-                ) {
+  val sample =
+      SpotifyTrack(
+          name = "This is a song",
+          trackId = "1",
+          cover = "",
+          duration = 1,
+          popularity = 50,
+          state = State.PAUSE)
+
+  Scaffold(
+      modifier = Modifier.testTag("playlistOverviewScreen"),
+      topBar = {
+        ScreenTopAppBar(
+            selectedPlaylistState.playlistName,
+            "playlistName",
+            navigationActions,
+            listOf { EditButton { /* Opens the Edit Playlist Screen */} })
+      },
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding).padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              Row(
+                  horizontalArrangement = Arrangement.spacedBy(46.dp),
+                  modifier =
+                      Modifier.padding(vertical = 16.dp, horizontal = 50.dp).height(122.dp)) {
                     // Cover image
                     Card(
                         modifier = Modifier.testTag("playlistCoverCard"),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.cover_test1), // TODO
-                            contentDescription = "Playlist cover",
-                            modifier = Modifier.size(132.dp))
-                    }
+                        shape = RoundedCornerShape(10.dp)) {
+                          Image(
+                              painter = painterResource(id = R.drawable.cover_test1), // TODO
+                              contentDescription = "Playlist cover",
+                              modifier = Modifier.size(121.dp))
+                        }
 
                     // Playlist details
                     Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                        Text(
-                            text = selectedPlaylistState.playlistName,
-                            style = TypographyPlaylist.headlineLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        IconWithText("@" + selectedPlaylistState.playlistOwner,
-                            "ownerText",
-                            Icons.Outlined.AccountCircle,
-                            TypographyPlaylist.headlineMedium)
-                        IconWithText(selectedPlaylistState.playlistCollaborators.joinToString(", "),
-                            "collaboratorsText",
-                            collab,
-                            TypographyPlaylist.headlineSmall)
-                        IconWithText(if(selectedPlaylistState.playlistPublic) "Public" else "Private",
-                            "publicText",
-                            Icons.Outlined.Lock,
-                            TypographyPlaylist.headlineSmall)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        ViewDescriptionButton {  }
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                FilledButton(
-                    "Add to this playlist",
-                    "addToThisPlaylistButton") {  /* Opens a page to add songs */ }
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween) {
+                          Text(
+                              text = selectedPlaylistState.playlistName,
+                              style = TypographyPlaylist.headlineLarge,
+                              color = MaterialTheme.colorScheme.primary,
+                              modifier = Modifier.testTag("playlistTitle"))
+                          Spacer(modifier = Modifier.height(4.dp))
+                          IconWithText(
+                              "@" + selectedPlaylistState.playlistOwner,
+                              "ownerText",
+                              Icons.Outlined.AccountCircle,
+                              TypographyPlaylist.headlineMedium)
+                          IconWithText(
+                              selectedPlaylistState.playlistCollaborators.joinToString(", "),
+                              "collaboratorsText",
+                              collab,
+                              TypographyPlaylist.headlineSmall)
+                          IconWithText(
+                              if (selectedPlaylistState.playlistPublic) "Public" else "Private",
+                              "publicText",
+                              Icons.Outlined.Lock,
+                              TypographyPlaylist.headlineSmall)
+                          Spacer(modifier = Modifier.height(10.dp))
+                          ViewDescriptionButton {}
+                        }
+                  }
+              Spacer(modifier = Modifier.height(16.dp))
+              FilledButton(
+                  "Add to this playlist",
+                  "addToThisPlaylistButton") { /* Opens a page to add songs */}
+              Spacer(modifier = Modifier.height(16.dp))
+              PrincipalButton(
+                  "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
 
-                if (selectedPlaylistState.nbTracks == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "NO SONGS ADDED",
-                            style = TypographyPlaylist.displayMedium,
-                        )
-                    }
-                } else {
-                    LazyColumn() {
-                        // List of songs
-                    }
+              if (selectedPlaylistState.nbTracks == 1000) {
+                Text(
+                    text = "NO SONGS ADDED",
+                    style = TypographyPlaylist.displayMedium,
+                    modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
+              } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                ) {
+                  // List of songs
+                  items(3) { trackId ->
+                    // val track = playlistViewModel.getTrackById(trackId) // Fetch track details
+                    TrackVoteCard(sample)
+                  }
                 }
+              }
             }
-        }
-    )
-
-
+      })
 }

@@ -259,6 +259,73 @@ object AppIcons {
             }
             .build()
 
+  val collab: ImageVector
+    get() =
+        Builder(
+                name = "collab",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f)
+            .apply {
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(8f, 12f)
+                curveTo(10.21f, 12f, 12f, 10.21f, 12f, 8f)
+                reflectiveCurveTo(10.21f, 4f, 8f, 4f)
+                reflectiveCurveTo(4f, 5.79f, 4f, 8f)
+                reflectiveCurveTo(5.79f, 12f, 8f, 12f)
+                close()
+                moveTo(8f, 6f)
+                curveTo(9.1f, 6f, 10f, 6.9f, 10f, 8f)
+                reflectiveCurveTo(9.1f, 10f, 8f, 10f)
+                reflectiveCurveTo(6f, 9.1f, 6f, 8f)
+                reflectiveCurveTo(6.9f, 6f, 8f, 6f)
+                close()
+              }
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(8f, 13f)
+                curveTo(5.33f, 13f, 0f, 14.34f, 0f, 17f)
+                verticalLineTo(20f)
+                horizontalLineTo(16f)
+                verticalLineTo(17f)
+                curveTo(16f, 14.34f, 10.67f, 13f, 8f, 13f)
+                close()
+                moveTo(14f, 18f)
+                horizontalLineTo(2f)
+                verticalLineTo(17.01f)
+                curveTo(2.2f, 16.29f, 5.3f, 15f, 8f, 15f)
+                reflectiveCurveTo(13.8f, 16.29f, 14f, 17.01f)
+                verticalLineTo(18f)
+                close()
+              }
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(12.51f, 4.05f)
+                curveTo(13.43f, 5.11f, 14f, 6.49f, 14f, 8f)
+                reflectiveCurveTo(13.43f, 10.89f, 12.51f, 11.95f)
+                curveTo(14.47f, 11.7f, 16f, 10.04f, 16f, 8f)
+                reflectiveCurveTo(14.47f, 4.3f, 12.51f, 4.05f)
+                close()
+              }
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(16.53f, 13.83f)
+                curveTo(17.42f, 14.66f, 18f, 15.7f, 18f, 17f)
+                verticalLineTo(20f)
+                horizontalLineTo(20f)
+                verticalLineTo(17f)
+                curveTo(20f, 15.55f, 18.41f, 14.49f, 16.53f, 13.83f)
+                close()
+              }
+            }
+            .build()
+
   val collabAdd: ImageVector
     get() =
         Builder(
@@ -347,6 +414,89 @@ object AppIcons {
                 horizontalLineTo(20f)
                 verticalLineTo(17f)
                 curveTo(20f, 15.55f, 18.41f, 14.49f, 16.53f, 13.83f)
+                close()
+              }
+            }
+            .build()
+
+  val pauseIcon: ImageVector
+    get() =
+        Builder(
+                name = "PauseIcon",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 960f,
+                viewportHeight = 960f)
+            .apply {
+              // First Rectangle
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(600f, 760f)
+                quadTo(567f, 760f, 543.5f, 736.5f)
+                quadTo(520f, 713f, 520f, 680f)
+                lineTo(520f, 280f)
+                quadTo(520f, 247f, 543.5f, 223.5f)
+                quadTo(567f, 200f, 600f, 200f)
+                lineTo(680f, 200f)
+                quadTo(713f, 200f, 736.5f, 223.5f)
+                quadTo(760f, 247f, 760f, 280f)
+                lineTo(760f, 680f)
+                quadTo(760f, 713f, 736.5f, 736.5f)
+                quadTo(713f, 760f, 680f, 760f)
+                close()
+              }
+
+              // Second Rectangle
+              path(
+                  fill = iconsGradientBrush,
+              ) {
+                moveTo(280f, 760f)
+                quadTo(247f, 760f, 223.5f, 736.5f)
+                quadTo(200f, 713f, 200f, 680f)
+                lineTo(200f, 280f)
+                quadTo(200f, 247f, 223.5f, 223.5f)
+                quadTo(247f, 200f, 280f, 200f)
+                lineTo(360f, 200f)
+                quadTo(393f, 200f, 416.5f, 223.5f)
+                quadTo(440f, 247f, 440f, 280f)
+                lineTo(440f, 680f)
+                quadTo(440f, 713f, 416.5f, 736.5f)
+                quadTo(393f, 760f, 360f, 760f)
+                close()
+              }
+            }
+            .build()
+
+  val playIcon: ImageVector
+    get() =
+        Builder(
+                name = "PlayIcon",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 960f,
+                viewportHeight = 960f)
+            .apply {
+              // Outer Triangle Path
+              path(
+                  fill = iconsGradientBrush, // Set the fill color
+              ) {
+                moveTo(320f, 687f)
+                lineTo(320f, 273f)
+                quadTo(320f, 256f, 332f, 244.5f)
+                quadTo(344f, 233f, 360f, 233f)
+                quadTo(365f, 233f, 370.5f, 234.5f)
+                quadTo(376f, 236f, 381f, 239f)
+                lineTo(707f, 446f)
+                quadTo(716f, 452f, 720.5f, 461f)
+                quadTo(725f, 470f, 725f, 480f)
+                quadTo(725f, 490f, 720.5f, 499f)
+                quadTo(716f, 508f, 707f, 514f)
+                lineTo(381f, 721f)
+                quadTo(376f, 724f, 370.5f, 725.5f)
+                quadTo(365f, 727f, 360f, 727f)
+                quadTo(344f, 727f, 332f, 715.5f)
+                quadTo(320f, 704f, 320f, 687f)
                 close()
               }
             }

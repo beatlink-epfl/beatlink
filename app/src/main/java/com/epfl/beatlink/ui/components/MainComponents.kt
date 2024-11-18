@@ -28,8 +28,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -65,6 +63,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -558,21 +557,6 @@ fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
 }
 
 @Composable
-fun EditIcon(onClick: () -> Unit) {
-    IconButton(onClick) {
-        Box(
-            modifier = Modifier.size(28.dp)
-                .background(brush = IconsGradientBrush, shape = CircleShape)
-                .clickable { onClick() }) {
-            Icon(
-                imageVector = Icons.Filled.Edit,
-                contentDescription = "Edit",
-                modifier = Modifier.padding(6.dp))
-        }
-    }
-}
-
-@Composable
 fun ProfilePicture(id: Uri?) {
   // Profile picture
   Image(
@@ -591,23 +575,20 @@ fun ProfilePicture(id: Uri?) {
 
 @Composable
 fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextStyle) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = "icon",
-            modifier = Modifier.size(18.dp)
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "icon",
+        modifier = Modifier.size(18.dp),
+        tint = MaterialTheme.colorScheme.primary)
 
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = text,
-            style = style,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.testTag(textTag)
-        )
-    }
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(
+        text = text,
+        style = style,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.testTag(textTag))
+  }
 }
-
-

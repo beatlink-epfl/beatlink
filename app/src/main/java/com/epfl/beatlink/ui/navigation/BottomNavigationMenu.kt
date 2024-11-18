@@ -39,16 +39,16 @@ fun BottomNavigationMenu(
                     modifier = Modifier.size(24.dp))
               },
               label = {
-                  Text(
-                      text = tab.textId,
-                      color = MaterialTheme.colorScheme.primary,
-                      style =
-                      if (selected) {
+                Text(
+                    text = tab.textId,
+                    color = MaterialTheme.colorScheme.primary,
+                    style =
+                        if (selected) {
                           MaterialTheme.typography.headlineMedium
-                      } else {
+                        } else {
                           MaterialTheme.typography.headlineSmall
-                      },
-                  )
+                        },
+                )
               },
               selected = selectedItem == tab.route,
               onClick = { onTabSelect(tab) },

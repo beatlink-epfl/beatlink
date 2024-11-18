@@ -34,12 +34,12 @@ class CreateNewPlaylistScreenTest {
           playlistID = "mockPlaylistID",
           playlistCover = "",
           playlistName = "playlist 1",
-          playlistDescription = "testingggg",
+          playlistDescription = "testing",
           playlistPublic = false,
           userId = "",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
 
   @get:Rule val composeTestRule = createComposeRule()
