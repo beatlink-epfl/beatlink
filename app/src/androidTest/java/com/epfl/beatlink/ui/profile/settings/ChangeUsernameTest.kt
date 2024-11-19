@@ -60,6 +60,15 @@ class ChangeUsernameTest {
   @Test
   fun changeUsername_updatesUsernameSuccessfully() {
     val newUsername = "newUsername"
+    val newProfileData =
+        ProfileData(
+            bio = "Test Bio",
+            links = 5,
+            name = "Test Name",
+            profilePicture = null,
+            username = newUsername,
+            favoriteMusicGenres = listOf("Pop", "Rock"))
+
     composeTestRule.setContent { ChangeUsername(navigationActions, profileViewModel) }
 
     // Verify initial username is displayed
@@ -73,15 +82,6 @@ class ChangeUsernameTest {
     composeTestRule.onNodeWithTag("saveButton").performClick()
 
     // Verify updateProfile method is called with new data
-    verify {
-      profileViewModel.updateProfile(
-          ProfileData(
-              bio = "Test Bio",
-              links = 5,
-              name = "Test Name",
-              profilePicture = null,
-              username = newUsername,
-              favoriteMusicGenres = listOf("Pop", "Rock")))
-    }
+    verify { profileViewModel.updateProfile(newProfileData) }
   }
 }
