@@ -106,4 +106,33 @@ class FirebaseAuthViewModelTest {
 
     assertThat(firebaseAuthViewModel.authState.value, `is`(AuthState.Idle))
   }
+
+  @Test
+  fun signOutSuccess() {
+    `when`(firebaseAuthRepository.signOut(any(), any())).thenAnswer { invocation ->
+      val onSuccess = invocation.getArgument(0) as () -> Unit
+      onSuccess()
+    }
+
+    firebaseAuthViewModel.signOut()
+
+    assertThat(firebaseAuthViewModel.authState.value, `is`(AuthState.Idle))
+    verify(firebaseAuthRepository).signOut(any(), any())
+  }
+
+  @Test
+  fun signOutFailure() {
+    `when`(firebaseAuthRepository.signOut(any(), any())).thenAnswer { invocation ->
+      val onFailure = invocation.getArgument(1) as (Exception) -> Unit
+      onFailure(Exception("Sign out error"))
+    }
+
+    firebaseAuthViewModel.signOut()
+
+    assertThat(firebaseAuthViewModel.authState.value is AuthState.Error, `is`(true))
+    assertThat(
+        (firebaseAuthViewModel.authState.value as AuthState.Error).message,
+        `is`("Sign out failed: Sign out error"))
+    verify(firebaseAuthRepository).signOut(any(), any())
+  }
 }

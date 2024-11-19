@@ -45,6 +45,20 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  fun signOut() {
+    viewModelScope.launch {
+      authRepository.signOut(
+          onSuccess = {
+            _authState.value = AuthState.Idle // Reset state on successful sign-out
+            Log.d("AuthViewModel", "Sign out successful")
+          },
+          onFailure = { exception ->
+            Log.e("AuthViewModel", "Sign out failed: ${exception.message}")
+            _authState.value = AuthState.Error("Sign out failed: ${exception.message}")
+          })
+    }
+  }
+
   fun resetState() {
     _authState.value = AuthState.Idle
   }

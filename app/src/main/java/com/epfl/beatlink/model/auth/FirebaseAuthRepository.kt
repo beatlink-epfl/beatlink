@@ -10,4 +10,6 @@ interface FirebaseAuthRepository {
   )
 
   fun login(email: String, password: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 }

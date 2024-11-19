@@ -46,6 +46,16 @@ class FirebaseAuthRepositoryFirestore(
     }
   }
 
+  override fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    try {
+      auth.signOut()
+      onSuccess()
+    } catch (e: Exception) {
+      Log.e("AuthRepositoryFirestore", "Sign out failed: ${e.message}")
+      onFailure(e)
+    }
+  }
+
   private fun addUsername(
       userId: String,
       username: String,

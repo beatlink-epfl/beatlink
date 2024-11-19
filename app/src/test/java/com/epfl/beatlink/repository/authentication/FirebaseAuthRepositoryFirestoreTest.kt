@@ -11,11 +11,13 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
@@ -135,5 +137,21 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify that set is called with the correct ProfileData
     verify(mockDocumentReference).set(profileData)
+  }
+
+  @Test
+  fun signOut_shouldCallFirebaseAuthSignOut() {
+    // Mock FirebaseAuth to not throw an exception when signOut is called
+    doNothing().`when`(mockAuth).signOut()
+
+    // Call signOut
+    var onSuccessCalled = false
+    firebaseAuthRepositoryFirestore.signOut(
+        onSuccess = { onSuccessCalled = true },
+        onFailure = { fail("onFailure should not be called") })
+
+    // Verify signOut was called and onSuccess was triggered
+    verify(mockAuth).signOut()
+    assertTrue(onSuccessCalled)
   }
 }
