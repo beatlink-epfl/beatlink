@@ -154,7 +154,7 @@ class MapUsersRepositoryFirestore(
               songName = currentPlayingTrackData["songName"] as String,
               artistName = currentPlayingTrackData["artistName"] as String,
               albumName = currentPlayingTrackData["albumName"] as String,
-              albumCover = currentPlayingTrackData["albumPicture"] as String)
+              albumCover = currentPlayingTrackData["albumCover"] as String)
 
       // Return a new instance of `MapUser` with non-null `currentPlayingTrack`
       MapUser(
@@ -178,9 +178,10 @@ class MapUsersRepositoryFirestore(
         "username" to mapUser.username,
         "currentPlayingTrack" to
             mapOf(
-                "songName" to (mapUser.currentPlayingTrack?.songName ?: ""),
-                "artistName" to (mapUser.currentPlayingTrack?.artistName ?: ""),
-                "albumName" to (mapUser.currentPlayingTrack?.albumName ?: "")),
+                "songName" to (mapUser.currentPlayingTrack.songName ?: ""),
+                "artistName" to (mapUser.currentPlayingTrack.artistName ?: ""),
+                "albumName" to (mapUser.currentPlayingTrack.albumName ?: ""),
+                "albumCover" to (mapUser.currentPlayingTrack.albumCover ?: "")),
         "location" to
             mapOf(
                 "latitude" to mapUser.location.latitude, "longitude" to mapUser.location.longitude))
