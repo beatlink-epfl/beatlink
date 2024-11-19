@@ -59,8 +59,7 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                   onValueChange = { username = it },
                   label = "Username",
                   placeholder = "Enter your new username",
-                  modifier = Modifier.testTag("changeUsernameInput")
-              )
+                  modifier = Modifier.testTag("changeUsernameInput"))
               Spacer(modifier = Modifier.height(323.dp))
               PrincipalButton(
                   "Save",
