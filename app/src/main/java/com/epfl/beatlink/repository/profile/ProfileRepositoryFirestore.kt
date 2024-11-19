@@ -17,7 +17,7 @@ import kotlinx.coroutines.tasks.await
  * @param auth The FirebaseAuth instance to use for authentication operations.
  * @param storage The FirebaseStorage instance to use for file storage operations.
  */
-class ProfileRepositoryFirestore(
+open class ProfileRepositoryFirestore(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val storage: FirebaseStorage

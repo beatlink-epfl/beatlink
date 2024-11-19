@@ -112,7 +112,7 @@ fun LoginScreen(
               Spacer(modifier = Modifier.height(16.dp))
 
               // Login button
-              LoginFirebaseButton(
+              LoginButton(
                   authViewModel = firebaseAuthViewModel,
                   email = email,
                   password = password,
@@ -130,7 +130,7 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginFirebaseButton(
+fun LoginButton(
     authViewModel: FirebaseAuthViewModel,
     email: String,
     password: String,
