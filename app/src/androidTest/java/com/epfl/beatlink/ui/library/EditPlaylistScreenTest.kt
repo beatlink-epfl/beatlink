@@ -111,7 +111,7 @@ class EditPlaylistScreenTest {
   fun editPlaylistScreen_deletesPlaylist() {
     composeTestRule.onNodeWithTag("deleteButton").performClick()
 
-    Mockito.verify(navigationActions).navigateTo(MY_PLAYLISTS)
+    Mockito.verify(navigationActions).navigateToAndClearBackStack(MY_PLAYLISTS, 2)
   }
 
   @Test
