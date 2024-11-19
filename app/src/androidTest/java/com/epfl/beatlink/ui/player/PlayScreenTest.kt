@@ -21,7 +21,7 @@ import org.mockito.Mockito.`when`
 @RunWith(AndroidJUnit4::class)
 class PlayScreenTest {
   private lateinit var navigationActions: NavigationActions
-  private val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
+  private val track = SpotifyTrack("track", "artist", "trackId", "cover", 100, 100, State.PLAY)
   private val album =
       SpotifyAlbum(
           "spotifyId",

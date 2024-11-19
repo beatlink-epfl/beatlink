@@ -10,7 +10,7 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbum() {
-    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
+    val track = SpotifyTrack("track", "artist", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum =
         SpotifyAlbum(
             "spotifyId",
@@ -36,7 +36,7 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbumCopy() {
-    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
+    val track = SpotifyTrack("track", "artist", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum =
         SpotifyAlbum(
             "spotifyId",
@@ -64,7 +64,7 @@ class SpotifyAlbumTest {
 
   @Test
   fun testSpotifyAlbumEquals() {
-    val track = SpotifyTrack("track", "trackId", "cover", 100, 100, State.PLAY)
+    val track = SpotifyTrack("track", "artist", "trackId", "cover", 100, 100, State.PLAY)
     val spotifyAlbum1 =
         SpotifyAlbum(
             "spotifyId",
