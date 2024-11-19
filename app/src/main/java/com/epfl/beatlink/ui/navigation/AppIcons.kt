@@ -418,5 +418,4 @@ object AppIcons {
               }
             }
             .build()
-
 }

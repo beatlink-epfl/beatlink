@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,10 +52,15 @@ fun MyPlaylistsScreen(navigationActions: NavigationActions, playlistViewModel: P
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               if (playlistListFlow.isEmpty()) {
-                Text(
-                    text = "No playlists yet",
-                    color = MaterialTheme.colorScheme.primaryGray,
-                    modifier = Modifier.testTag("emptyPlaylistsPrompt"))
+                Box(
+                    modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
+                    contentAlignment = Alignment.Center) {
+                      Text(
+                          text = "No playlists yet",
+                          color = MaterialTheme.colorScheme.primaryGray,
+                          style = MaterialTheme.typography.bodyLarge,
+                          modifier = Modifier.align(Alignment.Center))
+                    }
               } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),

@@ -70,7 +70,7 @@ fun PlaylistOverviewScreen(
             selectedPlaylistState.playlistName,
             "playlistName",
             navigationActions,
-            listOf { EditButton { navigationActions.navigateTo(EDIT_PLAYLIST)} })
+            listOf { EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
       },
       bottomBar = {
         BottomNavigationMenu(
@@ -145,7 +145,7 @@ fun PlaylistOverviewScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                 ) {
                   // List of songs
-                  items(3) { trackId ->
+                  items(1) { trackId ->
                     // val track = playlistViewModel.getTrackById(trackId) // Fetch track details
                     TrackVoteCard(sample)
                   }

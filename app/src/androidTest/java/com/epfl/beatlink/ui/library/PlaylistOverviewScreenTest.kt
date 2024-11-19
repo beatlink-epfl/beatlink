@@ -4,17 +4,20 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.verify
 
 class PlaylistOverviewScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
@@ -22,6 +25,19 @@ class PlaylistOverviewScreenTest {
   private lateinit var navigationActions: NavigationActions
 
   private val playlist =
+      Playlist(
+          playlistID = "1",
+          playlistCover = "",
+          playlistName = "playlist 1",
+          playlistDescription = "testing",
+          playlistPublic = false,
+          userId = "",
+          playlistOwner = "luna",
+          playlistCollaborators = listOf("collab1"),
+          playlistTracks = emptyList(),
+          nbTracks = 1000) // TODO change to 0
+
+  private val playlist2 =
       Playlist(
           playlistID = "1",
           playlistCover = "",
@@ -44,7 +60,7 @@ class PlaylistOverviewScreenTest {
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
 
-    playlistViewModel.selectPlaylist(playlist)
+    playlistViewModel.selectPlaylist(playlist2)
     composeTestRule.setContent { PlaylistOverviewScreen(navigationActions, playlistViewModel) }
   }
 
@@ -64,6 +80,7 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("viewDescriptionButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addToThisPlaylistButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("exportButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackVoteCard").assertIsDisplayed()
   }
 
   @Test
@@ -76,5 +93,35 @@ class PlaylistOverviewScreenTest {
     composeTestRule
         .onNodeWithTag("collaboratorsText")
         .assertTextContains(playlist.playlistCollaborators[0])
+  }
+
+  @Test
+  fun TextIsShownWhenNoTracks() {
+    playlistViewModel.selectPlaylist(playlist)
+    composeTestRule.onNodeWithTag("emptyPlaylistPrompt").assertIsDisplayed()
+  }
+
+  @Test
+  fun testNavigationToHome() {
+    composeTestRule.onNodeWithTag("Home").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+  }
+
+  @Test
+  fun testNavigationToSearch() {
+    composeTestRule.onNodeWithTag("Search").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
+  }
+
+  @Test
+  fun testNavigationToLibrary() {
+    composeTestRule.onNodeWithTag("Library").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
+  }
+
+  @Test
+  fun testNavigationToProfile() {
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }

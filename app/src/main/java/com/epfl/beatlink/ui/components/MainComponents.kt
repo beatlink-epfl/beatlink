@@ -168,6 +168,7 @@ fun CustomInputField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     supportingText: String? = null,
+    isError: Boolean = false,
     trailingIcon: ImageVector? = null
 ) {
   Column {
@@ -187,9 +188,18 @@ fun CustomInputField(
                 unfocusedTextColor = MaterialTheme.colorScheme.primary,
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 errorTextColor = MaterialTheme.colorScheme.error,
-                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+                focusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary,
+                focusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary),
         trailingIcon = {
           trailingIcon?.let {
             Icon(

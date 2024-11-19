@@ -18,10 +18,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlaylistViewModelTest {
@@ -95,9 +95,15 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun addToDoCallsRepository() {
+  fun addPlaylistCallsRepository() {
     playlistViewModel.addPlaylist(playlist)
     verify(playlistRepository).addPlaylist(eq(playlist), any(), any())
+  }
+
+  @Test
+  fun deletePlaylistCallsRepository() {
+    playlistViewModel.deletePlaylist("test")
+    verify(playlistRepository).deletePlaylistById(eq("test"), any(), any())
   }
 
   @Test
@@ -157,7 +163,6 @@ class PlaylistViewModelTest {
 
     playlistViewModel.updateTrackCount(playlist, newTrackCount)
 
-    // Verify that getPlaylists() was called to refresh the playlist list
     verify(playlistRepository).getPlaylists(any(), any())
   }
 
@@ -173,9 +178,6 @@ class PlaylistViewModelTest {
         .addPlaylist(eq(playlist), any(), any())
 
     playlistViewModel.addPlaylist(playlist)
-
-    // Ensure that onFailure callback was handled by logging or other means (log check could be here
-    // if needed)
   }
 
   @Test
@@ -190,7 +192,37 @@ class PlaylistViewModelTest {
         .updatePlaylist(eq(playlist2), any(), any())
 
     playlistViewModel.updatePlaylist(playlist2)
+  }
 
-    // Ensure that onFailure callback was handled by logging or other means
+  @Test
+  fun deletePlaylist_shouldCallOnFailure_whenDeleteFails() = runTest {
+    val playlistUID = "test_playlist_id"
+    val exception = Exception("Failed to delete playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .deletePlaylistById(eq(playlistUID), any(), any())
+
+    playlistViewModel.deletePlaylist(playlistUID)
+  }
+
+  @Test
+  fun deletePlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
+    val playlistID = "test"
+    doAnswer { invocation ->
+          (invocation.arguments[1] as () -> Unit).invoke() // invoke onSuccess callback
+          null
+        }
+        .`when`(playlistRepository)
+        .deletePlaylistById(eq(playlistID), any(), any())
+
+    playlistViewModel.deletePlaylist(playlistID)
+
+    // Assert: Verify both delete and refresh actions
+    verify(playlistRepository).deletePlaylistById(eq(playlistID), any(), any())
+    verify(playlistRepository).getPlaylists(any(), any())
   }
 }

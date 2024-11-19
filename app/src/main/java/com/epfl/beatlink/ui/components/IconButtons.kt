@@ -59,13 +59,11 @@ fun EditButton(onClick: () -> Unit) {
 
 @Composable
 fun DeleteButton(onClick: () -> Unit) {
+  IconButton(onClick = onClick, modifier = Modifier.testTag("deleteButton")) {
     Icon(
         imageVector = Icons.Outlined.Delete,
         contentDescription = "delete",
-        modifier = Modifier
-            .size(28.dp)
-            .testTag("deleteButton")
-            .clickable { onClick() },
-        tint = MaterialTheme.colorScheme.error
-    )
+        modifier = Modifier.size(28.dp),
+        tint = MaterialTheme.colorScheme.error)
+  }
 }

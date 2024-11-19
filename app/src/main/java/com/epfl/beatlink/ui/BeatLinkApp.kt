@@ -15,6 +15,7 @@ import com.epfl.beatlink.ui.authentication.ProfileBuildScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
+import com.epfl.beatlink.ui.library.EditPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.library.MyPlaylistsScreen
 import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
@@ -91,6 +92,9 @@ fun BeatLinkApp(
       composable(Screen.LIBRARY) { LibraryScreen(navigationActions, playlistViewModel) }
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+      }
+      composable(Screen.EDIT_PLAYLIST) {
+        EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
       composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
       composable(Screen.PLAYLIST_OVERVIEW) {

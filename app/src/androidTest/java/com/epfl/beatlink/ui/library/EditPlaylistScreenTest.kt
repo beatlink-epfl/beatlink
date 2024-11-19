@@ -12,21 +12,26 @@ import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 
-class CreateNewPlaylistScreenTest {
+class EditPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
+
   // private  lateinit var profileRepository: ProfileRepository
   private lateinit var playlistViewModel: PlaylistViewModel
+
   // private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
@@ -53,10 +58,12 @@ class CreateNewPlaylistScreenTest {
     // profileViewModel = ProfileViewModel(profileRepository)
 
     navigationActions = mock(NavigationActions::class.java)
-    `when`(navigationActions.currentRoute()).thenReturn(Screen.CREATE_NEW_PLAYLIST)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.EDIT_PLAYLIST)
+
+    playlistViewModel.selectPlaylist(playlist)
 
     composeTestRule.setContent {
-      CreateNewPlaylistScreen(
+      EditPlaylistScreen(
           navigationActions, viewModel(factory = ProfileViewModel.Factory), playlistViewModel)
     }
   }
@@ -64,14 +71,20 @@ class CreateNewPlaylistScreenTest {
   @Test
   fun everythingIsDisplayed() {
     // The screen is displayed
-    composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("editPlaylistScreen").assertIsDisplayed()
     // The title is displayed
-    composeTestRule.onNodeWithTag("createNewPlaylistTitle").assertIsDisplayed()
     composeTestRule
-        .onNodeWithTag("createNewPlaylistTitle")
-        .assertTextEquals("Create a new playlist")
+        .onNodeWithTag("editPlaylistTitle")
+        .assertIsDisplayed()
+        .assertTextEquals("Edit " + playlistViewModel.selectedPlaylist.value!!.playlistName)
+
+    assertEquals("playlist 1", playlistViewModel.selectedPlaylist.value!!.playlistName)
+    assertEquals("testing", playlistViewModel.selectedPlaylist.value!!.playlistDescription)
+
     // The back button is displayed
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
+    // The delete button is displayed
+    composeTestRule.onNodeWithTag("deleteButton").assertIsDisplayed()
     // The bottom nav bar is displayed
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     // The playlist cover rectangle is displayed
@@ -91,33 +104,65 @@ class CreateNewPlaylistScreenTest {
     composeTestRule.onNodeWithTag("collabButton").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("collabBox").performScrollTo().assertIsDisplayed()
     // The create button is displayed
-    composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().assertIsDisplayed()
   }
 
   @Test
-  fun buttonsWorkCorrectly() {
-    composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
-    composeTestRule.onNodeWithTag("collabButton").performScrollTo().performClick()
-    composeTestRule.onNodeWithTag("gradientSwitch").performScrollTo().performClick()
+  fun editPlaylistScreen_deletesPlaylist() {
+    composeTestRule.onNodeWithTag("deleteButton").performClick()
+
+    Mockito.verify(navigationActions).navigateTo(MY_PLAYLISTS)
   }
 
   @Test
-  fun createPlaylistButtonWorks() {
-    // Mock the getNewUid() method to return a known value
-
-    val mockPlaylistID = "mockPlaylistID"
-    `when`(playlistViewModel.getNewUid()).thenReturn(mockPlaylistID)
-
-    // Set values for title and description
-    composeTestRule.onNodeWithTag("inputPlaylistTitle").performTextInput("New Playlist")
+  fun editPlaylistScreen_updatesPlaylist() {
+    composeTestRule
+        .onNodeWithTag("inputPlaylistTitle")
+        .assertIsDisplayed()
+        .performTextInput("Updated Playlist Title")
     composeTestRule
         .onNodeWithTag("inputPlaylistDescription")
-        .performTextInput("Playlist Description")
+        .assertIsDisplayed()
+        .performTextInput("This is a valid playlist description.")
+    composeTestRule.waitForIdle()
 
-    // Click the "Create" button
-    composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
+    composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
 
-    verify(playlistRepository).addPlaylist(any(), any(), any())
+    val newPlaylist =
+        Playlist(
+            playlistID = "mockPlaylistID",
+            playlistCover = "",
+            playlistName = "Updated Playlist Title",
+            playlistDescription = "This is a valid playlist description.",
+            playlistPublic = false,
+            userId = "",
+            playlistOwner = "luna",
+            playlistCollaborators = emptyList(),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+    playlistViewModel.updatePlaylist(newPlaylist)
+    playlistViewModel.selectPlaylist(newPlaylist)
+    // Verify that the navigation to Playlist Overview happens
+    // verify(navigationActions).navigateTo(PLAYLIST_OVERVIEW)
+
+    // Optionally verify that the playlist data was updated
+    val updatedPlaylist = playlistViewModel.selectedPlaylist.value!!
+    assertEquals("Updated Playlist Title", updatedPlaylist.playlistName)
+    assertEquals("This is a valid playlist description.", updatedPlaylist.playlistDescription)
+  }
+
+  @Test
+  fun deletePlaylistButtonWorks() {
+    composeTestRule.onNodeWithTag("deleteButton").performClick()
+
+    verify(playlistRepository).deletePlaylistById(any(), any(), any())
+  }
+
+  @Test
+  fun updatePlaylistButtonWorks() {
+    composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
+
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 
   @Test

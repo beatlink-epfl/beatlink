@@ -10,6 +10,8 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -115,5 +117,47 @@ class LibraryScreenTest {
     playlistViewModel.getPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
+  }
+
+  @Test
+  fun playlistItemsNavigatesToPlaylistOverview() {
+    `when`(playlistRepository.getPlaylists(any(), any())).then {
+      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
+    }
+    playlistViewModel.getPlaylists()
+
+    composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed().performClick()
+    playlistViewModel.selectPlaylist(playlist)
+    verify(navigationActions).navigateTo(PLAYLIST_OVERVIEW)
+  }
+
+  @Test
+  fun testNavigationToHome() {
+    composeTestRule.onNodeWithTag("Home").performClick()
+    org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+  }
+
+  @Test
+  fun testNavigationToSearch() {
+    composeTestRule.onNodeWithTag("Search").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.SEARCH)
+  }
+
+  @Test
+  fun testNavigationToLibrary() {
+    composeTestRule.onNodeWithTag("Library").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.LIBRARY)
+  }
+
+  @Test
+  fun testNavigationToProfile() {
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }

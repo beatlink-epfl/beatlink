@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
@@ -28,7 +29,7 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 @Composable
 fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
   Card(
-      modifier = Modifier.fillMaxSize(),
+      modifier = Modifier.fillMaxSize().testTag("trackVoteCard"),
       colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
           Image(
