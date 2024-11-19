@@ -140,7 +140,7 @@ fun PlaylistOverviewScreen(
               PrincipalButton(
                   "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
               Spacer(modifier = Modifier.height(16.dp))
-              if (selectedPlaylistState.nbTracks == 1000) {
+              if (selectedPlaylistState.nbTracks == 0) {
                 Text(
                     text = "NO SONGS ADDED",
                     style = TypographyPlaylist.displayMedium,

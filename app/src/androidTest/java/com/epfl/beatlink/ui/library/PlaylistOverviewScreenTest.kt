@@ -36,7 +36,7 @@ class PlaylistOverviewScreenTest {
           playlistOwner = "luna",
           playlistCollaborators = listOf("collab1"),
           playlistTracks = emptyList(),
-          nbTracks = 1000) // TODO change to 0
+          nbTracks = 0)
 
   private val playlist2 =
       Playlist(
@@ -49,7 +49,7 @@ class PlaylistOverviewScreenTest {
           playlistOwner = "luna",
           playlistCollaborators = listOf("collab1"),
           playlistTracks = emptyList(),
-          nbTracks = 0)
+          nbTracks = 10)
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -81,7 +81,18 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("addToThisPlaylistButton").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().assertIsDisplayed()
+  }
+
+  @Test
+  fun TrackCardDisplaysWhenNotEmpty() {
+    playlistViewModel.selectPlaylist(playlist2)
     composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
+  }
+
+  @Test
+  fun TextDisplaysWhenEmpty() {
+    playlistViewModel.selectPlaylist(playlist)
+    composeTestRule.onNodeWithTag("emptyPlaylistPrompt").performScrollTo().assertIsDisplayed()
   }
 
   @Test

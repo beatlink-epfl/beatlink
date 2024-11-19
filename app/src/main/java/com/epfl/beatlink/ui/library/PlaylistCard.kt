@@ -53,7 +53,7 @@ fun PlaylistCard(
           Image(
               painter = painterResource(id = R.drawable.cover_test1), // TODO
               contentDescription = "Playlist cover",
-              modifier = Modifier.size(80.dp).padding(horizontal = 12.dp))
+              modifier = Modifier.size(90.dp).padding(horizontal = 12.dp))
 
           // Playlist details
           Column(modifier = Modifier.weight(1f)) {
