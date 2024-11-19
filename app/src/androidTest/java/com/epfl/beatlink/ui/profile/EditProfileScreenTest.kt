@@ -52,8 +52,7 @@ class EditProfileScreenTest {
                     links = 5,
                     name = testName,
                     profilePicture = null,
-                    username = "johndoe")
-        )
+                    username = "johndoe"))
 
     every { navigationActions.currentRoute() } returns Route.PROFILE
 
@@ -144,8 +143,7 @@ class EditProfileScreenTest {
               links = 5,
               name = testName,
               profilePicture = null,
-              username = "johndoe")
-      )
+              username = "johndoe"))
     }
   }
 

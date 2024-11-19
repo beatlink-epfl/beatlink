@@ -81,4 +81,173 @@ class ProfileViewModelTest {
     // Assert
     assertEquals(null, viewModel.profile.value)
   }
+
+  @Test
+  fun `addProfile updates profile state when successful`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val newProfile =
+        ProfileData(
+            bio = "New bio",
+            links = 3,
+            name = "Jane Doe",
+            profilePicture = null,
+            username = "janedoe")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.addProfile(userId, newProfile)).thenReturn(true)
+
+    // Act
+    viewModel.addProfile(newProfile)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(newProfile, actualProfile)
+  }
+
+  @Test
+  fun `addProfile does not update profile when operation fails`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val newProfile =
+        ProfileData(
+            bio = "New bio",
+            links = 3,
+            name = "Jane Doe",
+            profilePicture = null,
+            username = "janedoe")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.addProfile(userId, newProfile)).thenReturn(false)
+
+    // Act
+    viewModel.addProfile(newProfile)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(null, actualProfile)
+  }
+
+  @Test
+  fun `updateProfile updates profile state when successful`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val existingProfile =
+        ProfileData(
+            bio = "Existing bio",
+            links = 3,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe")
+    val updatedProfile = existingProfile.copy(bio = "Updated bio", name = "John Doe Updated")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(true)
+
+    // Act
+    viewModel.updateProfile(updatedProfile)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(updatedProfile, actualProfile)
+  }
+
+  @Test
+  fun `updateProfile does not update profile when operation fails`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val updatedProfile =
+        ProfileData(
+            bio = "Existing bio",
+            links = 3,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(false)
+
+    // Act
+    viewModel.updateProfile(updatedProfile)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(null, actualProfile)
+  }
+
+  @Test
+  fun `deleteProfile clears profile state when successful`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val existingProfile =
+        ProfileData(
+            bio = "Existing bio",
+            links = 3,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
+    `when`(mockRepository.deleteProfile(userId)).thenReturn(true)
+
+    viewModel.addProfile(existingProfile) // Adding an initial profile
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Act
+    viewModel.deleteProfile()
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(null, actualProfile)
+  }
+
+  @Test
+  fun `deleteProfile does not clear profile state when operation fails`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val existingProfile =
+        ProfileData(
+            bio = "Existing bio",
+            links = 3,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe")
+
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
+    `when`(mockRepository.deleteProfile(userId)).thenReturn(false)
+
+    viewModel.addProfile(existingProfile) // Adding an initial profile
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Act
+    viewModel.deleteProfile()
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val actualProfile = viewModel.profile.value
+    assertEquals(existingProfile, actualProfile)
+  }
 }

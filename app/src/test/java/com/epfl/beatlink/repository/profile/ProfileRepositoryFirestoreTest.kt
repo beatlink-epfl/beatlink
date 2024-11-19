@@ -58,7 +58,32 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `test getProfile returns data when fetch is successful`() = runBlocking {
+  fun `test getUserId returns user ID when user is authenticated`() {
+    // Arrange
+    `when`(mockAuth.currentUser).thenReturn(mockUser)
+    `when`(mockUser.uid).thenReturn("testUserId")
+
+    // Act
+    val userId = repository.getUserId()
+
+    // Assert
+    assert(userId == "testUserId")
+  }
+
+  @Test
+  fun `test getUserId returns null when user is not authenticated`() {
+    // Arrange
+    `when`(mockAuth.currentUser).thenReturn(null)
+
+    // Act
+    val userId = repository.getUserId()
+
+    // Assert
+    assert(userId == null)
+  }
+
+  @Test
+  fun `test fetchProfile returns data when fetch is successful`() = runBlocking {
     // Arrange
     val userId = "testUserId"
     val profileData =
@@ -82,15 +107,59 @@ class ProfileRepositoryFirestoreTest {
 
     // Act
     val result = repository.fetchProfile(userId)
-    println(result)
 
     // Assert
     assert(result == profileData)
   }
 
-  // Test for successful profile update
+  @Test
+  fun `test addProfile returns true when profile is added successfully`() = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+    val profileData =
+        ProfileData(
+            bio = "Sample bio",
+            links = 5,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe",
+            favoriteMusicGenres = listOf("Rock", "Pop"))
+
+    `when`(mockDocumentReference.set(profileData)).thenReturn(Tasks.forResult(null))
+
+    // Act
+    val result = repository.addProfile(userId, profileData)
+
+    // Assert
+    assert(result)
+  }
+
+  @Test
+  fun `test addProfile returns false when profile addition fails`() = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+    val profileData =
+        ProfileData(
+            bio = "Sample bio",
+            links = 5,
+            name = "John Doe",
+            profilePicture = null,
+            username = "johndoe",
+            favoriteMusicGenres = listOf("Rock", "Pop"))
+
+    `when`(mockDocumentReference.set(profileData))
+        .thenReturn(Tasks.forException(Exception("Add failed")))
+
+    // Act
+    val result = repository.addProfile(userId, profileData)
+
+    // Assert
+    assert(!result)
+  }
+
   @Test
   fun `test updateProfile returns true when update is successful`() = runBlocking {
+    // Arrange
     val userId = "testUserId"
     val profileData =
         ProfileData(
@@ -102,14 +171,16 @@ class ProfileRepositoryFirestoreTest {
 
     `when`(mockDocumentReference.set(profileData)).thenReturn(Tasks.forResult(null))
 
+    // Act
     val result = repository.updateProfile(userId, profileData)
 
+    // Assert
     assert(result)
   }
 
-  // Test for failed profile update
   @Test
   fun `test updateProfile returns false when update fails`() = runBlocking {
+    // Arrange
     val userId = "testUserId"
     val profileData =
         ProfileData(
@@ -122,33 +193,40 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockDocumentReference.set(profileData))
         .thenReturn(Tasks.forException(Exception("Update failed")))
 
+    // Act
     val result = repository.updateProfile(userId, profileData)
 
+    // Assert
     assert(!result)
   }
 
   @Test
-  fun `test getUserId returns user ID when user is authenticated`() {
+  fun `test deleteProfile returns true when profile is deleted successfully`() = runBlocking {
     // Arrange
-    `when`(mockAuth.currentUser).thenReturn(mockUser)
-    `when`(mockUser.uid).thenReturn("testUserId")
+    val userId = "testUserId"
+
+    `when`(mockDocumentReference.delete())
+        .thenReturn(Tasks.forResult(null)) // Simulate successful deletion
 
     // Act
-    val userId = repository.getUserId()
+    val result = repository.deleteProfile(userId)
 
     // Assert
-    assert(userId == "testUserId")
+    assert(result)
   }
 
   @Test
-  fun `test getUserId returns null when user is not authenticated`() {
+  fun `test deleteProfile returns false when profile deletion fails`() = runBlocking {
     // Arrange
-    `when`(mockAuth.currentUser).thenReturn(null)
+    val userId = "testUserId"
+
+    `when`(mockDocumentReference.delete())
+        .thenReturn(Tasks.forException(Exception("Delete failed")))
 
     // Act
-    val userId = repository.getUserId()
+    val result = repository.deleteProfile(userId)
 
     // Assert
-    assert(userId == null)
+    assert(!result)
   }
 }

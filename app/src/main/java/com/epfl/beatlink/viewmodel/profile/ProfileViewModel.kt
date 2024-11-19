@@ -24,6 +24,7 @@ class ProfileViewModel(
     private val repository: ProfileRepositoryFirestore,
     initialProfile: ProfileData? = null
 ) : ViewModel() {
+
   private val _profileImageUrl = MutableLiveData<String?>()
   val profileImageUrl: LiveData<String?>
     get() = _profileImageUrl
@@ -40,14 +41,15 @@ class ProfileViewModel(
     }
   }
 
-  /*fun uploadProfilePicture(imageUri: File) {
+  fun addProfile(profileData: ProfileData) {
+    val userId = repository.getUserId() ?: return
     viewModelScope.launch {
-      val imageUrl = repository.uploadProfilePicture(imageUri)
-      imageUrl?.let {
-        _profileImageUrl.value = it // Set URL as String after upload
+      val success = repository.addProfile(userId, profileData)
+      if (success) {
+        _profile.value = profileData
       }
     }
-  }*/
+  }
 
   fun updateProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
@@ -59,7 +61,26 @@ class ProfileViewModel(
     }
   }
 
-  // create factory
+  fun deleteProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.deleteProfile(userId)
+      if (success) {
+        _profile.value = null
+      }
+    }
+  }
+
+  /*fun uploadProfilePicture(imageUri: File) {
+    viewModelScope.launch {
+      val imageUrl = repository.uploadProfilePicture(imageUri)
+      imageUrl?.let {
+        _profileImageUrl.value = it // Set URL as String after upload
+      }
+    }
+  }*/
+
+  // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
