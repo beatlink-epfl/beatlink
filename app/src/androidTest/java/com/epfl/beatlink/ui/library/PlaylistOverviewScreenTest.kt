@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -72,15 +73,15 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("editButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("playlistCoverCard").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("playlistTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("ownerText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("collaboratorsText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("ownerText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("publicText").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("viewDescriptionButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("addToThisPlaylistButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("exportButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("trackVoteCard").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playlistTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("collaboratorsText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("publicText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("addToThisPlaylistButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
   }
 
   @Test

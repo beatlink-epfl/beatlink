@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,10 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
@@ -80,7 +84,10 @@ fun PlaylistOverviewScreen(
       },
       content = { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(vertical = 16.dp),
+            modifier =
+                Modifier.padding(innerPadding)
+                    .padding(vertical = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
                   horizontalArrangement = Arrangement.spacedBy(46.dp),
@@ -132,23 +139,24 @@ fun PlaylistOverviewScreen(
               Spacer(modifier = Modifier.height(16.dp))
               PrincipalButton(
                   "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
-
+              Spacer(modifier = Modifier.height(16.dp))
               if (selectedPlaylistState.nbTracks == 1000) {
                 Text(
                     text = "NO SONGS ADDED",
                     style = TypographyPlaylist.displayMedium,
                     modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
               } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier.fillMaxSize().padding(vertical = 16.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-                ) {
-                  // List of songs
-                  items(1) { trackId ->
-                    // val track = playlistViewModel.getTrackById(trackId) // Fetch track details
-                    TrackVoteCard(sample)
-                  }
+                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 400.dp)) {
+                  LazyColumn(
+                      verticalArrangement = Arrangement.Top,
+                      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+                      modifier = Modifier.fillMaxSize()) {
+                        // List of tracks
+                        items(1) { trackId ->
+                          // val track = playlistViewModel.getTrackById(trackId)
+                          TrackVoteCard(sample)
+                        }
+                      }
                 }
               }
             }
