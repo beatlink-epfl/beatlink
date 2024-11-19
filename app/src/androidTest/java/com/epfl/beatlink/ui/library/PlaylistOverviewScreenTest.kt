@@ -68,7 +68,7 @@ class PlaylistOverviewScreenTest {
   @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("playlistOverviewScreen").assertIsDisplayed()
-      /*
+    /*
     composeTestRule.onNodeWithTag("playlistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
