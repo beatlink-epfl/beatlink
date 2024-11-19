@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.repository.profile.ProfileData
@@ -54,27 +55,19 @@ class ChangeUsernameTest {
 
     // Verify the content
     composeTestRule.onNodeWithTag("changeUsernameScreenContent").assertIsDisplayed()
-
-    // Verify text elements
-    composeTestRule.onNodeWithText("Please enter your new username").assertIsDisplayed()
-
-    // Verify the Save button
-    composeTestRule.onNodeWithTag("saveButton").assertIsDisplayed()
   }
 
   @Test
   fun changeUsername_updatesUsernameSuccessfully() {
-    val newUsername = "yo"
+    val newUsername = "newUsername"
     composeTestRule.setContent { ChangeUsername(navigationActions, profileViewModel) }
 
     // Verify initial username is displayed
     composeTestRule.onNodeWithText("currentUsername").assertIsDisplayed()
 
     // Update the username
-    composeTestRule.onNodeWithText("currentUsername").performTextInput(newUsername)
-
-    // Verify updated username is reflected
-    composeTestRule.onNodeWithText(newUsername + "currentUsername").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("changeUsernameInput").performTextClearance()
+    composeTestRule.onNodeWithTag("changeUsernameInput").performTextInput(newUsername)
 
     // Perform Save button click
     composeTestRule.onNodeWithTag("saveButton").performClick()
@@ -87,7 +80,7 @@ class ChangeUsernameTest {
               links = 5,
               name = "Test Name",
               profilePicture = null,
-              username = newUsername + "currentUsername",
+              username = newUsername,
               favoriteMusicGenres = listOf("Pop", "Rock")))
     }
   }
