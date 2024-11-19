@@ -68,11 +68,11 @@ class PlaylistOverviewScreenTest {
   @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("playlistOverviewScreen").assertIsDisplayed()
-    /*
     composeTestRule.onNodeWithTag("playlistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("editButton").assertIsDisplayed()
+    /*
     composeTestRule.onNodeWithTag("playlistCoverCard").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("playlistTitle").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
