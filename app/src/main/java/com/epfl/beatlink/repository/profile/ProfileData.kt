@@ -11,6 +11,7 @@ import android.net.Uri
  * @param profilePicture The profile picture of the user with a default value of null
  * @param username The username of the user with a default value of an empty string
  * @param favoriteMusicGenres The user's favorite music genres with a default value of an empty list
+ * @param email The user's email with a default value of an empty string
  * @property MAX_USERNAME_LENGTH The maximum length of the username
  * @property MAX_DESCRIPTION_LENGTH The maximum length of the description
  */
@@ -20,6 +21,7 @@ data class ProfileData(
     val name: String? = null,
     val profilePicture: Uri? = null,
     val username: String = "",
+    val email: String = "",
     val favoriteMusicGenres: List<String> = emptyList()
 ) {
   companion object {
