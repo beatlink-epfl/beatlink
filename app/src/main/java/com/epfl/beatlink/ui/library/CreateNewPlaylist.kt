@@ -189,7 +189,7 @@ fun CreateNewPlaylistScreen(
                       nbTracks = 0)
               playlistViewModel.addPlaylist(newPlaylist)
               playlistViewModel.selectPlaylist(newPlaylist)
-              navigationActions.navigateTo(PLAYLIST_OVERVIEW)
+              navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
             }
           }
         }

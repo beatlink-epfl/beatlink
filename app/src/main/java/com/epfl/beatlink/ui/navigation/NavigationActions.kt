@@ -138,4 +138,27 @@ open class NavigationActions(private val navController: NavHostController) {
   open fun currentRoute(): String {
     return navController.currentDestination?.route ?: ""
   }
+
+  /**
+   * Navigate to the specified screen and clear the specified number of entries from the back stack.
+   *
+   * The specified number of recent screens will be popped from the back stack, and the new screen
+   * will be pushed as the current destination.
+   *
+   * @param screen The screen to navigate to
+   * @param entriesToClear The number of back stack entries to clear
+   */
+  open fun navigateToAndClearBackStack(screen: String, entriesToClear: Int) {
+    // Loop to clear the specified number of entries from the back stack
+    repeat(entriesToClear) {
+      if (navController.previousBackStackEntry != null) {
+        // Pop one back stack entry for each iteration
+        navController.popBackStack()
+      }
+    }
+    // Navigate to the new screen
+    navController.navigate(screen) {
+      launchSingleTop = true // Avoid creating multiple copies of the same destination
+    }
+  }
 }
