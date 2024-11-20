@@ -59,7 +59,7 @@ class PlaylistRepositoryFirestoreTest {
           userId = "",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
   private val playlist2 =
       Playlist(
@@ -71,7 +71,7 @@ class PlaylistRepositoryFirestoreTest {
           userId = "testUserId",
           playlistOwner = "luna2",
           playlistCollaborators = emptyList(),
-          playlistSongs = listOf("thank god"),
+          playlistTracks = listOf("thank god"),
           nbTracks = 1)
 
   @Before
@@ -120,7 +120,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "user123",
             playlistOwner = "owner123",
             playlistCollaborators = listOf("collaborator1", "collaborator2"),
-            playlistSongs = listOf("song1", "song2"),
+            playlistTracks = listOf("song1", "song2"),
             nbTracks = 2)
 
     // Simulate `getString` and `getBoolean` calls on the mocked DocumentSnapshot
@@ -231,7 +231,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "testUserId",
             playlistOwner = "luna2",
             playlistCollaborators = emptyList(),
-            playlistSongs = listOf("thank god"),
+            playlistTracks = listOf("thank god"),
             nbTracks = 1)
     val mockDocumentSnapshot1 = mock(DocumentSnapshot::class.java)
     val mockDocumentSnapshot2 = mock(DocumentSnapshot::class.java)
@@ -333,7 +333,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "userID",
             playlistOwner = "owner",
             playlistCollaborators = emptyList(),
-            playlistSongs = emptyList(),
+            playlistTracks = emptyList(),
             nbTracks = 0)
 
     // Call the method to update the playlist
@@ -397,7 +397,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "userID",
             playlistOwner = "owner",
             playlistCollaborators = emptyList(),
-            playlistSongs = emptyList(),
+            playlistTracks = emptyList(),
             nbTracks = 0)
 
     // Simulate the Firestore update response using Tasks.forResult() (success case)
@@ -481,10 +481,10 @@ class PlaylistRepositoryFirestoreTest {
 
     `when`(mockDocumentReference.update("playlistSongs", newSongs))
         .thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.updatePlaylistSongs(
+    playlistRepositoryFirestore.updatePlaylistTracks(
         playlist = playlist1,
         newListSongs = newSongs,
-        onSuccess = { assertEquals(newSongs, playlist1.playlistSongs) },
+        onSuccess = { assertEquals(newSongs, playlist1.playlistTracks) },
         onFailure = { fail("Update failed") })
 
     // Verify that the `update()` method was called with the correct field and value
@@ -498,7 +498,7 @@ class PlaylistRepositoryFirestoreTest {
     `when`(mockDocumentReference.update("playlistSongs", newSongs))
         .thenReturn(Tasks.forException(exception))
 
-    playlistRepositoryFirestore.updatePlaylistSongs(
+    playlistRepositoryFirestore.updatePlaylistTracks(
         playlist1,
         newSongs,
         onSuccess = { fail("Success callback should not be called") },
@@ -518,7 +518,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "testUserId",
             playlistOwner = "username",
             playlistCollaborators = emptyList(),
-            playlistSongs = listOf("song1", "song2"))
+            playlistTracks = listOf("song1", "song2"))
     val newSongsList = listOf("song3", "song4")
 
     // Simulate Firestore successful update
@@ -528,7 +528,7 @@ class PlaylistRepositoryFirestoreTest {
         .thenReturn(Tasks.forResult(null)) // Successful update
 
     // Call the method to update the playlist songs
-    playlistRepositoryFirestore.updatePlaylistSongs(
+    playlistRepositoryFirestore.updatePlaylistTracks(
         playlist = playlist,
         newListSongs = newSongsList,
         onSuccess = {
@@ -552,7 +552,7 @@ class PlaylistRepositoryFirestoreTest {
             userId = "testUserId",
             playlistOwner = "username",
             playlistCollaborators = emptyList(),
-            playlistSongs = listOf("song1", "song2"))
+            playlistTracks = listOf("song1", "song2"))
     val newSongsList = listOf("song3", "song4")
 
     // Simulate Firestore failed update by using Tasks.forException()
@@ -562,7 +562,7 @@ class PlaylistRepositoryFirestoreTest {
         .thenReturn(Tasks.forException(Exception("Firestore update error"))) // Simulate failure
 
     // Call the method to update the playlist songs
-    playlistRepositoryFirestore.updatePlaylistSongs(
+    playlistRepositoryFirestore.updatePlaylistTracks(
         playlist = playlist,
         newListSongs = newSongsList,
         onSuccess = {

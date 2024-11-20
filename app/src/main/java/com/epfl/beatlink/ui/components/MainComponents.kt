@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -167,6 +168,7 @@ fun CustomInputField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     supportingText: String? = null,
+    isError: Boolean = false,
     trailingIcon: ImageVector? = null
 ) {
   Column {
@@ -186,9 +188,18 @@ fun CustomInputField(
                 unfocusedTextColor = MaterialTheme.colorScheme.primary,
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 errorTextColor = MaterialTheme.colorScheme.error,
-                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+                focusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary,
+                focusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary),
         trailingIcon = {
           trailingIcon?.let {
             Icon(
@@ -570,4 +581,24 @@ fun ProfilePicture(id: Uri?) {
               .testTag("profilePicture")
               .clip(CircleShape)
               .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
+}
+
+@Composable
+fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextStyle) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "icon",
+        modifier = Modifier.size(18.dp),
+        tint = MaterialTheme.colorScheme.primary)
+
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(
+        text = text,
+        style = style,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.testTag(textTag))
+  }
 }
