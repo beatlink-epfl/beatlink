@@ -70,7 +70,7 @@ fun AccountScreen(
               Spacer(modifier = Modifier.height(35.dp))
               TextInBox(
                   "Change password",
-                  Modifier.clickable { navigationActions.navigateTo("TODO") },
+                  Modifier.clickable { navigationActions.navigateTo(Screen.CHANGE_PASSWORD) },
                   Icons.AutoMirrored.Filled.ArrowForward)
               Spacer(modifier = Modifier.height(45.dp))
               SpotifyAuth(spotifyAuthViewModel)

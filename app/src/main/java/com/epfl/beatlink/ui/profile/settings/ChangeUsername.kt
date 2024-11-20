@@ -28,6 +28,7 @@ import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
@@ -57,8 +58,9 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
               CustomInputField(
                   value = username,
                   onValueChange = { username = it },
-                  label = "Username",
+                  label = "My Username",
                   placeholder = "Enter your new username",
+                  supportingText = "No special characters, no spaces",
                   modifier = Modifier.testTag("changeUsernameInput"))
               Spacer(modifier = Modifier.height(323.dp))
               PrincipalButton(
@@ -76,6 +78,7 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                               favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList())
                       profileViewModel.updateProfile(newData)
                       Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                      navigationActions.navigateTo(Screen.PROFILE)
                     } catch (e: Exception) {
                       e.printStackTrace()
                     }

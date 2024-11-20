@@ -92,5 +92,6 @@ class AccountScreenTest {
 
     // Test "Change password" clickable text box
     composeTestRule.onNodeWithText("Change password").performClick()
+    verify { navigationActions.navigateTo(Screen.CHANGE_PASSWORD) }
   }
 }
