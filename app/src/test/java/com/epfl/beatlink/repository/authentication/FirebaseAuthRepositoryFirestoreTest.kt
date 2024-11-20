@@ -6,6 +6,7 @@ import com.epfl.beatlink.repository.profile.ProfileData
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +51,7 @@ class FirebaseAuthRepositoryFirestoreTest {
     // Set up FirebaseAuth and FirebaseUser
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
     `when`(mockFirebaseUser.uid).thenReturn("testUserId")
+    `when`(mockFirebaseUser.email).thenReturn("test@example.com")
 
     // Set up Firestore collection and document
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
@@ -137,6 +140,115 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify that set is called with the correct ProfileData
     verify(mockDocumentReference).set(profileData)
+  }
+
+  @Test
+  fun verifyPassword_shouldReauthenticateUserSuccessfully() {
+    val testPassword = "testPassword"
+    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
+
+    // Mock FirebaseUser's email and reauthenticate behavior
+    `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
+    `when`(mockFirebaseUser.email).thenReturn("test@example.com")
+    `when`(mockFirebaseUser.reauthenticate(any()))
+        .thenReturn(Tasks.forResult(null)) // Ignore the credential reference
+
+    // Call the method
+    val result = runBlocking { firebaseAuthRepositoryFirestore.verifyPassword(testPassword) }
+
+    // Assert success result
+    assert(result.isSuccess)
+
+    // Verify reauthenticate was called
+    verify(mockFirebaseUser).reauthenticate(any())
+  }
+
+  @Test
+  fun verifyPassword_shouldReturnFailureIfReauthenticationFails() {
+    val testPassword = "wrongPassword"
+    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
+
+    // Mock FirebaseAuth's currentUser and FirebaseUser's behavior
+    `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
+    `when`(mockFirebaseUser.email).thenReturn("test@example.com")
+    `when`(mockFirebaseUser.reauthenticate(any()))
+        .thenReturn(Tasks.forException(Exception("Reauthentication failed")))
+
+    // Call the method
+    val result = runBlocking { firebaseAuthRepositoryFirestore.verifyPassword(testPassword) }
+
+    // Assert failure result
+    assert(result.isFailure)
+    assert(result.exceptionOrNull()?.message == "Reauthentication failed")
+
+    // Verify that reauthenticate was called
+    verify(mockFirebaseUser).reauthenticate(any())
+  }
+
+  @Test
+  fun changePassword_shouldUpdatePasswordSuccessfully() {
+    val newPassword = "newPassword123"
+
+    // Mock the password update process
+    `when`(mockFirebaseUser.updatePassword(newPassword)).thenReturn(Tasks.forResult(null))
+
+    val result = runBlocking { firebaseAuthRepositoryFirestore.changePassword(newPassword) }
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Assert that the result is successful
+    assert(result.isSuccess)
+    verify(mockFirebaseUser).updatePassword(newPassword)
+  }
+
+  @Test
+  fun changePassword_shouldReturnFailureIfUpdateFails() {
+    val newPassword = "newPassword123"
+
+    // Mock the password update process to throw an exception
+    `when`(mockFirebaseUser.updatePassword(newPassword))
+        .thenReturn(Tasks.forException(Exception("Password update failed")))
+
+    val result = runBlocking { firebaseAuthRepositoryFirestore.changePassword(newPassword) }
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Assert that the result is a failure
+    assert(result.isFailure)
+    assert(result.exceptionOrNull()?.message == "Password update failed")
+    verify(mockFirebaseUser).updatePassword(newPassword)
+  }
+
+  @Test
+  fun verifyPassword_shouldReturnFailureIfUserNotAuthenticated() {
+    val testPassword = "testPassword"
+
+    // Mock FirebaseAuth to return null for the current user
+    `when`(mockAuth.currentUser).thenReturn(null)
+
+    // Call the method
+    val result = runBlocking { firebaseAuthRepositoryFirestore.verifyPassword(testPassword) }
+
+    // Assert failure result
+    assert(result.isFailure)
+    assert(result.exceptionOrNull()?.message == "User not authenticated")
+  }
+
+  @Test
+  fun changePassword_shouldReturnFailureIfUserNotAuthenticated() {
+    val newPassword = "newPassword123"
+
+    // Mock FirebaseAuth to return null for the current user
+    `when`(mockAuth.currentUser).thenReturn(null)
+
+    // Call the method
+    val result = runBlocking { firebaseAuthRepositoryFirestore.changePassword(newPassword) }
+
+    // Assert failure result
+    assert(result.isFailure)
+    assert(result.exceptionOrNull()?.message == "User not authenticated")
   }
 
   @Test
