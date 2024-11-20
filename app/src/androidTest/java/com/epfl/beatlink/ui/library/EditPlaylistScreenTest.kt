@@ -28,11 +28,7 @@ import org.mockito.kotlin.verify
 
 class EditPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
-
-  // private  lateinit var profileRepository: ProfileRepository
   private lateinit var playlistViewModel: PlaylistViewModel
-
-  // private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
   private val playlist =
@@ -53,9 +49,7 @@ class EditPlaylistScreenTest {
   @Before
   fun setUp() {
     playlistRepository = mock(PlaylistRepository::class.java)
-    // profileRepository = mock(ProfileRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
-    // profileViewModel = ProfileViewModel(profileRepository)
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.EDIT_PLAYLIST)
@@ -89,7 +83,6 @@ class EditPlaylistScreenTest {
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     // The playlist cover rectangle is displayed
     composeTestRule.onNodeWithTag("playlistCover").assertIsDisplayed()
-    // composeTestRule.onNodeWithTag("emptyCoverText").assertExists().assertIsDisplayed()
     // The input field for title is displayed
     composeTestRule.onNodeWithTag("inputPlaylistTitle").performScrollTo().assertIsDisplayed()
     // The input field for description is displayed
@@ -142,10 +135,8 @@ class EditPlaylistScreenTest {
             nbTracks = 0)
     playlistViewModel.updatePlaylist(newPlaylist)
     playlistViewModel.selectPlaylist(newPlaylist)
-    // Verify that the navigation to Playlist Overview happens
-    // verify(navigationActions).navigateTo(PLAYLIST_OVERVIEW)
 
-    // Optionally verify that the playlist data was updated
+    // verify that the playlist data was updated
     val updatedPlaylist = playlistViewModel.selectedPlaylist.value!!
     assertEquals("Updated Playlist Title", updatedPlaylist.playlistName)
     assertEquals("This is a valid playlist description.", updatedPlaylist.playlistDescription)

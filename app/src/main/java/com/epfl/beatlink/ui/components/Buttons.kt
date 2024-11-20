@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -88,7 +89,7 @@ fun ViewDescriptionButton(onClick: () -> Unit) {
 
 @Composable
 fun VoteButton(gradient: Brush, color: Color, painter: Painter) {
-  var nbVote by remember { mutableStateOf(0) }
+  var nbVote by remember { mutableIntStateOf(0) }
   var isVoted by remember { mutableStateOf(false) }
 
   Box(

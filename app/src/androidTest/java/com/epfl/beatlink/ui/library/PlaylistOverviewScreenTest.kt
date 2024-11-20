@@ -74,26 +74,16 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("editButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("playlistCoverCard").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("playlistTitle").performScrollTo().assertIsDisplayed()
-    /*
-    composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("collaboratorsText").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("publicText").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("addToThisPlaylistButton").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("exportButton").performScrollTo().assertIsDisplayed()
-
-       */
   }
 
   @Test
-  fun TrackCardDisplaysWhenNotEmpty() {
+  fun trackCardDisplaysWhenNotEmpty() {
     playlistViewModel.selectPlaylist(playlist2)
     composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
   }
 
   @Test
-  fun TextDisplaysWhenEmpty() {
+  fun textDisplaysWhenEmpty() {
     playlistViewModel.selectPlaylist(playlist)
     composeTestRule.onNodeWithTag("emptyPlaylistPrompt").performScrollTo().assertIsDisplayed()
   }

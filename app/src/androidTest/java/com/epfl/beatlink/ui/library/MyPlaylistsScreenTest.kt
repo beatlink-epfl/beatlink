@@ -111,6 +111,6 @@ class MyPlaylistsScreenTest {
   @Test
   fun goBackCallsNavActions() {
     composeTestRule.onNodeWithTag("goBackButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).goBack()
+    verify(navigationActions).goBack()
   }
 }
