@@ -12,6 +12,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 
@@ -81,14 +82,16 @@ class MapScreenTest {
 
     mapViewModel.permissionRequired.value = true
 
-    composeTestRule.setContent {
-      MapScreen(
-          navigationActions = NavigationActions(rememberNavController()),
-          spotifyApiViewModel = null,
-          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
-          mapViewModel = mapViewModel)
-    }
+      runBlocking {
+          composeTestRule.setContent {
+              MapScreen(
+                  navigationActions = NavigationActions(rememberNavController()),
+                  spotifyApiViewModel = null,
+                  profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+                  mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+                  mapViewModel = mapViewModel)
+          }
+      }
 
     composeTestRule.waitForIdle()
 
