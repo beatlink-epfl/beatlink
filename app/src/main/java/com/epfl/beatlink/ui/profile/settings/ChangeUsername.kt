@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar

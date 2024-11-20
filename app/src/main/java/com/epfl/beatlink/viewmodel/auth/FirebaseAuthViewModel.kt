@@ -8,7 +8,6 @@ import com.epfl.beatlink.model.auth.AuthState
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.repository.authentication.FirebaseAuthRepositoryFirestore
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,12 +17,11 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
   private val _authState = MutableStateFlow<AuthState>(AuthState.Idle) // Start with Idle state
   val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
-  fun signUp(email: String, password: String, username: String) {
+  fun signUp(email: String, password: String) {
     viewModelScope.launch {
       authRepository.signUp(
           email,
           password,
-          username,
           onSuccess = { _authState.value = AuthState.Success },
           onFailure = { exception ->
             Log.e("AuthViewModel", "Sign up failed: ${exception.message}")
@@ -67,16 +65,14 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     _authState.value = AuthState.Idle
   }
 
-  // Factory
+  // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
           @Suppress("UNCHECKED_CAST")
           override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val firestore = FirebaseFirestore.getInstance()
             val firebaseAuth = FirebaseAuth.getInstance()
-            return FirebaseAuthViewModel(FirebaseAuthRepositoryFirestore(firestore, firebaseAuth))
-                as T
+            return FirebaseAuthViewModel(FirebaseAuthRepositoryFirestore(firebaseAuth)) as T
           }
         }
   }

@@ -15,8 +15,10 @@ import com.epfl.beatlink.ui.authentication.ProfileBuildScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
+import com.epfl.beatlink.ui.library.EditPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.library.MyPlaylistsScreen
+import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -34,6 +36,7 @@ import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
 import com.epfl.beatlink.ui.search.SearchBarScreen
 import com.epfl.beatlink.ui.search.SearchScreen
 import com.epfl.beatlink.ui.search.TrendingSongsScreen
+import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
@@ -51,6 +54,8 @@ fun BeatLinkApp(
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
 
+  val firebaseAuthViewModel: FirebaseAuthViewModel =
+      viewModel(factory = FirebaseAuthViewModel.Factory)
   val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
   val playlistViewModel: PlaylistViewModel = viewModel(factory = PlaylistViewModel.Factory)
 
@@ -66,8 +71,11 @@ fun BeatLinkApp(
   NavHost(navController = navController, startDestination = Route.WELCOME) {
     navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
       composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
-      composable(Screen.LOGIN) { LoginScreen(navigationActions) }
-      composable(Screen.REGISTER) { SignUpScreen(navigationActions, spotifyAuthViewModel) }
+      composable(Screen.LOGIN) { LoginScreen(navigationActions, firebaseAuthViewModel) }
+      composable(Screen.REGISTER) {
+        SignUpScreen(
+            navigationActions, firebaseAuthViewModel, spotifyAuthViewModel, profileViewModel)
+      }
       composable(Screen.PROFILE_BUILD) { ProfileBuildScreen(navigationActions, profileViewModel) }
     }
 
@@ -96,7 +104,13 @@ fun BeatLinkApp(
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
+      composable(Screen.EDIT_PLAYLIST) {
+        EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+      }
       composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
+      composable(Screen.PLAYLIST_OVERVIEW) {
+        PlaylistOverviewScreen(navigationActions, playlistViewModel)
+      }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
