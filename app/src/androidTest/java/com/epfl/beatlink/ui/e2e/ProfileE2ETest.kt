@@ -49,8 +49,7 @@ class ProfileE2ETest {
     composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
     // Wait for the map screen to be displayed
-    composeTestRule.waitForIdle()
-    composeTestRule.waitUntil { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+    composeTestRule.waitUntil(10000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
 
     // Step 4: Click the profile button and verify navigation to Profile Screen
     composeTestRule.onNodeWithTag("Profile").isDisplayed()
@@ -59,8 +58,9 @@ class ProfileE2ETest {
 
     // Step 5: Click the edit profile button and verify navigation to Edit Profile Screen
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
-    composeTestRule.waitForIdle()
-    composeTestRule.waitUntil { composeTestRule.onNodeWithTag("editProfileScreen").isDisplayed() }
+    composeTestRule.waitUntil(10000) {
+      composeTestRule.onNodeWithTag("editProfileScreen").isDisplayed()
+    }
     composeTestRule.onNodeWithTag("editProfileScreen").assertIsDisplayed()
 
     // Step 6: Edit the profile

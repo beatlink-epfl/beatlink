@@ -93,8 +93,6 @@ class MapScreenTest {
       }
     }
 
-    composeTestRule.waitForIdle()
-
     // Simulate permissions granted
     val permissions =
         mapOf(
