@@ -22,6 +22,10 @@ class SpotifyApiViewModel(
   var deviceId: String? = null
   var playbackActive = false
 
+
+  /**
+   * Searches for artists and tracks based on a query.
+   */
   fun searchArtistsAndTracks(
       query: String,
       onSuccess: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit,
@@ -89,6 +93,9 @@ class SpotifyApiViewModel(
     }
   }
 
+    /**
+     * Fetches the current user's top 20 artists from the last 4 weeks.
+     */
   fun getCurrentUserTopArtists(
       onSuccess: (List<SpotifyArtist>) -> Unit,
       onFailure: (List<SpotifyArtist>) -> Unit
@@ -123,6 +130,9 @@ class SpotifyApiViewModel(
     }
   }
 
+  /**
+   * Fetches the current user's top 20 tracks from the last 4 weeks.
+   */
   fun getCurrentUserTopTracks(
       onSuccess: (List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyTrack>) -> Unit
