@@ -3,6 +3,7 @@ package com.epfl.beatlink.viewmodel.spotify.api
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -898,5 +899,126 @@ class SpotifyApiViewModelTest {
     val emptyArtist = SpotifyArtist("", "", listOf(), 0)
     verify(observer).onChanged(emptyArtist)
     verify(mockApiRepository).get("me/player/currently-playing")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists calls repository and returns success result`() = runTest {
+    // Arrange
+    val mockResult =
+        Result.success(
+            JSONObject().apply {
+              put(
+                  "items",
+                  JSONArray().apply {
+                    put(
+                        JSONObject().apply {
+                          put("name", "Chill Vibes")
+                          put("id", "playlist_123")
+                          put("public", true)
+                          put("owner", JSONObject().put("id", "owner_123"))
+                          put("tracks", JSONObject().put("total", 10))
+                          put(
+                              "images",
+                              JSONArray().apply {
+                                put(JSONObject().put("url", "https://example.com/cover.jpg"))
+                              })
+                        })
+                    put(
+                        JSONObject().apply {
+                          put("name", "Private Mix")
+                          put("id", "playlist_456")
+                          put("public", false)
+                          put("owner", JSONObject().put("id", "owner_456"))
+                          put("tracks", JSONObject().put("total", 5))
+                          put(
+                              "images",
+                              JSONArray().apply {
+                                put(JSONObject().put("url", "https://example.com/private.jpg"))
+                              })
+                        })
+                  })
+            })
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { observer.onChanged(it) },
+        onFailure = { fail("Expected success but got failure") })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    val expectedPlaylists =
+        listOf(
+            UserPlaylist(
+                playlistID = "playlist_123",
+                ownerID = "owner_123",
+                playlistCover = "https://example.com/cover.jpg",
+                playlistName = "Chill Vibes",
+                playlistPublic = true,
+                playlistSongs = emptyList(),
+                nbTracks = 10))
+    verify(observer).onChanged(expectedPlaylists)
+    verify(mockApiRepository).get("me/playlists?limit=50")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists calls repository and filters out private playlists`() = runTest {
+    // Arrange
+    val mockResult =
+        Result.success(
+            JSONObject().apply {
+              put(
+                  "items",
+                  JSONArray().apply {
+                    put(
+                        JSONObject().apply {
+                          put("name", "Private Mix")
+                          put("id", "playlist_456")
+                          put("public", false)
+                          put("owner", JSONObject().put("id", "owner_456"))
+                          put("tracks", JSONObject().put("total", 5))
+                          put(
+                              "images",
+                              JSONArray().apply {
+                                put(JSONObject().put("url", "https://example.com/private.jpg"))
+                              })
+                        })
+                  })
+            })
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { observer.onChanged(it) },
+        onFailure = { fail("Expected success but got failure") })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    verify(observer).onChanged(emptyList()) // No public playlists
+    verify(mockApiRepository).get("me/playlists?limit=50")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists calls repository and returns failure result`() = runTest {
+    // Arrange
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { fail("Expected failure but got success") },
+        onFailure = { observer.onChanged(it) })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    verify(observer).onChanged(emptyList())
+    verify(mockApiRepository).get("me/playlists?limit=50")
   }
 }

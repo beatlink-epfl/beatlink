@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -323,6 +324,48 @@ class SpotifyApiViewModel(
         }
       }
       onResult(retArtist)
+    }
+  }
+
+  fun getCurrentUserPlaylists(
+      onSuccess: (List<UserPlaylist>) -> Unit,
+      onFailure: (List<UserPlaylist>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/playlists?limit=50")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playlists fetched successfully")
+        val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
+        val playlists = mutableListOf<UserPlaylist>()
+        for (i in 0 until items.length()) {
+          val playlist = items.getJSONObject(i)
+          val name = playlist.getString("name")
+          Log.d("SpotifyApiViewModel", "Playlist: $name")
+          val id = playlist.getString("id")
+          val owner = playlist.getJSONObject("owner").getString("id")
+          val public = playlist.getBoolean("public")
+          val coverUrl = playlist.getJSONArray("images").getJSONObject(0).getString("url")
+          val nbTracks = playlist.getJSONObject("tracks").getInt("total")
+          val tracks = mutableListOf<SpotifyTrack>()
+
+          val userPlaylist =
+              UserPlaylist(
+                  playlistID = id,
+                  ownerID = owner,
+                  playlistCover = coverUrl,
+                  playlistName = name,
+                  playlistPublic = public,
+                  playlistSongs = tracks,
+                  nbTracks = nbTracks)
+          if (public) {
+            playlists.add(userPlaylist)
+          }
+        }
+        onSuccess(playlists)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch playlists")
+        onFailure(emptyList())
+      }
     }
   }
 }
