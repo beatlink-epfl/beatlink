@@ -13,6 +13,7 @@ import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -536,7 +537,7 @@ class SpotifyApiViewModelTest {
     // Prepare the mock responses
     val mockTrack =
         SpotifyTrack(
-            name = "Test Track",
+            "Test Track",
             artist = "Test Artist",
             trackId = "1234",
             cover = "testCoverUrl",
@@ -559,9 +560,9 @@ class SpotifyApiViewModelTest {
                 put("duration_ms", 200000)
                 put("popularity", 80)
                 put("is_playing", true)
-                put(
-                    "artists",
-                    JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
+                  put(
+                      "artists",
+                      JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
                 put(
                     "album",
                     JSONObject().apply {
@@ -569,24 +570,33 @@ class SpotifyApiViewModelTest {
                       put("name", "Test Album")
                       put("release_date", "2024")
                       put("total_tracks", 10)
+                        put(
+                            "artists",
+                            JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
                     })
               })
+            put(
+                "is_playing",
+                true
+            )
         }
 
     `when`(mockApiRepository.get("me/player")).thenReturn(Result.success(mockJsonResponse))
+    `when`(mockApiRepository.get("me/player/currently-playing")).thenReturn(Result.success(mockJsonResponse))
 
-    // Call updatePlayer
+      // Call updatePlayer
     viewModel.updatePlayer()
 
     // Advance the dispatcher to ensure the coroutine gets executed
     testDispatcher.scheduler.advanceUntilIdle()
 
+    delay(5000) // Delay to ensure the coroutine gets executed
     // Verify the updated states
     assertTrue(viewModel.playbackActive)
-    assertEquals("", viewModel.currentTrack.name)
-    assertEquals("", viewModel.currentTrack.artist)
-    assertEquals("", viewModel.currentAlbum.name)
-    assertEquals("", viewModel.currentArtist.name)
+    assertEquals("Test Track", viewModel.currentTrack.name)
+    assertEquals("Test Artist", viewModel.currentTrack.artist)
+    assertEquals("Test Album", viewModel.currentAlbum.name)
+    assertEquals("Test Artist", viewModel.currentArtist.name)
   }
 
   @Test
