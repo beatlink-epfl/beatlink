@@ -43,6 +43,24 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  fun verifyAndChangePassword(currentPassword: String, newPassword: String) {
+    viewModelScope.launch {
+      val verificationResult = authRepository.verifyPassword(currentPassword)
+      if (verificationResult.isSuccess) {
+        val changeResult = authRepository.changePassword(newPassword)
+        changeResult.fold(
+            onSuccess = { _authState.value = AuthState.Success },
+            onFailure = { exception ->
+              Log.e("AuthViewModel", "Change password failed: ${exception.message}")
+              _authState.value = AuthState.Error("Change password failed: ${exception.message}")
+            })
+      } else {
+        Log.e("AuthViewModel", "Verification failed: Current password is incorrect")
+        _authState.value = AuthState.Error("Verification failed: Current password is incorrect")
+      }
+    }
+  }
+
   fun resetState() {
     _authState.value = AuthState.Idle
   }

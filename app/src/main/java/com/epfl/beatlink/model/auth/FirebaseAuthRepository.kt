@@ -20,4 +20,22 @@ interface FirebaseAuthRepository {
    * @param onFailure Callback that is invoked if an error occurs.
    */
   fun login(email: String, password: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  /**
+   * Change the password of the currently authenticated user.
+   *
+   * @param newPassword The new password to be set.
+   * @return A [Result] object containing [Unit] if the password was successfully changed, or an
+   *   [Exception] if an error occurred.
+   */
+  suspend fun changePassword(newPassword: String): Result<Unit>
+
+  /**
+   * Verify the current password of the authenticated user.
+   *
+   * @param currentPassword The current password of the user.
+   * @return A [Result] object containing [Unit] if the password was successfully verified, or an
+   *   [Exception] if an error occurred.
+   */
+  suspend fun verifyPassword(currentPassword: String): Result<Unit>
 }
