@@ -40,7 +40,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -52,8 +51,7 @@ import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 @Composable
 fun LoginScreen(
     navigationActions: NavigationActions,
-    firebaseAuthViewModel: FirebaseAuthViewModel =
-        viewModel(factory = FirebaseAuthViewModel.Factory)
+    firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
   var email by remember { mutableStateOf("") }
   var password by remember { mutableStateOf("") }
