@@ -2,7 +2,6 @@ package com.epfl.beatlink.repository.authentication
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
-import com.epfl.beatlink.repository.profile.ProfileData
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
@@ -30,11 +29,8 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 class FirebaseAuthRepositoryFirestoreTest {
 
-  @Mock private lateinit var mockFirestore: FirebaseFirestore
   @Mock private lateinit var mockAuth: FirebaseAuth
   @Mock private lateinit var mockFirebaseUser: FirebaseUser
-  @Mock private lateinit var mockCollectionReference: CollectionReference
-  @Mock private lateinit var mockDocumentReference: DocumentReference
   @Mock private lateinit var mockAuthResult: AuthResult
 
   private lateinit var firebaseAuthRepositoryFirestore: FirebaseAuthRepositoryFirestore
@@ -53,23 +49,17 @@ class FirebaseAuthRepositoryFirestoreTest {
     `when`(mockFirebaseUser.uid).thenReturn("testUserId")
     `when`(mockFirebaseUser.email).thenReturn("test@example.com")
 
-    // Set up Firestore collection and document
-    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document(any())).thenReturn(mockDocumentReference)
-
-    firebaseAuthRepositoryFirestore = FirebaseAuthRepositoryFirestore(mockFirestore, mockAuth)
+    firebaseAuthRepositoryFirestore = FirebaseAuthRepositoryFirestore(mockAuth)
   }
 
   @Test
   fun signUp_shouldCallCreateUserWithEmailAndPassword() {
     `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
         .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
 
     firebaseAuthRepositoryFirestore.signUp(
         email = "test@example.com",
         password = "password123",
-        username = "testUser",
         onSuccess = {},
         onFailure = { fail("Failure callback should not be called") })
 
@@ -78,26 +68,6 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify that createUserWithEmailAndPassword is called
     verify(mockAuth).createUserWithEmailAndPassword("test@example.com", "password123")
-  }
-
-  @Test
-  fun signUp_shouldCallAddUsernameOnSuccess() {
-    `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
-        .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
-
-    firebaseAuthRepositoryFirestore.signUp(
-        email = "test@example.com",
-        password = "password123",
-        username = "testUser",
-        onSuccess = {},
-        onFailure = { fail("Failure callback should not be called") })
-
-    // Ensure all asynchronous operations complete
-    shadowOf(Looper.getMainLooper()).idle()
-
-    // Verify that Firestore's set method is called on the document
-    verify(mockDocumentReference).set(any())
   }
 
   @Test
@@ -116,30 +86,6 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify signInWithEmailAndPassword is called
     verify(mockAuth).signInWithEmailAndPassword("test@example.com", "password123")
-  }
-
-  @Test
-  fun addUsername_shouldSetProfileDataInFirestore() {
-    val profileData =
-        ProfileData(
-            username = "testUser", name = null, bio = null, links = 0, profilePicture = null)
-
-    `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
-        .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
-
-    firebaseAuthRepositoryFirestore.signUp(
-        email = "test@example.com",
-        password = "password123",
-        username = "testUser",
-        onSuccess = {},
-        onFailure = { fail("Failure callback should not be called") })
-
-    // Ensure all asynchronous operations complete
-    shadowOf(Looper.getMainLooper()).idle()
-
-    // Verify that set is called with the correct ProfileData
-    verify(mockDocumentReference).set(profileData)
   }
 
   @Test

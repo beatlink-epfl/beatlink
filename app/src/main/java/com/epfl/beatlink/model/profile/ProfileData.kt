@@ -1,4 +1,4 @@
-package com.epfl.beatlink.repository.profile
+package com.epfl.beatlink.model.profile
 
 import android.net.Uri
 

@@ -41,35 +41,31 @@ class FirebaseAuthViewModelTest {
 
   @Test
   fun signUpSuccess() {
-    `when`(firebaseAuthRepository.signUp(any(), any(), any(), any(), any())).thenAnswer { invocation
-      ->
-      val onSuccess = invocation.getArgument(3) as () -> Unit
+    `when`(firebaseAuthRepository.signUp(any(), any(), any(), any())).thenAnswer { invocation ->
+      val onSuccess = invocation.getArgument(2) as () -> Unit
       onSuccess() // Simulate a successful sign-up callback
     }
 
-    firebaseAuthViewModel.signUp("test@example.com", "password123", "testuser")
+    firebaseAuthViewModel.signUp("test@example.com", "password123")
 
     assertThat(firebaseAuthViewModel.authState.value, `is`(AuthState.Success))
-    verify(firebaseAuthRepository)
-        .signUp(eq("test@example.com"), eq("password123"), eq("testuser"), any(), any())
+    verify(firebaseAuthRepository).signUp(eq("test@example.com"), eq("password123"), any(), any())
   }
 
   @Test
   fun signUpFailure() {
-    `when`(firebaseAuthRepository.signUp(any(), any(), any(), any(), any())).thenAnswer { invocation
-      ->
-      val onFailure = invocation.getArgument(4) as (Exception) -> Unit
+    `when`(firebaseAuthRepository.signUp(any(), any(), any(), any())).thenAnswer { invocation ->
+      val onFailure = invocation.getArgument(3) as (Exception) -> Unit
       onFailure(Exception("Sign up error")) // Simulate a sign-up failure
     }
 
-    firebaseAuthViewModel.signUp("test@example.com", "password123", "testuser")
+    firebaseAuthViewModel.signUp("test@example.com", "password123")
 
     assertThat(firebaseAuthViewModel.authState.value is AuthState.Error, `is`(true))
     assertThat(
         (firebaseAuthViewModel.authState.value as AuthState.Error).message,
         `is`("Sign up failed: Sign up error"))
-    verify(firebaseAuthRepository)
-        .signUp(eq("test@example.com"), eq("password123"), eq("testuser"), any(), any())
+    verify(firebaseAuthRepository).signUp(eq("test@example.com"), eq("password123"), any(), any())
   }
 
   @Test
