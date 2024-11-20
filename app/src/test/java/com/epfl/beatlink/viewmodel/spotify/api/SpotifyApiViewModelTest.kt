@@ -560,9 +560,9 @@ class SpotifyApiViewModelTest {
                 put("duration_ms", 200000)
                 put("popularity", 80)
                 put("is_playing", true)
-                  put(
-                      "artists",
-                      JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
+                put(
+                    "artists",
+                    JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
                 put(
                     "album",
                     JSONObject().apply {
@@ -570,21 +570,21 @@ class SpotifyApiViewModelTest {
                       put("name", "Test Album")
                       put("release_date", "2024")
                       put("total_tracks", 10)
-                        put(
-                            "artists",
-                            JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
+                      put(
+                          "artists",
+                          JSONArray().apply {
+                            put(JSONObject().apply { put("name", "Test Artist") })
+                          })
                     })
               })
-            put(
-                "is_playing",
-                true
-            )
+          put("is_playing", true)
         }
 
     `when`(mockApiRepository.get("me/player")).thenReturn(Result.success(mockJsonResponse))
-    `when`(mockApiRepository.get("me/player/currently-playing")).thenReturn(Result.success(mockJsonResponse))
+    `when`(mockApiRepository.get("me/player/currently-playing"))
+        .thenReturn(Result.success(mockJsonResponse))
 
-      // Call updatePlayer
+    // Call updatePlayer
     viewModel.updatePlayer()
 
     // Advance the dispatcher to ensure the coroutine gets executed
