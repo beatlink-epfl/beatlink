@@ -426,6 +426,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
     currentAlbum = api.currentAlbum
     currentTrack = api.currentTrack
     currentArtist = api.currentArtist
+    mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
   }
 
   LaunchedEffect(api.playbackActive) { showPlayer = api.playbackActive }
