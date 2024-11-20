@@ -82,16 +82,16 @@ class MapScreenTest {
 
     mapViewModel.permissionRequired.value = true
 
-      runBlocking {
-          composeTestRule.setContent {
-              MapScreen(
-                  navigationActions = NavigationActions(rememberNavController()),
-                  spotifyApiViewModel = null,
-                  profileViewModel = viewModel(factory = ProfileViewModel.Factory),
-                  mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
-                  mapViewModel = mapViewModel)
-          }
+    runBlocking {
+      composeTestRule.setContent {
+        MapScreen(
+            navigationActions = NavigationActions(rememberNavController()),
+            spotifyApiViewModel = null,
+            profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+            mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+            mapViewModel = mapViewModel)
       }
+    }
 
     composeTestRule.waitForIdle()
 
