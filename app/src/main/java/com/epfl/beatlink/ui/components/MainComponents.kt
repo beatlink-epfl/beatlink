@@ -41,6 +41,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,10 +72,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
-import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.AppIcons.collabAdd
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.BorderColor
@@ -88,6 +85,7 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.delay
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable
@@ -413,22 +411,28 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 @Composable
 fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
-  var showPlayer by remember { mutableStateOf(false) }
-  var isPlaying by remember { mutableStateOf(false) }
-  var currentAlbum by remember {
-    mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
-  }
-  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)) }
-  var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
+  var showPlayer by remember { mutableStateOf(api.playbackActive) }
+  var isPlaying by remember { mutableStateOf(api.isPlaying) }
+  var currentAlbum by remember { mutableStateOf(api.currentAlbum) }
+  var currentTrack by remember { mutableStateOf(api.currentTrack) }
+  var currentArtist by remember { mutableStateOf(api.currentArtist) }
 
-  api.getPlaybackState { result ->
-    showPlayer = result.isSuccess
-    if (showPlayer) {
-      api.buildAlbum { currentAlbum = it }
-      api.buildTrack { currentTrack = it }
-      api.buildArtist { currentArtist = it }
-      mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-    }
+  LaunchedEffect(api.isPlaying) {
+    api.updatePlayer()
+    isPlaying = api.isPlaying
+  }
+
+  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
+    currentAlbum = api.currentAlbum
+    currentTrack = api.currentTrack
+    currentArtist = api.currentArtist
+  }
+
+  LaunchedEffect(api.playbackActive) { showPlayer = api.playbackActive }
+
+  LaunchedEffect(api.triggerChange) {
+    delay(5000L)
+    api.updatePlayer()
   }
 
   if (showPlayer) {
@@ -436,7 +440,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = SecondaryGray) // TBD if...else...
+                .background(color = SecondaryGray)
                 .testTag("playerContainer"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -469,25 +473,19 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       // Play/Stop button
       IconButton(
           onClick = {
-            if (currentTrack.state == State.PAUSE) {
-              api.playPlayback {
-                isPlaying = true
-                currentTrack = currentTrack.copy(state = State.PLAY)
-              }
+            if (isPlaying) {
+              api.pausePlayback()
             } else {
-              api.pausePlayback {
-                isPlaying = false
-                currentTrack = currentTrack.copy(state = State.PAUSE)
-              }
+              api.playPlayback()
             }
           }) {
-            if (currentTrack.state == State.PLAY) {
+            if (isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
                   modifier = Modifier.size(35.dp).testTag("pauseButton"))
-            } else if (currentTrack.state == State.PAUSE) {
+            } else {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
@@ -499,18 +497,8 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       // Skip button
       IconButton(
           onClick = {
-            api.skipSong {
-              api.getPlaybackState { result ->
-                showPlayer = result.isSuccess
-                if (showPlayer) {
-                  // Update track, album, and artist after skipping song to trigger recomposition
-                  api.buildAlbum { newAlbum -> currentAlbum = newAlbum }
-                  api.buildTrack { newTrack -> currentTrack = newTrack }
-                  api.buildArtist { newArtist -> currentArtist = newArtist }
-                  mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-                }
-              }
-            }
+            api.skipSong()
+            api.updatePlayer()
           }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
