@@ -69,4 +69,37 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
       Result.failure(Exception("User not authenticated"))
     }
   }
+
+  override fun deleteAccount(
+    currentPassword: String,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit
+  ) {
+    val user: FirebaseUser? = auth.currentUser
+    if (user != null) {
+      val email = user.email
+      if (email != null) {
+        val credential = EmailAuthProvider.getCredential(email, currentPassword)
+        user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+          if (reauthTask.isSuccessful) {
+            user.delete().addOnCompleteListener { deleteTask ->
+              if (deleteTask.isSuccessful) {
+                onSuccess()
+              } else {
+                Log.e("AuthRepositoryFirestore", "Account deletion failed: ${deleteTask.exception?.message}")
+                deleteTask.exception?.let { onFailure(it) }
+              }
+            }
+          } else {
+            Log.e("AuthRepositoryFirestore", "Reauthentication failed: ${reauthTask.exception?.message}")
+            reauthTask.exception?.let { onFailure(it) }
+          }
+        }
+      } else {
+        onFailure(Exception("User email not available"))
+      }
+    } else {
+      onFailure(Exception("User not authenticated"))
+    }
+  }
 }
