@@ -10,4 +10,8 @@ interface FirebaseAuthRepository {
   )
 
   fun login(email: String, password: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  suspend fun changePassword(newPassword: String): Result<Unit>
+
+  suspend fun verifyPassword(currentPassword: String): Result<Unit>
 }
