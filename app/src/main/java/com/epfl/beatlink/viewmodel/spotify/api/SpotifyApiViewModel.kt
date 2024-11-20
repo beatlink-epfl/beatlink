@@ -352,16 +352,16 @@ class SpotifyApiViewModel(
   private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
     val coverUrl =
-      if (artist.getJSONArray("images").length() == 0) ""
-      else artist.getJSONArray("images").getJSONObject(0).getString("url")
+        if (artist.getJSONArray("images").length() == 0) ""
+        else artist.getJSONArray("images").getJSONObject(0).getString("url")
     return SpotifyTrack(
-      name = track.getString("name"),
-      artist = artist.getString("name"),
-      trackId = track.getString("id"),
-      cover = coverUrl,
-      duration = track.getInt("duration_ms"),
-      popularity = track.getInt("popularity"),
-      state = State.PAUSE)
+        name = track.getString("name"),
+        artist = artist.getString("name"),
+        trackId = track.getString("id"),
+        cover = coverUrl,
+        duration = track.getInt("duration_ms"),
+        popularity = track.getInt("popularity"),
+        state = State.PAUSE)
   }
 
   /** Creates a SpotifyArtist object from a JSON object. */
@@ -373,9 +373,9 @@ class SpotifyApiViewModel(
       genres.add(genresArray.getString(j))
     }
     return SpotifyArtist(
-      image = coverUrl,
-      name = artist.getString("name"),
-      genres = genres,
-      popularity = artist.getInt("popularity"))
+        image = coverUrl,
+        name = artist.getString("name"),
+        genres = genres,
+        popularity = artist.getInt("popularity"))
   }
 }
