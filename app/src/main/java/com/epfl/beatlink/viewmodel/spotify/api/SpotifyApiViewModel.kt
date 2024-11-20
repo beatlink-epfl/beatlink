@@ -22,6 +22,73 @@ class SpotifyApiViewModel(
   var deviceId: String? = null
   var playbackActive = false
 
+  fun searchArtistsAndTracks(
+      query: String,
+      onSuccess: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit,
+      onFailure: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("search?q=$query&type=artist,track&market=CH&limit=20")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Artists and tracks fetched successfully")
+
+        // Initialize lists to store artists and tracks
+        val artists = mutableListOf<SpotifyArtist>()
+        val tracks = mutableListOf<SpotifyTrack>()
+
+        // Get the artists and tracks from the result
+        val artistsResponse = result.getOrNull()!!.getJSONObject("artists").getJSONArray("items")
+        val tracksResponse = result.getOrNull()!!.getJSONObject("tracks").getJSONArray("items")
+
+        // Add artists to the list
+        for (i in 0 until artistsResponse.length()) {
+          val artist = artistsResponse.getJSONObject(i)
+
+          val coverUrl =
+              if (artist.getJSONArray("images").length() == 0) ""
+              else artist.getJSONArray("images").getJSONObject(0).getString("url")
+
+          val genres = mutableListOf<String>()
+          val genresArray = artist.getJSONArray("genres")
+          for (j in 0 until genresArray.length()) {
+            genres.add(genresArray.getString(j))
+          }
+          val spotifyArtist =
+              SpotifyArtist(
+                  image = coverUrl,
+                  name = artist.getString("name"),
+                  genres = genres,
+                  popularity = artist.getInt("popularity"))
+          artists.add(spotifyArtist)
+        }
+
+        // Add tracks to the list
+        for (i in 0 until tracksResponse.length()) {
+          val track = tracksResponse.getJSONObject(i)
+          val album = track.getJSONObject("album")
+          val coverUrl = album.getJSONArray("images").getJSONObject(0).getString("url")
+          val artist = track.getJSONArray("artists").getJSONObject(0).getString("name")
+          val spotifyTrack =
+              SpotifyTrack(
+                  name = track.getString("name"),
+                  artist = artist,
+                  trackId = track.getString("id"),
+                  cover = coverUrl,
+                  duration = track.getInt("duration_ms"),
+                  popularity = track.getInt("popularity"),
+                  state = State.PAUSE)
+          tracks.add(spotifyTrack)
+        }
+
+        // Return the lists
+        onSuccess(artists, tracks)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to search for artists and tracks")
+        onFailure(emptyList(), emptyList())
+      }
+    }
+  }
+
   fun getCurrentUserTopArtists(
       onSuccess: (List<SpotifyArtist>) -> Unit,
       onFailure: (List<SpotifyArtist>) -> Unit
