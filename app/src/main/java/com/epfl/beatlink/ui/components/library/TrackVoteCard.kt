@@ -1,4 +1,4 @@
-package com.epfl.beatlink.ui.library
+package com.epfl.beatlink.ui.components.library
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

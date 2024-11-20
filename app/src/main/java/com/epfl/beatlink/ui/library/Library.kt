@@ -16,6 +16,7 @@ import com.epfl.beatlink.ui.components.AddButton
 import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.SearchButton
 import com.epfl.beatlink.ui.components.TitleWithArrow
+import com.epfl.beatlink.ui.components.library.PlaylistCard
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions

@@ -40,6 +40,7 @@ import com.epfl.beatlink.ui.components.IconWithText
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.ViewDescriptionButton
+import com.epfl.beatlink.ui.components.library.TrackVoteCard
 import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION

@@ -1,21 +1,14 @@
 package com.epfl.beatlink.ui.library
 
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,25 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_TITLE_LENGTH
-import com.epfl.beatlink.ui.components.CollabButton
-import com.epfl.beatlink.ui.components.CollabList
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.DeleteButton
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.SettingsSwitch
+import com.epfl.beatlink.ui.components.library.CollaboratorsSection
+import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
-import com.epfl.beatlink.ui.theme.PrimaryGray
-import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
@@ -102,30 +92,7 @@ fun EditPlaylistScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Cover
-              Box(
-                  modifier =
-                      Modifier.background(
-                              color = SecondaryGray, shape = RoundedCornerShape(size = 10.dp))
-                          .clickable(onClick = { /* Opens option gallery or camera */})
-                          .width(100.dp)
-                          .height(100.dp)
-                          .align(Alignment.CenterHorizontally)
-                          .testTag("playlistCover"),
-                  contentAlignment = Alignment.Center) {
-                    if (coverImage == "something") {
-                      // Show the selected cover image
-                      // TODO
-
-                    } else {
-                      // Placeholder content if no image is selected
-                      Text(
-                          text = "Add \n Playlist Cover",
-                          style = MaterialTheme.typography.bodyLarge,
-                          color = PrimaryGray,
-                          textAlign = TextAlign.Center,
-                          modifier = Modifier.testTag("emptyCoverText"))
-                    }
-                  }
+              PlaylistCover(coverImage)
 
               // TITLE
               CustomInputField(
@@ -161,22 +128,7 @@ fun EditPlaylistScreen(
                 playlistIsPublic = newOption
               }
 
-              Spacer(Modifier.height(5.dp))
-
-              Row(
-                  verticalAlignment = Alignment.CenterVertically, // Center items vertically
-                  horizontalArrangement = Arrangement.SpaceBetween, // Space items apart
-                  modifier = Modifier.width(320.dp)) {
-                    Text(
-                        text = "Collaborators",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.testTag("collaboratorsTitle"))
-                    CollabButton {}
-                  }
-              CollabList(playlistCollab)
-
-              Spacer(modifier = Modifier.height(10.dp))
+              CollaboratorsSection(playlistCollab)
 
               PrincipalButton("Save", "saveEditPlaylist") {
                 if (titleError || descriptionError) {
