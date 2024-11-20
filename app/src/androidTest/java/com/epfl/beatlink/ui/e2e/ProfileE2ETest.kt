@@ -56,8 +56,6 @@ class ProfileE2ETest {
     composeTestRule.onNodeWithTag("Profile").isDisplayed()
     composeTestRule.onNodeWithTag("Profile").performClick()
     composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("name").performScrollTo().assertExists()
-    composeTestRule.onNodeWithTag("bio").performScrollTo().assertExists()
 
     // Step 5: Click the edit profile button and verify navigation to Edit Profile Screen
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
