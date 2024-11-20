@@ -1,21 +1,14 @@
 package com.epfl.beatlink.ui.profile
 
 import android.widget.Toast
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,12 +28,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.ui.authentication.AuthStateHandler
 import com.epfl.beatlink.ui.components.CustomInputField
+import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 
 @Composable
@@ -121,58 +114,25 @@ fun ChangePassword(
 
               Spacer(modifier = Modifier.height(16.dp))
 
-              ChangePasswordButton(
-                  authViewModel = firebaseAuthViewModel,
-                  currentPassword = currentPassword,
-                  newPassword = newPassword,
-                  confirmNewPassword = confirmNewPassword)
-            }
-      }
-}
-
-@Composable
-fun ChangePasswordButton(
-    authViewModel: FirebaseAuthViewModel,
-    currentPassword: String,
-    newPassword: String,
-    confirmNewPassword: String
-) {
-  val context = LocalContext.current
-  Box(
-      modifier =
-          Modifier.border(
-                  width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-              .width(320.dp)
-              .height(48.dp),
-      contentAlignment = Alignment.Center) {
-        Button(
-            onClick = {
-              when {
-                currentPassword.isBlank() ||
-                    newPassword.isBlank() ||
-                    confirmNewPassword.isBlank() -> {
-                  Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                }
-                newPassword != confirmNewPassword -> {
-                  Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                  authViewModel.verifyAndChangePassword(
-                      currentPassword = currentPassword, newPassword = newPassword)
-                }
-              }
-            },
-            modifier = Modifier.fillMaxSize().testTag("changePasswordButton"),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary),
-            shape = RoundedCornerShape(30.dp),
-            elevation = null) {
-              Text(
-                  modifier = Modifier.testTag("changePasswordText"),
-                  text = "Save",
-                  style = MaterialTheme.typography.labelLarge)
+              PrincipalButton(
+                  buttonText = "Save",
+                  buttonTag = "changePasswordButton",
+                  onClick = {
+                    when {
+                      currentPassword.isBlank() ||
+                          newPassword.isBlank() ||
+                          confirmNewPassword.isBlank() -> {
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                      }
+                      newPassword != confirmNewPassword -> {
+                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                      }
+                      else -> {
+                        firebaseAuthViewModel.verifyAndChangePassword(
+                            currentPassword = currentPassword, newPassword = newPassword)
+                      }
+                    }
+                  })
             }
       }
 }
