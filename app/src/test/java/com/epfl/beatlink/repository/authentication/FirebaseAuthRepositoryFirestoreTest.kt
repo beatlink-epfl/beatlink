@@ -8,9 +8,6 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.runBlocking
@@ -91,7 +88,6 @@ class FirebaseAuthRepositoryFirestoreTest {
   @Test
   fun verifyPassword_shouldReauthenticateUserSuccessfully() {
     val testPassword = "testPassword"
-    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
 
     // Mock FirebaseUser's email and reauthenticate behavior
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
@@ -112,7 +108,6 @@ class FirebaseAuthRepositoryFirestoreTest {
   @Test
   fun verifyPassword_shouldReturnFailureIfReauthenticationFails() {
     val testPassword = "wrongPassword"
-    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
 
     // Mock FirebaseAuth's currentUser and FirebaseUser's behavior
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)

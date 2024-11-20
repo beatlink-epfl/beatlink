@@ -51,7 +51,6 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
     }
   }
 
-
   override suspend fun verifyPassword(currentPassword: String): Result<Unit> {
     val user: FirebaseUser? = auth.currentUser
     return if (user != null) {
