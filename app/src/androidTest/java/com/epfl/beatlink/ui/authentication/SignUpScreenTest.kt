@@ -57,7 +57,7 @@ class SignUpScreenTest {
 
     // Set the content for the composable
     composeTestRule.setContent {
-      SignUpScreen(navigationActions, spotifyAuthViewModel, profileViewModel, authViewModel)
+      SignUpScreen(navigationActions, authViewModel, spotifyAuthViewModel, profileViewModel)
     }
   }
 
