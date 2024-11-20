@@ -273,7 +273,7 @@ class MapUserRepositoryFirestoreTest {
             "songName" to "Imagine",
             "artistName" to "John Lennon",
             "albumName" to "Imagine",
-            "albumPicture" to "some_url")
+            "albumCover" to "some_url")
 
     `when`(mockDocumentSnapshot.get("location")).thenReturn(location)
     `when`(mockDocumentSnapshot.get("currentPlayingTrack")).thenReturn(currentPlayingTrack)
@@ -319,7 +319,8 @@ class MapUserRepositoryFirestoreTest {
                 mapOf(
                     "songName" to "Imagine",
                     "artistName" to "John Lennon",
-                    "albumName" to "Imagine"),
+                    "albumName" to "Imagine",
+                    "albumCover" to "some_url"),
             "location" to mapOf("latitude" to 46.5191, "longitude" to 6.5668))
     assertEquals(expectedMap, result)
   }

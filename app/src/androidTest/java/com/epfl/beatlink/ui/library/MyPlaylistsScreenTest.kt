@@ -9,6 +9,7 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -16,6 +17,7 @@ import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 
 class MyPlaylistsScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
@@ -32,7 +34,7 @@ class MyPlaylistsScreenTest {
           userId = "",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
 
   @get:Rule val composeTestRule = createComposeRule()
@@ -68,6 +70,30 @@ class MyPlaylistsScreenTest {
   }
 
   @Test
+  fun testNavigationToHome() {
+    composeTestRule.onNodeWithTag("Home").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+  }
+
+  @Test
+  fun testNavigationToSearch() {
+    composeTestRule.onNodeWithTag("Search").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
+  }
+
+  @Test
+  fun testNavigationToLibrary() {
+    composeTestRule.onNodeWithTag("Library").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
+  }
+
+  @Test
+  fun testNavigationToProfile() {
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
+  }
+
+  @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("myPlaylistsScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
@@ -85,6 +111,6 @@ class MyPlaylistsScreenTest {
   @Test
   fun goBackCallsNavActions() {
     composeTestRule.onNodeWithTag("goBackButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).goBack()
+    verify(navigationActions).goBack()
   }
 }

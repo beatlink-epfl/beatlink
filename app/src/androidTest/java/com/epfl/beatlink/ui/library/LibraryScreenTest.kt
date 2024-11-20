@@ -10,6 +10,8 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -35,7 +37,7 @@ class LibraryScreenTest {
           userId = "",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistSongs = emptyList(),
+          playlistTracks = emptyList(),
           nbTracks = 0)
 
   @get:Rule val composeTestRule = createComposeRule()
@@ -56,24 +58,25 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("searchButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("favoriteItem").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").assertIsDisplayed()
   }
 
   @Test
   fun displayTextsCorrectly() {
     composeTestRule.onNodeWithTag("libraryTitle").assertTextEquals("My Library")
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").assertTextEquals("FAVORITES")
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").assertTextEquals("PLAYLISTS")
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertTextEquals("MY PLAYLISTS")
+    composeTestRule
+        .onNodeWithTag("SHARED PLAYLISTSTitleWithArrow")
+        .assertTextEquals("SHARED PLAYLISTS")
   }
 
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("searchButton").performClick()
     composeTestRule.onNodeWithTag("addButton").performClick()
-    composeTestRule.onNodeWithTag("FAVORITESTitleWithArrow").performClick()
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").performClick()
   }
 
   @Test
@@ -87,7 +90,7 @@ class LibraryScreenTest {
   @Test
   fun verifyPlaylistsButtonNavigatesToMyPlaylistsScreen() {
     // Perform click action on the sign-in button
-    composeTestRule.onNodeWithTag("PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
 
     verify(navigationActions).navigateTo(Screen.MY_PLAYLISTS)
   }
@@ -114,5 +117,47 @@ class LibraryScreenTest {
     playlistViewModel.getPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
+  }
+
+  @Test
+  fun playlistItemsNavigatesToPlaylistOverview() {
+    `when`(playlistRepository.getPlaylists(any(), any())).then {
+      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
+    }
+    playlistViewModel.getPlaylists()
+
+    composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed().performClick()
+    playlistViewModel.selectPlaylist(playlist)
+    verify(navigationActions).navigateTo(PLAYLIST_OVERVIEW)
+  }
+
+  @Test
+  fun testNavigationToHome() {
+    composeTestRule.onNodeWithTag("Home").performClick()
+    org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+  }
+
+  @Test
+  fun testNavigationToSearch() {
+    composeTestRule.onNodeWithTag("Search").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.SEARCH)
+  }
+
+  @Test
+  fun testNavigationToLibrary() {
+    composeTestRule.onNodeWithTag("Library").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.LIBRARY)
+  }
+
+  @Test
+  fun testNavigationToProfile() {
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    org.mockito.kotlin
+        .verify(navigationActions)
+        .navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }
