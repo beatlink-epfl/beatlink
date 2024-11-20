@@ -59,7 +59,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
                   contentDescription = "Notifications",
                   modifier = Modifier.testTag("profileScreenNotificationsButton"))
               CornerIcons(
-                  onClick = {},
+                  onClick = { navigationAction.navigateTo(Screen.SETTINGS) },
                   icon = Icons.Filled.Settings,
                   contentDescription = "Settings",
                   modifier = Modifier.testTag("profileScreenSettingsButton"))

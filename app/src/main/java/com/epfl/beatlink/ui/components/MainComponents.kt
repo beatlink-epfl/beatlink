@@ -79,6 +79,8 @@ import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.ui.theme.RedGradientBrush
 import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
@@ -396,11 +398,18 @@ fun CollabList(collaborators: List<String>) {
 }
 
 @Composable
-fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) {
+fun PrincipalButton(
+    buttonText: String,
+    buttonTag: String,
+    isRed: Boolean = false,
+    onClick: () -> Unit
+) {
   Box(
       modifier =
           Modifier.border(
-                  width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  width = 2.dp,
+                  brush = if (!isRed) PrimaryGradientBrush else RedGradientBrush,
+                  shape = RoundedCornerShape(30.dp))
               .width(320.dp)
               .height(48.dp),
       contentAlignment = Alignment.Center) {
@@ -410,7 +419,7 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary),
+                    contentColor = if (!isRed) MaterialTheme.colorScheme.primary else PrimaryRed),
             shape = RoundedCornerShape(30.dp),
             elevation = null) {
               Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
@@ -567,4 +576,29 @@ fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextSt
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.testTag(textTag))
   }
+}
+
+@Composable
+fun TextInBox(label: String, modifier: Modifier = Modifier, icon: ImageVector? = null) {
+  Box(
+      modifier =
+          modifier
+              .width(320.dp)
+              .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(5.dp))
+              .padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+              Text(
+                  text = label,
+                  style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary))
+              icon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = "Edit",
+                    tint = MaterialTheme.colorScheme.primary)
+              }
+            }
+      }
 }
