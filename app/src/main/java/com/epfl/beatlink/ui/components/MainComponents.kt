@@ -508,28 +508,6 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                 modifier = Modifier.size(35.dp).testTag("skipButton"))
           }
     }
-  } else {
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .height(76.dp)
-                .background(SecondaryGray) // TBD if...else...
-                .padding(horizontal = 32.dp, vertical = 26.dp)
-                .testTag("noPlayerContainer"),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Text(
-          modifier =
-              Modifier.fillMaxWidth()
-                  .height(24.dp)
-                  .padding(horizontal = 16.dp)
-                  .testTag("playerText no music"),
-          text = "not listening yet",
-          style = TypographySongs.titleMedium,
-          color = MaterialTheme.colorScheme.primary,
-          textAlign = TextAlign.Center)
-    }
   }
 }
 
