@@ -26,19 +26,14 @@ class SpotifyApiViewModel(
   var playbackActive by mutableStateOf(false)
 
   var isPlaying by mutableStateOf(false)
-    private set
 
   var triggerChange by mutableStateOf(true)
-    private set
 
   var currentTrack by mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE))
-    private set
 
   var currentAlbum by mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
-    private set
 
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
-    private set
 
   /** Searches for artists and tracks based on a query. */
   fun searchArtistsAndTracks(
@@ -253,17 +248,13 @@ class SpotifyApiViewModel(
     }
   }
 
-  /**
-   * Plays the previous song.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun previousSong(onResult: (Result<JSONObject>) -> Unit) {
+  /** Plays the previous song. */
+  fun previousSong() {
     viewModelScope.launch {
       if (isPlaying) {
-        val result = apiRepository.post("me/player/previous", "".toRequestBody())
+        apiRepository.post("me/player/previous", "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Previous song played")
-        onResult(result)
+        updatePlayer()
       } else {
         Log.e("SpotifyApiViewModel", "Playback not active")
       }
