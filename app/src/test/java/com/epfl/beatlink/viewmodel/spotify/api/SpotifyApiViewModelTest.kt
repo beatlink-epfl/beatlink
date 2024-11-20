@@ -531,74 +531,63 @@ class SpotifyApiViewModelTest {
     verify(mockApiRepository, never()).post(eq("me/player/previous"), any<RequestBody>())
   }
 
-    @Test
-    fun testUpdatePlayer_Success() = runTest {
-        // Prepare the mock responses
-        val mockTrack = SpotifyTrack(
+  @Test
+  fun testUpdatePlayer_Success() = runTest {
+    // Prepare the mock responses
+    val mockTrack =
+        SpotifyTrack(
             name = "Test Track",
             artist = "Test Artist",
             trackId = "1234",
             cover = "testCoverUrl",
             duration = 200000,
             popularity = 80,
-            state = State.PLAY
-        )
+            state = State.PLAY)
 
-        val mockAlbum = SpotifyAlbum(
-            "albumId",
-            "Test Album",
-            "",
-            "Test Artist",
-            2024,
-            listOf(),
-            10,
-            listOf(),
-            80
-        )
+    val mockAlbum =
+        SpotifyAlbum("albumId", "Test Album", "", "Test Artist", 2024, listOf(), 10, listOf(), 80)
 
-        val mockArtist = SpotifyArtist(
-            "artistId",
-            "Test Artist",
-            listOf(),
-            80
-        )
+    val mockArtist = SpotifyArtist("artistId", "Test Artist", listOf(), 80)
 
-        val mockJsonResponse = JSONObject().apply {
-            put("item", JSONObject().apply {
+    val mockJsonResponse =
+        JSONObject().apply {
+          put(
+              "item",
+              JSONObject().apply {
                 put("id", "trackId")
                 put("name", "Test Track")
                 put("duration_ms", 200000)
                 put("popularity", 80)
                 put("is_playing", true)
-                put("artists", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("name", "Test Artist")
+                put(
+                    "artists",
+                    JSONArray().apply { put(JSONObject().apply { put("name", "Test Artist") }) })
+                put(
+                    "album",
+                    JSONObject().apply {
+                      put("id", "albumId")
+                      put("name", "Test Album")
+                      put("release_date", "2024")
+                      put("total_tracks", 10)
                     })
-                })
-                put("album", JSONObject().apply {
-                    put("id", "albumId")
-                    put("name", "Test Album")
-                    put("release_date", "2024")
-                    put("total_tracks", 10)
-                })
-            })
+              })
         }
 
-        `when`(mockApiRepository.get("me/player")).thenReturn(Result.success(mockJsonResponse))
+    `when`(mockApiRepository.get("me/player")).thenReturn(Result.success(mockJsonResponse))
 
-        // Call updatePlayer
-        viewModel.updatePlayer()
+    // Call updatePlayer
+    viewModel.updatePlayer()
 
-        // Advance the dispatcher to ensure the coroutine gets executed
-        testDispatcher.scheduler.advanceUntilIdle()
+    // Advance the dispatcher to ensure the coroutine gets executed
+    testDispatcher.scheduler.advanceUntilIdle()
 
-        // Verify the updated states
-        assertTrue(viewModel.playbackActive)
-        assertEquals("", viewModel.currentTrack.name)
-        assertEquals("", viewModel.currentTrack.artist)
-        assertEquals("", viewModel.currentAlbum.name)
-        assertEquals("", viewModel.currentArtist.name)
-    }
+    // Verify the updated states
+    assertTrue(viewModel.playbackActive)
+    assertEquals("", viewModel.currentTrack.name)
+    assertEquals("", viewModel.currentTrack.artist)
+    assertEquals("", viewModel.currentAlbum.name)
+    assertEquals("", viewModel.currentArtist.name)
+  }
 
   @Test
   fun `transferPlayback calls repository with correct endpoint and body`() = runTest {
