@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -49,6 +51,7 @@ fun AccountScreen(
     profileViewModel: ProfileViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
+  val context = LocalContext.current
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
   val profileData by profileViewModel.profile.collectAsState()
   val username by remember { mutableStateOf(profileData?.username ?: "") }
@@ -120,10 +123,15 @@ fun AccountScreen(
                     currentPassword = password,
                     onSuccess = {
                       profileViewModel.deleteProfile()
-                      navigationActions.navigateTo(Screen.LOGIN)
+                      navigationActions.navigateTo(Screen.WELCOME)
+                      Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
+                          .show()
                       showDialog = false
                     },
                     onFailure = {
+                      Toast.makeText(
+                              context, "Account deletion failed: ${it.message}", Toast.LENGTH_SHORT)
+                          .show()
                       showDialog = false // Close the dialog on failure
                     })
               }) {
