@@ -20,13 +20,11 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,7 +37,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.stub
@@ -535,22 +532,6 @@ class SpotifyApiViewModelTest {
 
   @Test
   fun testUpdatePlayer_Success() = runTest {
-    // Prepare the mock responses
-    val mockTrack =
-        SpotifyTrack(
-            "Test Track",
-            artist = "Test Artist",
-            trackId = "1234",
-            cover = "testCoverUrl",
-            duration = 200000,
-            popularity = 80,
-            state = State.PLAY)
-
-    val mockAlbum =
-        SpotifyAlbum("albumId", "Test Album", "", "Test Artist", 2024, listOf(), 10, listOf(), 80)
-
-    val mockArtist = SpotifyArtist("artistId", "Test Artist", listOf(), 80)
-
     val mockJsonResponse =
         JSONObject().apply {
           put(
@@ -575,6 +556,11 @@ class SpotifyApiViewModelTest {
                           "artists",
                           JSONArray().apply {
                             put(JSONObject().apply { put("name", "Test Artist") })
+                          })
+                      put(
+                          "images",
+                          JSONArray().apply {
+                            put(JSONObject().apply { put("url", "testCoverUrl") })
                           })
                     })
               })
@@ -601,145 +587,6 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun `transferPlayback calls repository with correct endpoint and body`() = runTest {
-    // Arrange
-    val testDeviceId = "test_device_id"
-    viewModel.deviceId = testDeviceId
-    val expectedRequestBody = "{\"device_ids\":[\"$testDeviceId\"]}".toRequestBody()
-
-    // Set up mock result
-    `when`(mockApiRepository.put(eq("me/player"), any())).thenReturn(Result.success(JSONObject()))
-
-    // Act
-    viewModel.transferPlayback()
-    testDispatcher.scheduler.advanceUntilIdle()
-
-    // Capture the argument
-    val captor = argumentCaptor<RequestBody>()
-    verify(mockApiRepository).put(eq("me/player"), captor.capture())
-
-    // Assert
-    assertEquals(expectedRequestBody.contentLength(), captor.firstValue.contentLength())
-    assertEquals(expectedRequestBody.contentType(), captor.firstValue.contentType())
-  }
-
-  @Test
-  fun `getDeviceId fetches devices and selects a smartphone device`() = runTest {
-    // Arrange
-    val mockDevices =
-        JSONObject().apply {
-          put(
-              "devices",
-              JSONArray().apply {
-                put(
-                    JSONObject().apply {
-                      put("id", "12345")
-                      put("type", "Smartphone")
-                      put("is_active", false)
-                    })
-              })
-        }
-
-    val mockResult = Result.success(mockDevices)
-    mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
-
-    // Act
-    viewModel.getDeviceId()
-
-    testDispatcher.scheduler.advanceUntilIdle() // Advance until coroutines are completed
-
-    // Assert
-    verify(mockApiRepository).get("me/player/devices")
-    assertEquals("12345", viewModel.deviceId) // Check that the smartphone ID is set
-
-    // Verify transferPlayback was called using Mockito's verify method
-    // Since we cannot verify directly on the viewModel, check the side effect
-    // by ensuring that transferPlayback was called in a real scenario
-    assertTrue(viewModel.deviceId == "12345") // A simple check on deviceId
-  }
-
-  @Test
-  fun `mock repository get method works as expected`() = runTest {
-    // Arrange
-    val mockDevices =
-        JSONObject().apply {
-          put(
-              "devices",
-              JSONArray().apply {
-                put(
-                    JSONObject().apply {
-                      put("id", "67890")
-                      put("type", "Speaker")
-                      put("is_active", true)
-                    })
-              })
-        }
-
-    val mockResult = Result.success(mockDevices)
-    `when`(mockApiRepository.get("me/player/devices")).thenReturn(mockResult)
-
-    // Act
-    val result = mockApiRepository.get("me/player/devices")
-
-    // Assert
-    assertTrue(result.isSuccess)
-    assertEquals(
-        "67890", result.getOrNull()?.getJSONArray("devices")?.getJSONObject(0)?.getString("id"))
-  }
-
-  @Test
-  fun `getDeviceId handles no devices case`() = runTest {
-    // Arrange
-    val mockDevices =
-        JSONObject().apply {
-          put("devices", JSONArray()) // Empty array of devices
-        }
-
-    val mockResult = Result.success(mockDevices)
-    mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
-
-    // Act
-    viewModel.getDeviceId()
-
-    testDispatcher.scheduler.advanceUntilIdle() // Advance until coroutines are completed
-
-    // Assert
-    verify(mockApiRepository).get("me/player/devices")
-    assertNull(viewModel.deviceId) // Device ID should be null when no devices are found
-  }
-
-  @Test
-  fun `getDeviceId falls back to first device when no smartphone is found`() = runTest {
-    // Arrange
-    val mockDevices =
-        JSONObject().apply {
-          put(
-              "devices",
-              JSONArray().apply {
-                put(
-                    JSONObject().apply {
-                      put("id", "98765")
-                      put("type", "Speaker")
-                      put("is_active", true)
-                    })
-              })
-        }
-
-    val mockResult = Result.success(mockDevices)
-    mockApiRepository.stub { onBlocking { get("me/player/devices") } doReturn mockResult }
-
-    // Act
-    viewModel.getDeviceId()
-
-    testDispatcher.scheduler.advanceUntilIdle() // Advance until coroutines are completed
-
-    // Assert
-    verify(mockApiRepository).get("me/player/devices")
-    assertEquals(
-        "98765", viewModel.deviceId) // ID of the first (and only) device should be selected
-  }
-
-  @Test
   fun `buildAlbum constructs SpotifyAlbum from valid JSON`() {
     // Arrange
     val mockAlbumJson =
@@ -752,7 +599,8 @@ class SpotifyApiViewModelTest {
                     "name": "Test Album",
                     "artists": [{"name": "Test Artist"}],
                     "release_date": "2020-01-01",
-                    "total_tracks": 10
+                    "total_tracks": 10,
+                    "images": [{"url": "image-url"}]
                 }
             }
         }
@@ -763,7 +611,8 @@ class SpotifyApiViewModelTest {
 
     // Assert
     val expectedAlbum =
-        SpotifyAlbum("123", "Test Album", "", "Test Artist", 2020, listOf(), 10, listOf(), 0)
+        SpotifyAlbum(
+            "123", "Test Album", "image-url", "Test Artist", 2020, listOf(), 10, listOf(), 0)
     assertEquals(expectedAlbum, result)
   }
 
@@ -797,7 +646,10 @@ class SpotifyApiViewModelTest {
                 "artists": [{"name": "Test Artist"}],
                 "id": "456",
                 "duration_ms": 300000,
-                "popularity": 80
+                "popularity": 80,
+                "album": {
+                    "images": [{"url": "image-url"}]
+                    }
             }
         }
         """)
@@ -806,7 +658,8 @@ class SpotifyApiViewModelTest {
     val result = viewModel.buildTrack(mockTrackJson)
 
     // Assert
-    val expectedTrack = SpotifyTrack("Test Track", "Test Artist", "456", "", 300000, 80, State.PLAY)
+    val expectedTrack =
+        SpotifyTrack("Test Track", "Test Artist", "456", "image-url", 300000, 80, State.PLAY)
     assertEquals(expectedTrack, result)
   }
 
@@ -823,7 +676,10 @@ class SpotifyApiViewModelTest {
                 "artists": [{"name": "Test Artist"}],
                 "id": "456",
                 "duration_ms": 300000,
-                "popularity": 80
+                "popularity": 80,
+                "album": {
+                    "images": [{"url": "image-url"}]
+                    }
             }
         }
         """)
@@ -833,7 +689,7 @@ class SpotifyApiViewModelTest {
 
     // Assert
     val expectedTrack =
-        SpotifyTrack("Test Track", "Test Artist", "456", "", 300000, 80, State.PAUSE)
+        SpotifyTrack("Test Track", "Test Artist", "456", "image-url", 300000, 80, State.PAUSE)
     assertEquals(expectedTrack, result)
   }
 

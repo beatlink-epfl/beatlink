@@ -1,4 +1,4 @@
-package com.epfl.beatlink.ui.profile
+package com.epfl.beatlink.ui.profile.settings
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

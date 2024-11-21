@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.map
 
 import android.Manifest
+import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -8,17 +9,37 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import kotlinx.coroutines.runBlocking
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import org.json.JSONObject
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.stub
 
 class MapScreenTest {
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
+  @Mock private lateinit var mockApplication: Application
+
+  @Mock private lateinit var mockApiRepository: SpotifyApiRepository
+
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
+
+  @Before
+  fun setUp() {
+    MockitoAnnotations.openMocks(this)
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
+    mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
+  }
 
   @Test
   fun mapScreen_displaysLoadingMapText_whenMapIsNotLoaded() {
@@ -32,7 +53,7 @@ class MapScreenTest {
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
-          spotifyApiViewModel = null,
+          spotifyApiViewModel = spotifyApiViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
@@ -59,7 +80,7 @@ class MapScreenTest {
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
-          spotifyApiViewModel = null,
+          spotifyApiViewModel = spotifyApiViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
@@ -73,6 +94,7 @@ class MapScreenTest {
     // Verify that the map is displayed when loaded
     composeTestRule.onNodeWithTag("Map").assertIsDisplayed()
     composeTestRule.onNodeWithTag("currentLocationFab").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("playerContainer").assertIsDisplayed()
   }
 
   @Test
@@ -82,16 +104,16 @@ class MapScreenTest {
 
     mapViewModel.permissionRequired.value = true
 
-    runBlocking {
-      composeTestRule.setContent {
-        MapScreen(
-            navigationActions = NavigationActions(rememberNavController()),
-            spotifyApiViewModel = null,
-            profileViewModel = viewModel(factory = ProfileViewModel.Factory),
-            mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
-            mapViewModel = mapViewModel)
-      }
+    composeTestRule.setContent {
+      MapScreen(
+          navigationActions = NavigationActions(rememberNavController()),
+          spotifyApiViewModel = spotifyApiViewModel,
+          profileViewModel = viewModel(factory = ProfileViewModel.Factory),
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          mapViewModel = mapViewModel)
     }
+
+    composeTestRule.waitForIdle()
 
     // Simulate permissions granted
     val permissions =
@@ -117,7 +139,7 @@ class MapScreenTest {
     composeTestRule.setContent {
       MapScreen(
           navigationActions = NavigationActions(rememberNavController()),
-          spotifyApiViewModel = null,
+          spotifyApiViewModel = spotifyApiViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           mapViewModel = mapViewModel)
