@@ -89,7 +89,6 @@ fun MapScreen(
             }
           }
 
-
           MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
         }
       }
