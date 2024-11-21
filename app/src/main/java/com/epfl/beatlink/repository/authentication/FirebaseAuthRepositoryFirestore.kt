@@ -71,9 +71,9 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
   }
 
   override fun deleteAccount(
-    currentPassword: String,
-    onSuccess: () -> Unit,
-    onFailure: (Exception) -> Unit
+      currentPassword: String,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
   ) {
     val user: FirebaseUser? = auth.currentUser
     if (user != null) {
@@ -86,12 +86,16 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
               if (deleteTask.isSuccessful) {
                 onSuccess()
               } else {
-                Log.e("AuthRepositoryFirestore", "Account deletion failed: ${deleteTask.exception?.message}")
+                Log.e(
+                    "AuthRepositoryFirestore",
+                    "Account deletion failed: ${deleteTask.exception?.message}")
                 deleteTask.exception?.let { onFailure(it) }
               }
             }
           } else {
-            Log.e("AuthRepositoryFirestore", "Reauthentication failed: ${reauthTask.exception?.message}")
+            Log.e(
+                "AuthRepositoryFirestore",
+                "Reauthentication failed: ${reauthTask.exception?.message}")
             reauthTask.exception?.let { onFailure(it) }
           }
         }

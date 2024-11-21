@@ -47,8 +47,8 @@ interface FirebaseAuthRepository {
    * @param onFailure Callback that is invoked if an error occurs.
    */
   fun deleteAccount(
-    currentPassword: String,
-    onSuccess: () -> Unit,
-    onFailure: (Exception /* = Exception */) -> Unit
+      currentPassword: String,
+      onSuccess: () -> Unit,
+      onFailure: (Exception /* = Exception */) -> Unit
   )
 }

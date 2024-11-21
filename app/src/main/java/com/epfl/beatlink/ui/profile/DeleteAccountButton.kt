@@ -40,92 +40,81 @@ fun DeleteAccountButton(
     navigationActions: NavigationActions,
     firebaseAuthViewModel: FirebaseAuthViewModel =
         viewModel(factory = FirebaseAuthViewModel.Factory),
-    profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)) {
+    profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
+) {
 
-    var showDialog by remember { mutableStateOf(false) }
-    var password by remember { mutableStateOf("") }
+  var showDialog by remember { mutableStateOf(false) }
+  var password by remember { mutableStateOf("") }
 
-    Box(
-        modifier =
-        Modifier.width(320.dp)
-            .height(48.dp)
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.secondary,
-                shape = RoundedCornerShape(size = 30.dp)
-            ),
-        contentAlignment = Alignment.Center) {
+  Box(
+      modifier =
+          Modifier.width(320.dp)
+              .height(48.dp)
+              .border(
+                  width = 2.dp,
+                  color = MaterialTheme.colorScheme.secondary,
+                  shape = RoundedCornerShape(size = 30.dp)),
+      contentAlignment = Alignment.Center) {
         Button(
-            onClick = {
-                showDialog = true
-            },
+            onClick = { showDialog = true },
             modifier = Modifier.width(320.dp).height(48.dp).testTag("deleteAccountButton"),
             colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.secondary),
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.secondary),
             shape = RoundedCornerShape(size = 30.dp)) {
-            Text(
-                modifier = Modifier.testTag("deleteAccountText"),
-                text = "Delete Account",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.secondary,
-                textAlign = TextAlign.Center)
-        }
-    }
-
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false }, // Close the dialog when dismissed
-            title = {
-                Text(
-                    text = "Delete Account",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        text = "Are you sure you want to delete your account? This action is irreversible.",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Enter Password") },
-                        placeholder = { Text("Your current password") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth().testTag("passwordField")
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        // Perform deletion
-                        firebaseAuthViewModel.deleteAccount(
-                            currentPassword = password
-                        )
-                        profileViewModel.deleteProfile()
-                        navigationActions.navigateTo(Screen.LOGIN)
-                        showDialog = false
-                    }
-                ) {
-                    Text("Confirm")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
-                }
+              Text(
+                  modifier = Modifier.testTag("deleteAccountText"),
+                  text = "Delete Account",
+                  style = MaterialTheme.typography.labelLarge,
+                  color = MaterialTheme.colorScheme.secondary,
+                  textAlign = TextAlign.Center)
             }
-        )
-    }
+      }
+
+  if (showDialog) {
+    AlertDialog(
+        onDismissRequest = { showDialog = false }, // Close the dialog when dismissed
+        title = { Text(text = "Delete Account", style = MaterialTheme.typography.titleLarge) },
+        text = {
+          Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Are you sure you want to delete your account? This action is irreversible.",
+                style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Enter Password") },
+                placeholder = { Text("Your current password") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth().testTag("passwordField"))
+          }
+        },
+        confirmButton = {
+          TextButton(
+              modifier = Modifier.testTag("confirmButton"),
+              onClick = {
+                // Perform deletion
+                firebaseAuthViewModel.deleteAccount(currentPassword = password)
+                profileViewModel.deleteProfile()
+                navigationActions.navigateTo(Screen.LOGIN)
+                showDialog = false
+              }) {
+                Text("Confirm")
+              }
+        },
+        dismissButton = {
+          TextButton(
+              modifier = Modifier.testTag("cancelButton"), onClick = { showDialog = false }) {
+                Text("Cancel")
+              }
+        })
+  }
 }
 
 @Preview
 @Composable
 fun DeleteAccountButtonPreview() {
-    DeleteAccountButton(navigationActions = NavigationActions(rememberNavController()))
+  DeleteAccountButton(navigationActions = NavigationActions(rememberNavController()))
 }
