@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.library
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.AddButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
+import com.epfl.beatlink.ui.components.library.PlaylistCard
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -51,17 +53,24 @@ fun MyPlaylistsScreen(navigationActions: NavigationActions, playlistViewModel: P
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               if (playlistListFlow.isEmpty()) {
-                Text(
-                    text = "No playlists yet",
-                    color = MaterialTheme.colorScheme.primaryGray,
-                    modifier = Modifier.testTag("emptyPlaylistsPrompt"))
+                Box(
+                    modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
+                    contentAlignment = Alignment.Center) {
+                      Text(
+                          text = "No playlists yet",
+                          color = MaterialTheme.colorScheme.primaryGray,
+                          style = MaterialTheme.typography.bodyLarge,
+                          modifier = Modifier.align(Alignment.Center))
+                    }
               } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(vertical = 8.dp),
                 ) {
-                  items(playlistListFlow.size) { i -> PlaylistCard(playlistListFlow[i]) }
+                  items(playlistListFlow.size) { i ->
+                    PlaylistCard(playlistListFlow[i], navigationActions, playlistViewModel)
+                  }
                 }
               }
             }

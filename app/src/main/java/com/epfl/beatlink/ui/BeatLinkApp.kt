@@ -15,8 +15,10 @@ import com.epfl.beatlink.ui.authentication.ProfileBuildScreen
 import com.epfl.beatlink.ui.authentication.SignUpScreen
 import com.epfl.beatlink.ui.authentication.WelcomeScreen
 import com.epfl.beatlink.ui.library.CreateNewPlaylistScreen
+import com.epfl.beatlink.ui.library.EditPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.library.MyPlaylistsScreen
+import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -24,6 +26,10 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.profile.ChangePassword
 import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
+import com.epfl.beatlink.ui.profile.settings.AccountScreen
+import com.epfl.beatlink.ui.profile.settings.ChangeUsername
+import com.epfl.beatlink.ui.profile.settings.NotificationScreen
+import com.epfl.beatlink.ui.profile.settings.SettingsScreen
 import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
 import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
 import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
@@ -98,13 +104,25 @@ fun BeatLinkApp(
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
+      composable(Screen.EDIT_PLAYLIST) {
+        EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+      }
       composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
+      composable(Screen.PLAYLIST_OVERVIEW) {
+        PlaylistOverviewScreen(navigationActions, playlistViewModel)
+      }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
+      composable(Screen.SETTINGS) { SettingsScreen(navigationActions) }
+      composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
+      composable(Screen.ACCOUNT) {
+        AccountScreen(navigationActions, spotifyAuthViewModel, profileViewModel)
+      }
+      composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
     }
   }
 }

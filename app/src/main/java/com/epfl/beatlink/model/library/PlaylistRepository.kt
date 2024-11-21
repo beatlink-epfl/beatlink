@@ -23,8 +23,8 @@ interface PlaylistRepository {
       onFailure: (Exception) -> Unit
   )
 
-  /** Updates only the list of songs contained in the playlist in Firestore */
-  fun updatePlaylistSongs(
+  /** Updates only the list of tracks contained in the playlist in Firestore */
+  fun updatePlaylistTracks(
       playlist: Playlist,
       newListSongs: List<String>,
       onSuccess: () -> Unit,
