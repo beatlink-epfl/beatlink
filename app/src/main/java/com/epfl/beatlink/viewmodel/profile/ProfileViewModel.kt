@@ -12,6 +12,8 @@ import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,7 +25,8 @@ import kotlinx.coroutines.launch
  */
 open class ProfileViewModel(
     private val repository: ProfileRepository,
-    initialProfile: ProfileData? = null
+    initialProfile: ProfileData? = null,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
   private val _profile = MutableStateFlow(initialProfile)
@@ -60,7 +63,7 @@ open class ProfileViewModel(
 
   fun uploadProfilePicture(context: Context, uri: Uri) {
     val userId = repository.getUserId() ?: return
-    viewModelScope.launch { repository.uploadProfilePicture(uri, context, userId) }
+    viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
   }
 
   fun loadProfilePicture(onBitmapLoaded: (Bitmap?) -> Unit) {
@@ -78,15 +81,6 @@ open class ProfileViewModel(
       }
     }
   }
-
-  /*fun uploadProfilePicture(imageUri: File) {
-    viewModelScope.launch {
-      val imageUrl = repository.uploadProfilePicture(imageUri)
-      imageUrl?.let {
-        _profileImageUrl.value = it // Set URL as String after upload
-      }
-    }
-  }*/
 
   // Create factory
   companion object {
