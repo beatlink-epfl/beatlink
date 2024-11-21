@@ -103,10 +103,7 @@ open class ProfileRepositoryFirestore(
     val userDoc = db.collection(collection).document(userId)
     val profileData = mapOf("profilePicture" to base64Image)
 
-    userDoc
-        .set(profileData, SetOptions.merge())
-        .addOnSuccessListener { Log.d("FIRESTORE", "Base64 image saved successfully!") }
-        .addOnFailureListener { e -> Log.e("FIRESTORE", "Error saving Base64 image: ${e.message}") }
+    userDoc.set(profileData, SetOptions.merge())
   }
 
   fun resizeAndCompressImageFromUri(
@@ -168,13 +165,9 @@ open class ProfileRepositoryFirestore(
             val bitmap = base64Image?.let { base64ToBitmap(it) }
             onBitmapLoaded(bitmap) // Pass the bitmap to the composable
           } else {
-            Log.e("LOAD", "Profile picture not found")
             onBitmapLoaded(null) // Handle the case where no image is found
           }
         }
-        .addOnFailureListener { e ->
-          Log.e("LOAD", "Error retrieving profile picture: ${e.message}")
-          onBitmapLoaded(null) // Handle errors gracefully
-        }
+        .addOnFailureListener { onBitmapLoaded(null) }
   }
 }
