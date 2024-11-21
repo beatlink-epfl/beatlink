@@ -1,4 +1,4 @@
-package com.android.sample.ui.map
+package com.epfl.beatlink.ui.map
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
@@ -14,9 +14,6 @@ import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
-import com.epfl.beatlink.ui.map.CameraAction
-import com.epfl.beatlink.ui.map.GoogleMapView
-import com.epfl.beatlink.ui.map.mutuableList
 import com.google.android.gms.maps.model.LatLng
 import org.junit.Before
 import org.junit.Rule
@@ -44,8 +41,6 @@ class GoogleMapViewTest {
                     albumCover = R.drawable.cover_test1.toString()),
             location = Location(latitude = 37.7749, longitude = -122.4194) // San Francisco
             )
-    mutuableList.clear() // Clear any existing data
-    mutuableList.add(testUser) // Add the test user to the list
   }
 
   // Test to verify the map is displayed with location permitted
@@ -54,12 +49,14 @@ class GoogleMapViewTest {
     val currentPosition =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
+    val mapUsers = listOf(testUser)
 
     composeTestRule.setContent {
       GoogleMapView(
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
+          mapUsers = mapUsers,
           locationPermitted = true)
     }
 
@@ -79,12 +76,14 @@ class GoogleMapViewTest {
     val currentPosition =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
+    val mapUsers = listOf(testUser)
 
     composeTestRule.setContent {
       GoogleMapView(
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
+          mapUsers = mapUsers,
           locationPermitted = false)
     }
 
@@ -104,12 +103,14 @@ class GoogleMapViewTest {
     val currentPosition =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.MOVE)
+    val mapUsers = listOf(testUser)
 
     composeTestRule.setContent {
       GoogleMapView(
           currentPosition = currentPosition,
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
+          mapUsers = mapUsers,
           locationPermitted = true)
     }
 
@@ -128,6 +129,7 @@ class GoogleMapViewTest {
     val currentPosition = mutableStateOf(LatLng(37.7749, -122.4194))
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val selectedUser = mutableStateOf<MapUser?>(null) // Controlled state for test
+    val mapUsers = listOf(testUser)
 
     composeTestRule.setContent {
       GoogleMapView(
@@ -135,6 +137,7 @@ class GoogleMapViewTest {
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
           locationPermitted = true,
+          mapUsers = mapUsers,
           selectedUser = selectedUser // Pass the test-controlled selectedUser state
           )
     }
@@ -156,6 +159,7 @@ class GoogleMapViewTest {
     val currentPosition = mutableStateOf(LatLng(37.7749, -122.4194))
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val selectedUser = mutableStateOf<MapUser?>(null) // Controlled state for test
+    val mapUsers = listOf(testUser)
 
     composeTestRule.setContent {
       GoogleMapView(
@@ -163,6 +167,7 @@ class GoogleMapViewTest {
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
           locationPermitted = true,
+          mapUsers = mapUsers,
           selectedUser = selectedUser // Pass controlled selectedUser state
           )
     }

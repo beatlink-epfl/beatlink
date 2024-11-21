@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
@@ -61,7 +62,9 @@ fun SongPreviewMapUsers(mapUser: MapUser) {
                     Row(modifier = Modifier.fillMaxSize()) {
                       Image(
                           painter =
-                              painterResource(id = mapUser.currentPlayingTrack.albumCover.toInt()),
+                              painterResource(
+                                  id = R.drawable.cover_test2), // TODO change to actual cover when
+                          // conversion implemented
                           contentDescription = "Album Cover",
                           modifier =
                               Modifier.clip(RoundedCornerShape(4.dp))
