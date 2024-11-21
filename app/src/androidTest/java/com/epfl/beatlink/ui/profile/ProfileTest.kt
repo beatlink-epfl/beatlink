@@ -3,17 +3,19 @@ package com.epfl.beatlink.ui.profile
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -46,11 +48,16 @@ class ProfileTest {
   @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
   private val testDispatcher = StandardTestDispatcher()
   private lateinit var navigationActions: NavigationActions
+
   @Mock private lateinit var mockApplication: Application
   @Mock private lateinit var mockClient: OkHttpClient
   @Mock private lateinit var mockSharedPreferences: SharedPreferences
+
   @Mock private lateinit var spotifyApiRepository: SpotifyApiRepository
   @Mock private lateinit var spotifyApiViewModel: SpotifyApiViewModel
+
+  private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
+  private lateinit var profileViewModel: ProfileViewModel
 
   private val user =
       ProfileData(
@@ -59,7 +66,7 @@ class ProfileTest {
           bio = null,
           links = 0,
           profilePicture = null,
-          favoriteMusicGenres = listOf("Rock", "Pop", "Jazz"))
+          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"))
 
   private val topSongs =
       listOf(
@@ -92,24 +99,25 @@ class ProfileTest {
     composeTestRule.mainClock.autoAdvance = false // Control clock manually during the test
     MockitoAnnotations.openMocks(this)
     Dispatchers.setMain(testDispatcher)
+
     // spotifyApiRepository = SpotifyApiRepository(mockClient, mockSharedPreferences)
     // spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
-    spotifyApiViewModel = mock()
-    spotifyApiRepository = mock()
+    // spotifyApiViewModel = mock()
+    // spotifyApiRepository = mock()
+
+    profileRepositoryFirestore = mock(ProfileRepositoryFirestore::class.java)
+    profileViewModel =
+        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = user)
+
+    spotifyApiRepository = mock(SpotifyApiRepository::class.java)
+    spotifyApiViewModel = mock(SpotifyApiViewModel::class.java)
 
     navigationActions = mock(NavigationActions::class.java)
-    spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
 
     // Initialize Firebase if necessary
     if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
       FirebaseApp.initializeApp(ApplicationProvider.getApplicationContext())
-    }
-
-    // Launch the composable under test
-    composeTestRule.setContent {
-      ProfileScreen(
-          viewModel(factory = ProfileViewModel.Factory), navigationActions, spotifyApiViewModel)
     }
   }
 
@@ -121,6 +129,9 @@ class ProfileTest {
 
   @Test
   fun elementsAreDisplayed() {
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
     // Check if title is displayed
     /*composeTestRule
     .onNodeWithTag("titleUsername")
@@ -161,10 +172,16 @@ class ProfileTest {
 
     // Check if the user's bio is displayed
     composeTestRule.onNodeWithTag("bio").assertExists()
+
+    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
   }
 
   @Test
   fun buttonsAreClickable() {
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
     // Perform click action on the notifications button
     composeTestRule.onNodeWithTag("profileScreenNotificationsButton").performClick()
 
@@ -176,13 +193,50 @@ class ProfileTest {
   }
 
   @Test
+  fun musicGenresTitleIsDisplayedWhenNotEmpty() {
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+    // Check that music genres are displayed
+    user.favoriteMusicGenres.forEach { genre ->
+      composeTestRule.onNodeWithText(genre).assertExists()
+    }
+  }
+
+  @Test
+  fun musicGenresTitleIsNotDisplayedWhenEmpty() {
+    val userEmpty =
+        ProfileData(
+            username = "",
+            name = null,
+            bio = null,
+            links = 0,
+            profilePicture = null,
+            favoriteMusicGenres = emptyList())
+    profileViewModel =
+        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = userEmpty)
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertDoesNotExist()
+  }
+
+  @Test
   fun editProfileButtonTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
     verify(navigationActions).navigateTo(Screen.EDIT_PROFILE)
   }
 
   @Test
   fun settingsButtonTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+    }
     composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
     verify(navigationActions).navigateTo(Screen.SETTINGS)
   }
