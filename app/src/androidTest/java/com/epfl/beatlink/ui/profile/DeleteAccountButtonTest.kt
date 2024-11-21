@@ -1,20 +1,28 @@
 package com.epfl.beatlink.ui.profile
 
+import android.app.Application
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,31 +44,38 @@ class DeleteAccountButtonTest {
   private lateinit var profileViewModel: ProfileViewModel
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var profileRepository: ProfileRepository
+  private lateinit var spotifyRepository: SpotifyAuthRepository
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   @Before
   fun setUp() {
-    navigationActions = mock(NavigationActions::class.java)
+    navigationActions = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     profileRepository = mock(ProfileRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
     profileViewModel = ProfileViewModel(profileRepository)
+    val application = ApplicationProvider.getApplicationContext<Application>()
+    spotifyRepository = SpotifyAuthRepository(client = OkHttpClient()) // or any required client
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
-      DeleteAccountButton(
+      AccountScreen(
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
-          profileViewModel = profileViewModel)
+          profileViewModel = profileViewModel,
+          spotifyAuthViewModel = spotifyAuthViewModel)
     }
   }
 
   @Test
   fun deleteAccountButton_isDisplayedCorrectly() {
     composeTestRule
-        .onNodeWithTag("deleteAccountButton")
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
         .assertIsDisplayed()
         .assertHasClickAction()
-        .assertTextEquals("Delete Account")
+        .onChild()
+        .assertTextEquals("Delete account")
   }
 
   @Test
@@ -104,7 +119,7 @@ class DeleteAccountButtonTest {
     verify(profileRepository).deleteProfile("testUserId")
 
     // Verify navigation to the login screen
-    verify(navigationActions).navigateTo(Screen.LOGIN)
+    io.mockk.verify { navigationActions.navigateTo(Screen.LOGIN) }
   }
 
   @Test
@@ -122,6 +137,6 @@ class DeleteAccountButtonTest {
     verify(profileRepository, times(0)).deleteProfile(any())
 
     // Verify no navigation to the login screen
-    verify(navigationActions, times(0)).navigateTo(Screen.LOGIN)
+    io.mockk.verify(exactly = 0) { navigationActions.navigateTo(Screen.LOGIN) }
   }
 }
