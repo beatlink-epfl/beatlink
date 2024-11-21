@@ -134,7 +134,7 @@ class DeleteAccountButtonTest {
     verify(profileRepository).deleteProfile("testUserId")
 
     // Verify navigation to the login screen
-    io.mockk.verify { navigationActions.navigateTo(Screen.LOGIN) }
+    io.mockk.verify { navigationActions.navigateTo(Screen.WELCOME) }
   }
 
   @Test
