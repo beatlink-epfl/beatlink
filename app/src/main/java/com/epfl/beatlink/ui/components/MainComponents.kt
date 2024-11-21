@@ -41,6 +41,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,16 +65,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
-import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.AppIcons.collabAdd
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.BorderColor
@@ -81,12 +79,15 @@ import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.ui.theme.RedGradientBrush
 import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.delay
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable
@@ -166,6 +167,7 @@ fun CustomInputField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     supportingText: String? = null,
+    isError: Boolean = false,
     trailingIcon: ImageVector? = null
 ) {
   Column {
@@ -185,9 +187,18 @@ fun CustomInputField(
                 unfocusedTextColor = MaterialTheme.colorScheme.primary,
                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                 errorTextColor = MaterialTheme.colorScheme.error,
-                focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary),
+                focusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedBorderColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary,
+                focusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onPrimary,
+                unfocusedLabelColor =
+                    if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary),
         trailingIcon = {
           trailingIcon?.let {
             Icon(
@@ -268,6 +279,20 @@ fun SettingsSwitch(
       }
 }
 
+@Composable
+fun GradientTitle(title: String) {
+  Text(
+      text = title,
+      style = MaterialTheme.typography.headlineLarge,
+      modifier =
+          Modifier.testTag(title + "Title").graphicsLayer(alpha = 0.99f).drawWithCache {
+            onDrawWithContent {
+              drawContent()
+              drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+            }
+          })
+}
+
 /** Composable for Gradient Title with an arrow to open it full screen */
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
@@ -275,16 +300,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
       modifier =
           Modifier.padding(top = 16.dp).testTag(title + "TitleWithArrow").clickable { onClick() },
       verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier =
-                Modifier.graphicsLayer(alpha = 0.99f).drawWithCache {
-                  onDrawWithContent {
-                    drawContent()
-                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                  }
-                })
+        GradientTitle(title)
         Spacer(modifier = Modifier.width(6.dp)) // Spacing between text and arrow
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
@@ -387,11 +403,18 @@ fun CollabList(collaborators: List<String>) {
 }
 
 @Composable
-fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) {
+fun PrincipalButton(
+    buttonText: String,
+    buttonTag: String,
+    isRed: Boolean = false,
+    onClick: () -> Unit
+) {
   Box(
       modifier =
           Modifier.border(
-                  width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  width = 2.dp,
+                  brush = if (!isRed) PrimaryGradientBrush else RedGradientBrush,
+                  shape = RoundedCornerShape(30.dp))
               .width(320.dp)
               .height(48.dp),
       contentAlignment = Alignment.Center) {
@@ -401,7 +424,7 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
             colors =
                 ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary),
+                    contentColor = if (!isRed) MaterialTheme.colorScheme.primary else PrimaryRed),
             shape = RoundedCornerShape(30.dp),
             elevation = null) {
               Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
@@ -412,22 +435,29 @@ fun PrincipalButton(buttonText: String, buttonTag: String, onClick: () -> Unit) 
 @Composable
 fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
-  var showPlayer by remember { mutableStateOf(false) }
-  var isPlaying by remember { mutableStateOf(false) }
-  var currentAlbum by remember {
-    mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
-  }
-  var currentTrack by remember { mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)) }
-  var currentArtist by remember { mutableStateOf(SpotifyArtist("", "", listOf(), 0)) }
+  var showPlayer by remember { mutableStateOf(api.playbackActive) }
+  var isPlaying by remember { mutableStateOf(api.isPlaying) }
+  var currentAlbum by remember { mutableStateOf(api.currentAlbum) }
+  var currentTrack by remember { mutableStateOf(api.currentTrack) }
+  var currentArtist by remember { mutableStateOf(api.currentArtist) }
 
-  api.getPlaybackState { result ->
-    showPlayer = result.isSuccess
-    if (showPlayer) {
-      api.buildAlbum { currentAlbum = it }
-      api.buildTrack { currentTrack = it }
-      api.buildArtist { currentArtist = it }
-      mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-    }
+  LaunchedEffect(api.isPlaying) {
+    api.updatePlayer()
+    isPlaying = api.isPlaying
+  }
+
+  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
+    currentAlbum = api.currentAlbum
+    currentTrack = api.currentTrack
+    currentArtist = api.currentArtist
+    mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
+  }
+
+  LaunchedEffect(api.playbackActive) { showPlayer = api.playbackActive }
+
+  LaunchedEffect(api.triggerChange) {
+    delay(5000L)
+    api.updatePlayer()
   }
 
   if (showPlayer) {
@@ -435,7 +465,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = SecondaryGray) // TBD if...else...
+                .background(color = SecondaryGray)
                 .testTag("playerContainer"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -447,9 +477,9 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
       ) {
-        Image(
-            painter = painterResource(id = R.drawable.default_profile_picture),
-            contentDescription = null, // Provide a description for accessibility
+        AsyncImage(
+            model = currentTrack.cover,
+            contentDescription = "Cover",
             modifier = Modifier.fillMaxSize())
       }
 
@@ -468,25 +498,19 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       // Play/Stop button
       IconButton(
           onClick = {
-            if (currentTrack.state == State.PAUSE) {
-              api.playPlayback {
-                isPlaying = true
-                currentTrack = currentTrack.copy(state = State.PLAY)
-              }
+            if (isPlaying) {
+              api.pausePlayback()
             } else {
-              api.pausePlayback {
-                isPlaying = false
-                currentTrack = currentTrack.copy(state = State.PAUSE)
-              }
+              api.playPlayback()
             }
           }) {
-            if (currentTrack.state == State.PLAY) {
+            if (isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
                   modifier = Modifier.size(35.dp).testTag("pauseButton"))
-            } else if (currentTrack.state == State.PAUSE) {
+            } else {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
@@ -498,18 +522,8 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       // Skip button
       IconButton(
           onClick = {
-            api.skipSong {
-              api.getPlaybackState { result ->
-                showPlayer = result.isSuccess
-                if (showPlayer) {
-                  // Update track, album, and artist after skipping song to trigger recomposition
-                  api.buildAlbum { newAlbum -> currentAlbum = newAlbum }
-                  api.buildTrack { newTrack -> currentTrack = newTrack }
-                  api.buildArtist { newArtist -> currentArtist = newArtist }
-                  mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-                }
-              }
-            }
+            api.skipSong()
+            api.updatePlayer()
           }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
@@ -517,28 +531,6 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                 tint = Color.Unspecified,
                 modifier = Modifier.size(35.dp).testTag("skipButton"))
           }
-    }
-  } else {
-    Row(
-        modifier =
-            Modifier.fillMaxWidth()
-                .height(76.dp)
-                .background(SecondaryGray) // TBD if...else...
-                .padding(horizontal = 32.dp, vertical = 26.dp)
-                .testTag("noPlayerContainer"),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Text(
-          modifier =
-              Modifier.fillMaxWidth()
-                  .height(24.dp)
-                  .padding(horizontal = 16.dp)
-                  .testTag("playerText no music"),
-          text = "not listening yet",
-          style = TypographySongs.titleMedium,
-          color = MaterialTheme.colorScheme.primary,
-          textAlign = TextAlign.Center)
     }
   }
 }
@@ -576,5 +568,50 @@ fun ProfilePicture(id: MutableState<Bitmap?>) {
                     .testTag("profilePicture")
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
+      }
+}
+
+@Composable
+fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextStyle) {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+        imageVector = icon,
+        contentDescription = "icon",
+        modifier = Modifier.size(18.dp),
+        tint = MaterialTheme.colorScheme.primary)
+
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(
+        text = text,
+        style = style,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.testTag(textTag))
+  }
+}
+
+@Composable
+fun TextInBox(label: String, modifier: Modifier = Modifier, icon: ImageVector? = null) {
+  Box(
+      modifier =
+          modifier
+              .width(320.dp)
+              .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(5.dp))
+              .padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+              Text(
+                  text = label,
+                  style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.primary))
+              icon?.let {
+                Icon(
+                    imageVector = it,
+                    contentDescription = "Edit",
+                    tint = MaterialTheme.colorScheme.primary)
+              }
+            }
       }
 }

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,56 +16,69 @@ import kotlinx.coroutines.tasks.await
 
 @Suppress("UNCHECKED_CAST")
 /**
- * A repository for fetching and updating user profiles from Firestore.
+ * A repository for managing user profiles using Firestore.
  *
  * @param db The Firestore instance to use for database operations.
  * @param auth The FirebaseAuth instance to use for authentication operations.
  */
-class ProfileRepositoryFirestore(
+open class ProfileRepositoryFirestore(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
 ) : ProfileRepository {
   private val collection = "userProfiles"
 
+  private val collectionPath = "userProfiles"
+
   override suspend fun fetchProfile(userId: String): ProfileData? {
     return try {
       val snapshot = db.collection(collection).document(userId).get().await()
-      // Manually retrieve fields from the snapshot
-      val bio = snapshot.getString("bio")
-      val links = snapshot.getLong("links")?.toInt() ?: 0
-      val name = snapshot.getString("name")
       val profilePicture = snapshot.getString("profilePicture")
-      val username = snapshot.getString("username") ?: ""
-      val favoriteMusicGenres = snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList()
-
-      // Parse profilePicture field to Uri, if it's not null
-      // val profilePicture = profilePictureUrl?.let { Uri.parse(it) }
-
-      // Construct the ProfileData instance
-      val data =
+      val profileData =
           ProfileData(
-              bio = bio,
-              links = links,
-              name = name,
+              bio = snapshot.getString("bio"),
+              links = snapshot.getLong("links")?.toInt() ?: 0,
+              name = snapshot.getString("name"),
               profilePicture = profilePicture,
-              username = username,
-              favoriteMusicGenres = favoriteMusicGenres)
-      Log.d("PROFILE_FETCH", "Fetched profile data: $data") // Added log for debugging
-      data
+              username = snapshot.getString("username") ?: "",
+              favoriteMusicGenres =
+                  snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
+      Log.d("PROFILE_FETCH", "Fetched profile data: $profileData")
+      profileData
     } catch (e: Exception) {
-      e.printStackTrace()
-      Log.e("PROFILE_FETCH_ERROR", "Error fetching profile: ${e.message}") // Log error details
+      Log.e("PROFILE_FETCH_ERROR", "Error fetching profile: ${e.message}")
       null
+    }
+  }
+
+  override suspend fun addProfile(userId: String, profileData: ProfileData): Boolean {
+    return try {
+      db.collection(collection).document(userId).set(profileData).await()
+      Log.d("PROFILE_ADD", "Profile added successfully for user: $userId")
+      true
+    } catch (e: Exception) {
+      Log.e("PROFILE_ADD_ERROR", "Error adding profile: ${e.message}")
+      false
     }
   }
 
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.collection(collection).document(userId).set(profileData).await()
+      Log.d("PROFILE_UPDATE", "Profile updated successfully for user: $userId")
       true
     } catch (e: Exception) {
-      e.printStackTrace()
-      Log.e("PROFILE_UPDATE_ERROR", "Error updating profile: ${e.message}") // Log error details
+      Log.e("PROFILE_UPDATE_ERROR", "Error updating profile: ${e.message}")
+      false
+    }
+  }
+
+  override suspend fun deleteProfile(userId: String): Boolean {
+    return try {
+      db.collection(collectionPath).document(userId).delete().await()
+      Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
+      true
+    } catch (e: Exception) {
+      Log.e("PROFILE_DELETE_ERROR", "Error deleting profile: ${e.message}")
       false
     }
   }
@@ -134,7 +148,7 @@ class ProfileRepositoryFirestore(
     }
   }
 
-  fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String) {
+  override fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String) {
     val base64Image = resizeAndCompressImageFromUri(imageUri, context)
     if (base64Image != null) {
       saveProfilePictureBase64(userId, base64Image)
@@ -143,7 +157,7 @@ class ProfileRepositoryFirestore(
     }
   }
 
-  fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit) {
+  override fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit) {
     val userDoc = db.collection(collection).document(userId)
 
     userDoc

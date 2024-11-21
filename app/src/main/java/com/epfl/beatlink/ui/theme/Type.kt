@@ -181,7 +181,29 @@ val TypographySongs =
                 fontStyle = FontStyle.Italic,
                 color = PrimaryGray,
                 letterSpacing = 0.18.sp,
-            ))
+            ),
+        // Track Card song name
+        bodyLarge =
+            TextStyle(
+                fontSize = 12.sp,
+                lineHeight = 20.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                fontWeight = FontWeight(400),
+                color = PrimaryPurple,
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.12.sp,
+            ),
+        // Track Card artist name
+        bodyMedium =
+            TextStyle(
+                fontSize = 12.sp,
+                lineHeight = 20.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight(400),
+                color = PrimaryPurple,
+                textAlign = TextAlign.Center,
+                letterSpacing = 0.12.sp))
 
 /** Typography of the display of the playlist */
 val TypographyPlaylist =

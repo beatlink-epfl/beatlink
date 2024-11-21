@@ -2,25 +2,38 @@ package com.epfl.beatlink.viewmodel.spotify.api
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SpotifyApiViewModel(
+open class SpotifyApiViewModel(
     application: Application,
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
   var deviceId: String? = null
-  var playbackActive = false
+  var playbackActive by mutableStateOf(false)
+
+  var isPlaying by mutableStateOf(false)
+
+  var triggerChange by mutableStateOf(true)
+
+  var currentTrack by mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE))
+
+  var currentAlbum by mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
+
+  var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
 
   /** Searches for artists and tracks based on a query. */
   fun searchArtistsAndTracks(
@@ -65,7 +78,7 @@ class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 artists from the last 4 weeks. */
-  fun getCurrentUserTopArtists(
+  open fun getCurrentUserTopArtists(
       onSuccess: (List<SpotifyArtist>) -> Unit,
       onFailure: (List<SpotifyArtist>) -> Unit
   ) {
@@ -89,7 +102,7 @@ class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 tracks from the last 4 weeks. */
-  fun getCurrentUserTopTracks(
+  open fun getCurrentUserTopTracks(
       onSuccess: (List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyTrack>) -> Unit
   ) {
@@ -112,60 +125,6 @@ class SpotifyApiViewModel(
     }
   }
 
-  /** Fetches the device ID of the current active device. */
-  fun getDeviceId() {
-    viewModelScope.launch {
-      val result = apiRepository.get("me/player/devices")
-      if (result.isSuccess) {
-        result.getOrNull()?.let { devices ->
-          val devicesArray = devices.getJSONArray("devices")
-
-          // Initialize a variable to store the selected device id
-          var selectedDeviceId: String? = null
-          var isActive = false
-
-          // Loop through the devices to find a "Smartphone"
-          for (i in 0 until devicesArray.length()) {
-            val device = devicesArray.getJSONObject(i)
-            if (device.getString("type") == "Smartphone") {
-              selectedDeviceId = device.getString("id")
-              isActive = device.getBoolean("is_active")
-              break // Stop loop once a smartphone is found
-            }
-          }
-
-          if (selectedDeviceId == null && devicesArray.length() > 0) {
-            selectedDeviceId = devicesArray.getJSONObject(0).getString("id")
-            isActive = devicesArray.getJSONObject(0).getBoolean("is_active")
-          }
-
-          deviceId = selectedDeviceId
-          delay(1000)
-
-          if (deviceId != null && !isActive) transferPlayback()
-          else if (deviceId == null) {
-            Log.e("SpotifyApiViewModel", "No device found")
-          }
-        }
-      } else {
-        Log.e("SpotifyApiViewModel", "Failed to fetch devices")
-        deviceId = null
-        delay(1000)
-      }
-    }
-  }
-
-  /** Transfers playback to the current device. */
-  fun transferPlayback() {
-    viewModelScope.launch {
-      val requestBody =
-          "{\"device_ids\":[\"${deviceId.toString()}\"]}"
-              .toRequestBody() // the json format spotify is using isn't a valid json format
-      apiRepository.put("me/player", requestBody)
-      Log.d("SpotifyApiViewModel", "Playback transferred successfully")
-    }
-  }
-
   /**
    * Fetches the current user's profile.
    *
@@ -180,92 +139,92 @@ class SpotifyApiViewModel(
     }
   }
 
-  /**
-   * Pauses the current playback.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun pausePlayback(onResult: (Result<JSONObject>) -> Unit) {
+  /** Pauses the current playback. */
+  fun pausePlayback() {
     viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.put("me/player/pause")
+      if (isPlaying) {
+        apiRepository.put("me/player/pause")
         Log.d("SpotifyApiViewModel", "Playback paused")
-        onResult(result)
+        isPlaying = false
       } else {
-        Log.e("SpotifyApiViewModel", "Playback not active")
+        Log.e("SpotifyApiViewModel", "Playback not active, pause failed")
       }
     }
   }
 
-  /**
-   * Resumes the current playback.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun playPlayback(onResult: (Result<JSONObject>) -> Unit) {
+  /** Resumes the current playback. */
+  fun playPlayback() {
     viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.put("me/player/play")
+      if (!isPlaying) {
+        apiRepository.put("me/player/play")
         Log.d("SpotifyApiViewModel", "Playback resumed")
-        onResult(result)
+        isPlaying = true
       } else {
-        Log.e("SpotifyApiViewModel", "Playback not active")
+        Log.e("SpotifyApiViewModel", "Playback not active, play failed")
       }
     }
   }
 
-  /**
-   * Fetches the current playback state.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun getPlaybackState(onResult: (Result<JSONObject>) -> Unit) {
-    if (deviceId == null) {
-      getDeviceId()
-    }
+  /** Fetches the current playback state. */
+  fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
-        playbackActive = true
-        onResult(result)
+        onSuccess(result.getOrNull()!!)
       } else {
-        playbackActive = false
+        onFailure()
       }
+      Log.d("SpotifyApiViewModel", "Playback state fetched")
     }
   }
 
-  /**
-   * Skips to the next song.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun skipSong(onResult: (Result<JSONObject>) -> Unit) {
+  /** Skips to the next song. */
+  fun skipSong() {
     viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.post("me/player/next", "".toRequestBody())
+      if (isPlaying) {
+        apiRepository.post("me/player/next", "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Song skipped")
-        onResult(result)
+        updatePlayer()
       } else {
         Log.e("SpotifyApiViewModel", "Playback not active")
       }
     }
   }
 
-  /**
-   * Plays the previous song.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun previousSong(onResult: (Result<JSONObject>) -> Unit) {
+  /** Plays the previous song. */
+  fun previousSong() {
     viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.post("me/player/previous", "".toRequestBody())
+      if (isPlaying) {
+        apiRepository.post("me/player/previous", "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Previous song played")
-        onResult(result)
+        updatePlayer()
       } else {
         Log.e("SpotifyApiViewModel", "Playback not active")
       }
     }
+  }
+
+  fun updatePlayer() {
+    getPlaybackState(
+        onSuccess = {
+          playbackActive = true
+          viewModelScope.launch {
+            val result = apiRepository.get("me/player/currently-playing")
+            if (result.isSuccess) {
+              val json = result.getOrNull() ?: return@launch
+              currentTrack = buildTrack(json)
+              currentAlbum = buildAlbum(json)
+              currentArtist = buildArtist(json)
+              isPlaying = currentTrack.state == State.PLAY
+            }
+          }
+          triggerChange = !triggerChange
+        },
+        onFailure = {
+          Log.d("SpotifyApiViewModel", "There's no playback state")
+          playbackActive = false
+          triggerChange = !triggerChange
+        })
   }
 
   /**
@@ -273,29 +232,23 @@ class SpotifyApiViewModel(
    *
    * @return The constructed SpotifyAlbum object.
    */
-  fun buildAlbum(onResult: (SpotifyAlbum) -> Unit) {
-    var retAlbum = SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0)
-    viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.get("me/player/currently-playing")
-        if (result.isSuccess) {
-          val item = result.getOrNull()?.getJSONObject("item") ?: return@launch
-          val album = item.getJSONObject("album")
-          retAlbum =
-              SpotifyAlbum(
-                  album.getString("id"),
-                  album.getString("name"),
-                  "",
-                  album.getJSONArray("artists").getJSONObject(0).getString("name"),
-                  album.getString("release_date").substring(0, 4).toInt(),
-                  listOf(),
-                  album.getInt("total_tracks"),
-                  listOf(),
-                  0)
-        }
-      }
-      onResult(retAlbum)
-    }
+  fun buildAlbum(json: JSONObject): SpotifyAlbum {
+    val retAlbum: SpotifyAlbum
+    val item = json.getJSONObject("item")
+    val album = item.getJSONObject("album")
+    retAlbum =
+        SpotifyAlbum(
+            album.getString("id"),
+            album.getString("name"),
+            album.getJSONArray("images").getJSONObject(0).getString("url"),
+            album.getJSONArray("artists").getJSONObject(0).getString("name"),
+            album.getString("release_date").substring(0, 4).toInt(),
+            listOf(),
+            album.getInt("total_tracks"),
+            listOf(),
+            0)
+
+    return retAlbum
   }
 
   /**
@@ -303,28 +256,22 @@ class SpotifyApiViewModel(
    *
    * @return The constructed SpotifyTrack object.
    */
-  fun buildTrack(onResult: (SpotifyTrack) -> Unit) {
-    var retTrack = SpotifyTrack("", "", "", "", 0, 0, State.PAUSE)
-    viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.get("me/player/currently-playing")
-        if (result.isSuccess) {
-          val isPlaying = result.getOrNull()?.getBoolean("is_playing")
-          val item = result.getOrNull()?.getJSONObject("item") ?: return@launch
-          val artist = item.getJSONArray("artists").getJSONObject(0).getString("name")
-          retTrack =
-              SpotifyTrack(
-                  item.getString("name"),
-                  artist,
-                  item.getString("id"),
-                  "",
-                  item.getInt("duration_ms"),
-                  item.getInt("popularity"),
-                  if (isPlaying == true) State.PLAY else State.PAUSE)
-        }
-      }
-      onResult(retTrack)
-    }
+  fun buildTrack(json: JSONObject): SpotifyTrack {
+    val retTrack: SpotifyTrack
+    val isPlaying = json.getBoolean("is_playing")
+    val item = json.getJSONObject("item")
+    val artist = item.getJSONArray("artists").getJSONObject(0).getString("name")
+    val image = item.getJSONObject("album").getJSONArray("images").getJSONObject(0)
+    retTrack =
+        SpotifyTrack(
+            item.getString("name"),
+            artist,
+            item.getString("id"),
+            image.getString("url"),
+            item.getInt("duration_ms"),
+            item.getInt("popularity"),
+            if (isPlaying) State.PLAY else State.PAUSE)
+    return retTrack
   }
 
   /**
@@ -332,28 +279,25 @@ class SpotifyApiViewModel(
    *
    * @return The constructed SpotifyArtist object.
    */
-  fun buildArtist(onResult: (SpotifyArtist) -> Unit) {
-    var retArtist = SpotifyArtist("", "", listOf(), 0)
-    viewModelScope.launch {
-      if (playbackActive) {
-        val result = apiRepository.get("me/player/currently-playing")
-        if (result.isSuccess) {
-          val item = result.getOrNull()?.getJSONObject("item") ?: return@launch
-          val artists = item.getJSONArray("artists")
-          val artist = artists.getJSONObject(0)
-          retArtist = SpotifyArtist("", artist.getString("name"), listOf(), 0)
-        }
-      }
-      onResult(retArtist)
-    }
+  fun buildArtist(json: JSONObject): SpotifyArtist {
+    val retArtist: SpotifyArtist
+    val item = json.getJSONObject("item")
+    val artists = item.getJSONArray("artists")
+    val artist = artists.getJSONObject(0)
+    retArtist = SpotifyArtist("", artist.getString("name"), listOf(), 0)
+    return retArtist
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
-  private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
+  fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
+    val album = track.getJSONObject("album")
+
+    // Get cover URL from album images
     val coverUrl =
-        if (artist.getJSONArray("images").length() == 0) ""
-        else artist.getJSONArray("images").getJSONObject(0).getString("url")
+        if (album.getJSONArray("images").length() == 0) ""
+        else album.getJSONArray("images").getJSONObject(0).getString("url")
+
     return SpotifyTrack(
         name = track.getString("name"),
         artist = artist.getString("name"),
@@ -377,5 +321,47 @@ class SpotifyApiViewModel(
         name = artist.getString("name"),
         genres = genres,
         popularity = artist.getInt("popularity"))
+  }
+
+  fun getCurrentUserPlaylists(
+      onSuccess: (List<UserPlaylist>) -> Unit,
+      onFailure: (List<UserPlaylist>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me/playlists?limit=50")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playlists fetched successfully")
+        val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
+        val playlists = mutableListOf<UserPlaylist>()
+        for (i in 0 until items.length()) {
+          val playlist = items.getJSONObject(i)
+          val name = playlist.getString("name")
+          Log.d("SpotifyApiViewModel", "Playlist: $name")
+          val id = playlist.getString("id")
+          val owner = playlist.getJSONObject("owner").getString("id")
+          val public = playlist.getBoolean("public")
+          val coverUrl = playlist.getJSONArray("images").getJSONObject(0).getString("url")
+          val nbTracks = playlist.getJSONObject("tracks").getInt("total")
+          val tracks = mutableListOf<SpotifyTrack>()
+
+          val userPlaylist =
+              UserPlaylist(
+                  playlistID = id,
+                  ownerID = owner,
+                  playlistCover = coverUrl,
+                  playlistName = name,
+                  playlistPublic = public,
+                  playlistSongs = tracks,
+                  nbTracks = nbTracks)
+          if (public) {
+            playlists.add(userPlaylist)
+          }
+        }
+        onSuccess(playlists)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch playlists")
+        onFailure(emptyList())
+      }
+    }
   }
 }

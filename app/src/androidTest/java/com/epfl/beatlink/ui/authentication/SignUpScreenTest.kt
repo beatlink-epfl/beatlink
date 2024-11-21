@@ -12,10 +12,12 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import okhttp3.OkHttpClient
 import org.junit.Before
@@ -37,12 +39,16 @@ class SignUpScreenTest {
   private lateinit var authViewModel: FirebaseAuthViewModel
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var spotifyRepository: SpotifyAuthRepository
+  private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var profileRepository: ProfileRepositoryFirestore
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
+    profileRepository = mock(ProfileRepositoryFirestore::class.java)
+    profileViewModel = ProfileViewModel(profileRepository)
 
     val application = ApplicationProvider.getApplicationContext<Application>()
     // Create a real instance of SpotifyAuthRepository with OkHttpClient, etc.
@@ -51,7 +57,7 @@ class SignUpScreenTest {
 
     // Set the content for the composable
     composeTestRule.setContent {
-      SignUpScreen(navigationActions, spotifyAuthViewModel, authViewModel)
+      SignUpScreen(navigationActions, authViewModel, spotifyAuthViewModel, profileViewModel)
     }
   }
 
@@ -127,7 +133,6 @@ class SignUpScreenTest {
     composeTestRule.onNodeWithTag("createAccountButton").performScrollTo().performClick()
 
     // Verify that the signUp method was called with the correct credentials
-    verify(authRepository)
-        .signUp(eq("test@example.com"), eq("password123"), eq("testuser"), any(), any())
+    verify(authRepository).signUp(eq("test@example.com"), eq("password123"), any(), any())
   }
 }

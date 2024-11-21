@@ -36,21 +36,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun SignUpScreen(
     navigationActions: NavigationActions,
+    firebaseAuthViewModel: FirebaseAuthViewModel,
     spotifyAuthViewModel: SpotifyAuthViewModel,
-    firebaseAuthViewModel: FirebaseAuthViewModel =
-        viewModel(factory = FirebaseAuthViewModel.Factory)
+    profileViewModel: ProfileViewModel
 ) {
   var email by remember { mutableStateOf("") }
   var username by remember { mutableStateOf("") }
@@ -64,10 +65,14 @@ fun SignUpScreen(
   AuthStateHandler(
       authState = authState,
       context = context,
-      onSuccess = { navigationActions.navigateTo(Screen.PROFILE_BUILD) },
+      onSuccess = {
+        // Add user profile to Firestore
+        profileViewModel.addProfile(ProfileData(username = username))
+
+        navigationActions.navigateTo(Screen.PROFILE_BUILD)
+      },
       authViewModel = firebaseAuthViewModel,
-      successMessage = "Sign up successful" // Success message for sign up
-      )
+      successMessage = "Sign up successful")
 
   Scaffold(
       modifier = Modifier.testTag("signUpScreen"),
@@ -192,7 +197,7 @@ fun CreateNewAccountButton(
                   Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                  authViewModel.signUp(email, password, username)
+                  authViewModel.signUp(email, password)
                 }
               }
             },

@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+val ColorScheme.primaryWhite: Color
+  get() = lightThemeBackground
 val ColorScheme.primaryGray: Color
   get() = PrimaryGray
 val ColorScheme.secondaryGray: Color

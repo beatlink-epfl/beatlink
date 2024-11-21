@@ -39,7 +39,7 @@ class PlaylistRepositoryFirestore(
         userId = userId,
         playlistOwner = playlistOwner,
         playlistCollaborators = playlistCollaborators,
-        playlistSongs = playlistSongs,
+        playlistTracks = playlistSongs,
         nbTracks = playlistSongs.size)
   }
 
@@ -142,8 +142,8 @@ class PlaylistRepositoryFirestore(
         }
   }
 
-  /** Updates only the list of songs contained in the playlist in Firestore */
-  override fun updatePlaylistSongs(
+  /** Updates only the list of tracks contained in the playlist in Firestore */
+  override fun updatePlaylistTracks(
       playlist: Playlist,
       newListSongs: List<String>,
       onSuccess: () -> Unit,

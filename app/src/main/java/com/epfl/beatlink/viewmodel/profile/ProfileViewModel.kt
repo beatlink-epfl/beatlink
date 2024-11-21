@@ -6,7 +6,8 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -20,8 +21,8 @@ import kotlinx.coroutines.launch
  *
  * @param repository The repository to use for fetching and updating user profiles.
  */
-class ProfileViewModel(
-    private val repository: ProfileRepositoryFirestore,
+open class ProfileViewModel(
+    private val repository: ProfileRepository,
     initialProfile: ProfileData? = null
 ) : ViewModel() {
 
@@ -34,6 +35,16 @@ class ProfileViewModel(
     viewModelScope.launch {
       val userProfile = repository.fetchProfile(userId)
       _profile.value = userProfile
+    }
+  }
+
+  fun addProfile(profileData: ProfileData) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.addProfile(userId, profileData)
+      if (success) {
+        _profile.value = profileData
+      }
     }
   }
 
@@ -58,6 +69,26 @@ class ProfileViewModel(
   }
 
   // create factory
+  fun deleteProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.deleteProfile(userId)
+      if (success) {
+        _profile.value = null
+      }
+    }
+  }
+
+  /*fun uploadProfilePicture(imageUri: File) {
+    viewModelScope.launch {
+      val imageUrl = repository.uploadProfilePicture(imageUri)
+      imageUrl?.let {
+        _profileImageUrl.value = it // Set URL as String after upload
+      }
+    }
+  }*/
+
+  // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {

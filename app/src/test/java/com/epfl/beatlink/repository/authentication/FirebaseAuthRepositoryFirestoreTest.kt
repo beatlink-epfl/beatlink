@@ -2,22 +2,20 @@ package com.epfl.beatlink.repository.authentication
 
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
-import com.epfl.beatlink.repository.profile.ProfileData
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
@@ -28,11 +26,8 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 class FirebaseAuthRepositoryFirestoreTest {
 
-  @Mock private lateinit var mockFirestore: FirebaseFirestore
   @Mock private lateinit var mockAuth: FirebaseAuth
   @Mock private lateinit var mockFirebaseUser: FirebaseUser
-  @Mock private lateinit var mockCollectionReference: CollectionReference
-  @Mock private lateinit var mockDocumentReference: DocumentReference
   @Mock private lateinit var mockAuthResult: AuthResult
 
   private lateinit var firebaseAuthRepositoryFirestore: FirebaseAuthRepositoryFirestore
@@ -51,23 +46,25 @@ class FirebaseAuthRepositoryFirestoreTest {
     `when`(mockFirebaseUser.uid).thenReturn("testUserId")
     `when`(mockFirebaseUser.email).thenReturn("test@example.com")
 
-    // Set up Firestore collection and document
-    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document(any())).thenReturn(mockDocumentReference)
+    // Mock successful reauthentication Task
+    val reauthTask: Task<Void> = Tasks.forResult(null)
+    `when`(mockFirebaseUser.reauthenticate(any())).thenReturn(reauthTask)
 
-    firebaseAuthRepositoryFirestore = FirebaseAuthRepositoryFirestore(mockFirestore, mockAuth)
+    // Mock successful delete Task
+    val deleteTask: Task<Void> = Tasks.forResult(null)
+    `when`(mockFirebaseUser.delete()).thenReturn(deleteTask)
+
+    firebaseAuthRepositoryFirestore = FirebaseAuthRepositoryFirestore(mockAuth)
   }
 
   @Test
   fun signUp_shouldCallCreateUserWithEmailAndPassword() {
     `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
         .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
 
     firebaseAuthRepositoryFirestore.signUp(
         email = "test@example.com",
         password = "password123",
-        username = "testUser",
         onSuccess = {},
         onFailure = { fail("Failure callback should not be called") })
 
@@ -76,26 +73,6 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify that createUserWithEmailAndPassword is called
     verify(mockAuth).createUserWithEmailAndPassword("test@example.com", "password123")
-  }
-
-  @Test
-  fun signUp_shouldCallAddUsernameOnSuccess() {
-    `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
-        .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
-
-    firebaseAuthRepositoryFirestore.signUp(
-        email = "test@example.com",
-        password = "password123",
-        username = "testUser",
-        onSuccess = {},
-        onFailure = { fail("Failure callback should not be called") })
-
-    // Ensure all asynchronous operations complete
-    shadowOf(Looper.getMainLooper()).idle()
-
-    // Verify that Firestore's set method is called on the document
-    verify(mockDocumentReference).set(any())
   }
 
   @Test
@@ -114,30 +91,6 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify signInWithEmailAndPassword is called
     verify(mockAuth).signInWithEmailAndPassword("test@example.com", "password123")
-  }
-
-  @Test
-  fun addUsername_shouldSetProfileDataInFirestore() {
-    val profileData =
-        ProfileData(
-            username = "testUser", name = null, bio = null, links = 0, profilePicture = null)
-
-    `when`(mockAuth.createUserWithEmailAndPassword(any(), any()))
-        .thenReturn(Tasks.forResult(mockAuthResult))
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
-
-    firebaseAuthRepositoryFirestore.signUp(
-        email = "test@example.com",
-        password = "password123",
-        username = "testUser",
-        onSuccess = {},
-        onFailure = { fail("Failure callback should not be called") })
-
-    // Ensure all asynchronous operations complete
-    shadowOf(Looper.getMainLooper()).idle()
-
-    // Verify that set is called with the correct ProfileData
-    verify(mockDocumentReference).set(profileData)
   }
 
   @Test
@@ -247,5 +200,96 @@ class FirebaseAuthRepositoryFirestoreTest {
     // Assert failure result
     assert(result.isFailure)
     assert(result.exceptionOrNull()?.message == "User not authenticated")
+  }
+
+  @Test
+  fun deleteAccount_shouldDeleteAccountSuccessfully() {
+    val testPassword = "testPassword"
+    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
+
+    // Mock reauthentication and account deletion
+    `when`(mockFirebaseUser.reauthenticate(mockCredential)).thenReturn(Tasks.forResult(null))
+    `when`(mockFirebaseUser.delete()).thenReturn(Tasks.forResult(null))
+
+    // Call the deleteAccount method
+    firebaseAuthRepositoryFirestore.deleteAccount(
+        currentPassword = testPassword,
+        onSuccess = {},
+        onFailure = { fail("Failure callback should not be called") })
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Verify reauthentication and delete were called
+    verify(mockFirebaseUser).reauthenticate(any())
+    verify(mockFirebaseUser).delete()
+  }
+
+  @Test
+  fun deleteAccount_shouldFailWhenReauthenticationFails() {
+    val testPassword = "wrongPassword"
+    val credential = EmailAuthProvider.getCredential("test@example.com", testPassword)
+
+    // Mock reauthentication failure
+    val reauthTask: Task<Void> = Tasks.forException(Exception("Reauthentication failed"))
+    `when`(mockFirebaseUser.reauthenticate(any())).thenReturn(reauthTask)
+
+    // Call the deleteAccount method
+    firebaseAuthRepositoryFirestore.deleteAccount(
+        currentPassword = testPassword,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { exception -> assert(exception.message == "Reauthentication failed") })
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Verify that only reauthenticate was called, and delete was not called
+    verify(mockFirebaseUser).reauthenticate(any())
+    verify(mockFirebaseUser, times(0)).delete()
+  }
+
+  @Test
+  fun deleteAccount_shouldFailWhenDeletionFails() {
+    val testPassword = "testPassword"
+    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
+
+    // Mock reauthentication success and deletion failure
+    `when`(mockFirebaseUser.reauthenticate(mockCredential)).thenReturn(Tasks.forResult(null))
+    `when`(mockFirebaseUser.delete())
+        .thenReturn(Tasks.forException(Exception("Account deletion failed")))
+
+    // Call the deleteAccount method
+    firebaseAuthRepositoryFirestore.deleteAccount(
+        currentPassword = testPassword,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { exception -> assert(exception.message == "Account deletion failed") })
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Verify reauthenticate and delete were called
+    verify(mockFirebaseUser).reauthenticate(any())
+    verify(mockFirebaseUser).delete()
+  }
+
+  @Test
+  fun deleteAccount_shouldFailWhenUserIsNotAuthenticated() {
+    val testPassword = "testPassword"
+
+    // Mock FirebaseAuth to return null for the current user
+    `when`(mockAuth.currentUser).thenReturn(null)
+
+    // Call the deleteAccount method
+    firebaseAuthRepositoryFirestore.deleteAccount(
+        currentPassword = testPassword,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { exception -> assert(exception.message == "User not authenticated") })
+
+    // Ensure all asynchronous operations complete
+    shadowOf(Looper.getMainLooper()).idle()
+
+    // Verify neither reauthenticate nor delete were called
+    verify(mockFirebaseUser, times(0)).reauthenticate(any())
+    verify(mockFirebaseUser, times(0)).delete()
   }
 }
