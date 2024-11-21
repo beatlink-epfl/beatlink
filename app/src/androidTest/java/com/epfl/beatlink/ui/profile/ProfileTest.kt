@@ -1,5 +1,7 @@
 package com.epfl.beatlink.ui.profile
 
+import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,28 +11,54 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 
 @RunWith(AndroidJUnit4::class)
 class ProfileTest {
+    @get:Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
+
+    private val testDispatcher = StandardTestDispatcher()
   private lateinit var navigationActions: NavigationActions
+    @Mock private lateinit var mockApplication: Application
+    @Mock
+    private lateinit var spotifyApiRepository: SpotifyApiRepository
+    private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
   private val user =
       ProfileData(username = "", name = null, bio = null, links = 0, profilePicture = null)
 
   @get:Rule val composeTestRule = createComposeRule()
 
+  @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   fun setUp() {
+      MockitoAnnotations.openMocks(this)
+      Dispatchers.setMain(testDispatcher)
+      spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
+
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
 
@@ -40,9 +68,18 @@ class ProfileTest {
     }
     // Launch the composable under test
     composeTestRule.setContent {
-      ProfileScreen(viewModel(factory = ProfileViewModel.Factory), navigationActions)
+      ProfileScreen(viewModel(factory = ProfileViewModel.Factory),
+          navigationActions,
+         spotifyApiViewModel
+      )
     }
   }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain() // Reset the Main dispatcher after tests
+    }
 
   @Test
   fun elementsAreDisplayed() {

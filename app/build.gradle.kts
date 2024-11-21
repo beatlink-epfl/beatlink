@@ -180,6 +180,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.core.testing)
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)

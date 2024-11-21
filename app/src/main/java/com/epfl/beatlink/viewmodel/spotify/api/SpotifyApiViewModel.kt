@@ -345,11 +345,15 @@ class SpotifyApiViewModel(
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
-  private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
+  fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
+    val album = track.getJSONObject("album")
+
+    // Get cover URL from album images
     val coverUrl =
-        if (artist.getJSONArray("images").length() == 0) ""
-        else artist.getJSONArray("images").getJSONObject(0).getString("url")
+        if (album.getJSONArray("images").length() == 0) ""
+        else album.getJSONArray("images").getJSONObject(0).getString("url")
+
     return SpotifyTrack(
         name = track.getString("name"),
         artist = artist.getString("name"),
