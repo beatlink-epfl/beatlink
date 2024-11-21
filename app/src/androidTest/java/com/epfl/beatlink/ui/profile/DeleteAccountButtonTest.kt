@@ -70,6 +70,7 @@ class DeleteAccountButtonTest {
 
   @Test
   fun deleteAccountButton_isDisplayedCorrectly() {
+    composeTestRule.waitForIdle()
     composeTestRule
         .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
         .assertIsDisplayed()
@@ -81,7 +82,9 @@ class DeleteAccountButtonTest {
   @Test
   fun deleteAccountButton_showsDialogOnClick() {
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton").performClick()
+    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
 
     // Check if the dialog is displayed
     composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
@@ -104,13 +107,17 @@ class DeleteAccountButtonTest {
     whenever(profileRepository.deleteProfile("testUserId")).thenReturn(true)
 
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton").performClick()
+    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
 
     // Enter password
     composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
 
     // Confirm deletion
     composeTestRule.onNodeWithTag("confirmButton").performClick()
+    composeTestRule.waitForIdle()
 
     // Verify that deleteAccount is called on the auth repository
     verify(authRepository).deleteAccount(any(), any(), any())
@@ -125,7 +132,10 @@ class DeleteAccountButtonTest {
   @Test
   fun deleteAccountDialog_cancelDoesNotPerformDeletion() = runTest {
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton").performClick()
+    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
 
     // Click cancel
     composeTestRule.onNodeWithTag("cancelButton").performClick()
