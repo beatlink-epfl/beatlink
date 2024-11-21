@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
 
+private const val USER_NOT_AUTHENTICATED = "User not authenticated"
+
 class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : FirebaseAuthRepository {
 
   override fun signUp(
@@ -52,7 +54,7 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
         Result.failure(e)
       }
     } else {
-      Result.failure(Exception("User not authenticated"))
+      Result.failure(Exception(USER_NOT_AUTHENTICATED))
     }
   }
 
@@ -66,7 +68,7 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
         Result.failure(e)
       }
     } else {
-      Result.failure(Exception("User not authenticated"))
+      Result.failure(Exception(USER_NOT_AUTHENTICATED))
     }
   }
 
@@ -76,34 +78,42 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
       onFailure: (Exception) -> Unit
   ) {
     val user: FirebaseUser? = auth.currentUser
-    if (user != null) {
-      val email = user.email
-      if (email != null) {
-        val credential = EmailAuthProvider.getCredential(email, currentPassword)
-        user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
-          if (reauthTask.isSuccessful) {
-            user.delete().addOnCompleteListener { deleteTask ->
-              if (deleteTask.isSuccessful) {
-                onSuccess()
-              } else {
-                Log.e(
-                    "AuthRepositoryFirestore",
-                    "Account deletion failed: ${deleteTask.exception?.message}")
-                deleteTask.exception?.let { onFailure(it) }
-              }
-            }
-          } else {
-            Log.e(
-                "AuthRepositoryFirestore",
-                "Reauthentication failed: ${reauthTask.exception?.message}")
-            reauthTask.exception?.let { onFailure(it) }
-          }
-        }
+    if (user == null) {
+      onFailure(Exception(USER_NOT_AUTHENTICATED))
+      return
+    }
+
+    val email = user.email
+    if (email == null) {
+      onFailure(Exception("User email not available"))
+      return
+    }
+
+    val credential = EmailAuthProvider.getCredential(email, currentPassword)
+    user.reauthenticate(credential).addOnCompleteListener { reauthTask ->
+      if (reauthTask.isSuccessful) {
+        deleteUser(user, onSuccess, onFailure)
       } else {
-        onFailure(Exception("User email not available"))
+        Log.e(
+            "AuthRepositoryFirestore", "Reauthentication failed: ${reauthTask.exception?.message}")
+        reauthTask.exception?.let { onFailure(it) }
       }
-    } else {
-      onFailure(Exception("User not authenticated"))
+    }
+  }
+
+  private fun deleteUser(
+      user: FirebaseUser,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    user.delete().addOnCompleteListener { deleteTask ->
+      if (deleteTask.isSuccessful) {
+        onSuccess()
+      } else {
+        Log.e(
+            "AuthRepositoryFirestore", "Account deletion failed: ${deleteTask.exception?.message}")
+        deleteTask.exception?.let { onFailure(it) }
+      }
     }
   }
 }
