@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SpotifyApiViewModel(
+open class SpotifyApiViewModel(
     application: Application,
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
@@ -78,7 +78,7 @@ class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 artists from the last 4 weeks. */
-  fun getCurrentUserTopArtists(
+  open fun getCurrentUserTopArtists(
       onSuccess: (List<SpotifyArtist>) -> Unit,
       onFailure: (List<SpotifyArtist>) -> Unit
   ) {
@@ -102,7 +102,7 @@ class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 tracks from the last 4 weeks. */
-  fun getCurrentUserTopTracks(
+  open fun getCurrentUserTopTracks(
       onSuccess: (List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyTrack>) -> Unit
   ) {
@@ -289,11 +289,15 @@ class SpotifyApiViewModel(
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
-  private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
+  fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
+    val album = track.getJSONObject("album")
+
+    // Get cover URL from album images
     val coverUrl =
-        if (artist.getJSONArray("images").length() == 0) ""
-        else artist.getJSONArray("images").getJSONObject(0).getString("url")
+        if (album.getJSONArray("images").length() == 0) ""
+        else album.getJSONArray("images").getJSONObject(0).getString("url")
+
     return SpotifyTrack(
         name = track.getString("name"),
         artist = artist.getString("name"),
