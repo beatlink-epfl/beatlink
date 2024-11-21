@@ -120,7 +120,8 @@ fun BeatLinkApp(
       composable(Screen.SETTINGS) { SettingsScreen(navigationActions, firebaseAuthViewModel) }
       composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
       composable(Screen.ACCOUNT) {
-        AccountScreen(navigationActions, spotifyAuthViewModel, profileViewModel)
+        AccountScreen(
+            navigationActions, spotifyAuthViewModel, profileViewModel, firebaseAuthViewModel)
       }
       composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
     }
