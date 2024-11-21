@@ -1,4 +1,4 @@
-package com.epfl.beatlink.ui.profile
+package com.epfl.beatlink.ui.profile.settings
 
 import android.app.Application
 import androidx.compose.ui.test.assertHasClickAction
@@ -17,7 +17,6 @@ import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel

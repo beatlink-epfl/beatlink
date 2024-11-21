@@ -9,12 +9,14 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -96,7 +98,6 @@ class FirebaseAuthRepositoryFirestoreTest {
   @Test
   fun verifyPassword_shouldReauthenticateUserSuccessfully() {
     val testPassword = "testPassword"
-    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
 
     // Mock FirebaseUser's email and reauthenticate behavior
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
@@ -117,7 +118,6 @@ class FirebaseAuthRepositoryFirestoreTest {
   @Test
   fun verifyPassword_shouldReturnFailureIfReauthenticationFails() {
     val testPassword = "wrongPassword"
-    val mockCredential = EmailAuthProvider.getCredential("test@example.com", testPassword)
 
     // Mock FirebaseAuth's currentUser and FirebaseUser's behavior
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
@@ -291,5 +291,21 @@ class FirebaseAuthRepositoryFirestoreTest {
     // Verify neither reauthenticate nor delete were called
     verify(mockFirebaseUser, times(0)).reauthenticate(any())
     verify(mockFirebaseUser, times(0)).delete()
+  }
+
+  @Test
+  fun signOut_shouldCallFirebaseAuthSignOut() {
+    // Mock FirebaseAuth to not throw an exception when signOut is called
+    doNothing().`when`(mockAuth).signOut()
+
+    // Call signOut
+    var onSuccessCalled = false
+    firebaseAuthRepositoryFirestore.signOut(
+        onSuccess = { onSuccessCalled = true },
+        onFailure = { fail("onFailure should not be called") })
+
+    // Verify signOut was called and onSuccess was triggered
+    verify(mockAuth).signOut()
+    assertTrue(onSuccessCalled)
   }
 }

@@ -2,6 +2,7 @@ package com.epfl.beatlink.viewmodel.auth
 
 import com.epfl.beatlink.model.auth.AuthState
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.google.firebase.firestore.util.Assert.fail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -175,5 +176,91 @@ class FirebaseAuthViewModelTest {
     // Verify interactions with the repository
     verify(firebaseAuthRepository).verifyPassword(eq(currentPassword))
     verify(firebaseAuthRepository).changePassword(eq(newPassword))
+  }
+
+  @Test
+  fun deleteAccountSuccess() = runTest {
+    val currentPassword = "testPassword"
+
+    `when`(firebaseAuthRepository.deleteAccount(any(), any(), any())).thenAnswer { invocation ->
+      val onSuccess = invocation.getArgument(1) as () -> Unit
+      onSuccess() // Simulate a successful account deletion
+    }
+
+    var successCallbackTriggered = false
+    firebaseAuthViewModel.deleteAccount(
+        currentPassword = currentPassword,
+        onSuccess = { successCallbackTriggered = true },
+        onFailure = { fail("Failure callback should not be called") })
+
+    assertThat(successCallbackTriggered, `is`(true))
+    assertThat(firebaseAuthViewModel.authState.value, `is`(AuthState.Idle))
+    verify(firebaseAuthRepository).deleteAccount(eq(currentPassword), any(), any())
+  }
+
+  @Test
+  fun deleteAccountFailure() = runTest {
+    val currentPassword = "testPassword"
+
+    `when`(firebaseAuthRepository.deleteAccount(any(), any(), any())).thenAnswer { invocation ->
+      val onFailure = invocation.getArgument(2) as (Exception) -> Unit
+      onFailure(Exception("Account deletion failed")) // Simulate account deletion failure
+    }
+
+    var failureCallbackTriggered = false
+    firebaseAuthViewModel.deleteAccount(
+        currentPassword = currentPassword,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { exception ->
+          failureCallbackTriggered = true
+          assertThat(exception.message, `is`("Account deletion failed"))
+        })
+
+    assertThat(failureCallbackTriggered, `is`(true))
+    assertThat(firebaseAuthViewModel.authState.value is AuthState.Error, `is`(true))
+    assertThat(
+        (firebaseAuthViewModel.authState.value as AuthState.Error).message,
+        `is`("Account deletion failed: Account deletion failed"))
+    verify(firebaseAuthRepository).deleteAccount(eq(currentPassword), any(), any())
+  }
+
+  @Test
+  fun signOutSuccess() {
+    `when`(firebaseAuthRepository.signOut(any(), any())).thenAnswer { invocation ->
+      val onSuccess = invocation.getArgument(0) as () -> Unit
+      onSuccess() // Simulate a successful sign-out
+    }
+
+    var successCallbackTriggered = false
+    firebaseAuthViewModel.signOut(
+        onSuccess = { successCallbackTriggered = true },
+        onFailure = { fail("Failure callback should not be called") })
+
+    assertThat(successCallbackTriggered, `is`(true))
+    assertThat(firebaseAuthViewModel.authState.value, `is`(AuthState.Idle))
+    verify(firebaseAuthRepository).signOut(any(), any())
+  }
+
+  @Test
+  fun signOutFailure() {
+    `when`(firebaseAuthRepository.signOut(any(), any())).thenAnswer { invocation ->
+      val onFailure = invocation.getArgument(1) as (Exception) -> Unit
+      onFailure(Exception("Sign out error")) // Simulate sign-out failure
+    }
+
+    var failureCallbackTriggered = false
+    firebaseAuthViewModel.signOut(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { exception ->
+          failureCallbackTriggered = true
+          assertThat(exception.message, `is`("Sign out error"))
+        })
+
+    assertThat(failureCallbackTriggered, `is`(true))
+    assertThat(firebaseAuthViewModel.authState.value is AuthState.Error, `is`(true))
+    assertThat(
+        (firebaseAuthViewModel.authState.value as AuthState.Error).message,
+        `is`("Sign out failed: Sign out error"))
+    verify(firebaseAuthRepository).signOut(any(), any())
   }
 }
