@@ -43,6 +43,16 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
     }
   }
 
+  override fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    try {
+      auth.signOut()
+      onSuccess()
+    } catch (e: Exception) {
+      Log.e("AuthRepositoryFirestore", "Sign out failed: ${e.message}")
+      onFailure(e)
+    }
+  }
+
   override suspend fun verifyPassword(currentPassword: String): Result<Unit> {
     val user: FirebaseUser? = auth.currentUser
     return if (user != null) {

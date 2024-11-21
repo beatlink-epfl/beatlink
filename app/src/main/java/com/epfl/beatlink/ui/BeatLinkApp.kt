@@ -119,7 +119,7 @@ fun BeatLinkApp(
       }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
-      composable(Screen.SETTINGS) { SettingsScreen(navigationActions) }
+      composable(Screen.SETTINGS) { SettingsScreen(navigationActions, firebaseAuthViewModel) }
       composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
       composable(Screen.ACCOUNT) {
         AccountScreen(
