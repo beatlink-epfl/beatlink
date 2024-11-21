@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -35,8 +37,10 @@ fun SettingsScreen(
     navigationActions: NavigationActions,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
+  val context = LocalContext.current
   var showDialog by remember { mutableStateOf(false) }
   val scrollState = rememberScrollState()
+
   Scaffold(
       modifier = Modifier.testTag("settingScreen"),
       topBar = { ScreenTopAppBar("Settings", "settingScreenTitle", navigationActions) },
@@ -91,9 +95,17 @@ fun SettingsScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                firebaseAuthViewModel.signOut()
-                navigationActions.navigateTo(Screen.WELCOME)
-                showDialog = false
+                firebaseAuthViewModel.signOut(
+                    onSuccess = {
+                      navigationActions.navigateTo(Screen.WELCOME)
+                      Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
+                      showDialog = false
+                    },
+                    onFailure = {
+                      Toast.makeText(context, "Sign out failed: ${it.message}", Toast.LENGTH_SHORT)
+                          .show()
+                      showDialog = false // Close the dialog on failure
+                    })
               }) {
                 Text("Confirm")
               }

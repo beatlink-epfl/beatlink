@@ -52,5 +52,11 @@ interface FirebaseAuthRepository {
       onFailure: (Exception /* = Exception */) -> Unit
   )
 
+  /**
+   * Sign out the currently authenticated user.
+   *
+   * @param onSuccess Callback on successful sign-out.
+   * @param onFailure Callback that is invoked if an error occurs.
+   */
   fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 }

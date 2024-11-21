@@ -70,7 +70,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
       authRepository.deleteAccount(
           currentPassword = currentPassword,
           onSuccess = {
-            _authState.value = AuthState.Idle // Reset state
+            resetState()
             onSuccess() // Trigger the success callback
           },
           onFailure = { exception ->
@@ -80,16 +80,16 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
-  fun signOut() {
+  fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     viewModelScope.launch {
       authRepository.signOut(
           onSuccess = {
-            _authState.value = AuthState.Idle // Reset state on successful sign-out
-            Log.d("AuthViewModel", "Sign out successful")
+            resetState()
+            onSuccess()
           },
           onFailure = { exception ->
-            Log.e("AuthViewModel", "Sign out failed: ${exception.message}")
             _authState.value = AuthState.Error("Sign out failed: ${exception.message}")
+            onFailure(exception)
           })
     }
   }
