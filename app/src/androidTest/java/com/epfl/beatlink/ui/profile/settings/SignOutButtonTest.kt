@@ -7,7 +7,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -47,9 +46,9 @@ class SignOutButtonTest {
 
   @Test
   fun signOutButton_isDisplayedCorrectly() {
+    composeTestRule.waitForIdle()
     composeTestRule
         .onNodeWithTag("signOutButton", useUnmergedTree = true)
-        .performScrollTo()
         .assertIsDisplayed()
         .assertHasClickAction()
         .onChild()
@@ -59,10 +58,9 @@ class SignOutButtonTest {
   @Test
   fun signOutDialog_isDisplayedWhenSignOutButtonClicked() {
     // Click the "Sign out" button
-    composeTestRule
-        .onNodeWithTag("signOutButton", useUnmergedTree = true)
-        .performScrollTo()
-        .performClick()
+    composeTestRule.onNodeWithTag("signOutButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
 
     // Verify the dialog title and confirm/cancel buttons are displayed
     composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
@@ -81,10 +79,10 @@ class SignOutButtonTest {
         .signOut(any(), any())
 
     // Click the "Sign out" button to show the dialog
-    composeTestRule
-        .onNodeWithTag("signOutButton", useUnmergedTree = true)
-        .performScrollTo()
-        .performClick()
+    composeTestRule.onNodeWithTag("signOutButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
 
     // Click the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
@@ -99,10 +97,10 @@ class SignOutButtonTest {
   @Test
   fun signOutDialog_dismissesOnCancel() {
     // Click the "Sign out" button to show the dialog
-    composeTestRule
-        .onNodeWithTag("signOutButton", useUnmergedTree = true)
-        .performScrollTo()
-        .performClick()
+    composeTestRule.onNodeWithTag("signOutButton", useUnmergedTree = true).performClick()
+
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
 
     // Click the cancel button
     composeTestRule.onNodeWithTag("cancelButton").performClick()
