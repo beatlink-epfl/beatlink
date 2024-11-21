@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +48,10 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: NavigationActions) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
   val profileData by profileViewModel.profile.collectAsState()
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+
+  // Load profile picture
+  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
 
   Scaffold(
       modifier = Modifier.testTag("profileScreen"),
@@ -76,7 +83,7 @@ fun ProfileScreen(profileViewModel: ProfileViewModel, navigationAction: Navigati
         Column(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
           HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
           Row(modifier = Modifier.padding(16.dp)) {
-            ProfilePicture(profileData?.profilePicture)
+            ProfilePicture(profilePicture)
             Spacer(modifier = Modifier.width(24.dp))
             Column {
               Text(

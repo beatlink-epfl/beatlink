@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -29,8 +28,6 @@ class EditProfileScreenTest {
   // Test variables
   private val testName = "John Doe"
   private val testDescription = "This is a test description."
-  private val mockUri =
-      Uri.parse("content://com.android.providers.media.documents/document/image:1")
 
   // Mocks and instances
   private lateinit var profileViewModel: ProfileViewModel
@@ -152,12 +149,7 @@ class EditProfileScreenTest {
     val newName = "Jane Doe"
     val newDescription = "Updated description."
     val newProfileData =
-        ProfileData(
-            bio = newDescription,
-            links = 5,
-            name = newName,
-            profilePicture = mockUri,
-            username = "janedoe")
+        ProfileData(bio = newDescription, links = 5, name = newName, username = "janedoe")
 
     composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
     composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput(newName)

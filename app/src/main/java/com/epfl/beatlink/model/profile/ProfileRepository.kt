@@ -8,6 +8,4 @@ interface ProfileRepository {
   suspend fun fetchProfile(userId: String): ProfileData?
 
   suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean
-
-  // suspend fun uploadProfilePicture(imageUri: File): String?
 }
