@@ -69,6 +69,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.epfl.beatlink.R
@@ -472,9 +473,9 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
       ) {
-        Image(
-            painter = painterResource(id = R.drawable.default_profile_picture),
-            contentDescription = null, // Provide a description for accessibility
+        AsyncImage(
+            model = currentTrack.cover,
+            contentDescription = "Cover",
             modifier = Modifier.fillMaxSize())
       }
 
