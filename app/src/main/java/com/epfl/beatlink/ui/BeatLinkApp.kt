@@ -114,7 +114,9 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
+      composable(Screen.PROFILE) {
+        ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
       composable(Screen.SETTINGS) { SettingsScreen(navigationActions) }
