@@ -26,29 +26,28 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 fun TrackCard(track: SpotifyTrack) {
   Column(
       horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.testTag("TrackCard")
-  ) {
-    Box(modifier = Modifier.size(95.dp).clip(RoundedCornerShape(4.dp))) {
-      AsyncImage(
-          model = track.cover,
-          contentDescription = "Cover for ${track.name}",
-          modifier = Modifier.fillMaxSize(),
-          contentScale = ContentScale.Crop)
-    }
-    Spacer(Modifier.height(5.dp))
-    Text(
-        text = track.name,
-        style = TypographySongs.bodyLarge,
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.width(95.dp))
-    Text(
-        text = track.artist,
-        style = TypographySongs.bodyMedium,
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.width(95.dp))
-  }
+      modifier = Modifier.testTag("TrackCard")) {
+        Box(modifier = Modifier.size(95.dp).clip(RoundedCornerShape(4.dp))) {
+          AsyncImage(
+              model = track.cover,
+              contentDescription = "Cover for ${track.name}",
+              modifier = Modifier.fillMaxSize(),
+              contentScale = ContentScale.Crop)
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(
+            text = track.name,
+            style = TypographySongs.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(95.dp))
+        Text(
+            text = track.artist,
+            style = TypographySongs.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(95.dp))
+      }
 }

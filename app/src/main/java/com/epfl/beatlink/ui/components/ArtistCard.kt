@@ -26,22 +26,21 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 fun ArtistCard(artist: SpotifyArtist) {
   Column(
       horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.testTag("ArtistCard")
-  ) {
-    Box(modifier = Modifier.size(95.dp).clip(CircleShape)) {
-      AsyncImage(
-          model = artist.image,
-          contentDescription = "Cover for ${artist.name}",
-          modifier = Modifier.fillMaxSize(),
-          contentScale = ContentScale.Crop)
-    }
-    Spacer(Modifier.height(5.dp))
-    Text(
-        text = artist.name,
-        style = TypographySongs.bodyLarge,
-        color = MaterialTheme.colorScheme.primary,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier.width(95.dp))
-  }
+      modifier = Modifier.testTag("ArtistCard")) {
+        Box(modifier = Modifier.size(95.dp).clip(CircleShape)) {
+          AsyncImage(
+              model = artist.image,
+              contentDescription = "Cover for ${artist.name}",
+              modifier = Modifier.fillMaxSize(),
+              contentScale = ContentScale.Crop)
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(
+            text = artist.name,
+            style = TypographySongs.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(95.dp))
+      }
 }

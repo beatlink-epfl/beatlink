@@ -285,9 +285,7 @@ fun GradientTitle(title: String) {
       text = title,
       style = MaterialTheme.typography.headlineLarge,
       modifier =
-          Modifier
-              .testTag(title + "Title")
-              .graphicsLayer(alpha = 0.99f).drawWithCache {
+          Modifier.testTag(title + "Title").graphicsLayer(alpha = 0.99f).drawWithCache {
             onDrawWithContent {
               drawContent()
               drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
