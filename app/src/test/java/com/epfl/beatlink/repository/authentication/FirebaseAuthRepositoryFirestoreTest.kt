@@ -5,7 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import junit.framework.TestCase.assertTrue

@@ -4,23 +4,28 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.settings.SettingsScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
-class SignOutButtonTest {
+class SettingsScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -30,34 +35,69 @@ class SignOutButtonTest {
 
   @Before
   fun setUp() {
-    navigationActions = mock(NavigationActions::class.java)
+    navigationActions = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
-      SignOutButton(navigationActions = navigationActions, firebaseAuthViewModel = authViewModel)
+      SettingsScreen(navigationActions = navigationActions, firebaseAuthViewModel = authViewModel)
     }
   }
 
   @Test
   fun signOutButton_isDisplayedCorrectly() {
     composeTestRule
-        .onNodeWithTag("signOutButton")
+        .onNodeWithTag("signOutButton", useUnmergedTree = true)
         .assertIsDisplayed()
         .assertHasClickAction()
+        .onChild()
         .assertTextEquals("Sign out")
   }
 
   @Test
-  fun signOutButton_performsSignOutAndNavigation() {
-
-    // Perform a click on the sign-out button
+  fun signOutDialog_isDisplayedWhenSignOutButtonClicked() {
+    // Click the "Sign out" button
     composeTestRule.onNodeWithTag("signOutButton").performClick()
 
+    // Verify the dialog title and confirm/cancel buttons are displayed
+    composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("cancelButton").assertIsDisplayed()
+  }
+
+  @Test
+  fun signOutDialog_performsSignOutAndNavigation() {
+    // Mock the signOut method to simulate a successful callback
+    doAnswer { invocation ->
+          val onSuccess = invocation.getArgument<() -> Unit>(0)
+          onSuccess.invoke()
+          null
+        }
+        .whenever(authRepository)
+        .signOut(any(), any())
+
+    // Click the "Sign out" button to show the dialog
+    composeTestRule.onNodeWithTag("signOutButton").performClick()
+
+    // Click the confirm button
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    // Verify that signOut is called on the repository
     verify(authRepository).signOut(any(), any())
 
-    // Verify that navigation to the welcome screen is triggered
-    verify(navigationActions).navigateTo(Screen.WELCOME)
+    // Verify navigation to the welcome screen
+    io.mockk.verify { navigationActions.navigateTo(Screen.WELCOME) }
+  }
+
+  @Test
+  fun signOutDialog_dismissesOnCancel() {
+    // Click the "Sign out" button to show the dialog
+    composeTestRule.onNodeWithTag("signOutButton").performClick()
+
+    // Click the cancel button
+    composeTestRule.onNodeWithTag("cancelButton").performClick()
+
+    // Verify that the dialog is dismissed
+    composeTestRule.onNodeWithTag("confirmButton", useUnmergedTree = true).assertDoesNotExist()
   }
 }
