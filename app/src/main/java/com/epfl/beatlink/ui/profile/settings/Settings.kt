@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +36,7 @@ fun SettingsScreen(
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
   var showDialog by remember { mutableStateOf(false) }
+  val scrollState = rememberScrollState()
   Scaffold(
       modifier = Modifier.testTag("settingScreen"),
       topBar = { ScreenTopAppBar("Settings", "settingScreenTitle", navigationActions) },
@@ -45,7 +48,11 @@ fun SettingsScreen(
       },
       content = { paddingValue ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValue).testTag("settingScreenContent"),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(paddingValue)
+                    .verticalScroll(scrollState)
+                    .testTag("settingScreenContent"),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.height(48.dp))
               PrincipalButton("Account Settings", "accountSettingButton") {
