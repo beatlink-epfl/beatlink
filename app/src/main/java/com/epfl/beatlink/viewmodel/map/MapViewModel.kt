@@ -11,7 +11,7 @@ import com.epfl.beatlink.ui.map.CameraAction
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 
-val defaultLocation = LatLng(46.51915277948766, 6.566736625776037)
+val defaultLocation = LatLng(46.51857768346759, 6.568608689392836)
 
 open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewModel() {
 
