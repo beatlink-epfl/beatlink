@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -73,6 +74,7 @@ class DeleteAccountButtonTest {
     composeTestRule.waitForIdle()
     composeTestRule
         .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
         .assertIsDisplayed()
         .assertHasClickAction()
         .onChild()
@@ -82,7 +84,10 @@ class DeleteAccountButtonTest {
   @Test
   fun deleteAccountButton_showsDialogOnClick() {
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
 
     composeTestRule.waitForIdle()
 
@@ -107,7 +112,10 @@ class DeleteAccountButtonTest {
     whenever(profileRepository.deleteProfile("testUserId")).thenReturn(true)
 
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
 
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
@@ -132,7 +140,10 @@ class DeleteAccountButtonTest {
   @Test
   fun deleteAccountDialog_cancelDoesNotPerformDeletion() = runTest {
     // Perform click on the delete button
-    composeTestRule.onNodeWithTag("deleteAccountButton", useUnmergedTree = true).performClick()
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
 
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()

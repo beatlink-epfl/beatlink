@@ -116,11 +116,16 @@ fun AccountScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                // Perform deletion
-                firebaseAuthViewModel.deleteAccount(currentPassword = password)
-                profileViewModel.deleteProfile()
-                navigationActions.navigateTo(Screen.LOGIN)
-                showDialog = false
+                firebaseAuthViewModel.deleteAccount(
+                    currentPassword = password,
+                    onSuccess = {
+                      profileViewModel.deleteProfile()
+                      navigationActions.navigateTo(Screen.LOGIN)
+                      showDialog = false
+                    },
+                    onFailure = {
+                      showDialog = false // Close the dialog on failure
+                    })
               }) {
                 Text("Confirm")
               }
