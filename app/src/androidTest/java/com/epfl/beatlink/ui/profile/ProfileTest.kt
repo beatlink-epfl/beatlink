@@ -3,9 +3,11 @@ package com.epfl.beatlink.ui.profile
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -49,12 +51,12 @@ class ProfileTest {
   private val testDispatcher = StandardTestDispatcher()
   private lateinit var navigationActions: NavigationActions
 
-  @Mock private lateinit var mockApplication: Application
+  @Mock lateinit var mockApplication: Application
   @Mock private lateinit var mockClient: OkHttpClient
   @Mock private lateinit var mockSharedPreferences: SharedPreferences
 
-  @Mock private lateinit var spotifyApiRepository: SpotifyApiRepository
-  @Mock private lateinit var spotifyApiViewModel: SpotifyApiViewModel
+  private lateinit var spotifyApiRepository: SpotifyApiRepository
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
@@ -68,7 +70,7 @@ class ProfileTest {
           profilePicture = null,
           favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"))
 
-  private val topSongs =
+  private var topSongs =
       listOf(
           SpotifyTrack(
               name = "hello1",
@@ -110,7 +112,7 @@ class ProfileTest {
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = user)
 
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
-    spotifyApiViewModel = mock(SpotifyApiViewModel::class.java)
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.PROFILE)
@@ -221,6 +223,39 @@ class ProfileTest {
     }
 
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertDoesNotExist()
+  }
+
+  @Test
+  fun topSongsAreDisplayed() {
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeSpotifyApiViewModel.setTopTracks(topSongs)
+
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, fakeSpotifyApiViewModel)
+    }
+    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
+
+    topSongs.forEach { song ->
+      composeTestRule.onNodeWithText(song.name).assertExists()
+      composeTestRule.onNodeWithText(song.artist).assertExists()
+    }
+    composeTestRule.onAllNodesWithTag("TrackCard").assertCountEquals(topSongs.size)
+  }
+
+  @Test
+  fun topArtistsAreDisplayed() {
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeSpotifyApiViewModel.setTopArtists(topArtists)
+
+    composeTestRule.setContent {
+      ProfileScreen(profileViewModel, navigationActions, fakeSpotifyApiViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
+
+    topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
+
+    composeTestRule.onAllNodesWithTag("ArtistCard").assertCountEquals(topArtists.size)
   }
 
   @Test

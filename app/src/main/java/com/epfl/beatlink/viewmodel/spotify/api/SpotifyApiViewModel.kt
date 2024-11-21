@@ -78,7 +78,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 artists from the last 4 weeks. */
-  fun getCurrentUserTopArtists(
+  open fun getCurrentUserTopArtists(
       onSuccess: (List<SpotifyArtist>) -> Unit,
       onFailure: (List<SpotifyArtist>) -> Unit
   ) {
@@ -102,7 +102,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Fetches the current user's top 20 tracks from the last 4 weeks. */
-  fun getCurrentUserTopTracks(
+  open fun getCurrentUserTopTracks(
       onSuccess: (List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyTrack>) -> Unit
   ) {
