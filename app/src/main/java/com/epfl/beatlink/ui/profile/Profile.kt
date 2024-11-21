@@ -49,6 +49,8 @@ import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.EDIT_PROFILE
+import com.epfl.beatlink.ui.navigation.Screen.SETTINGS
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel

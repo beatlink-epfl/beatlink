@@ -26,6 +26,10 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.profile.ChangePassword
 import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
+import com.epfl.beatlink.ui.profile.settings.AccountScreen
+import com.epfl.beatlink.ui.profile.settings.ChangeUsername
+import com.epfl.beatlink.ui.profile.settings.NotificationScreen
+import com.epfl.beatlink.ui.profile.settings.SettingsScreen
 import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
 import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
 import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
@@ -115,6 +119,12 @@ fun BeatLinkApp(
       }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
+      composable(Screen.SETTINGS) { SettingsScreen(navigationActions) }
+      composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
+      composable(Screen.ACCOUNT) {
+        AccountScreen(navigationActions, spotifyAuthViewModel, profileViewModel)
+      }
+      composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
     }
   }
 }
