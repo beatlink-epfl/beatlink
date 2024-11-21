@@ -94,7 +94,7 @@ fun ProfileScreen(
                         modifier = Modifier.testTag("profileScreenNotificationsButton")
                     )
                     CornerIcons(
-                        onClick = {},
+                        onClick = { navigationAction.navigateTo(SETTINGS) },
                         icon = Icons.Filled.Settings,
                         contentDescription = "Settings",
                         modifier = Modifier.testTag("profileScreenSettingsButton")
@@ -185,7 +185,7 @@ fun ProfileScreen(
                         modifier = Modifier.padding(vertical = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        genres.take(4).forEach { genre ->
+                        genres.take(4).forEach { genre -> // TODO (hardcoded)
                             val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
                             MusicGenreCard(genre = genre, brush = genreGradient)
                         }
