@@ -13,7 +13,6 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
@@ -126,60 +125,6 @@ open class SpotifyApiViewModel(
     }
   }
 
-  /** Fetches the device ID of the current active device. */
-  fun getDeviceId() {
-    viewModelScope.launch {
-      val result = apiRepository.get("me/player/devices")
-      if (result.isSuccess) {
-        result.getOrNull()?.let { devices ->
-          val devicesArray = devices.getJSONArray("devices")
-
-          // Initialize a variable to store the selected device id
-          var selectedDeviceId: String? = null
-          var isActive = false
-
-          // Loop through the devices to find a "Smartphone"
-          for (i in 0 until devicesArray.length()) {
-            val device = devicesArray.getJSONObject(i)
-            if (device.getString("type") == "Smartphone") {
-              selectedDeviceId = device.getString("id")
-              isActive = device.getBoolean("is_active")
-              break // Stop loop once a smartphone is found
-            }
-          }
-
-          if (selectedDeviceId == null && devicesArray.length() > 0) {
-            selectedDeviceId = devicesArray.getJSONObject(0).getString("id")
-            isActive = devicesArray.getJSONObject(0).getBoolean("is_active")
-          }
-
-          deviceId = selectedDeviceId
-          delay(1000)
-
-          if (deviceId != null && !isActive) transferPlayback()
-          else if (deviceId == null) {
-            Log.e("SpotifyApiViewModel", "No device found")
-          }
-        }
-      } else {
-        Log.e("SpotifyApiViewModel", "Failed to fetch devices")
-        deviceId = null
-        delay(1000)
-      }
-    }
-  }
-
-  /** Transfers playback to the current device. */
-  fun transferPlayback() {
-    viewModelScope.launch {
-      val requestBody =
-          "{\"device_ids\":[\"${deviceId.toString()}\"]}"
-              .toRequestBody() // the json format spotify is using isn't a valid json format
-      apiRepository.put("me/player", requestBody)
-      Log.d("SpotifyApiViewModel", "Playback transferred successfully")
-    }
-  }
-
   /**
    * Fetches the current user's profile.
    *
@@ -222,9 +167,6 @@ open class SpotifyApiViewModel(
 
   /** Fetches the current playback state. */
   fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
-    if (deviceId == null) {
-      getDeviceId()
-    }
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
@@ -298,7 +240,7 @@ open class SpotifyApiViewModel(
         SpotifyAlbum(
             album.getString("id"),
             album.getString("name"),
-            "",
+            album.getJSONArray("images").getJSONObject(0).getString("url"),
             album.getJSONArray("artists").getJSONObject(0).getString("name"),
             album.getString("release_date").substring(0, 4).toInt(),
             listOf(),
@@ -319,12 +261,13 @@ open class SpotifyApiViewModel(
     val isPlaying = json.getBoolean("is_playing")
     val item = json.getJSONObject("item")
     val artist = item.getJSONArray("artists").getJSONObject(0).getString("name")
+    val image = item.getJSONObject("album").getJSONArray("images").getJSONObject(0)
     retTrack =
         SpotifyTrack(
             item.getString("name"),
             artist,
             item.getString("id"),
-            "",
+            image.getString("url"),
             item.getInt("duration_ms"),
             item.getInt("popularity"),
             if (isPlaying) State.PLAY else State.PAUSE)
