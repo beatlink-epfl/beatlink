@@ -73,9 +73,7 @@ class ProfileE2ETest {
     composeTestRule.onNodeWithTag("saveProfileButton").performClick()
 
     // Step 7: Verify that the profile has been updated
-    composeTestRule.waitUntil(8000) {
-      composeTestRule.onNodeWithTag("profileScreen").isDisplayed()
-    }
+    composeTestRule.waitUntil(8000) { composeTestRule.onNodeWithTag("profileScreen").isDisplayed() }
     composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("name").assertTextEquals("John Doe")
     composeTestRule.onNodeWithTag("bio").assertTextEquals("This is a test bio.")
