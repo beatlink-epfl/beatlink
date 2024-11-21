@@ -11,7 +11,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SpotifyApiRepository(
+open class SpotifyApiRepository(
     private val client: OkHttpClient,
     private val sharedPreferences: SharedPreferences
 ) : ApiRepository {
