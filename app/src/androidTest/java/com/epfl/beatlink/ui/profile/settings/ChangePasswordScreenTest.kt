@@ -1,4 +1,4 @@
-package com.epfl.beatlink.ui.profile
+package com.epfl.beatlink.ui.profile.settings
 
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed

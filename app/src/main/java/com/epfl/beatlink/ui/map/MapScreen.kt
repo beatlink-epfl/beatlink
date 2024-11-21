@@ -37,7 +37,7 @@ enum class CameraAction {
 fun MapScreen(
     navigationActions: NavigationActions,
     mapViewModel: MapViewModel,
-    spotifyApiViewModel: SpotifyApiViewModel?,
+    spotifyApiViewModel: SpotifyApiViewModel,
     profileViewModel: ProfileViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
@@ -89,9 +89,8 @@ fun MapScreen(
             }
           }
 
-          if (spotifyApiViewModel != null) {
-            MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
-          }
+
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
         }
       }
 }

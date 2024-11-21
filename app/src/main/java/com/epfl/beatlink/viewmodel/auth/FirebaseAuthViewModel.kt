@@ -61,6 +61,39 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  fun deleteAccount(
+      currentPassword: String,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    viewModelScope.launch {
+      authRepository.deleteAccount(
+          currentPassword = currentPassword,
+          onSuccess = {
+            resetState()
+            onSuccess() // Trigger the success callback
+          },
+          onFailure = { exception ->
+            _authState.value = AuthState.Error("Account deletion failed: ${exception.message}")
+            onFailure(exception) // Trigger the failure callback
+          })
+    }
+  }
+
+  fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    viewModelScope.launch {
+      authRepository.signOut(
+          onSuccess = {
+            resetState()
+            onSuccess()
+          },
+          onFailure = { exception ->
+            _authState.value = AuthState.Error("Sign out failed: ${exception.message}")
+            onFailure(exception)
+          })
+    }
+  }
+
   fun resetState() {
     _authState.value = AuthState.Idle
   }

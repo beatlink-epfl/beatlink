@@ -38,4 +38,25 @@ interface FirebaseAuthRepository {
    *   [Exception] if an error occurred.
    */
   suspend fun verifyPassword(currentPassword: String): Result<Unit>
+
+  /**
+   * Delete the account of the currently authenticated user.
+   *
+   * @param currentPassword The current password of the user.
+   * @param onSuccess Callback on successful account deletion.
+   * @param onFailure Callback that is invoked if an error occurs.
+   */
+  fun deleteAccount(
+      currentPassword: String,
+      onSuccess: () -> Unit,
+      onFailure: (Exception /* = Exception */) -> Unit
+  )
+
+  /**
+   * Sign out the currently authenticated user.
+   *
+   * @param onSuccess Callback on successful sign-out.
+   * @param onFailure Callback that is invoked if an error occurs.
+   */
+  fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 }

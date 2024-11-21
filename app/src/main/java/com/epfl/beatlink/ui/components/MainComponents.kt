@@ -69,6 +69,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.epfl.beatlink.R
@@ -279,6 +280,20 @@ fun SettingsSwitch(
       }
 }
 
+@Composable
+fun GradientTitle(title: String) {
+  Text(
+      text = title,
+      style = MaterialTheme.typography.headlineLarge,
+      modifier =
+          Modifier.testTag(title + "Title").graphicsLayer(alpha = 0.99f).drawWithCache {
+            onDrawWithContent {
+              drawContent()
+              drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+            }
+          })
+}
+
 /** Composable for Gradient Title with an arrow to open it full screen */
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
@@ -286,16 +301,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
       modifier =
           Modifier.padding(top = 16.dp).testTag(title + "TitleWithArrow").clickable { onClick() },
       verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier =
-                Modifier.graphicsLayer(alpha = 0.99f).drawWithCache {
-                  onDrawWithContent {
-                    drawContent()
-                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                  }
-                })
+        GradientTitle(title)
         Spacer(modifier = Modifier.width(6.dp)) // Spacing between text and arrow
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
@@ -472,9 +478,9 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
       ) {
-        Image(
-            painter = painterResource(id = R.drawable.default_profile_picture),
-            contentDescription = null, // Provide a description for accessibility
+        AsyncImage(
+            model = currentTrack.cover,
+            contentDescription = "Cover",
             modifier = Modifier.fillMaxSize())
       }
 

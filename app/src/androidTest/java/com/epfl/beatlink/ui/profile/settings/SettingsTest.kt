@@ -5,8 +5,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,6 +16,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
@@ -21,16 +24,23 @@ class SettingsScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+  private lateinit var authRepository: FirebaseAuthRepository
+  private lateinit var authViewModel: FirebaseAuthViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     every { navigationActions.currentRoute() } returns Screen.SETTINGS
+
+    authRepository = mock(FirebaseAuthRepository::class.java)
+    authViewModel = FirebaseAuthViewModel(authRepository)
   }
 
   @Test
   fun settingsScreen_rendersCorrectly() {
-    composeTestRule.setContent { SettingsScreen(navigationActions = navigationActions) }
+    composeTestRule.setContent {
+      SettingsScreen(navigationActions = navigationActions, authViewModel)
+    }
 
     // Check if the title is displayed
     composeTestRule.onNodeWithTag("settingScreenTitle").assertIsDisplayed()
@@ -41,7 +51,9 @@ class SettingsScreenTest {
 
   @Test
   fun settingsScreen_buttonsNavigateCorrectly() {
-    composeTestRule.setContent { SettingsScreen(navigationActions = navigationActions) }
+    composeTestRule.setContent {
+      SettingsScreen(navigationActions = navigationActions, authViewModel)
+    }
 
     // Test "Account Settings" button
     composeTestRule.onNodeWithTag("accountSettingButton").performClick()

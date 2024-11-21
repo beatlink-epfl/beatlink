@@ -23,10 +23,10 @@ import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.profile.ChangePassword
 import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
+import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
 import com.epfl.beatlink.ui.profile.settings.NotificationScreen
 import com.epfl.beatlink.ui.profile.settings.SettingsScreen
@@ -114,13 +114,16 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) { ProfileScreen(profileViewModel, navigationActions) }
+      composable(Screen.PROFILE) {
+        ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
-      composable(Screen.SETTINGS) { SettingsScreen(navigationActions) }
+      composable(Screen.SETTINGS) { SettingsScreen(navigationActions, firebaseAuthViewModel) }
       composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
       composable(Screen.ACCOUNT) {
-        AccountScreen(navigationActions, spotifyAuthViewModel, profileViewModel)
+        AccountScreen(
+            navigationActions, spotifyAuthViewModel, profileViewModel, firebaseAuthViewModel)
       }
       composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
     }
