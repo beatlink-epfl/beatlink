@@ -532,7 +532,6 @@ class SpotifyApiViewModelTest {
 
   @Test
   fun testUpdatePlayer_Success() = runTest {
-
     val mockJsonResponse =
         JSONObject().apply {
           put(
