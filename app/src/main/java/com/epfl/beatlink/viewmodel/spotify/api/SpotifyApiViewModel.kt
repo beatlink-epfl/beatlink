@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-class SpotifyApiViewModel(
+open class SpotifyApiViewModel(
     application: Application,
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {

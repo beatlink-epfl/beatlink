@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -25,6 +26,7 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 fun TrackCard(track: SpotifyTrack) {
   Column(
       horizontalAlignment = Alignment.CenterHorizontally,
+      modifier = Modifier.testTag("TrackCard")
   ) {
     Box(modifier = Modifier.size(95.dp).clip(RoundedCornerShape(4.dp))) {
       AsyncImage(
