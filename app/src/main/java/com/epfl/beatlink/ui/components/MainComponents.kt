@@ -280,6 +280,20 @@ fun SettingsSwitch(
       }
 }
 
+@Composable
+fun GradientTitle(title: String) {
+  Text(
+      text = title,
+      style = MaterialTheme.typography.headlineLarge,
+      modifier =
+          Modifier.testTag(title + "Title").graphicsLayer(alpha = 0.99f).drawWithCache {
+            onDrawWithContent {
+              drawContent()
+              drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+            }
+          })
+}
+
 /** Composable for Gradient Title with an arrow to open it full screen */
 @Composable
 fun TitleWithArrow(title: String, onClick: () -> Unit) {
@@ -287,16 +301,7 @@ fun TitleWithArrow(title: String, onClick: () -> Unit) {
       modifier =
           Modifier.padding(top = 16.dp).testTag(title + "TitleWithArrow").clickable { onClick() },
       verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier =
-                Modifier.graphicsLayer(alpha = 0.99f).drawWithCache {
-                  onDrawWithContent {
-                    drawContent()
-                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                  }
-                })
+        GradientTitle(title)
         Spacer(modifier = Modifier.width(6.dp)) // Spacing between text and arrow
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,

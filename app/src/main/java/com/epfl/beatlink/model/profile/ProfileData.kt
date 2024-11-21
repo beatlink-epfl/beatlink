@@ -29,3 +29,22 @@ data class ProfileData(
     const val MAX_DESCRIPTION_LENGTH = 100
   }
 }
+
+enum class MusicGenre(val displayName: String) {
+  POP("Pop"),
+  RAP("Rap"),
+  ROCK("Rock"),
+  JAZZ("Jazz"),
+  ELECTRO("Electro"),
+  CLASSICAL("Classical"),
+  HIP_HOP("Hip Hop"),
+  EDM("EDM"),
+  REGGAE("Reggae"),
+  METAL("Metal");
+
+  companion object {
+    fun fromString(genre: String): MusicGenre? {
+      return values().find { it.displayName.equals(genre, ignoreCase = true) }
+    }
+  }
+}

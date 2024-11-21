@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  *
  * @param repository The repository to use for fetching and updating user profiles.
  */
-class ProfileViewModel(
+open class ProfileViewModel(
     private val repository: ProfileRepository,
     initialProfile: ProfileData? = null
 ) : ViewModel() {

@@ -52,3 +52,11 @@ val darkThemeRed = Color(0x00000000) // TODO
 
 val lightThemePlaylistCard = Color(0x145F2A83)
 val darkThemePlaylistCard = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
+
+// Music Genres colors
+val rock = Color(0xFF151C58)
+val metal = Color(0xFF86D0CB)
+val electro = Color(0xFFD6CC96)
+val jazz = Color(0xFF2A5883)
+val rap = Color(0xFF7A9D56)
+val classical = Color(0xFFEA8DD0)
