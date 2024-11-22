@@ -1,12 +1,17 @@
 package com.epfl.beatlink.repository.profile
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.SetOptions
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.tasks.await
 
 @Suppress("UNCHECKED_CAST")
@@ -15,32 +20,22 @@ import kotlinx.coroutines.tasks.await
  *
  * @param db The Firestore instance to use for database operations.
  * @param auth The FirebaseAuth instance to use for authentication operations.
- * @param storage The FirebaseStorage instance to use for file storage operations.
  */
 open class ProfileRepositoryFirestore(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val storage: FirebaseStorage
 ) : ProfileRepository {
-
-  private val collectionPath = "userProfiles"
-
-  override fun getUserId(): String? {
-    val userId = auth.currentUser?.uid
-    Log.d("PROFILE_GET_UID", "Current user ID: $userId")
-    return userId
-  }
+  private val collection = "userProfiles"
 
   override suspend fun fetchProfile(userId: String): ProfileData? {
     return try {
-      val snapshot = db.collection(collectionPath).document(userId).get().await()
-      val profilePictureUrl = snapshot.getString("profilePicture")
+      val snapshot = db.collection(collection).document(userId).get().await()
       val profileData =
           ProfileData(
               bio = snapshot.getString("bio"),
               links = snapshot.getLong("links")?.toInt() ?: 0,
               name = snapshot.getString("name"),
-              profilePicture = profilePictureUrl?.let { Uri.parse(it) },
+              profilePicture = snapshot.getString("profilePicture"),
               username = snapshot.getString("username") ?: "",
               favoriteMusicGenres =
                   snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
@@ -54,7 +49,7 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun addProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
-      db.collection(collectionPath).document(userId).set(profileData).await()
+      db.collection(collection).document(userId).set(profileData).await()
       Log.d("PROFILE_ADD", "Profile added successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -65,7 +60,7 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
-      db.collection(collectionPath).document(userId).set(profileData).await()
+      db.collection(collection).document(userId).set(profileData).await()
       Log.d("PROFILE_UPDATE", "Profile updated successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -76,7 +71,7 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
-      db.collection(collectionPath).document(userId).delete().await()
+      db.collection(collection).document(userId).delete().await()
       Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -85,33 +80,91 @@ open class ProfileRepositoryFirestore(
     }
   }
 
-  /*override suspend fun uploadProfilePicture(imageUri: File): String? {
-    val userId = getUserId() ?: return null
-    val uuid = UUID.randomUUID()
-    val profilePictureRef = storage.reference.child("profilePictures/$userId/$uuid")
+  override fun getUserId(): String? {
+    val userId = auth.currentUser?.uid
+    Log.d("AUTH", "Current user ID: $userId") // Log user ID for debugging
+    return userId
+  }
 
+  fun base64ToBitmap(base64: String): Bitmap? {
     return try {
-      Log.d("UPLOAD_START", "Uploading profile picture $imageUri at profilePictures/$userId/$uuid")
-      Log.d("FILE_CHECK", "File exists: ${imageUri.exists()}, can read: ${imageUri.canRead()}")
-      Log.d("PROFILE_PICTURE_REF", "Storage reference path: ${profilePictureRef.path}")
-      Log.d("AUTH_CHECK", "Current user ID: ${FirebaseAuth.getInstance().currentUser}")
-
-      profilePictureRef.putFile(Uri.fromFile(imageUri)).await()
-      Log.d("UPLOAD_SUCCESS", "Upload completed successfully.")
-
-      val downloadUrl = profilePictureRef.downloadUrl.await()
-      Log.d("UPLOAD_SUCCESS", "Download URL retrieved: $downloadUrl")
-
-      db.collection("userProfiles")
-          .document(userId)
-          .update("profilePicture", downloadUrl.toString()) // Store URL as String in Firestore
-      downloadUrl.toString()
+      val bytes = Base64.decode(base64, Base64.DEFAULT)
+      BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     } catch (e: Exception) {
-      e.printStackTrace()
-      Log.e(
-          "PROFILE_PICTURE_UPLOAD_ERROR",
-          "Error uploading profile picture: ${e.message}") // Log error details
+      Log.e("BASE64", "Error decoding Base64 to Bitmap: ${e.message}")
       null
     }
-  }*/
+  }
+
+  private fun saveProfilePictureBase64(userId: String, base64Image: String) {
+    val userDoc = db.collection(collection).document(userId)
+    val profileData = mapOf("profilePicture" to base64Image)
+
+    userDoc.set(profileData, SetOptions.merge())
+  }
+
+  fun resizeAndCompressImageFromUri(
+      uri: Uri,
+      context: Context,
+      maxWidth: Int = 512,
+      maxHeight: Int = 512,
+      quality: Int = 80
+  ): String? {
+    return try {
+      val contentResolver = context.contentResolver
+      val inputStream = contentResolver.openInputStream(uri)
+      val originalBitmap = BitmapFactory.decodeStream(inputStream)
+      inputStream?.close()
+
+      // Resize the bitmap
+      val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
+      val resizedBitmap =
+          if (aspectRatio > 1) {
+            // Landscape image
+            Bitmap.createScaledBitmap(
+                originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
+          } else {
+            // Portrait image
+            Bitmap.createScaledBitmap(
+                originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
+          }
+
+      // Compress the resized bitmap
+      val outputStream = ByteArrayOutputStream()
+      resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+      val compressedBytes = outputStream.toByteArray()
+
+      // Convert to Base64
+      Base64.encodeToString(compressedBytes, Base64.DEFAULT)
+    } catch (e: Exception) {
+      Log.e("COMPRESS", "Error resizing and compressing image: ${e.message}")
+      null
+    }
+  }
+
+  override fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String) {
+    val base64Image = resizeAndCompressImageFromUri(imageUri, context)
+    if (base64Image != null) {
+      saveProfilePictureBase64(userId, base64Image)
+    } else {
+      Log.e("UPLOAD", "Failed to convert image to Base64")
+    }
+  }
+
+  override fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit) {
+    val userDoc = db.collection(collection).document(userId)
+
+    userDoc
+        .get()
+        .addOnSuccessListener { document ->
+          if (document != null && document.contains("profilePicture")) {
+            val base64Image = document.getString("profilePicture")
+            val bitmap = base64Image?.let { base64ToBitmap(it) }
+            onBitmapLoaded(bitmap) // Pass the bitmap to the composable
+          } else {
+            onBitmapLoaded(null) // Handle the case where no image is found
+          }
+        }
+        .addOnFailureListener { onBitmapLoaded(null) }
+  }
 }

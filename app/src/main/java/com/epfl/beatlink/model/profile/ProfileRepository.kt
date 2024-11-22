@@ -1,5 +1,9 @@
 package com.epfl.beatlink.model.profile
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+
 interface ProfileRepository {
 
   /**
@@ -44,13 +48,20 @@ interface ProfileRepository {
    */
   suspend fun deleteProfile(userId: String): Boolean
 
-  /*
   /**
-   * Uploads a profile picture for a specific user.
+   * Upload a new profile picture for a specific user.
    *
-   * @param imageFile A [File] object representing the image to be uploaded as the user's profile picture.
-   * @return The URL of the uploaded profile picture if successful.
+   * @param imageUri The URI of the image to upload.
+   * @param context The application context.
+   * @param userId The unique identifier of the user.
    */
-  suspend fun uploadProfilePicture(imageUri: File): String?
-  */
+  fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String)
+
+  /**
+   * Load the profile picture of a specific user.
+   *
+   * @param userId The unique identifier of the user.
+   * @param onBitmapLoaded A callback function that is called when the profile picture is loaded.
+   */
+  fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit)
 }

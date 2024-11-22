@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,6 +67,10 @@ fun ProfileScreen(
   val genres = listOf("Pop", "Rock", "Jazz", "Classic") // Sample genres
 
   val profileData by profileViewModel.profile.collectAsState()
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+
+  // Load profile picture
+  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
 
@@ -112,7 +117,7 @@ fun ProfileScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())) {
               Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                ProfilePicture(profileData?.profilePicture)
+                ProfilePicture(profilePicture)
                 Spacer(modifier = Modifier.width(24.dp))
                 Column {
                   Text(

@@ -1,7 +1,5 @@
 package com.epfl.beatlink.model.profile
 
-import android.net.Uri
-
 /**
  * A data class representing the user's profile.
  *
@@ -19,7 +17,7 @@ data class ProfileData(
     val bio: String? = null,
     val links: Int = 0,
     val name: String? = null,
-    val profilePicture: Uri? = null,
+    val profilePicture: String? = null,
     val username: String = "",
     val email: String = "",
     val favoriteMusicGenres: List<String> = emptyList()

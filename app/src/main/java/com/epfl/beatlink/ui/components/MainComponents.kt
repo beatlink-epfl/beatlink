@@ -1,7 +1,7 @@
 package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
-import android.net.Uri
+import android.graphics.Bitmap
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +58,9 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
@@ -70,8 +71,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.navigation.AppIcons.collabAdd
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -548,20 +547,28 @@ fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
 }
 
 @Composable
-fun ProfilePicture(id: Uri?) {
+fun ProfilePicture(id: MutableState<Bitmap?>) {
   // Profile picture
-  Image(
-      painter =
-          if (id == null) painterResource(id = R.drawable.default_profile_picture)
-          else
-              rememberAsyncImagePainter(
-                  model = ImageRequest.Builder(LocalContext.current).data(id).build()),
-      contentDescription = "Profile Picture",
-      modifier =
-          Modifier.size(100.dp)
-              .testTag("profilePicture")
-              .clip(CircleShape)
-              .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
+  id.value?.let { bitmap ->
+    Image(
+        bitmap = bitmap.asImageBitmap(),
+        contentDescription = "Profile Picture",
+        modifier =
+            Modifier.size(100.dp)
+                .testTag("profilePicture")
+                .clip(CircleShape)
+                .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
+  }
+      ?: run {
+        Image(
+            painter = painterResource(id = R.drawable.default_profile_picture),
+            contentDescription = "Profile Picture",
+            modifier =
+                Modifier.size(100.dp)
+                    .testTag("profilePicture")
+                    .clip(CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
+      }
 }
 
 @Composable

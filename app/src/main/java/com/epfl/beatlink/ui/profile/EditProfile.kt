@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.profile
 
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -70,12 +71,23 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
         profileData?.bio
             ?: "This is a description. It can be up to $MAX_DESCRIPTION_LENGTH characters long.")
   }
-  var imageUri by remember { mutableStateOf(profileData?.profilePicture) }
+  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+  // Load profile picture
+  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
 
   val galleryLauncher =
       rememberLauncherForActivityResult(
           contract = ActivityResultContracts.GetContent(),
-          onResult = { uri: Uri? -> imageUri = uri })
+          onResult = { uri: Uri? ->
+            imageUri = uri
+            if (imageUri == null) {
+              profilePicture.value = null
+            } else {
+              profileViewModel.uploadProfilePicture(context, imageUri)
+              profileViewModel.loadProfilePicture { profilePicture.value = it }
+            }
+          })
   val permissionLauncher =
       rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
           isGranted: Boolean ->
@@ -110,7 +122,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                   modifier =
                       Modifier.clickable(
                           onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })) {
-                    ProfilePicture(imageUri)
+                    ProfilePicture(profilePicture)
                     Box(modifier = Modifier.align(Alignment.BottomEnd)) {
                       CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
                     }
@@ -155,10 +167,13 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                               bio = description,
                               links = profileData?.links ?: 0,
                               name = name,
-                              profilePicture = imageUri,
+                              profilePicture = "",
                               username = profileData?.username ?: "",
                               favoriteMusicGenres = emptyList())
                       profileViewModel.updateProfile(newData)
+                      if (imageUri != null) {
+                        profileViewModel.uploadProfilePicture(context, imageUri)
+                      }
                       Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
                       navigationActions.goBack()
                     } catch (e: Exception) {

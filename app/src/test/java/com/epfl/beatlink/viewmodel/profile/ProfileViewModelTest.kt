@@ -1,5 +1,7 @@
 package com.epfl.beatlink.viewmodel.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
@@ -8,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -15,8 +18,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -250,4 +258,41 @@ class ProfileViewModelTest {
     val actualProfile = viewModel.profile.value
     assertEquals(existingProfile, actualProfile)
   }
+
+  @Test
+  fun `uploadProfilePicture should call repository uploadProfilePicture when userId is valid`() =
+      runTest {
+        // Arrange
+        val mockContext = mock(Context::class.java)
+        val mockUri = mock(Uri::class.java)
+        val userId = "testUserId"
+
+        `when`(mockRepository.getUserId()).thenReturn(userId)
+        doNothing().`when`(mockRepository).uploadProfilePicture(any(), any(), eq(userId))
+
+        // Act
+        viewModel.uploadProfilePicture(mockContext, mockUri)
+        runCurrent() // Ensure the coroutine block executes
+
+        // Assert
+        verify(mockRepository).getUserId()
+        verify(mockRepository).uploadProfilePicture(mockUri, mockContext, userId)
+      }
+
+  @Test
+  fun `uploadProfilePicture should not call repository uploadProfilePicture when userId is null`() =
+      runTest {
+        // Arrange
+        val mockContext = mock(Context::class.java)
+        val mockUri = mock(Uri::class.java)
+
+        `when`(mockRepository.getUserId()).thenReturn(null)
+
+        // Act
+        viewModel.uploadProfilePicture(mockContext, mockUri)
+
+        // Assert
+        verify(mockRepository).getUserId()
+        verify(mockRepository, never()).uploadProfilePicture(any(), any(), any())
+      }
 }
