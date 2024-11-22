@@ -48,4 +48,21 @@ open class FakeSpotifyApiViewModel(
       onFailure(emptyList())
     }
   }
+
+  override fun searchArtistsAndTracks(
+      query: String,
+      onSuccess: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit,
+      onFailure: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit
+  ) {
+    if (query.isNotEmpty()) {
+      // Directly use topArtists and topTracks
+      if (topArtists.isNotEmpty() || topTracks.isNotEmpty()) {
+        onSuccess(topArtists, topTracks)
+      } else {
+        onFailure(emptyList(), emptyList())
+      }
+    } else {
+      onFailure(emptyList(), emptyList())
+    }
+  }
 }

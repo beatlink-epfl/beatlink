@@ -36,7 +36,7 @@ open class SpotifyApiViewModel(
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
 
   /** Searches for artists and tracks based on a query. */
-  fun searchArtistsAndTracks(
+  open fun searchArtistsAndTracks(
       query: String,
       onSuccess: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit
@@ -310,7 +310,9 @@ open class SpotifyApiViewModel(
 
   /** Creates a SpotifyArtist object from a JSON object. */
   private fun createSpotifyArtist(artist: JSONObject): SpotifyArtist {
-    val coverUrl = artist.getJSONArray("images").getJSONObject(0).getString("url")
+    val coverUrl =
+        if (artist.getJSONArray("images").length() == 0) ""
+        else artist.getJSONArray("images").getJSONObject(0).getString("url")
     val genres = mutableListOf<String>()
     val genresArray = artist.getJSONArray("genres")
     for (j in 0 until genresArray.length()) {
