@@ -59,24 +59,21 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("SHARED WITH METitleWithArrow").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("PUBLICTitleWithArrow").assertIsDisplayed()
   }
 
   @Test
   fun displayTextsCorrectly() {
     composeTestRule.onNodeWithTag("libraryTitle").assertTextEquals("My Library")
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertTextEquals("MY PLAYLISTS")
-    composeTestRule
-        .onNodeWithTag("SHARED PLAYLISTSTitleWithArrow")
-        .assertTextEquals("SHARED PLAYLISTS")
+    composeTestRule.onNodeWithTag("SHARED WITH METitleWithArrow").assertTextEquals("SHARED WITH ME")
+    composeTestRule.onNodeWithTag("PUBLICTitleWithArrow").assertTextEquals("PUBLIC")
   }
 
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("searchButton").performClick()
-    composeTestRule.onNodeWithTag("addButton").performClick()
-    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
-    composeTestRule.onNodeWithTag("SHARED PLAYLISTSTitleWithArrow").performClick()
   }
 
   @Test
@@ -93,6 +90,22 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
 
     verify(navigationActions).navigateTo(Screen.MY_PLAYLISTS)
+  }
+
+  @Test
+  fun verifySharedPlaylistsButtonNavigatesToSharedPlaylistsScreen() {
+    // Perform click action on the sign-in button
+    composeTestRule.onNodeWithTag("SHARED WITH METitleWithArrow").performClick()
+
+    verify(navigationActions).navigateTo(Screen.SHARED_WITH_ME_PLAYLISTS)
+  }
+
+  @Test
+  fun verifyPublicPlaylistsButtonNavigatesToPublicPlaylistsScreen() {
+    // Perform click action on the sign-in button
+    composeTestRule.onNodeWithTag("PUBLICTitleWithArrow").performClick()
+
+    verify(navigationActions).navigateTo(Screen.PUBLIC_PLAYLISTS)
   }
 
   @Test

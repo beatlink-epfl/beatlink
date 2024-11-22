@@ -16,6 +16,14 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
   val playlistList: StateFlow<List<Playlist>>
     get() = playlistList_
 
+  private val sharedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val sharedPlaylistList: StateFlow<List<Playlist>>
+    get() = sharedPlaylistList_
+
+  private val publicPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val publicPlaylistList: StateFlow<List<Playlist>>
+    get() = publicPlaylistList_
+
   private val selectedPlaylist_ = MutableStateFlow<Playlist?>(null)
   val selectedPlaylist: StateFlow<Playlist?>
     get() = selectedPlaylist_

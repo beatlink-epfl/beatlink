@@ -19,6 +19,8 @@ import com.epfl.beatlink.ui.library.EditPlaylistScreen
 import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.library.MyPlaylistsScreen
 import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
+import com.epfl.beatlink.ui.library.PublicPlaylistsScreen
+import com.epfl.beatlink.ui.library.SharedWithMeScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
@@ -108,6 +110,12 @@ fun BeatLinkApp(
         EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
       composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
+      composable(Screen.SHARED_WITH_ME_PLAYLISTS) {
+        SharedWithMeScreen(navigationActions, playlistViewModel)
+      }
+      composable(Screen.PUBLIC_PLAYLISTS) {
+        PublicPlaylistsScreen(navigationActions, playlistViewModel)
+      }
       composable(Screen.PLAYLIST_OVERVIEW) {
         PlaylistOverviewScreen(navigationActions, playlistViewModel)
       }
