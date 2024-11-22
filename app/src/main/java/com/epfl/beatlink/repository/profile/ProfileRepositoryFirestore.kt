@@ -27,18 +27,15 @@ open class ProfileRepositoryFirestore(
 ) : ProfileRepository {
   private val collection = "userProfiles"
 
-  private val collectionPath = "userProfiles"
-
   override suspend fun fetchProfile(userId: String): ProfileData? {
     return try {
       val snapshot = db.collection(collection).document(userId).get().await()
-      val profilePicture = snapshot.getString("profilePicture")
       val profileData =
           ProfileData(
               bio = snapshot.getString("bio"),
               links = snapshot.getLong("links")?.toInt() ?: 0,
               name = snapshot.getString("name"),
-              profilePicture = profilePicture,
+              profilePicture = snapshot.getString("profilePicture"),
               username = snapshot.getString("username") ?: "",
               favoriteMusicGenres =
                   snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
@@ -74,7 +71,7 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
-      db.collection(collectionPath).document(userId).delete().await()
+      db.collection(collection).document(userId).delete().await()
       Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
       true
     } catch (e: Exception) {

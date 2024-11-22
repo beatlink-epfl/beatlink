@@ -71,7 +71,6 @@ open class ProfileViewModel(
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
-  // create factory
   fun deleteProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
