@@ -58,16 +58,14 @@ class SearchBarScreenTest {
 
     navigationActions = mock(NavigationActions::class.java)
 
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH_BAR)
+
     val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
 
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
-    composeTestRule.setContent {
-      SearchBarScreen(navigationActions, fakeSpotifyApiViewModel)
-
-      `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH_BAR)
-    }
+    composeTestRule.setContent { SearchBarScreen(navigationActions, fakeSpotifyApiViewModel) }
   }
 
   @Test
