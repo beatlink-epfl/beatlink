@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
@@ -16,7 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class M1e2eTest {
+class ProfileE2ETest {
 
   // Launches the MainActivity
   @get:Rule val composeTestRule = createAndroidComposeRule<MainActivity>()
@@ -46,26 +47,28 @@ class M1e2eTest {
         .performTextInput("testuserbeatlink")
     composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
-    // Step 5: Click the search button and verify navigation to Search Screen
-    composeTestRule.waitForIdle()
-    composeTestRule.waitUntil(5000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
-    composeTestRule.onNodeWithTag("Search").isDisplayed()
-    composeTestRule.onNodeWithTag("Search").performClick()
-    composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
+    // Wait for the map screen to be displayed
+    composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
 
-    // Step 6: Click the library button and verify navigation to Library Screen
-    composeTestRule.onNodeWithTag("Library").isDisplayed()
-    composeTestRule.onNodeWithTag("Library").performClick()
-    composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
-
-    // Step 7: Click the profile button and verify navigation to Profile Screen
+    // Step 4: Click the profile button and verify navigation to Profile Screen
     composeTestRule.onNodeWithTag("Profile").isDisplayed()
     composeTestRule.onNodeWithTag("Profile").performClick()
     composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
 
-    // Step 8: Click the home button and verify navigation to Home Screen
-    composeTestRule.onNodeWithTag("Home").isDisplayed()
-    composeTestRule.onNodeWithTag("Home").performClick()
-    composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
+    // Step 5: Click the edit profile button and verify navigation to Edit Profile Screen
+    composeTestRule.onNodeWithTag("editProfileButton").performClick()
+    composeTestRule.waitUntil(6000) {
+      composeTestRule.onNodeWithTag("editProfileScreen").isDisplayed()
+    }
+    composeTestRule.onNodeWithTag("editProfileScreen").assertIsDisplayed()
+
+    // Step 6: Edit the profile
+    composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
+    composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput("John Doe")
+    composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextClearance()
+    composeTestRule
+        .onNodeWithTag("editProfileDescriptionInput")
+        .performTextInput("This is a test bio.")
+    composeTestRule.onNodeWithTag("saveProfileButton").performClick()
   }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -62,6 +63,7 @@ fun MapScreen(
   }
   val locationPermitted by mapViewModel.locationPermitted
   val isMapLoaded by mapViewModel.isMapLoaded
+  val mapUsers by mapUsersViewModel.mapUsers.collectAsState()
 
   Scaffold(
       bottomBar = {
@@ -72,6 +74,7 @@ fun MapScreen(
       },
       modifier = Modifier.fillMaxSize().testTag("MapScreen")) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
+          MapUserTrackingView(mapUsersViewModel, mapViewModel, profileViewModel, radius)
           // Map fills most of the screen
           Box(modifier = Modifier.weight(1f).testTag("MapContainer")) {
             if (isMapLoaded) {
@@ -79,13 +82,12 @@ fun MapScreen(
                   currentPosition = mapViewModel.currentPosition,
                   moveToCurrentLocation = mapViewModel.moveToCurrentLocation,
                   modifier = Modifier.testTag("Map"),
+                  mapUsers = mapUsers,
                   locationPermitted = locationPermitted)
             } else {
               Text("Loading map...", modifier = Modifier.padding(16.dp))
             }
           }
-
-          MapUserTrackingView(mapUsersViewModel, mapViewModel, profileViewModel, radius)
 
           MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
         }

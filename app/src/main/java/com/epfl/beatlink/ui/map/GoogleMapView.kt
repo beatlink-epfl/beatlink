@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.map.MapUsersList
 import com.epfl.beatlink.model.map.user.MapUser
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -35,14 +34,13 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
-val mutuableList = MapUsersList.mutableList
-
 @Composable
 fun GoogleMapView(
     currentPosition: MutableState<LatLng>,
     moveToCurrentLocation: MutableState<CameraAction>,
     modifier: Modifier,
     locationPermitted: Boolean,
+    mapUsers: List<MapUser>,
     selectedUser: MutableState<MapUser?> = remember { mutableStateOf(null) }
 ) {
   // Create a coroutine scope for launching coroutines
@@ -105,7 +103,7 @@ fun GoogleMapView(
             }
           }
           // Add markers for each user in the mutable list
-          mutuableList.forEach { user ->
+          mapUsers.forEach { user ->
             Marker(
                 contentDescription = "markerMapUser",
                 state =
@@ -113,7 +111,10 @@ fun GoogleMapView(
                 title = user.username,
                 icon =
                     getBitmapDescriptorFromDrawableResourceSongPopUp(
-                        user.currentPlayingTrack.albumCover.toInt(), context, 100, 100),
+                        R.drawable.cover_test1,
+                        context,
+                        100,
+                        100), // TODO change to actual cover when conversion implemented
                 anchor = Offset(0.5f, 0.5f),
                 onClick = {
                   selectedUser.value = user // Set the selected user when marker is clicked
