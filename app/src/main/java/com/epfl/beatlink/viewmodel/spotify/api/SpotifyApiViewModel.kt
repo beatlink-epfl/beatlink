@@ -311,7 +311,7 @@ open class SpotifyApiViewModel(
   /** Creates a SpotifyArtist object from a JSON object. */
   private fun createSpotifyArtist(artist: JSONObject): SpotifyArtist {
     val coverUrl =
-        if (artist.getJSONArray("images").length() == 0) "" // TODO : PR change
+        if (artist.getJSONArray("images").length() == 0) ""
         else artist.getJSONArray("images").getJSONObject(0).getString("url")
     val genres = mutableListOf<String>()
     val genresArray = artist.getJSONArray("genres")
