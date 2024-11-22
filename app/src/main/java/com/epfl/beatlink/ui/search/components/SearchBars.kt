@@ -15,14 +15,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
@@ -82,7 +82,7 @@ fun FullSearchBar(navigationActions: NavigationActions) {
                             Modifier.testTag("nonWritableSearchBarIcon")
                                 .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
                     Text(
-                        text = "Search songs, live music parties, people, ... ",
+                        text = "Search songs, artists, live music parties, ... ",
                         style =
                             TextStyle(
                                 fontSize = 16.sp,
@@ -97,63 +97,12 @@ fun FullSearchBar(navigationActions: NavigationActions) {
       }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShortSearchBar() {
-  val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
-  val focusRequester = remember { FocusRequester() }
-
-  // Automatically request focus when the composable is first loaded
-  LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-  OutlinedTextField(
-      value = searchQuery.value,
-      onValueChange = { searchQuery.value = it },
-      placeholder = {
-        Text(
-            text = "",
-            style =
-                TextStyle(
-                    fontSize = 16.sp,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight(400),
-                    color = Color(0xFF6F6F6F),
-                    letterSpacing = 0.16.sp,
-                ),
-            modifier = Modifier.testTag("writableSearchBarText").padding(top = 4.dp, bottom = 4.dp))
-      },
-      singleLine = true,
-      leadingIcon = {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search Icon",
-            tint = Color(0xFF6F6F6F),
-            modifier =
-                Modifier.testTag("writableSearchBarIcon")
-                    .size(28.dp)
-                    .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
-      },
-      colors =
-          OutlinedTextFieldDefaults.colors(
-              focusedBorderColor = Color.Transparent, // Color when selected (focused)
-              unfocusedBorderColor = Color.Transparent, // Color when not selected
-              cursorColor = Color.Black),
-      shape = RoundedCornerShape(5.dp),
-      modifier =
-          Modifier.testTag("writableSearchBar")
-              .focusRequester(focusRequester)
-              .shadow(
-                  elevation = 4.dp, spotColor = Color(0x26000000), ambientColor = Color(0x26000000))
-              .border(width = 1.dp, color = Color.White)
-              .width(334.dp)
-              .height(48.dp)
-              .border(
-                  width = 1.dp, color = Color.Transparent, shape = RoundedCornerShape(size = 5.dp))
-              .background(color = Color(0xFFF2F2F2), shape = RoundedCornerShape(size = 5.dp)))
-}
-
-@Composable
-fun ShortSearchBarLayout(navigationActions: NavigationActions) {
+fun ShortSearchBarLayout(
+    navigationActions: NavigationActions,
+    searchQuery: TextFieldValue = TextFieldValue(""),
+    onQueryChange: (TextFieldValue) -> Unit = {}
+) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -166,14 +115,50 @@ fun ShortSearchBarLayout(navigationActions: NavigationActions) {
             contentDescription = "Back Icon",
             tint = Color.Unspecified,
             modifier =
-                Modifier.testTag("backButton").size(24.dp).clickable {
-                  // Handle back navigation here
-                  navigationActions.goBack()
-                })
+                Modifier.testTag("backButton").size(24.dp).clickable { navigationActions.goBack() })
 
-        Spacer(modifier = Modifier.width(21.dp)) // Space between back icon and search bar
+        Spacer(modifier = Modifier.width(21.dp))
 
-        // Short Search Bar
-        ShortSearchBar()
+        // Search Bar
+        ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange)
       }
+}
+
+@Composable
+fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) -> Unit) {
+  val focusRequester = remember { FocusRequester() }
+
+  // Request focus when the composable is first loaded
+  LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+  OutlinedTextField(
+      value = searchQuery,
+      onValueChange = onQueryChange,
+      singleLine = true,
+      leadingIcon = {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search Icon",
+            tint = MaterialTheme.colorScheme.primaryContainer,
+            modifier =
+                Modifier.testTag("writableSearchBarIcon")
+                    .size(28.dp)
+                    .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
+      },
+      colors =
+          OutlinedTextFieldDefaults.colors(
+              focusedBorderColor = Color.Transparent,
+              unfocusedBorderColor = Color.Transparent,
+              cursorColor = Color.Black),
+      shape = RoundedCornerShape(5.dp),
+      modifier =
+          Modifier.testTag("writableSearchBar")
+              .focusRequester(focusRequester)
+              .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
+              .border(width = 1.dp, color = Color.White)
+              .width(334.dp)
+              .height(51.dp)
+              .border(
+                  width = 1.dp, color = Color.Transparent, shape = RoundedCornerShape(size = 5.dp))
+              .background(color = LightGray, shape = RoundedCornerShape(size = 5.dp)))
 }
