@@ -84,11 +84,7 @@ fun CreateNewPlaylistScreen(
               value = playlistTitle,
               onValueChange = {
                 playlistTitle = it
-                if (it.length in 1..MAX_PLAYLIST_TITLE_LENGTH) {
-                  titleError = false
-                } else {
-                  titleError = true
-                }
+                titleError = it.length !in 1..MAX_PLAYLIST_TITLE_LENGTH
               },
               label = "Playlist Title *",
               placeholder = "Enter Playlist Title",
@@ -101,11 +97,7 @@ fun CreateNewPlaylistScreen(
               value = playlistDescription,
               onValueChange = {
                 playlistDescription = it
-                if (it.length <= MAX_PLAYLIST_DESCRIPTION_LENGTH) {
-                  descriptionError = false
-                } else {
-                  descriptionError = true
-                }
+                descriptionError = it.length > MAX_PLAYLIST_DESCRIPTION_LENGTH
               },
               label = "Playlist Description",
               placeholder = "Enter Playlist Description",

@@ -74,7 +74,7 @@ class FakeLocationProviderClient : FusedLocationProviderClient {
   override fun requestLocationUpdates(
       request: LocationRequest,
       callback: LocationCallback,
-      looper: android.os.Looper?
+      looper: Looper?
   ): Task<Void> {
     locationCallback = callback
     return Tasks.forResult(null)

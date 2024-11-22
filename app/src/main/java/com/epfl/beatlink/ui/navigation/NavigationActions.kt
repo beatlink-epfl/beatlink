@@ -30,6 +30,8 @@ object Screen {
   const val SEARCH = "Search Screen"
   const val LIBRARY = "Library Screen"
   const val MY_PLAYLISTS = "My Playlists Screen"
+  const val SHARED_WITH_ME_PLAYLISTS = "Shared With Me Playlists"
+  const val PUBLIC_PLAYLISTS = "Public Playlists Screen"
   const val CREATE_NEW_PLAYLIST = "Create New Playlist Screen"
   const val EDIT_PLAYLIST = "Edit playlist Screen"
   const val PLAYLIST_OVERVIEW = "Playlist Overview Screen"

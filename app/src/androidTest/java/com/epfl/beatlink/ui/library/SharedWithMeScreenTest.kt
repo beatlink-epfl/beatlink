@@ -1,0 +1,61 @@
+package com.epfl.beatlink.ui.library
+
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Route
+import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import org.mockito.kotlin.verify
+
+class SharedWithMeScreenTest {
+  private lateinit var playlistRepository: PlaylistRepository
+  private lateinit var playlistViewModel: PlaylistViewModel
+  private lateinit var navigationActions: NavigationActions
+
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @Before
+  fun setUp() {
+    playlistRepository = mock(PlaylistRepository::class.java)
+    playlistViewModel = PlaylistViewModel(playlistRepository)
+    navigationActions = mock(NavigationActions::class.java)
+    `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
+
+    composeTestRule.setContent { SharedWithMeScreen(navigationActions, playlistViewModel) }
+  }
+
+  @Test
+  fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("sharedPlaylistsScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("sharedPlaylistsTitle").assertIsDisplayed()
+  }
+
+  @Test
+  fun goBackCallsNavActions() {
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
+    verify(navigationActions).goBack()
+  }
+
+  @Test
+  fun testNavigation() {
+    composeTestRule.onNodeWithTag("Home").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+    composeTestRule.onNodeWithTag("Search").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
+    composeTestRule.onNodeWithTag("Library").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
+  }
+}

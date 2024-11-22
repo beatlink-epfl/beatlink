@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Search
@@ -37,6 +38,16 @@ fun SearchButton(onClick: () -> Unit) {
       icon = Icons.Outlined.Search,
       contentDescription = "Search",
       modifier = Modifier.testTag("searchButton"))
+}
+
+@Composable
+fun MoreOptionsButton(onClick: () -> Unit) {
+  CornerIcons(
+      onClick = onClick,
+      icon = Icons.Filled.MoreVert,
+      contentDescription = "More Options Button",
+      modifier = Modifier.padding(end = 12.dp).testTag("moreOptionsButton"),
+      iconSize = 35.dp)
 }
 
 @Composable

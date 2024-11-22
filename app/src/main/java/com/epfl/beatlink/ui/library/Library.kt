@@ -27,6 +27,8 @@ import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
 
   val playlistListFlow by playlistViewModel.playlistList.collectAsState()
+  val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
+  val publicPlaylistListFlow by playlistViewModel.publicPlaylistList.collectAsState()
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
@@ -52,7 +54,6 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
         ) {
           // MY PLAYLISTS
           TitleWithArrow("MY PLAYLISTS") { navigationActions.navigateTo(Screen.MY_PLAYLISTS) }
-
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
               modifier = Modifier.fillMaxWidth()) {
@@ -62,7 +63,26 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
               }
 
           // SHARED PLAYLISTS
-          TitleWithArrow("SHARED PLAYLISTS") {}
+          TitleWithArrow("SHARED WITH ME") {
+            navigationActions.navigateTo(Screen.SHARED_WITH_ME_PLAYLISTS)
+          }
+          LazyColumn(
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+              modifier = Modifier.fillMaxWidth()) {
+                items(sharedPlaylistListFlow.size) { i ->
+                  PlaylistCard(sharedPlaylistListFlow[i], navigationActions, playlistViewModel)
+                }
+              }
+
+          // PUBLIC PLAYLISTS
+          TitleWithArrow("PUBLIC") { navigationActions.navigateTo(Screen.PUBLIC_PLAYLISTS) }
+          LazyColumn(
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+              modifier = Modifier.fillMaxWidth()) {
+                items(publicPlaylistListFlow.size) { i ->
+                  PlaylistCard(publicPlaylistListFlow[i], navigationActions, playlistViewModel)
+                }
+              }
         }
       })
 }
