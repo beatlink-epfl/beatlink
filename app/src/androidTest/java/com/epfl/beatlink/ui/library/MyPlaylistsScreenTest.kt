@@ -70,25 +70,13 @@ class MyPlaylistsScreenTest {
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }
@@ -105,7 +93,7 @@ class MyPlaylistsScreenTest {
   @Test
   fun createPlaylistButtonCallsNavActions() {
     composeTestRule.onNodeWithTag("addButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).navigateTo(screen = Screen.CREATE_NEW_PLAYLIST)
+    verify(navigationActions).navigateTo(screen = Screen.CREATE_NEW_PLAYLIST)
   }
 
   @Test
