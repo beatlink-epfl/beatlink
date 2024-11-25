@@ -1,35 +1,56 @@
 package com.epfl.beatlink.ui.search
 
+import android.app.Application
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 
 class SearchScreenTest {
 
-  @get:Rule val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   private lateinit var navigationActions: NavigationActions
 
+  @Mock private lateinit var mockApplication: Application
+
+  @Mock private lateinit var mockApiRepository: SpotifyApiRepository
+
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
+
   @Before
   fun setUp() {
-
+    MockitoAnnotations.openMocks(this)
     navigationActions = mock(NavigationActions::class.java)
-
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
+    mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
     `when`(navigationActions.currentRoute()).thenReturn(Route.SEARCH)
-    composeTestRule.setContent { SearchScreen(navigationActions) }
+    composeTestRule.setContent {
+      SearchScreen(
+          navigationActions, spotifyApiViewModel, viewModel(factory = MapUsersViewModel.Factory))
+    }
   }
 
   @Test
