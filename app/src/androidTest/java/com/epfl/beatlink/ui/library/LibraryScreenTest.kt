@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -68,7 +67,13 @@ class LibraryScreenTest {
     mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
 
-    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel, spotifyApiViewModel, viewModel(factory = MapUsersViewModel.Factory)) }
+    composeTestRule.setContent {
+      LibraryScreen(
+          navigationActions,
+          playlistViewModel,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
   }
 
   @Test

@@ -27,7 +27,12 @@ import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel, spotifyApiViewModel: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
+fun LibraryScreen(
+    navigationActions: NavigationActions,
+    playlistViewModel: PlaylistViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
 
   val playlistListFlow by playlistViewModel.playlistList.collectAsState()
   val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
@@ -45,14 +50,14 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
             })
       },
       bottomBar = {
-          Column {
-              MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+        Column {
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
 
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-          }
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationActions.currentRoute())
+        }
       },
       content = { innerPadding ->
         Column(
