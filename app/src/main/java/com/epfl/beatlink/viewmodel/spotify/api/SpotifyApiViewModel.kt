@@ -35,6 +35,30 @@ open class SpotifyApiViewModel(
 
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
 
+  fun getPlaylistTracks(
+      playlistID: String,
+      onSuccess: (List<SpotifyTrack>) -> Unit,
+      onFailure: (List<SpotifyTrack>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("playlists/$playlistID/tracks?limit=50")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playlist tracks fetched successfully")
+        val items = result.getOrNull()!!.getJSONArray("items")
+        val tracks = mutableListOf<SpotifyTrack>()
+        for (i in 0 until items.length()) {
+          val track = items.getJSONObject(i).getJSONObject("track")
+          val spotifyTrack = createSpotifyTrack(track)
+          tracks.add(spotifyTrack)
+        }
+        onSuccess(tracks)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch playlist tracks")
+        onFailure(emptyList())
+      }
+    }
+  }
+
   /** Searches for artists and tracks based on a query. */
   open fun searchArtistsAndTracks(
       query: String,
