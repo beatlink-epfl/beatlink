@@ -3,6 +3,7 @@ package com.epfl.beatlink.viewmodel.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -77,6 +78,28 @@ open class ProfileViewModel(
       val success = repository.deleteProfile(userId)
       if (success) {
         _profile.value = null
+      }
+    }
+  }
+
+  suspend fun getUsername(userId: String): String? {
+    return try {
+      val username = repository.getUsername(userId)
+      username
+    } catch (e: Exception) {
+      Log.e("ERROR", "Error fetching username", e)
+      null
+    }
+  }
+
+  fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userId = repository.getUserIdByUsername(username)
+        onResult(userId)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching user id", e)
+        onResult(null)
       }
     }
   }

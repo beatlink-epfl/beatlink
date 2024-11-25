@@ -3,6 +3,9 @@ package com.epfl.beatlink.viewmodel.library
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -17,6 +20,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doAnswer
+import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
@@ -30,6 +34,17 @@ class PlaylistViewModelTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private val testDispatcher = StandardTestDispatcher()
+
+    private val song1 =
+        SpotifyTrack(
+            name = "thank god",
+            artist = "travis",
+            trackId = "1",
+            cover = "",
+            duration = 1,
+            popularity = 2,
+            state = State.PAUSE
+        )
 
   private val playlist =
       Playlist(
@@ -65,7 +80,7 @@ class PlaylistViewModelTest {
           userId = "testUserId2",
           playlistOwner = "luna2",
           playlistCollaborators = emptyList(),
-          playlistTracks = listOf("thank god"),
+          playlistTracks = listOf(song1),
           nbTracks = 1)
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -94,11 +109,29 @@ class PlaylistViewModelTest {
     verify(playlistRepository).getPlaylists(any(), any())
   }
 
+    @Test
+    fun getSharedPlaylistsCallsRepository() {
+        playlistViewModel.getSharedPlaylists()
+        verify(playlistRepository).getSharedPlaylists(any(), any())
+    }
+
+    @Test
+    fun getPublicPlaylistsCallRepository() {
+        playlistViewModel.getPublicPlaylists()
+        verify(playlistRepository).getPublicPlaylists(any(), any())
+    }
+
   @Test
   fun addPlaylistCallsRepository() {
     playlistViewModel.addPlaylist(playlist)
     verify(playlistRepository).addPlaylist(eq(playlist), any(), any())
   }
+
+    @Test
+    fun updateCollaboratorsCallsRepository() {
+        playlistViewModel.updateCollaborators(playlist, listOf())
+        verify(playlistRepository).updatePlaylistCollaborators(eq(playlist),any(), any(), any())
+    }
 
   @Test
   fun deletePlaylistCallsRepository() {
@@ -150,6 +183,25 @@ class PlaylistViewModelTest {
     // Verify that getPlaylists() was called after update
     verify(playlistRepository).getPlaylists(any(), any())
   }
+
+
+    @Test
+    fun updatePlaylistCollaborators_shouldTriggerSuccessCallback_andUpdateSelectedPlaylist() = runTest {
+        val newCollabList = listOf("1", "2")
+        doAnswer { invocation ->
+            val callback = invocation.arguments[1] as? () -> Unit
+            callback?.invoke() // Invoke the callback if it was correctly casted
+            null
+        }
+            .`when`(playlistRepository)
+            .updatePlaylistCollaborators(eq(playlist2), eq(newCollabList), any(), any())
+
+        playlistViewModel.updateCollaborators(playlist2, newCollabList)
+
+        verify(playlistRepository).getPlaylists(any(), any())
+    }
+
+
 
   @Test
   fun updateTrackCount_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {

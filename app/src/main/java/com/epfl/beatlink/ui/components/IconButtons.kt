@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
@@ -16,9 +17,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.primaryWhite
 
@@ -42,12 +47,37 @@ fun SearchButton(onClick: () -> Unit) {
 
 @Composable
 fun MoreOptionsButton(onClick: () -> Unit) {
-  CornerIcons(
-      onClick = onClick,
-      icon = Icons.Filled.MoreVert,
-      contentDescription = "More Options Button",
-      modifier = Modifier.padding(end = 12.dp).testTag("moreOptionsButton"),
-      iconSize = 35.dp)
+    CornerIcons(
+        onClick = onClick,
+        icon = Icons.Filled.MoreVert,
+        contentDescription = "More Options Button",
+        modifier = Modifier.padding(end = 12.dp).testTag("moreOptionsButton"),
+        iconSize = 35.dp
+    )
+}
+
+@Composable
+fun BackArrowButton(onClick: () -> Unit) {
+    Box(modifier = Modifier.padding(start = 12.dp)) {
+        Icon(
+            painter = painterResource(id = R.drawable.back_arrow),
+            contentDescription = "Go Back",
+            tint = Color.Unspecified,
+            modifier =
+            Modifier.testTag("goBackButton")
+                .size(30.dp)
+                .clickable { onClick() })
+    }
+}
+
+@Composable
+fun CloseButton(onClick: () -> Unit) {
+    CornerIcons(
+        onClick = onClick,
+        icon = Icons.Filled.Close,
+        contentDescription = "Close",
+        modifier = Modifier.testTag("closeButton")
+    )
 }
 
 @Composable

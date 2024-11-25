@@ -68,6 +68,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -121,12 +122,12 @@ fun ScreenTopAppBar(
       title = { PageTitle(title, titleTag) },
       actions = { actionButtons.forEach { actionButton -> actionButton() } },
       navigationIcon = {
-        CornerIcons(
-            onClick = { navigationActions.goBack() },
-            icon = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Go back",
-            modifier = Modifier.testTag("goBackButton"),
-            iconSize = 30.dp)
+          CornerIcons(
+              onClick = { navigationActions.goBack() },
+              icon = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = "Go back",
+              modifier = Modifier.testTag("goBackButton"),
+              iconSize = 30.dp)
       },
       modifier = Modifier.topAppBarModifier())
 }
@@ -340,69 +341,6 @@ fun CornerIcons(
 }
 
 @Composable
-fun CollabButton(onClick: () -> Unit) {
-  Row(
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically,
-      modifier =
-          Modifier.border(
-                  width = 1.dp,
-                  brush = PrimaryGradientBrush,
-                  shape = RoundedCornerShape(size = 20.dp))
-              .width(185.dp)
-              .height(28.dp)
-              .clickable { onClick() }
-              .semantics { contentDescription = "Invite Collaborators" }
-              .background(
-                  color = MaterialTheme.colorScheme.surfaceVariant,
-                  shape = RoundedCornerShape(size = 20.dp))
-              .padding(start = 16.dp, end = 16.dp)
-              .testTag("collabButton")) {
-        Text(
-            text = "Invite Collaborators",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.align(Alignment.CenterVertically))
-        Icon(
-            imageVector = collabAdd,
-            contentDescription = "Collab Add",
-            tint = Color.Unspecified,
-            modifier = Modifier.align(Alignment.CenterVertically))
-      }
-}
-
-@Composable
-fun CollabList(collaborators: List<String>) {
-  Box(
-      modifier =
-          Modifier.border(
-                  width = 1.dp,
-                  color = MaterialTheme.colorScheme.primary,
-                  shape = RoundedCornerShape(size = 5.dp))
-              .width(320.dp)
-              .height(120.dp)
-              .background(
-                  color = MaterialTheme.colorScheme.surfaceVariant,
-                  shape = RoundedCornerShape(size = 5.dp))
-              .testTag("collabBox")) {
-        if (collaborators.isEmpty()) {
-          Text(
-              text = "NO COLLABORATORS",
-              color = PrimaryGray,
-              style = MaterialTheme.typography.bodyLarge,
-              modifier = Modifier.align(Alignment.Center).testTag("emptyCollab"))
-        } else {
-          // TODO
-          LazyColumn(
-              modifier =
-                  Modifier.fillMaxSize() // Fill the available size within the fixed rectangle
-                      .padding(14.dp) // Optional padding inside the scrollable area
-              ) {}
-        }
-      }
-}
-
-@Composable
 fun PrincipalButton(
     buttonText: String,
     buttonTag: String,
@@ -587,6 +525,8 @@ fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextSt
         text = text,
         style = style,
         color = MaterialTheme.colorScheme.primary,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.testTag(textTag))
   }
 }

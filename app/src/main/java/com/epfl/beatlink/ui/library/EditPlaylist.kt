@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.library
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,13 +55,20 @@ fun EditPlaylistScreen(
   var playlistTitle by remember { mutableStateOf(selectedPlaylistState.playlistName) }
   var playlistDescription by remember { mutableStateOf(selectedPlaylistState.playlistDescription) }
   var playlistIsPublic by remember { mutableStateOf(selectedPlaylistState.playlistPublic) }
-  val playlistCollab by remember {
-    mutableStateOf(selectedPlaylistState.playlistCollaborators)
-  } // user IDs
+  var playlistCollab by remember { mutableStateOf(selectedPlaylistState.playlistCollaborators) } // user IDs
   val coverImage by remember { mutableStateOf(selectedPlaylistState.playlistCover) }
 
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
+
+    var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    LaunchedEffect(selectedPlaylistState.playlistCollaborators) {
+        val usernames = selectedPlaylistState.playlistCollaborators.mapNotNull { userId ->
+            profileViewModel.getUsername(userId)
+        }
+        collabUsernames = usernames
+    }
 
   Scaffold(
       modifier = Modifier.testTag("editPlaylistScreen"),
@@ -128,7 +137,25 @@ fun EditPlaylistScreen(
                 playlistIsPublic = newOption
               }
 
-              CollaboratorsSection(playlistCollab)
+              CollaboratorsSection(collabUsernames,
+                  onRemove = { usernameToRemove ->
+                      profileViewModel.getUserIdByUsername(
+                          username = usernameToRemove,
+                          onResult = { userIdToRemove ->
+                              if (userIdToRemove != null) {
+                                  val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                                  playlistCollab = updatedCollabList
+                                  playlistViewModel.updateCollaborators(
+                                      playlist = selectedPlaylistState,
+                                      newCollabList = updatedCollabList
+                                  )
+                                  collabUsernames = collabUsernames.filter { it != usernameToRemove }
+                              } else {
+                                  Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
+                              }
+                          }
+                      )
+                  })
 
               PrincipalButton("Save", "saveEditPlaylist") {
                 if (titleError || descriptionError) {
@@ -148,7 +175,7 @@ fun EditPlaylistScreen(
                           nbTracks = selectedPlaylistState.nbTracks)
                   playlistViewModel.updatePlaylist(updatedPlaylist)
                   playlistViewModel.selectPlaylist(updatedPlaylist)
-                  navigationActions.navigateTo(PLAYLIST_OVERVIEW)
+                  navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
                 }
               }
             }
