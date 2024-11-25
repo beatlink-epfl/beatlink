@@ -54,8 +54,6 @@ class ProfileTest {
   private lateinit var navigationActions: NavigationActions
 
   @Mock lateinit var mockApplication: Application
-  @Mock private lateinit var mockClient: OkHttpClient
-  @Mock private lateinit var mockSharedPreferences: SharedPreferences
 
   private lateinit var spotifyApiRepository: SpotifyApiRepository
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
