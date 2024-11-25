@@ -67,10 +67,13 @@ fun MapScreen(
 
   Scaffold(
       bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            selectedItem = navigationActions.currentRoute(),
-            tabList = LIST_TOP_LEVEL_DESTINATION)
+        Column {
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              selectedItem = navigationActions.currentRoute(),
+              tabList = LIST_TOP_LEVEL_DESTINATION)
+        }
       },
       modifier = Modifier.fillMaxSize().testTag("MapScreen")) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag("MapScreenColumn")) {
@@ -88,8 +91,6 @@ fun MapScreen(
               Text("Loading map...", modifier = Modifier.padding(16.dp))
             }
           }
-
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
         }
       }
 }
