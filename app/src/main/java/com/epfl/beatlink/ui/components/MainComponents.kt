@@ -116,15 +116,24 @@ fun ScreenTopAppBar(
     actionButtons: List<@Composable () -> Unit> = emptyList()
 ) {
   TopAppBar(
-      title = { PageTitle(title, titleTag) },
-      actions = { actionButtons.forEach { actionButton -> actionButton() } },
+      title = {
+          Box(modifier = Modifier.fillMaxWidth(),
+              contentAlignment = Alignment.Center) {
+              PageTitle(title, titleTag)
+          }
+              },
+      actions = {
+          if (actionButtons.isEmpty()) {
+              Spacer(Modifier.width(46.dp))
+          } else {
+              actionButtons.forEach { actionButton -> actionButton() }
+          }
+                },
       navigationIcon = {
-        CornerIcons(
-            onClick = { navigationActions.goBack() },
-            icon = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Go back",
-            modifier = Modifier.testTag("goBackButton"),
-            iconSize = 30.dp)
+          Column(modifier = Modifier.fillMaxHeight(),
+              verticalArrangement = Arrangement.Center) {
+              BackArrowButton { navigationActions.goBack() }
+          }
       },
       modifier = Modifier.topAppBarModifier())
 }
