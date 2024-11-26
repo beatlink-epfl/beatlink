@@ -2,6 +2,8 @@ package com.epfl.beatlink.viewmodel.profile
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
@@ -20,11 +22,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -295,4 +299,47 @@ class ProfileViewModelTest {
         verify(mockRepository).getUserId()
         verify(mockRepository, never()).uploadProfilePicture(any(), any(), any())
       }
+
+  @Suppress("UNCHECKED_CAST")
+  @Test
+  fun `handlePermissionResult launches gallery when permission is granted`() {
+    // Arrange
+    val mockGalleryLauncher =
+        mock(ManagedActivityResultLauncher::class.java)
+            as ManagedActivityResultLauncher<String, Uri?>
+    val mockContext = mock(Context::class.java)
+
+    // Act
+    viewModel.handlePermissionResult(true, mockGalleryLauncher, mockContext)
+
+    // Assert
+    verify(mockGalleryLauncher).launch("image/*") // Verify galleryLauncher was called
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  @Test
+  fun `handlePermissionResult shows toast when permission is denied`() {
+    // Arrange
+    val mockGalleryLauncher =
+        mock(ManagedActivityResultLauncher::class.java)
+            as ManagedActivityResultLauncher<String, Uri?>
+    val mockContext = mock(Context::class.java)
+
+    // Mock Toast behavior
+    val toastMock = mock(Toast::class.java)
+    mockStatic(Toast::class.java).use { mockedToast ->
+      whenever(Toast.makeText(eq(mockContext), eq("Permission denied"), eq(Toast.LENGTH_SHORT)))
+          .thenReturn(toastMock)
+
+      // Act
+      viewModel.handlePermissionResult(false, mockGalleryLauncher, mockContext)
+
+      // Assert
+      verify(mockGalleryLauncher, never()).launch(any()) // Ensure galleryLauncher is NOT called
+      mockedToast.verify {
+        Toast.makeText(eq(mockContext), eq("Permission denied"), eq(Toast.LENGTH_SHORT))
+      }
+      verify(toastMock).show() // Verify the Toast was displayed
+    }
+  }
 }

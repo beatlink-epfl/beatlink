@@ -3,7 +3,6 @@ package com.epfl.beatlink.viewmodel.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -87,6 +86,18 @@ open class ProfileViewModel(
     }
   }
 
+  fun handlePermissionResult(
+      isGranted: Boolean,
+      galleryLauncher: ManagedActivityResultLauncher<String, Uri?>,
+      context: Context
+  ) {
+    if (isGranted) {
+      galleryLauncher.launch("image/*")
+    } else {
+      Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+    }
+  }
+
   @Composable
   fun permissionLauncher(
       context: Context,
@@ -98,12 +109,7 @@ open class ProfileViewModel(
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
             isGranted: Boolean ->
-          Log.d("GRANTED", isGranted.toString())
-          if (isGranted) {
-            galleryLauncher.launch("image/*")
-          } else {
-            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
-          }
+          handlePermissionResult(isGranted, galleryLauncher, context)
         }
     return permissionLauncher
   }
