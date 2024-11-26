@@ -5,11 +5,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -75,27 +71,14 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
   // Load profile picture
   LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
-
-  val galleryLauncher =
-      rememberLauncherForActivityResult(
-          contract = ActivityResultContracts.GetContent(),
-          onResult = { uri: Uri? ->
-            imageUri = uri
-            if (imageUri == null) {
-              profilePicture.value = null
-            } else {
-              profileViewModel.uploadProfilePicture(context, imageUri)
-              profileViewModel.loadProfilePicture { profilePicture.value = it }
-            }
-          })
   val permissionLauncher =
-      rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
-          isGranted: Boolean ->
-        Log.d("GRANTED", isGranted.toString())
-        if (isGranted) {
-          galleryLauncher.launch("image/*")
+      profileViewModel.permissionLauncher(context) { uri: Uri? ->
+        imageUri = uri
+        if (imageUri == null) {
+          profilePicture.value = null
         } else {
-          Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+          profileViewModel.uploadProfilePicture(context, imageUri)
+          profileViewModel.loadProfilePicture { profilePicture.value = it }
         }
       }
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }

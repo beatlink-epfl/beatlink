@@ -3,6 +3,12 @@ package com.epfl.beatlink.viewmodel.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -79,6 +85,27 @@ open class ProfileViewModel(
         _profile.value = null
       }
     }
+  }
+
+  @Composable
+  fun permissionLauncher(
+      context: Context,
+      onResult: (Uri?) -> Unit
+  ): ManagedActivityResultLauncher<String, Boolean> {
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(), onResult = onResult)
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+            isGranted: Boolean ->
+          Log.d("GRANTED", isGranted.toString())
+          if (isGranted) {
+            galleryLauncher.launch("image/*")
+          } else {
+            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+          }
+        }
+    return permissionLauncher
   }
 
   // Create factory
