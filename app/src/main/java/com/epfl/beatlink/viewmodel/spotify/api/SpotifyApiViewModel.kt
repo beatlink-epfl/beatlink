@@ -49,10 +49,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Adds tracks to a Spotify playlist. */
-  private fun addTracksToPlaylist(
-      playlistID: String,
-      tracks: List<SpotifyTrack>
-  ) {
+  private fun addTracksToPlaylist(playlistID: String, tracks: List<SpotifyTrack>) {
     val uris = tracks.map { "spotify:track:${it.trackId}" }
     val body = JSONObject().apply { put("uris", JSONArray(uris)) }
 
@@ -97,10 +94,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Gets the current user's ID. */
-  private fun getCurrentUserId(
-      onSuccess: (String) -> Unit,
-      onFailure: () -> Unit
-  ) {
+  private fun getCurrentUserId(onSuccess: (String) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.get("me")
       if (result.isSuccess) {
