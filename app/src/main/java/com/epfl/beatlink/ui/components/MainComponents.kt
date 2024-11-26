@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -117,23 +116,21 @@ fun ScreenTopAppBar(
 ) {
   TopAppBar(
       title = {
-          Box(modifier = Modifier.fillMaxWidth(),
-              contentAlignment = Alignment.Center) {
-              PageTitle(title, titleTag)
-          }
-              },
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+          PageTitle(title, titleTag)
+        }
+      },
       actions = {
-          if (actionButtons.isEmpty()) {
-              Spacer(Modifier.width(46.dp))
-          } else {
-              actionButtons.forEach { actionButton -> actionButton() }
-          }
-                },
+        if (actionButtons.isEmpty()) {
+          Spacer(Modifier.width(46.dp))
+        } else {
+          actionButtons.forEach { actionButton -> actionButton() }
+        }
+      },
       navigationIcon = {
-          Column(modifier = Modifier.fillMaxHeight(),
-              verticalArrangement = Arrangement.Center) {
-              BackArrowButton { navigationActions.goBack() }
-          }
+        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+          BackArrowButton { navigationActions.goBack() }
+        }
       },
       modifier = Modifier.topAppBarModifier())
 }
