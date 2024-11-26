@@ -26,9 +26,9 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class PlaylistOverviewScreenTest {
-    private lateinit var profileRepository: ProfileRepositoryFirestore
+  private lateinit var profileRepository: ProfileRepositoryFirestore
   private lateinit var playlistRepository: PlaylistRepository
-    private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
 
@@ -62,33 +62,33 @@ class PlaylistOverviewScreenTest {
 
   @Before
   fun setUp() {
-      profileRepository = mockk(relaxed = true)
+    profileRepository = mockk(relaxed = true)
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
 
-      // Initialize ProfileViewModel with an initial profile state
-      profileViewModel =
-          ProfileViewModel(
-              repository = profileRepository,
-              initialProfile =
-              ProfileData(
-                  bio = "testDescription",
-                  links = 5,
-                  name = "testName",
-                  profilePicture = null,
-                  username = "johndoe")
-          )
+    // Initialize ProfileViewModel with an initial profile state
+    profileViewModel =
+        ProfileViewModel(
+            repository = profileRepository,
+            initialProfile =
+                ProfileData(
+                    bio = "testDescription",
+                    links = 5,
+                    name = "testName",
+                    profilePicture = null,
+                    username = "johndoe"))
   }
 
   @Test
   fun everythingIsDisplayed() {
-      whenever(playlistViewModel.getUserId()).thenReturn("testUserId")
-      playlistViewModel.selectPlaylist(playlist2)
-      composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-          profileViewModel, playlistViewModel) }
+    whenever(playlistViewModel.getUserId()).thenReturn("testUserId")
+    playlistViewModel.selectPlaylist(playlist2)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("playlistOverviewScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("playlistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
@@ -98,9 +98,10 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("playlistTitle").performScrollTo().assertIsDisplayed()
   }
 
-    @Test
-    fun editButton_AddToThisPlaylistButton_ExportPlaylistButton_AreNotDisplayedWhenNotOwner() {
-        val mockPlaylist = Playlist(
+  @Test
+  fun editButton_AddToThisPlaylistButton_ExportPlaylistButton_AreNotDisplayedWhenNotOwner() {
+    val mockPlaylist =
+        Playlist(
             playlistID = "playlist1",
             playlistCover = "",
             playlistName = "Test Playlist",
@@ -110,40 +111,43 @@ class PlaylistOverviewScreenTest {
             playlistOwner = "otherUserId", // Different owner
             playlistCollaborators = emptyList(),
             playlistTracks = emptyList(),
-            nbTracks = 0
-        )
+            nbTracks = 0)
 
-        whenever(playlistViewModel.getUserId()).thenReturn("testUserId")
-        playlistViewModel.selectPlaylist(mockPlaylist)
-        composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-            profileViewModel, playlistViewModel) }
-        composeTestRule.onNodeWithTag("editButton").assertDoesNotExist()
-        composeTestRule.onNodeWithTag("addToThisPlaylistButton").assertDoesNotExist()
-        composeTestRule.onNodeWithTag("exportButton").assertDoesNotExist()
+    whenever(playlistViewModel.getUserId()).thenReturn("testUserId")
+    playlistViewModel.selectPlaylist(mockPlaylist)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
     }
+    composeTestRule.onNodeWithTag("editButton").assertDoesNotExist()
+    composeTestRule.onNodeWithTag("addToThisPlaylistButton").assertDoesNotExist()
+    composeTestRule.onNodeWithTag("exportButton").assertDoesNotExist()
+  }
 
   @Test
   fun trackCardDisplaysWhenNotEmpty() {
-      playlistViewModel.selectPlaylist(playlist2)
-      composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-          profileViewModel, playlistViewModel) }
+    playlistViewModel.selectPlaylist(playlist2)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
   }
 
   @Test
   fun textDisplaysWhenEmpty() {
-      playlistViewModel.selectPlaylist(playlist)
-      composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-          profileViewModel, playlistViewModel) }
+    playlistViewModel.selectPlaylist(playlist)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("emptyPlaylistPrompt").performScrollTo().assertIsDisplayed()
   }
 
   @Test
   fun inputsHaveInitialValue() {
     Thread.sleep(10000)
-      playlistViewModel.selectPlaylist(playlist2)
-      composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-          profileViewModel, playlistViewModel) }
+    playlistViewModel.selectPlaylist(playlist2)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
 
     composeTestRule.onNodeWithTag("playlistTitle").assertTextContains(playlist.playlistName)
     composeTestRule.onNodeWithTag("ownerText").assertTextContains("@" + playlist.playlistOwner)
@@ -155,24 +159,26 @@ class PlaylistOverviewScreenTest {
 
   @Test
   fun textIsShownWhenNoTracks() {
-      playlistViewModel.selectPlaylist(playlist)
-      composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-          profileViewModel, playlistViewModel) }
+    playlistViewModel.selectPlaylist(playlist)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("emptyPlaylistPrompt").assertIsDisplayed()
   }
 
-    @Test
-    fun testNavigation() {
-        playlistViewModel.selectPlaylist(playlist2)
-        composeTestRule.setContent { PlaylistOverviewScreen(navigationActions,
-            profileViewModel, playlistViewModel) }
-        composeTestRule.onNodeWithTag("Home").performClick()
-        verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-        composeTestRule.onNodeWithTag("Search").performClick()
-        verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-        composeTestRule.onNodeWithTag("Library").performClick()
-        verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-        composeTestRule.onNodeWithTag("Profile").performClick()
-        verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
+  @Test
+  fun testNavigation() {
+    playlistViewModel.selectPlaylist(playlist2)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
     }
+    composeTestRule.onNodeWithTag("Home").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
+    composeTestRule.onNodeWithTag("Search").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
+    composeTestRule.onNodeWithTag("Library").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
+  }
 }

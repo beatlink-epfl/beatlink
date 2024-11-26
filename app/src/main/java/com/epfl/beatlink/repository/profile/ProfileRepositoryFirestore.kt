@@ -94,7 +94,7 @@ open class ProfileRepositoryFirestore(
       username
     } catch (e: Exception) {
       Log.e("GET_USERNAME_ERROR", "Error retrieving username: ${e.message}")
-    null
+      null
     }
   }
 

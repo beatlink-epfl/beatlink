@@ -38,12 +38,11 @@ fun LibraryScreen(
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-    LaunchedEffect(Unit) { playlistViewModel.fetchData() }
+  LaunchedEffect(Unit) { playlistViewModel.fetchData() }
 
   val playlistListFlow by playlistViewModel.playlistList.collectAsState()
   val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
   val publicPlaylistListFlow by playlistViewModel.publicPlaylistList.collectAsState()
-
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),
@@ -68,10 +67,10 @@ fun LibraryScreen(
       },
       content = { innerPadding ->
         Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier.padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
           // MY PLAYLISTS

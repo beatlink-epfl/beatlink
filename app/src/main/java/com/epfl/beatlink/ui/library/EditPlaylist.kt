@@ -55,20 +55,23 @@ fun EditPlaylistScreen(
   var playlistTitle by remember { mutableStateOf(selectedPlaylistState.playlistName) }
   var playlistDescription by remember { mutableStateOf(selectedPlaylistState.playlistDescription) }
   var playlistIsPublic by remember { mutableStateOf(selectedPlaylistState.playlistPublic) }
-  var playlistCollab by remember { mutableStateOf(selectedPlaylistState.playlistCollaborators) } // user IDs
+  var playlistCollab by remember {
+    mutableStateOf(selectedPlaylistState.playlistCollaborators)
+  } // user IDs
   val coverImage by remember { mutableStateOf(selectedPlaylistState.playlistCover) }
 
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
 
-    var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+  var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
 
-    LaunchedEffect(selectedPlaylistState.playlistCollaborators) {
-        val usernames = selectedPlaylistState.playlistCollaborators.mapNotNull { userId ->
-            profileViewModel.getUsername(userId)
+  LaunchedEffect(selectedPlaylistState.playlistCollaborators) {
+    val usernames =
+        selectedPlaylistState.playlistCollaborators.mapNotNull { userId ->
+          profileViewModel.getUsername(userId)
         }
-        collabUsernames = usernames
-    }
+    collabUsernames = usernames
+  }
 
   Scaffold(
       modifier = Modifier.testTag("editPlaylistScreen"),
@@ -137,24 +140,22 @@ fun EditPlaylistScreen(
                 playlistIsPublic = newOption
               }
 
-              CollaboratorsSection(collabUsernames,
+              CollaboratorsSection(
+                  collabUsernames,
                   onRemove = { usernameToRemove ->
-                      profileViewModel.getUserIdByUsername(
-                          username = usernameToRemove,
-                          onResult = { userIdToRemove ->
-                              if (userIdToRemove != null) {
-                                  val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
-                                  playlistCollab = updatedCollabList
-                                  playlistViewModel.updateCollaborators(
-                                      playlist = selectedPlaylistState,
-                                      newCollabList = updatedCollabList
-                                  )
-                                  collabUsernames = collabUsernames.filter { it != usernameToRemove }
-                              } else {
-                                  Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
-                              }
+                    profileViewModel.getUserIdByUsername(
+                        username = usernameToRemove,
+                        onResult = { userIdToRemove ->
+                          if (userIdToRemove != null) {
+                            val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                            playlistCollab = updatedCollabList
+                            playlistViewModel.updateCollaborators(
+                                playlist = selectedPlaylistState, newCollabList = updatedCollabList)
+                            collabUsernames = collabUsernames.filter { it != usernameToRemove }
+                          } else {
+                            Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
                           }
-                      )
+                        })
                   })
 
               PrincipalButton("Save", "saveEditPlaylist") {

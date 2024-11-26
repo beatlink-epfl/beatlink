@@ -54,8 +54,7 @@ class ProfileRepositoryFirestoreTest {
   private lateinit var mockUri: Uri
   private lateinit var mockContext: Context
 
-    @Mock
-    private lateinit var mockQuerySnapshot: QuerySnapshot
+  @Mock private lateinit var mockQuerySnapshot: QuerySnapshot
 
   // Additional mock objects
   private lateinit var mockCollectionReference: CollectionReference
@@ -136,29 +135,30 @@ class ProfileRepositoryFirestoreTest {
     assert(result == profileData)
   }
 
-    @Test
-    fun `getUsername returns username on success`(): Unit = runBlocking {
-        // Arrange
-        val userId = "testUserId"
-        val expectedUsername = "TestUsername"
+  @Test
+  fun `getUsername returns username on success`(): Unit = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+    val expectedUsername = "TestUsername"
 
-        // Mocking behavior for Firestore document reference and snapshot
-        `when`(mockAuth.currentUser).thenReturn(mockUser)
-        `when`(mockUser.uid).thenReturn("testUserId")
-        `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
-        `when`(mockDocumentSnapshot.getString("username")).thenReturn(expectedUsername)
+    // Mocking behavior for Firestore document reference and snapshot
+    `when`(mockAuth.currentUser).thenReturn(mockUser)
+    `when`(mockUser.uid).thenReturn("testUserId")
+    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn(expectedUsername)
 
-        // Act
-        val result = repository.getUsername(userId)
+    // Act
+    val result = repository.getUsername(userId)
 
-        // Assert
-        assertEquals(expectedUsername, result)
-        verify(mockDocumentReference).get()
-        verify(mockDocumentSnapshot).getString("username")
-    }
+    // Assert
+    assertEquals(expectedUsername, result)
+    verify(mockDocumentReference).get()
+    verify(mockDocumentSnapshot).getString("username")
+  }
 
-    @Test
-    fun `getUsername should return null and log an error when an exception occurs`(): Unit = runBlocking {
+  @Test
+  fun `getUsername should return null and log an error when an exception occurs`(): Unit =
+      runBlocking {
         // Arrange
         val userId = "testUserId"
         val exception = RuntimeException("Firestore error")
@@ -174,31 +174,32 @@ class ProfileRepositoryFirestoreTest {
         // Assert
         assertNull(result)
         verify(mockDocumentReference).get()
-    }
+      }
 
-    @Test
-    fun `getUserIdByUsername returns userId on success`(): Unit = runBlocking {
-        // Arrange
-        val username = "TestUsername"
-        val userId = "testUserId"
-        val mockQuerySnapshot: QuerySnapshot = mock(QuerySnapshot::class.java)
+  @Test
+  fun `getUserIdByUsername returns userId on success`(): Unit = runBlocking {
+    // Arrange
+    val username = "TestUsername"
+    val userId = "testUserId"
+    val mockQuerySnapshot: QuerySnapshot = mock(QuerySnapshot::class.java)
 
-        // Mocking behavior for Firestore query
-        `when`(mockCollectionReference.whereEqualTo("username", username)).thenReturn(mockCollectionReference)
-        `when`(mockCollectionReference.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
-        `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
-        `when`(mockDocumentSnapshot.id).thenReturn(userId)
+    // Mocking behavior for Firestore query
+    `when`(mockCollectionReference.whereEqualTo("username", username))
+        .thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.id).thenReturn(userId)
 
-        // Act
-        val result = repository.getUserIdByUsername(username)
+    // Act
+    val result = repository.getUserIdByUsername(username)
 
-        // Assert
-        assertEquals(userId, result)
-        verify(mockCollectionReference).whereEqualTo("username", username)
-        verify(mockCollectionReference).get()
-        verify(mockQuerySnapshot).documents
-        verify(mockDocumentSnapshot).id
-    }
+    // Assert
+    assertEquals(userId, result)
+    verify(mockCollectionReference).whereEqualTo("username", username)
+    verify(mockCollectionReference).get()
+    verify(mockQuerySnapshot).documents
+    verify(mockDocumentSnapshot).id
+  }
 
   @Test
   fun `test addProfile returns true when profile is added successfully`() = runBlocking {

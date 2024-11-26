@@ -2,7 +2,6 @@ package com.epfl.beatlink.viewmodel.profile
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
@@ -10,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -24,13 +22,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
-import kotlin.math.exp
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -302,8 +298,9 @@ class ProfileViewModelTest {
         verify(mockRepository, never()).uploadProfilePicture(any(), any(), any())
       }
 
-    @Test
-    fun `getUsername should return username when repository returns a username`(): Unit = runBlocking {
+  @Test
+  fun `getUsername should return username when repository returns a username`(): Unit =
+      runBlocking {
         // Arrange
         val userId = "testUserId"
         val expectedUsername = "testUsername"
@@ -316,23 +313,60 @@ class ProfileViewModelTest {
         // Assert
         assertEquals(expectedUsername, result)
         verify(mockRepository).getUsername(userId) // Verify repository method was called
-    }
+  }
 
-    @Test
-    fun `getUsername should return null and log an error when repository throws an exception`(): Unit = runBlocking {
-        // Arrange
-        val userId = "testUserId"
-        val exception = RuntimeException("Error fetching username")
+  @Test
+  fun `getUsername should return null and log an error when repository throws an exception`():
+      Unit = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+    val exception = RuntimeException("Error fetching username")
 
-        `when`(mockRepository.getUsername(userId)).thenThrow(exception)
+    `when`(mockRepository.getUsername(userId)).thenThrow(exception)
+
+    // Act
+    val result = viewModel.getUsername(userId)
+
+    // Assert
+    assertNull(result)
+    verify(mockRepository).getUsername(userId) // Verify repository method was called
+  }
+
+  @Test
+  fun `getUserIdByUsername should invoke onResult with user ID when repository returns user ID`() =
+      runTest {
+        val username = "testUsername"
+        val expectedUserId = "testUserId"
+        val onResult: (String?) -> Unit = mock() // Mock the callback
+
+        // Mock repository behavior
+        `when`(mockRepository.getUserIdByUsername(username)).thenReturn(expectedUserId)
 
         // Act
-        val result = viewModel.getUsername(userId)
+        viewModel.getUserIdByUsername(username, onResult)
+        advanceUntilIdle() // Advance the coroutine execution
 
         // Assert
-        assertNull(result)
-        verify(mockRepository).getUsername(userId) // Verify repository method was called
-    }
+        verify(mockRepository).getUserIdByUsername(username)
+        verify(onResult).invoke(expectedUserId)
+      }
 
+  @Test
+  fun `getUserIdByUsername should invoke onResult with null when repository throws an exception`() =
+      runTest {
+        val username = "testUsername"
+        val exception = RuntimeException("Firestore error")
+        val onResult: (String?) -> Unit = mock() // Mock the callback
 
+        // Mock repository behavior to throw an exception
+        `when`(mockRepository.getUserIdByUsername(username)).thenThrow(exception)
+
+        // Act
+        viewModel.getUserIdByUsername(username, onResult)
+        advanceUntilIdle() // Advance the coroutine execution
+
+        // Assert
+        verify(mockRepository).getUserIdByUsername(username)
+        verify(onResult).invoke(null)
+      }
 }

@@ -13,15 +13,12 @@ interface ProfileRepository {
    */
   fun getUserId(): String?
 
-
   /**
    * Retrieve the username of the userId.
    *
    * @return The username of the userId, or `null` if no username found.
    */
   suspend fun getUsername(userId: String): String?
-
-
 
   suspend fun getUserIdByUsername(username: String): String?
 

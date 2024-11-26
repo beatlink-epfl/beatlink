@@ -169,29 +169,17 @@ class LibraryScreenTest {
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     org.mockito.kotlin
         .verify(navigationActions)
         .navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     org.mockito.kotlin
         .verify(navigationActions)
         .navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     org.mockito.kotlin
         .verify(navigationActions)

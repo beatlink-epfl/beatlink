@@ -52,23 +52,23 @@ fun CollaboratorsSection(collabUsernames: List<String>, onRemove: (String) -> Un
 
 @Composable
 fun CollabButton(onClick: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-        Modifier.border(
-            width = 1.dp,
-            brush = PrimaryGradientBrush,
-            shape = RoundedCornerShape(size = 20.dp))
-            .width(185.dp)
-            .height(28.dp)
-            .clickable { onClick() }
-            .semantics { contentDescription = "Invite Collaborators" }
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(size = 20.dp))
-            .padding(start = 16.dp, end = 16.dp)
-            .testTag("collabButton")) {
+  Row(
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically,
+      modifier =
+          Modifier.border(
+                  width = 1.dp,
+                  brush = PrimaryGradientBrush,
+                  shape = RoundedCornerShape(size = 20.dp))
+              .width(185.dp)
+              .height(28.dp)
+              .clickable { onClick() }
+              .semantics { contentDescription = "Invite Collaborators" }
+              .background(
+                  color = MaterialTheme.colorScheme.surfaceVariant,
+                  shape = RoundedCornerShape(size = 20.dp))
+              .padding(start = 16.dp, end = 16.dp)
+              .testTag("collabButton")) {
         Text(
             text = "Invite Collaborators",
             style = MaterialTheme.typography.labelSmall,
@@ -79,65 +79,57 @@ fun CollabButton(onClick: () -> Unit) {
             contentDescription = "Collab Add",
             tint = Color.Unspecified,
             modifier = Modifier.align(Alignment.CenterVertically))
-    }
+      }
 }
 
 @Composable
 fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
-    Box(
-        modifier =
-        Modifier.border(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.primary,
-            shape = RoundedCornerShape(size = 5.dp)
-        )
-            .width(320.dp)
-            .height(120.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(size = 5.dp)
-            )
-            .testTag("collabBox")) {
+  Box(
+      modifier =
+          Modifier.border(
+                  width = 1.dp,
+                  color = MaterialTheme.colorScheme.primary,
+                  shape = RoundedCornerShape(size = 5.dp))
+              .width(320.dp)
+              .height(120.dp)
+              .background(
+                  color = MaterialTheme.colorScheme.surfaceVariant,
+                  shape = RoundedCornerShape(size = 5.dp))
+              .testTag("collabBox")) {
         if (collaborators.isEmpty()) {
-            Text(
-                text = "NO COLLABORATORS",
-                color = PrimaryGray,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Center).testTag("emptyCollab"))
+          Text(
+              text = "NO COLLABORATORS",
+              color = PrimaryGray,
+              style = MaterialTheme.typography.bodyLarge,
+              modifier = Modifier.align(Alignment.Center).testTag("emptyCollab"))
         } else {
-            LazyColumn(
-                modifier =
-                Modifier.fillMaxSize()
-            ) {
-                items(collaborators.size) { i ->
-                    CollabCard(collaborators[i]) { onRemove(collaborators[i]) }
-                }
-
+          LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(collaborators.size) { i ->
+              CollabCard(collaborators[i]) { onRemove(collaborators[i]) }
             }
+          }
         }
-    }
+      }
 }
 
 @Composable
 fun CollabCard(username: String, onRemove: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().testTag("collabCard"),
-        shape = RoundedCornerShape(size = 5.dp),
-        ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
+  Card(
+      modifier = Modifier.fillMaxWidth().testTag("collabCard"),
+      shape = RoundedCornerShape(size = 5.dp),
+  ) {
+    Row(
+        modifier =
+            Modifier.fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "@${username}",
-                color = MaterialTheme.colorScheme.primaryGray,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            CloseButton { onRemove() }
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+          Text(
+              text = "@${username}",
+              color = MaterialTheme.colorScheme.primaryGray,
+              style = MaterialTheme.typography.bodyLarge)
+          CloseButton { onRemove() }
         }
-    }
+  }
 }

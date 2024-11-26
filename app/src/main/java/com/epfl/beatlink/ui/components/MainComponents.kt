@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -64,7 +63,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -73,7 +71,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.R
-import com.epfl.beatlink.ui.navigation.AppIcons.collabAdd
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
@@ -122,12 +119,12 @@ fun ScreenTopAppBar(
       title = { PageTitle(title, titleTag) },
       actions = { actionButtons.forEach { actionButton -> actionButton() } },
       navigationIcon = {
-          CornerIcons(
-              onClick = { navigationActions.goBack() },
-              icon = Icons.AutoMirrored.Filled.ArrowBack,
-              contentDescription = "Go back",
-              modifier = Modifier.testTag("goBackButton"),
-              iconSize = 30.dp)
+        CornerIcons(
+            onClick = { navigationActions.goBack() },
+            icon = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = "Go back",
+            modifier = Modifier.testTag("goBackButton"),
+            iconSize = 30.dp)
       },
       modifier = Modifier.topAppBarModifier())
 }

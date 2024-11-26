@@ -31,7 +31,8 @@ interface PlaylistRepository {
       playlist: Playlist,
       newCollabList: List<String>,
       onSuccess: () -> Unit,
-      onFailure: (Exception) -> Unit)
+      onFailure: (Exception) -> Unit
+  )
 
   /** Updates only the track count of a specific playlist in Firestore */
   fun updatePlaylistTrackCount(

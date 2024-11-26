@@ -11,7 +11,6 @@ val SecondaryPurple = Color(0x805F2A83) // label input
 val PrimaryOrange = Color(0xFFFF7C1E)
 val PrimaryBlue = Color(0xFF35A1EF)
 
-
 // Define the vertical gradient brush
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 val IconsGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryPurple, PrimaryRed))

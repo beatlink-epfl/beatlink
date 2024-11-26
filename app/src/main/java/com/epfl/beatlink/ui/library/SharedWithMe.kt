@@ -29,27 +29,26 @@ fun SharedWithMeScreen(navigationActions: NavigationActions, playlistViewModel: 
       title = "Shared with me",
       titleTag = "sharedPlaylists",
       navigationActions = navigationActions) {
-
         if (sharedPlaylistListFlow.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
-                contentAlignment = Alignment.Center) {
+          Box(
+              modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
+              contentAlignment = Alignment.Center) {
                 Text(
                     text = "No playlists found",
                     color = MaterialTheme.colorScheme.primaryGray,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.align(Alignment.Center))
-            }
+              }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-            ) {
-                items(sharedPlaylistListFlow.size) { i ->
-                    PlaylistCard(sharedPlaylistListFlow[i], navigationActions, playlistViewModel)
-                }
+          LazyColumn(
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+              modifier = Modifier.fillMaxSize(),
+              contentPadding = PaddingValues(vertical = 8.dp),
+          ) {
+            items(sharedPlaylistListFlow.size) { i ->
+              PlaylistCard(sharedPlaylistListFlow[i], navigationActions, playlistViewModel)
             }
+          }
         }
       }
 }

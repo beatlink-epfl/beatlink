@@ -32,27 +32,26 @@ fun PublicPlaylistsScreen(
       title = "Public Playlists",
       titleTag = "publicPlaylists",
       navigationActions = navigationActions) {
-
         if (publicPlaylistListFlow.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
-                contentAlignment = Alignment.Center) {
+          Box(
+              modifier = Modifier.fillMaxSize().testTag("emptyPlaylistsPrompt"),
+              contentAlignment = Alignment.Center) {
                 Text(
                     text = "No playlists found",
                     color = MaterialTheme.colorScheme.primaryGray,
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.align(Alignment.Center))
-            }
+              }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-            ) {
-                items(publicPlaylistListFlow.size) { i ->
-                    PlaylistCard(publicPlaylistListFlow[i], navigationActions, playlistViewModel)
-                }
+          LazyColumn(
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+              modifier = Modifier.fillMaxSize(),
+              contentPadding = PaddingValues(vertical = 8.dp),
+          ) {
+            items(publicPlaylistListFlow.size) { i ->
+              PlaylistCard(publicPlaylistListFlow[i], navigationActions, playlistViewModel)
             }
-         }
+          }
+        }
       }
 }
