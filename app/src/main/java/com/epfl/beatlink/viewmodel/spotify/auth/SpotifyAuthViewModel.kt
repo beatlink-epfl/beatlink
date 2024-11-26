@@ -29,6 +29,7 @@ open class SpotifyAuthViewModel(
   init {
     loadTokens(application)
     loadAuthState()
+    if (doesTokenExist() && !isTokenValid()) refreshAccessToken(application)
   }
 
   /** Updates the data values in the view model */
