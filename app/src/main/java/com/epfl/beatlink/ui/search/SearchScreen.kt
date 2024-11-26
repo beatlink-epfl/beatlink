@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -32,9 +33,15 @@ import com.epfl.beatlink.ui.search.components.ProfileCard
 import com.epfl.beatlink.ui.search.components.SongCard
 import com.epfl.beatlink.ui.search.components.StandardLazyRow
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun SearchScreen(navigationActions: NavigationActions) {
+fun SearchScreen(
+    navigationActions: NavigationActions,
+    spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
   val song1 =
       SpotifyTrack(
           name = "Song1",
@@ -67,11 +74,14 @@ fun SearchScreen(navigationActions: NavigationActions) {
   Scaffold(
       topBar = { FullSearchBar(navigationActions) },
       bottomBar = {
-        // Bottom navigation bar
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+        Column {
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          // Bottom navigation bar
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationActions.currentRoute())
+        }
       },
       modifier = Modifier.testTag("searchScreen")) { paddingValues ->
         Column(

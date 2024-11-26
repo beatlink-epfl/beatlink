@@ -41,6 +41,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.ArtistCard
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.GradientTitle
+import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.components.TrackCard
@@ -53,6 +54,7 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.SETTINGS
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -60,7 +62,8 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
     navigationAction: NavigationActions,
-    spotifyApiViewModel: SpotifyApiViewModel
+    spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
 ) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
@@ -104,10 +107,13 @@ fun ProfileScreen(
             })
       },
       bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationAction.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationAction.currentRoute())
+        Column {
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationAction.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationAction.currentRoute())
+        }
       },
       content = { paddingValue ->
         Column(

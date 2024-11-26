@@ -93,7 +93,9 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
-      composable(Screen.SEARCH) { SearchScreen(navigationActions) }
+      composable(Screen.SEARCH) {
+        SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+      }
       composable(Screen.SEARCH_BAR) { SearchBarScreen(navigationActions, spotifyApiViewModel) }
       composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
       composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
@@ -102,7 +104,9 @@ fun BeatLinkApp(
     }
 
     navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
-      composable(Screen.LIBRARY) { LibraryScreen(navigationActions, playlistViewModel) }
+      composable(Screen.LIBRARY) {
+        LibraryScreen(navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
+      }
       composable(Screen.CREATE_NEW_PLAYLIST) {
         CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
       }
@@ -123,7 +127,7 @@ fun BeatLinkApp(
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
       composable(Screen.PROFILE) {
-        ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+        ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
       }
       composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
       composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
