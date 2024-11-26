@@ -8,6 +8,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -79,9 +80,10 @@ open class ProfileViewModel(
   fun deleteProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
-      val success = repository.deleteProfile(userId)
-      if (success) {
+      if (repository.deleteProfile(userId)) {
         _profile.value = null
+      } else {
+        Log.e("DELETE_PROFILE", "Error deleting profile")
       }
     }
   }
