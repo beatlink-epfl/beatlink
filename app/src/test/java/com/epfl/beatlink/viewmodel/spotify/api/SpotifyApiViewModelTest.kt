@@ -94,8 +94,6 @@ class SpotifyApiViewModelTest {
       onBlocking { post(eq("playlists/$playlistId/tracks"), any()) } doReturn mockAddTracksResult
     }
 
-    val observer = mock<Observer<Unit>>()
-
     // Act
     viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
 
@@ -118,8 +116,6 @@ class SpotifyApiViewModelTest {
 
     val exception = Exception("Failed to fetch user ID")
     mockApiRepository.stub { onBlocking { get("me") } doReturn Result.failure(exception) }
-
-    val observer = mock<Observer<Unit>>()
 
     // Act
     viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
@@ -149,8 +145,6 @@ class SpotifyApiViewModelTest {
       onBlocking { post(eq("users/$userId/playlists"), any()) } doReturn
           Result.failure(Exception("Playlist creation failed"))
     }
-
-    val observer = mock<Observer<Unit>>()
 
     // Act
     viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
