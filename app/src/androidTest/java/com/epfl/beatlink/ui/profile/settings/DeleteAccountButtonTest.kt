@@ -188,4 +188,64 @@ class DeleteAccountButtonTest {
     // Verify no navigation to the login screen
     verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
   }
+
+  @Test
+  fun deleteAccountDialog_confirmHandlesAccountDeletionFailure() = runTest {
+    // Mock `getUserId` to return a valid user ID
+    every { profileRepository.getUserId() } returns "testUserId"
+
+    // Mock successful profile deletion (not the issue here)
+    coEvery { profileRepository.deleteProfile(any(), any(), any()) } answers
+        {
+          val onSuccess = secondArg<() -> Unit>()
+          onSuccess()
+        }
+
+    // Mock account deletion failure
+    coEvery { authRepository.deleteAccount(any(), any(), any()) } answers
+        {
+          val onFailure = thirdArg<(Throwable) -> Unit>()
+          onFailure(Exception("Mocked deletion failure"))
+        }
+
+    // Mock restoring the profile
+    coEvery { profileRepository.addProfile(any(), any()) } returns true
+
+    // Perform click on the delete button
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
+
+    composeTestRule.waitForIdle()
+
+    // Ensure dialog is displayed
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+
+    // Enter password
+    composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
+
+    // Click confirm
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    composeTestRule.waitForIdle()
+
+    // Verify that deleteAccount is called with the correct parameters
+    coVerify {
+      authRepository.deleteAccount(
+          eq("testPassword"),
+          any(), // onSuccess callback
+          any() // onFailure callback
+          )
+    }
+
+    // Verify that addProfile is called to restore the profile
+    coVerify { profileRepository.addProfile(eq("testUserId"), any()) }
+
+    // Verify the dialog is dismissed
+    composeTestRule.onNodeWithTag("passwordField").assertDoesNotExist()
+
+    // Verify that no navigation occurs
+    verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
+  }
 }
