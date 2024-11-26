@@ -264,7 +264,7 @@ open class SpotifyApiViewModel(
   /** Skips to the next song. */
   fun skipSong() {
     viewModelScope.launch {
-      if (isPlaying) {
+      if (playbackActive) {
         apiRepository.post("me/player/next", "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Song skipped")
         updatePlayer()
@@ -277,7 +277,7 @@ open class SpotifyApiViewModel(
   /** Plays the previous song. */
   fun previousSong() {
     viewModelScope.launch {
-      if (isPlaying) {
+      if (playbackActive) {
         apiRepository.post("me/player/previous", "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Previous song played")
         updatePlayer()
