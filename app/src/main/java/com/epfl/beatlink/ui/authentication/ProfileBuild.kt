@@ -1,7 +1,16 @@
 package com.epfl.beatlink.ui.authentication
 
+import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +21,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -37,14 +46,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.R
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
+import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
@@ -52,6 +61,7 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @SuppressLint("MutableCollectionMutableState")
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: ProfileViewModel) {
@@ -60,6 +70,34 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   var favoriteGenres by remember { mutableStateOf(mutableListOf<String>()) }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
   val currentProfile = profileViewModel.profile.collectAsState()
+  val context = LocalContext.current
+  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+  // Load profile picture
+  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
+
+  val galleryLauncher =
+      rememberLauncherForActivityResult(
+          contract = ActivityResultContracts.GetContent(),
+          onResult = { uri: Uri? ->
+            imageUri = uri
+            if (imageUri == null) {
+              profilePicture.value = null
+            } else {
+              profileViewModel.uploadProfilePicture(context, imageUri)
+              profileViewModel.loadProfilePicture { profilePicture.value = it }
+            }
+          })
+  val permissionLauncher =
+      rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+          isGranted: Boolean ->
+        Log.d("GRANTED", isGranted.toString())
+        if (isGranted) {
+          galleryLauncher.launch("image/*")
+        } else {
+          Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+      }
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
   Scaffold(
@@ -76,7 +114,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
               ProfileBuildTitle()
 
               // Add Profile Picture
-              AddProfilePicture()
+              AddProfilePicture(permissionLauncher, profilePicture)
 
               Spacer(modifier = Modifier.height(16.dp))
 
@@ -109,8 +147,12 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
                         bio = description,
                         name = name,
                         username = currentProfile.value?.username ?: "",
-                        favoriteMusicGenres = favoriteGenres)
+                        favoriteMusicGenres = favoriteGenres,
+                        profilePicture = "")
                 profileViewModel.updateProfile(updatedProfile)
+                if (imageUri != null) {
+                  profileViewModel.uploadProfilePicture(context, imageUri)
+                }
                 navigationActions.navigateTo(Screen.HOME)
               }
 
@@ -138,18 +180,22 @@ fun ProfileBuildTitle() {
       modifier = Modifier.padding(bottom = 16.dp).fillMaxWidth().testTag("profileBuildTitle"))
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun AddProfilePicture() {
-  Image(
-      painter = painterResource(id = R.drawable.default_profile_picture),
-      contentDescription = "Profile Picture",
-      modifier = Modifier.size(150.dp))
-  Text(
-      "Add photo",
-      modifier =
-          Modifier.clickable {}.testTag("addProfilePicture"), // TODO: Add image picker logic here
-      color = MaterialTheme.colorScheme.onPrimary,
-      style = MaterialTheme.typography.labelLarge)
+fun AddProfilePicture(
+    permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    profilePicture: MutableState<Bitmap?>
+) {
+  Box(modifier = Modifier.clickable { permissionLauncher.launch(READ_MEDIA_IMAGES) }) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+      ProfilePicture(profilePicture)
+      Text(
+          "Add photo",
+          modifier = Modifier.testTag("addProfilePicture"),
+          color = MaterialTheme.colorScheme.onPrimary,
+          style = MaterialTheme.typography.labelLarge)
+    }
+  }
 }
 
 @Composable
