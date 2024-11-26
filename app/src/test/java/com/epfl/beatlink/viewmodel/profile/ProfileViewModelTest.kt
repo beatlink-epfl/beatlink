@@ -7,7 +7,6 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -16,7 +15,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -299,38 +297,41 @@ class ProfileViewModelTest {
       }
 
   @Test
-  fun `getUsername should return username when repository returns a username`(): Unit =
-      runBlocking {
-        // Arrange
-        val userId = "testUserId"
-        val expectedUsername = "testUsername"
+  fun `getUsername should return username when repository returns a username`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val expectedUsername = "testUsername"
+    val onResult: (String?) -> Unit = mock()
 
-        `when`(mockRepository.getUsername(userId)).thenReturn(expectedUsername)
+    `when`(mockRepository.getUsername(userId)).thenReturn(expectedUsername)
 
-        // Act
-        val result = viewModel.getUsername(userId)
+    // Act
+    val result = viewModel.getUsername(userId, onResult)
+    advanceUntilIdle()
 
-        // Assert
-        assertEquals(expectedUsername, result)
-        verify(mockRepository).getUsername(userId) // Verify repository method was called
+    // Assert
+    verify(mockRepository).getUsername(userId) // Verify repository method was called
+    verify(onResult).invoke(expectedUsername)
   }
 
   @Test
-  fun `getUsername should return null and log an error when repository throws an exception`():
-      Unit = runBlocking {
-    // Arrange
-    val userId = "testUserId"
-    val exception = RuntimeException("Error fetching username")
+  fun `getUsername should return null and log an error when repository throws an exception`() =
+      runTest {
+        // Arrange
+        val userId = "testUserId"
+        val exception = RuntimeException("Error fetching username")
+        val onResult: (String?) -> Unit = mock()
 
-    `when`(mockRepository.getUsername(userId)).thenThrow(exception)
+        `when`(mockRepository.getUsername(userId)).thenThrow(exception)
 
-    // Act
-    val result = viewModel.getUsername(userId)
+        // Act
+        val result = viewModel.getUsername(userId, onResult)
+        advanceUntilIdle()
 
-    // Assert
-    assertNull(result)
-    verify(mockRepository).getUsername(userId) // Verify repository method was called
-  }
+        // Assert
+        verify(mockRepository).getUsername(userId) // Verify repository method was called
+        verify(onResult).invoke(null)
+      }
 
   @Test
   fun `getUserIdByUsername should invoke onResult with user ID when repository returns user ID`() =

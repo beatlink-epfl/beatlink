@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,14 +62,16 @@ fun EditPlaylistScreen(
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
 
+  val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
 
-  LaunchedEffect(selectedPlaylistState.playlistCollaborators) {
-    val usernames =
-        selectedPlaylistState.playlistCollaborators.mapNotNull { userId ->
-          profileViewModel.getUsername(userId)
-        }
-    collabUsernames = usernames
+  selectedPlaylistState.playlistCollaborators.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null) {
+        fetchedUsernames.add(username)
+      }
+      collabUsernames = fetchedUsernames.toList()
+    }
   }
 
   Scaffold(

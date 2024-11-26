@@ -83,13 +83,15 @@ open class ProfileViewModel(
     }
   }
 
-  suspend fun getUsername(userId: String): String? {
-    return try {
-      val username = repository.getUsername(userId)
-      username
-    } catch (e: Exception) {
-      Log.e("ERROR", "Error fetching username", e)
-      null
+  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val username = repository.getUsername(userId)
+        onResult(username)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching username", e)
+        onResult(null)
+      }
     }
   }
 

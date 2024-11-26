@@ -25,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,16 +67,16 @@ fun PlaylistOverviewScreen(
   val isOwner = selectedPlaylistState.userId == playlistViewModel.getUserId()
   val isCollab = selectedPlaylistState.playlistCollaborators.contains(playlistViewModel.getUserId())
 
+  val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
 
-  LaunchedEffect(selectedPlaylistState.playlistCollaborators) {
-    // Fetch usernames asynchronously for all collaborators
-    val usernames =
-        selectedPlaylistState.playlistCollaborators.map { userId ->
-          // Fetch each collaborator's username asynchronously
-          profileViewModel.getUsername(userId)
-        }
-    collabUsernames = usernames.filterNotNull()
+  selectedPlaylistState.playlistCollaborators.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null) {
+        fetchedUsernames.add(username)
+      }
+      collabUsernames = fetchedUsernames.toList()
+    }
   }
 
   val sample =
