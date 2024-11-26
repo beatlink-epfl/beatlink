@@ -186,16 +186,15 @@ fun AddProfilePicture(
     permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     profilePicture: MutableState<Bitmap?>
 ) {
-  Box(modifier = Modifier.clickable { permissionLauncher.launch(READ_MEDIA_IMAGES) }) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-      ProfilePicture(profilePicture)
-      Text(
-          "Add photo",
-          modifier = Modifier.testTag("addProfilePicture"),
-          color = MaterialTheme.colorScheme.onPrimary,
-          style = MaterialTheme.typography.labelLarge)
-    }
-  }
+  ProfilePicture(profilePicture)
+  Text(
+      "Add photo",
+      modifier =
+          Modifier.testTag("addProfilePicture").clickable {
+            permissionLauncher.launch(READ_MEDIA_IMAGES)
+          },
+      color = MaterialTheme.colorScheme.onPrimary,
+      style = MaterialTheme.typography.labelLarge)
 }
 
 @Composable
