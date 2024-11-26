@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -11,6 +10,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.profile.ProfileData
@@ -22,6 +22,7 @@ import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
@@ -30,7 +31,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import okhttp3.OkHttpClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -52,8 +52,6 @@ class ProfileTest {
   private lateinit var navigationActions: NavigationActions
 
   @Mock lateinit var mockApplication: Application
-  @Mock private lateinit var mockClient: OkHttpClient
-  @Mock private lateinit var mockSharedPreferences: SharedPreferences
 
   private lateinit var spotifyApiRepository: SpotifyApiRepository
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
@@ -132,7 +130,11 @@ class ProfileTest {
   @Test
   fun elementsAreDisplayed() {
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     // Check if title is displayed
     /*composeTestRule
@@ -182,7 +184,11 @@ class ProfileTest {
   @Test
   fun buttonsAreClickable() {
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     // Perform click action on the notifications button
     composeTestRule.onNodeWithTag("profileScreenNotificationsButton").performClick()
@@ -197,7 +203,11 @@ class ProfileTest {
   @Test
   fun musicGenresTitleIsDisplayedWhenNotEmpty() {
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
@@ -219,7 +229,11 @@ class ProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = userEmpty)
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
 
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertDoesNotExist()
@@ -231,7 +245,11 @@ class ProfileTest {
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
 
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, fakeSpotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          fakeSpotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
 
@@ -248,7 +266,11 @@ class ProfileTest {
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, fakeSpotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          fakeSpotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
 
     composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
@@ -261,7 +283,11 @@ class ProfileTest {
   @Test
   fun editProfileButtonTriggersNavigation() {
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
     verify(navigationActions).navigateTo(Screen.EDIT_PROFILE)
@@ -270,7 +296,11 @@ class ProfileTest {
   @Test
   fun settingsButtonTriggersNavigation() {
     composeTestRule.setContent {
-      ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
     verify(navigationActions).navigateTo(Screen.SETTINGS)

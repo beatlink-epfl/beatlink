@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.AddButton
+import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.SearchButton
 import com.epfl.beatlink.ui.components.TitleWithArrow
@@ -26,9 +27,16 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
+fun LibraryScreen(
+    navigationActions: NavigationActions,
+    playlistViewModel: PlaylistViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
 
     LaunchedEffect(Unit) { playlistViewModel.fetchData() }
 
@@ -49,10 +57,14 @@ fun LibraryScreen(navigationActions: NavigationActions, playlistViewModel: Playl
             })
       },
       bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+        Column {
+          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationActions.currentRoute())
+        }
       },
       content = { innerPadding ->
         Column(
