@@ -23,6 +23,7 @@ open class SpotifyApiViewModel(
 ) : AndroidViewModel(application) {
 
   var deviceId: String? = null
+
   var playbackActive by mutableStateOf(false)
 
   var isPlaying by mutableStateOf(false)
@@ -34,6 +35,48 @@ open class SpotifyApiViewModel(
   var currentAlbum by mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
 
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
+
+  fun createEmptySpotifyPlaylist(
+    playlistName: String,
+    playlistDescription: String = ""
+  ) {
+    val userId = getCurrentUserId(
+     onSuccess = { userId ->
+        val body = JSONObject()
+        body.put("name", playlistName)
+        body.put("description", playlistDescription)
+
+       viewModelScope.launch {
+          val result = apiRepository.post("users/$userId/playlists", body.toString().toRequestBody())
+          if (result.isSuccess) {
+            Log.d("SpotifyApiViewModel", "Empty playlist created successfully")
+          } else {
+            Log.e("SpotifyApiViewModel", "Failed to create empty playlist")
+          }
+        }
+     },
+      onFailure = {
+        Log.e("SpotifyApiViewModel", "Failed to create empty playlist: could not fetch user ID")
+      }
+    )
+  }
+
+  private fun getCurrentUserId(
+    onSuccess: (String) -> Unit,
+    onFailure: (String) -> Unit
+  ) {
+    viewModelScope.launch {
+        val result = apiRepository.get("me")
+        if (result.isSuccess) {
+            Log.d("SpotifyApiViewModel", "User ID fetched successfully")
+            val id = result.getOrNull()!!.getString("id")
+            onSuccess(id)
+        } else {
+            Log.e("SpotifyApiViewModel", "Failed to fetch user ID")
+            onFailure("")
+        }
+    }
+  }
 
   fun getPlaylistTracks(
       playlistID: String,
@@ -146,20 +189,6 @@ open class SpotifyApiViewModel(
         Log.e("SpotifyApiViewModel", "Failed to fetch top tracks")
         onFailure(emptyList())
       }
-    }
-  }
-
-  /**
-   * Fetches the current user's profile.
-   *
-   * @param onResult Callback to handle the result.
-   */
-  fun fetchCurrentUserProfile(onResult: (Result<JSONObject>) -> Unit) {
-    viewModelScope.launch {
-      val result = apiRepository.get("me")
-      if (result.isSuccess) Log.d("SpotifyApiViewModel", "User profile fetched successfully")
-      else Log.e("SpotifyApiViewModel", "Failed to fetch user profile")
-      onResult(result)
     }
   }
 
