@@ -111,11 +111,7 @@ class DeleteAccountButtonTest {
     every { profileRepository.getUserId() } returns "testUserId"
 
     // Mock successful profile deletion
-    coEvery { profileRepository.deleteProfile(any(), any(), any()) } answers
-        {
-          val onSuccess = secondArg<() -> Unit>()
-          onSuccess()
-        }
+    coEvery { profileRepository.deleteProfile(any()) } returns true
 
     // Mock successful account deletion
     coEvery { authRepository.deleteAccount(any(), any(), any()) } answers
@@ -153,13 +149,7 @@ class DeleteAccountButtonTest {
     }
 
     // Verify that deleteProfile is called with the correct parameters
-    coVerify {
-      profileRepository.deleteProfile(
-          eq("testUserId"),
-          any(), // onSuccess callback
-          any() // onFailure callback
-          )
-    }
+    coVerify { profileRepository.deleteProfile(eq("testUserId")) }
 
     // Verify navigation to the WELCOME screen
     verify { navigationActions.navigateTo(Screen.WELCOME) }
@@ -183,7 +173,7 @@ class DeleteAccountButtonTest {
     coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
 
     // Verify that deleteProfile is NOT called
-    coVerify(exactly = 0) { profileRepository.deleteProfile(any(), any(), any()) }
+    coVerify(exactly = 0) { profileRepository.deleteProfile(any()) }
 
     // Verify no navigation to the login screen
     verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
@@ -194,12 +184,8 @@ class DeleteAccountButtonTest {
     // Mock `getUserId` to return a valid user ID
     every { profileRepository.getUserId() } returns "testUserId"
 
-    // Mock successful profile deletion (not the issue here)
-    coEvery { profileRepository.deleteProfile(any(), any(), any()) } answers
-        {
-          val onSuccess = secondArg<() -> Unit>()
-          onSuccess()
-        }
+    // Mock successful profile deletion
+    coEvery { profileRepository.deleteProfile(any()) } returns true
 
     // Mock account deletion failure
     coEvery { authRepository.deleteAccount(any(), any(), any()) } answers

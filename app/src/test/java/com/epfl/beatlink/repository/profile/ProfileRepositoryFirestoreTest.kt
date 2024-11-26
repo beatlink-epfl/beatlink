@@ -26,7 +26,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
@@ -199,48 +198,55 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `test deleteProfile calls onSuccess when profile is deleted successfully`() = runBlocking {
+  fun `test updateProfile returns false when update fails`() = runBlocking {
     // Arrange
     val userId = "testUserId"
-    `when`(mockDocumentReference.delete())
-        .thenReturn(Tasks.forResult(null)) // Simulate successful deletion
+    val profileData =
+        ProfileData(
+            bio = "Updated bio",
+            links = 5,
+            name = "Jane Doe",
+            profilePicture = null,
+            username = "janedoe")
 
-    var onSuccessCalled = false
+    `when`(mockDocumentReference.set(profileData))
+        .thenReturn(Tasks.forException(Exception("Update failed")))
 
     // Act
-    repository.deleteProfile(
-        userId = userId,
-        onSuccess = { onSuccessCalled = true },
-        onFailure = { fail("onFailure should not be called") })
+    val result = repository.updateProfile(userId, profileData)
 
     // Assert
-    assert(onSuccessCalled) { "onSuccess should have been called" }
+    assert(!result)
   }
 
   @Test
-  fun `test deleteProfile calls onFailure when profile deletion fails`() = runBlocking {
+  fun `test deleteProfile returns true when profile is deleted successfully`() = runBlocking {
     // Arrange
     val userId = "testUserId"
-    val exception = Exception("Delete failed")
 
     `when`(mockDocumentReference.delete())
-        .thenReturn(Tasks.forException(exception)) // Simulate deletion failure
-
-    var onFailureCalled = false
-    var failureException: Exception? = null
+        .thenReturn(Tasks.forResult(null)) // Simulate successful deletion
 
     // Act
-    repository.deleteProfile(
-        userId = userId,
-        onSuccess = { fail("onSuccess should not be called") },
-        onFailure = { e ->
-          onFailureCalled = true
-          failureException = e
-        })
+    val result = repository.deleteProfile(userId)
 
     // Assert
-    assert(onFailureCalled) { "onFailure should have been called" }
-    assert(failureException == exception) { "onFailure should receive the correct exception" }
+    assert(result)
+  }
+
+  @Test
+  fun `test deleteProfile returns false when profile deletion fails`() = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+
+    `when`(mockDocumentReference.delete())
+        .thenReturn(Tasks.forException(Exception("Delete failed")))
+
+    // Act
+    val result = repository.deleteProfile(userId)
+
+    // Assert
+    assert(!result)
   }
 
   @Test

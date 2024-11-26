@@ -46,7 +46,7 @@ interface ProfileRepository {
    * @param userId The unique identifier of the user.
    * @return `true` if the profile was successfully deleted, `false` otherwise.
    */
-  suspend fun deleteProfile(userId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+  suspend fun deleteProfile(userId: String): Boolean
 
   /**
    * Upload a new profile picture for a specific user.
