@@ -1,9 +1,7 @@
 package com.epfl.beatlink.viewmodel.spotify.api
 
 import android.app.Application
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,79 +37,74 @@ open class SpotifyApiViewModel(
 
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
 
-
-    fun createBeatLinkPlaylist(
-        playlistName: String,
-        playlistDescription: String = "",
-        tracks: List<SpotifyTrack>
-    ) {
-        createEmptySpotifyPlaylist(playlistName, playlistDescription) { playlistId ->
-            addTracksToPlaylist(playlistId, tracks)
-        }
-    }
-
-	private fun addTracksToPlaylist(
-        playlistID: String,
-        tracks: List<SpotifyTrack>
-    ) {
-        val uris = tracks.map { "spotify:track:${it.trackId}" }
-        val body = JSONObject().apply {
-            put("uris", JSONArray(uris))
-        }
-
-        viewModelScope.launch {
-            val result = apiRepository.post("playlists/$playlistID/tracks", body.toString().toRequestBody())
-            if (result.isSuccess) {
-                Log.d("SpotifyApiViewModel", "Track added to playlist successfully")
-            } else {
-                Log.e("SpotifyApiViewModel", "Failed to add track to playlist")
-            }
-        }
-    }
-
-    /** Creates an empty Spotify playlist. */
-  private fun createEmptySpotifyPlaylist(
-    playlistName: String,
-    playlistDescription: String = "",
-    onSuccess: (String) -> Unit
+  /** Creates a playlist with the given name and description and adds the given tracks to it. */
+  fun createBeatLinkPlaylist(
+      playlistName: String,
+      playlistDescription: String = "",
+      tracks: List<SpotifyTrack>
   ) {
-      getCurrentUserId(
-     onSuccess = { userId ->
-        val body = JSONObject()
-        body.put("name", playlistName)
-        body.put("description", playlistDescription)
-
-       viewModelScope.launch {
-          val result = apiRepository.post("users/$userId/playlists", body.toString().toRequestBody())
-          if (result.isSuccess) {
-            Log.d("SpotifyApiViewModel", "Empty playlist created successfully")
-            val playlistId = result.getOrNull()!!.getString("id")
-            onSuccess(playlistId)
-          } else {
-            Log.e("SpotifyApiViewModel", "Failed to create empty playlist")
-          }
-        }
-     },
-      onFailure = {
-        Log.e("SpotifyApiViewModel", "Failed to create empty playlist: could not fetch user ID")
-      }
-    )
+    createEmptySpotifyPlaylist(playlistName, playlistDescription) { playlistId ->
+      addTracksToPlaylist(playlistId, tracks)
+    }
   }
 
-  private fun getCurrentUserId(
-    onSuccess: (String) -> Unit,
-    onFailure: (String) -> Unit
-  ) {
+  /** Adds tracks to a Spotify playlist. */
+  private fun addTracksToPlaylist(playlistID: String, tracks: List<SpotifyTrack>) {
+    val uris = tracks.map { "spotify:track:${it.trackId}" }
+    val body = JSONObject().apply { put("uris", JSONArray(uris)) }
+
     viewModelScope.launch {
-        val result = apiRepository.get("me")
-        if (result.isSuccess) {
-            Log.d("SpotifyApiViewModel", "User ID fetched successfully")
-            val id = result.getOrNull()!!.getString("id")
-            onSuccess(id)
-        } else {
-            Log.e("SpotifyApiViewModel", "Failed to fetch user ID")
-            onFailure("")
-        }
+      val result =
+          apiRepository.post("playlists/$playlistID/tracks", body.toString().toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Track added to playlist successfully")
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to add track to playlist")
+      }
+    }
+  }
+
+  /** Creates an empty Spotify playlist. */
+  private fun createEmptySpotifyPlaylist(
+      playlistName: String,
+      playlistDescription: String = "",
+      onSuccess: (String) -> Unit
+  ) {
+    getCurrentUserId(
+        onSuccess = { userId ->
+          val body = JSONObject()
+          body.put("name", playlistName)
+          body.put("description", playlistDescription)
+
+          viewModelScope.launch {
+            val result =
+                apiRepository.post("users/$userId/playlists", body.toString().toRequestBody())
+            if (result.isSuccess) {
+              Log.d("SpotifyApiViewModel", "Empty playlist created successfully")
+              val playlistId = result.getOrNull()!!.getString("id")
+              onSuccess(playlistId)
+            } else {
+              Log.e("SpotifyApiViewModel", "Failed to create empty playlist")
+            }
+          }
+        },
+        onFailure = {
+          Log.e("SpotifyApiViewModel", "Failed to create empty playlist: could not fetch user ID")
+        })
+  }
+
+  /** Gets the current user's ID. */
+  private fun getCurrentUserId(onSuccess: (String) -> Unit, onFailure: (String) -> Unit) {
+    viewModelScope.launch {
+      val result = apiRepository.get("me")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "User ID fetched successfully")
+        val id = result.getOrNull()!!.getString("id")
+        onSuccess(id)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch user ID")
+        onFailure("")
+      }
     }
   }
 

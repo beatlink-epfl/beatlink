@@ -30,7 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.startsWith
 import org.mockito.Mock
-import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
@@ -70,97 +69,98 @@ class SpotifyApiViewModelTest {
     Dispatchers.resetMain() // Reset the Main dispatcher after tests
   }
 
-    @Test
-    fun `createBeatLinkPlaylist creates playlist and adds tracks successfully`() = runTest {
-        // Arrange: Mock responses for getCurrentUserId, createEmptySpotifyPlaylist, and addTracksToPlaylist
-        val userId = "user123"
-        val playlistId = "playlist123"
-        val playlistName = "Test Playlist"
-        val playlistDescription = "A test playlist description"
-        val tracks = listOf(
+  @Test
+  fun `createBeatLinkPlaylist creates playlist and adds tracks successfully`() = runTest {
+    // Arrange: Mock responses for getCurrentUserId, createEmptySpotifyPlaylist, and
+    // addTracksToPlaylist
+    val userId = "user123"
+    val playlistId = "playlist123"
+    val playlistName = "Test Playlist"
+    val playlistDescription = "A test playlist description"
+    val tracks =
+        listOf(
             SpotifyTrack("Track1", "Artist1", "track1_id", "", 0, 0, State.PAUSE),
-            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE)
-        )
-        val createPlaylistResponse = JSONObject().apply { put("id", playlistId) }
-        val mockAddTracksResult = Result.success(JSONObject())
+            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE))
+    val createPlaylistResponse = JSONObject().apply { put("id", playlistId) }
+    val mockAddTracksResult = Result.success(JSONObject())
 
-        mockApiRepository.stub {
-            // Mock getCurrentUserId response
-            onBlocking { get("me") } doReturn Result.success(JSONObject().apply { put("id", userId) })
-            // Mock createEmptySpotifyPlaylist response
-            onBlocking { post(eq("users/$userId/playlists"), any()) } doReturn Result.success(createPlaylistResponse)
-            // Mock addTracksToPlaylist response
-            onBlocking { post(eq("playlists/$playlistId/tracks"), any()) } doReturn mockAddTracksResult
-        }
-
-        val observer = mock<Observer<Unit>>()
-
-        // Act
-        viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        verify(mockApiRepository).post(eq("users/$userId/playlists"), any())
-        verify(mockApiRepository).post(eq("playlists/$playlistId/tracks"), any())
+    mockApiRepository.stub {
+      // Mock getCurrentUserId response
+      onBlocking { get("me") } doReturn Result.success(JSONObject().apply { put("id", userId) })
+      // Mock createEmptySpotifyPlaylist response
+      onBlocking { post(eq("users/$userId/playlists"), any()) } doReturn
+          Result.success(createPlaylistResponse)
+      // Mock addTracksToPlaylist response
+      onBlocking { post(eq("playlists/$playlistId/tracks"), any()) } doReturn mockAddTracksResult
     }
 
-    @Test
-    fun `createBeatLinkPlaylist fails when user ID cannot be fetched`() = runTest {
-        // Arrange: Mock getCurrentUserId to return failure
-        val playlistName = "Test Playlist"
-        val playlistDescription = "A test playlist description"
-        val tracks = listOf(
+    val observer = mock<Observer<Unit>>()
+
+    // Act
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    verify(mockApiRepository).post(eq("users/$userId/playlists"), any())
+    verify(mockApiRepository).post(eq("playlists/$playlistId/tracks"), any())
+  }
+
+  @Test
+  fun `createBeatLinkPlaylist fails when user ID cannot be fetched`() = runTest {
+    // Arrange: Mock getCurrentUserId to return failure
+    val playlistName = "Test Playlist"
+    val playlistDescription = "A test playlist description"
+    val tracks =
+        listOf(
             SpotifyTrack("Track1", "Artist1", "track1_id", "", 0, 0, State.PAUSE),
-            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE)
-        )
+            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE))
 
-        val exception = Exception("Failed to fetch user ID")
-        mockApiRepository.stub {
-            onBlocking { get("me") } doReturn Result.failure(exception)
-        }
+    val exception = Exception("Failed to fetch user ID")
+    mockApiRepository.stub { onBlocking { get("me") } doReturn Result.failure(exception) }
 
-        val observer = mock<Observer<Unit>>()
+    val observer = mock<Observer<Unit>>()
 
-        // Act
-        viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    // Act
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
 
-        testDispatcher.scheduler.advanceUntilIdle()
+    testDispatcher.scheduler.advanceUntilIdle()
 
-        // Assert: Verify no further API calls were made
-        verify(mockApiRepository, never()).post(startsWith("users/"), any())
-        verify(mockApiRepository, never()).post(startsWith("playlists/"), any())
+    // Assert: Verify no further API calls were made
+    verify(mockApiRepository, never()).post(startsWith("users/"), any())
+    verify(mockApiRepository, never()).post(startsWith("playlists/"), any())
+  }
+
+  @Test
+  fun `createBeatLinkPlaylist fails when playlist creation fails`() = runTest {
+    // Arrange: Mock responses for getCurrentUserId and createEmptySpotifyPlaylist
+    val userId = "user123"
+    val playlistName = "Test Playlist"
+    val playlistDescription = "A test playlist description"
+    val tracks =
+        listOf(
+            SpotifyTrack("Track1", "Artist1", "track1_id", "", 0, 0, State.PAUSE),
+            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE))
+
+    mockApiRepository.stub {
+      // Mock getCurrentUserId response
+      onBlocking { get("me") } doReturn Result.success(JSONObject().apply { put("id", userId) })
+      // Mock createEmptySpotifyPlaylist response to fail
+      onBlocking { post(eq("users/$userId/playlists"), any()) } doReturn
+          Result.failure(Exception("Playlist creation failed"))
     }
 
-    @Test
-    fun `createBeatLinkPlaylist fails when playlist creation fails`() = runTest {
-        // Arrange: Mock responses for getCurrentUserId and createEmptySpotifyPlaylist
-        val userId = "user123"
-        val playlistName = "Test Playlist"
-        val playlistDescription = "A test playlist description"
-        val tracks = listOf(
-            SpotifyTrack("Track1", "Artist1", "track1_id", "", 0, 0, State.PAUSE),
-            SpotifyTrack("Track2", "Artist2", "track2_id", "", 0, 0, State.PAUSE)
-        )
+    val observer = mock<Observer<Unit>>()
 
-        mockApiRepository.stub {
-            // Mock getCurrentUserId response
-            onBlocking { get("me") } doReturn Result.success(JSONObject().apply { put("id", userId) })
-            // Mock createEmptySpotifyPlaylist response to fail
-            onBlocking { post(eq("users/$userId/playlists"), any()) } doReturn Result.failure(Exception("Playlist creation failed"))
-        }
+    // Act
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
 
-        val observer = mock<Observer<Unit>>()
+    testDispatcher.scheduler.advanceUntilIdle()
 
-        // Act
-        viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
-
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert: Verify addTracksToPlaylist is not called
-        verify(mockApiRepository).post(eq("users/$userId/playlists"), any())
-        verify(mockApiRepository, never()).post(startsWith("playlists/"), any())
-    }
+    // Assert: Verify addTracksToPlaylist is not called
+    verify(mockApiRepository).post(eq("users/$userId/playlists"), any())
+    verify(mockApiRepository, never()).post(startsWith("playlists/"), any())
+  }
 
   @Test
   fun `getPlaylistTracks fetches tracks successfully`() = runTest {
