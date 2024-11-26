@@ -90,7 +90,7 @@ fun AccountScreen(
                   Icons.AutoMirrored.Filled.ArrowForward)
               Spacer(modifier = Modifier.height(45.dp))
               SpotifyAuth(spotifyAuthViewModel)
-              Spacer(modifier = Modifier.height(205.dp))
+              Spacer(modifier = Modifier.height(165.dp))
               PrincipalButton(
                   "Delete account", "deleteAccountButton", true, onClick = { showDialog = true })
             }
@@ -119,21 +119,35 @@ fun AccountScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                firebaseAuthViewModel.deleteAccount(
-                    currentPassword = password,
-                    onSuccess = {
-                      profileViewModel.deleteProfile()
-                      navigationActions.navigateTo(Screen.WELCOME)
-                      Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
-                          .show()
-                      showDialog = false
-                    },
-                    onFailure = {
-                      Toast.makeText(
-                              context, "Account deletion failed: ${it.message}", Toast.LENGTH_SHORT)
-                          .show()
-                      showDialog = false // Close the dialog on failure
-                    })
+                val currentProfile = profileData
+
+                if (profileData != null) {
+                  profileViewModel.deleteProfile()
+                  firebaseAuthViewModel.deleteAccount(
+                      currentPassword = password,
+                      onSuccess = {
+                        navigationActions.navigateTo(Screen.WELCOME)
+                        Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
+                            .show()
+                        showDialog = false
+                      },
+                      onFailure = {
+                        profileViewModel.addProfile(currentProfile!!)
+                        Toast.makeText(
+                                context,
+                                "Account deletion failed: ${it.message}",
+                                Toast.LENGTH_SHORT)
+                            .show()
+                        showDialog = false
+                      })
+                } else {
+                  Toast.makeText(
+                          context,
+                          "Error: Unable to delete account. Missing user data.",
+                          Toast.LENGTH_SHORT)
+                      .show()
+                  showDialog = false
+                }
               }) {
                 Text("Confirm")
               }

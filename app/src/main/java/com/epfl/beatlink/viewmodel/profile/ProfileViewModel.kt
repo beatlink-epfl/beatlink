@@ -3,6 +3,7 @@ package com.epfl.beatlink.viewmodel.profile
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -74,10 +75,10 @@ open class ProfileViewModel(
   fun deleteProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
-      val success = repository.deleteProfile(userId)
-      if (success) {
-        _profile.value = null
-      }
+      repository.deleteProfile(
+          userId = userId,
+          onSuccess = { _profile.value = null },
+          onFailure = { exception -> Log.e("DELETE_PROFILE", "Error: ${exception.message}") })
     }
   }
 

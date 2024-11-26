@@ -69,14 +69,18 @@ open class ProfileRepositoryFirestore(
     }
   }
 
-  override suspend fun deleteProfile(userId: String): Boolean {
-    return try {
+  override suspend fun deleteProfile(
+      userId: String,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    try {
       db.collection(collection).document(userId).delete().await()
       Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
-      true
+      onSuccess()
     } catch (e: Exception) {
       Log.e("PROFILE_DELETE_ERROR", "Error deleting profile: ${e.message}")
-      false
+      onFailure(e)
     }
   }
 

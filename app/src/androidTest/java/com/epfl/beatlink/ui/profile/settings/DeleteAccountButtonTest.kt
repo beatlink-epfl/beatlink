@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -20,19 +21,17 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 class DeleteAccountButtonTest {
@@ -50,8 +49,20 @@ class DeleteAccountButtonTest {
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
-    authRepository = mock(FirebaseAuthRepository::class.java)
-    profileRepository = mock(ProfileRepository::class.java)
+    authRepository = mockk(relaxed = true)
+    profileRepository = mockk(relaxed = true)
+    every { profileRepository.getUserId() } returns "testUserId"
+    // Mock Profile Data
+    val mockProfile =
+        ProfileData(
+            username = "testUser",
+            email = "test@example.com",
+            bio = "Test Bio",
+            links = 0,
+            name = "Test Name",
+            profilePicture = null,
+            favoriteMusicGenres = listOf("Pop", "Rock"))
+    coEvery { profileRepository.fetchProfile("testUserId") } returns mockProfile
     authViewModel = FirebaseAuthViewModel(authRepository)
     profileViewModel = ProfileViewModel(profileRepository)
     val application = ApplicationProvider.getApplicationContext<Application>()
@@ -95,20 +106,23 @@ class DeleteAccountButtonTest {
   }
 
   @Test
-  fun deleteAccountDialog_performsAccountDeletion() = runTest {
+  fun deleteAccountDialog_confirmPerformsAccountDeletion() = runTest {
     // Mock `getUserId` to return a valid user ID
-    whenever(profileRepository.getUserId()).thenReturn("testUserId")
+    every { profileRepository.getUserId() } returns "testUserId"
 
-    // Simulate a successful account deletion
-    doAnswer { invocation ->
-          val onSuccess = invocation.getArgument<() -> Unit>(1)
-          onSuccess.invoke()
+    // Mock successful profile deletion
+    coEvery { profileRepository.deleteProfile(any(), any(), any()) } answers
+        {
+          val onSuccess = secondArg<() -> Unit>()
+          onSuccess()
         }
-        .whenever(authRepository)
-        .deleteAccount(any(), any(), any())
 
-    // Simulate successful profile deletion
-    whenever(profileRepository.deleteProfile("testUserId")).thenReturn(true)
+    // Mock successful account deletion
+    coEvery { authRepository.deleteAccount(any(), any(), any()) } answers
+        {
+          val onSuccess = secondArg<() -> Unit>()
+          onSuccess()
+        }
 
     // Perform click on the delete button
     composeTestRule
@@ -117,23 +131,38 @@ class DeleteAccountButtonTest {
         .performClick()
 
     composeTestRule.waitForIdle()
+
+    // Ensure dialog is displayed
     composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
 
     // Enter password
     composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
 
-    // Confirm deletion
+    // Click confirm
     composeTestRule.onNodeWithTag("confirmButton").performClick()
+
     composeTestRule.waitForIdle()
 
-    // Verify that deleteAccount is called on the auth repository
-    verify(authRepository).deleteAccount(any(), any(), any())
+    // Verify that deleteAccount is called with the correct parameters
+    coVerify {
+      authRepository.deleteAccount(
+          eq("testPassword"),
+          any(), // onSuccess callback
+          any() // onFailure callback
+          )
+    }
 
-    // Verify that deleteProfile is called on the profile repository with the correct user ID
-    verify(profileRepository).deleteProfile("testUserId")
+    // Verify that deleteProfile is called with the correct parameters
+    coVerify {
+      profileRepository.deleteProfile(
+          eq("testUserId"),
+          any(), // onSuccess callback
+          any() // onFailure callback
+          )
+    }
 
-    // Verify navigation to the login screen
-    io.mockk.verify { navigationActions.navigateTo(Screen.WELCOME) }
+    // Verify navigation to the WELCOME screen
+    verify { navigationActions.navigateTo(Screen.WELCOME) }
   }
 
   @Test
@@ -151,12 +180,12 @@ class DeleteAccountButtonTest {
     composeTestRule.onNodeWithTag("cancelButton").performClick()
 
     // Verify that deleteAccount is NOT called
-    verify(authRepository, times(0)).deleteAccount(any(), any(), any())
+    coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
 
     // Verify that deleteProfile is NOT called
-    verify(profileRepository, times(0)).deleteProfile(any())
+    coVerify(exactly = 0) { profileRepository.deleteProfile(any(), any(), any()) }
 
     // Verify no navigation to the login screen
-    io.mockk.verify(exactly = 0) { navigationActions.navigateTo(Screen.LOGIN) }
+    verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
   }
 }

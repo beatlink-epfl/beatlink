@@ -18,6 +18,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
@@ -209,12 +210,18 @@ class ProfileViewModelTest {
 
     `when`(mockRepository.getUserId()).thenReturn(userId)
     `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
-    `when`(mockRepository.deleteProfile(userId)).thenReturn(true)
+
+    // Mock deleteProfile to call onSuccess callback
+    doAnswer { invocation ->
+          val onSuccess = invocation.getArgument(1) as () -> Unit
+          onSuccess.invoke() // Simulate successful deletion
+          null
+        }
+        .`when`(mockRepository)
+        .deleteProfile(eq(userId), any(), any())
 
     viewModel.addProfile(existingProfile) // Adding an initial profile
-
-    // Advance time to let the coroutine run
-    advanceUntilIdle()
+    advanceUntilIdle() // Let the coroutine complete
 
     // Act
     viewModel.deleteProfile()
@@ -224,7 +231,7 @@ class ProfileViewModelTest {
 
     // Assert
     val actualProfile = viewModel.profile.value
-    assertEquals(null, actualProfile)
+    assertEquals(null, actualProfile) // The profile should be cleared
   }
 
   @Test
@@ -241,12 +248,18 @@ class ProfileViewModelTest {
 
     `when`(mockRepository.getUserId()).thenReturn(userId)
     `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
-    `when`(mockRepository.deleteProfile(userId)).thenReturn(false)
+
+    // Mock deleteProfile to call onFailure callback
+    doAnswer { invocation ->
+          val onFailure = invocation.getArgument(2) as (Exception) -> Unit
+          onFailure.invoke(Exception("Deletion failed")) // Simulate failure
+          null
+        }
+        .`when`(mockRepository)
+        .deleteProfile(eq(userId), any(), any())
 
     viewModel.addProfile(existingProfile) // Adding an initial profile
-
-    // Advance time to let the coroutine run
-    advanceUntilIdle()
+    advanceUntilIdle() // Let the coroutine complete
 
     // Act
     viewModel.deleteProfile()
@@ -256,7 +269,7 @@ class ProfileViewModelTest {
 
     // Assert
     val actualProfile = viewModel.profile.value
-    assertEquals(existingProfile, actualProfile)
+    assertEquals(existingProfile, actualProfile) // The profile should remain unchanged
   }
 
   @Test
