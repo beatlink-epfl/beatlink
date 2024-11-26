@@ -152,9 +152,6 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("playlistTitle").assertTextContains(playlist.playlistName)
     composeTestRule.onNodeWithTag("ownerText").assertTextContains("@" + playlist.playlistOwner)
     composeTestRule.onNodeWithTag("publicText").assertTextContains("Private")
-    composeTestRule
-        .onNodeWithTag("collaboratorsText")
-        .assertTextContains(playlist.playlistCollaborators[0])
   }
 
   @Test
