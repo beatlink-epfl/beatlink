@@ -3,8 +3,12 @@ package com.epfl.beatlink.viewmodel.profile
 import android.content.Context
 import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -15,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -295,4 +300,94 @@ class ProfileViewModelTest {
         verify(mockRepository).getUserId()
         verify(mockRepository, never()).uploadProfilePicture(any(), any(), any())
       }
+
+  @Test
+  fun `test searchUsers updates LiveData with search results`(): Unit = runTest {
+    // Arrange
+    val query = "john"
+    val mockUsers =
+        listOf(
+            ProfileData(
+                bio = "Bio 1",
+                links = 2,
+                name = "John Doe",
+                profilePicture = null,
+                username = "john_doe",
+                favoriteMusicGenres = listOf("Rock")),
+            ProfileData(
+                bio = "Bio 2",
+                links = 3,
+                name = "John Smith",
+                profilePicture = null,
+                username = "john_smith",
+                favoriteMusicGenres = listOf("Pop")))
+    `when`(mockRepository.searchUsers(query)).thenReturn(mockUsers)
+
+    // Act
+    viewModel.searchUsers(query)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val result = viewModel.searchResult.getOrAwaitValue() // Use a LiveData test helper
+    assertNotNull(result)
+    assertEquals(2, result.size)
+    assert(result.containsAll(mockUsers))
+  }
+
+  @Test
+  fun `test searchUsers updates LiveData with empty list when no matches found`() = runTest {
+    // Arrange
+    val query = "nonexistent"
+    `when`(mockRepository.searchUsers(query)).thenReturn(emptyList())
+
+    // Act
+    viewModel.searchUsers(query)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val result = viewModel.searchResult.getOrAwaitValue()
+    assertNotNull(result)
+    assert(result.isEmpty())
+  }
+
+  @Test
+  fun `test searchUsers updates LiveData with empty list on error`() = runTest {
+    // Arrange
+    val query = "john"
+    `when`(mockRepository.searchUsers(query)).thenThrow(RuntimeException("Mocked error"))
+
+    // Act
+    viewModel.searchUsers(query)
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    val result = viewModel.searchResult.getOrAwaitValue()
+    assertNotNull(result)
+    assert(result.isEmpty())
+  }
+}
+
+fun <T> LiveData<T>.getOrAwaitValue(): T {
+  var data: T? = null
+  val latch = CountDownLatch(1)
+
+  val observer =
+      object : Observer<T> {
+        override fun onChanged(value: T) {
+          data = value
+          latch.countDown()
+          this@getOrAwaitValue.removeObserver(this)
+        }
+      }
+
+  this.observeForever(observer)
+  latch.await(2, TimeUnit.SECONDS)
+
+  @Suppress("UNCHECKED_CAST") return data as T
 }
