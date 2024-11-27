@@ -1,31 +1,47 @@
 package com.epfl.beatlink.ui.library
 
+import android.app.Application
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.stub
 
 class LibraryScreenTest {
+
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
+  @Mock private lateinit var mockApplication: Application
+  @Mock private lateinit var mockApiRepository: SpotifyApiRepository
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
   private val playlist =
       Playlist(
@@ -40,16 +56,24 @@ class LibraryScreenTest {
           playlistTracks = emptyList(),
           nbTracks = 0)
 
-  @get:Rule val composeTestRule = createComposeRule()
-
   @Before
   fun setUp() {
+    MockitoAnnotations.openMocks(this)
+
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
+    mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
 
-    composeTestRule.setContent { LibraryScreen(navigationActions, playlistViewModel) }
+    composeTestRule.setContent {
+      LibraryScreen(
+          navigationActions,
+          playlistViewModel,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
   }
 
   @Test
@@ -111,7 +135,7 @@ class LibraryScreenTest {
   @Test
   fun playlistItemIsNotDisplayedWhenNoPlaylists() {
     // Mock `getPlaylists` to return an empty list
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf()) // Return an empty list
     }
 
@@ -124,20 +148,20 @@ class LibraryScreenTest {
 
   @Test
   fun playlistItemsAreDisplayed() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
   }
 
   @Test
   fun playlistItemsNavigatesToPlaylistOverview() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed().performClick()
     playlistViewModel.selectPlaylist(playlist)
@@ -145,29 +169,17 @@ class LibraryScreenTest {
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     org.mockito.kotlin
         .verify(navigationActions)
         .navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     org.mockito.kotlin
         .verify(navigationActions)
         .navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     org.mockito.kotlin
         .verify(navigationActions)

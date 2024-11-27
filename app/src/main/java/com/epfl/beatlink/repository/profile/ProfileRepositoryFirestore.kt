@@ -70,13 +70,13 @@ open class ProfileRepositoryFirestore(
   }
 
   override suspend fun deleteProfile(userId: String): Boolean {
-    return try {
+    try {
       db.collection(collection).document(userId).delete().await()
       Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
-      true
+      return true
     } catch (e: Exception) {
       Log.e("PROFILE_DELETE_ERROR", "Error deleting profile: ${e.message}")
-      false
+      return false
     }
   }
 
@@ -84,6 +84,29 @@ open class ProfileRepositoryFirestore(
     val userId = auth.currentUser?.uid
     Log.d("AUTH", "Current user ID: $userId") // Log user ID for debugging
     return userId
+  }
+
+  override suspend fun getUsername(userId: String): String? {
+    return try {
+      val docRef = db.collection(collection).document(userId).get().await()
+      val username = docRef.getString("username")
+      Log.d("GET_USERNAME", "Username retrieved successfully for user: $userId")
+      username
+    } catch (e: Exception) {
+      Log.e("GET_USERNAME_ERROR", "Error retrieving username: ${e.message}")
+      null
+    }
+  }
+
+  override suspend fun getUserIdByUsername(username: String): String? {
+    return try {
+      val docRef = db.collection(collection).whereEqualTo("username", username).get().await()
+      val userId = docRef.documents.first().id
+      userId
+    } catch (e: Exception) {
+      Log.e("GET_USERID_ERROR", "Error retrieving user ID: ${e.message}")
+      null
+    }
   }
 
   fun base64ToBitmap(base64: String): Bitmap? {

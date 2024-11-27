@@ -114,7 +114,7 @@ fun CreateNewPlaylistScreen(
             playlistIsPublic = it
           }
 
-          CollaboratorsSection(navigationActions, playlistCollab)
+          CollaboratorsSection(navigationActions, playlistCollab, onRemove = {})
 
           PrincipalButton("Create", "createPlaylist") {
             if (titleError || descriptionError) {
@@ -127,7 +127,7 @@ fun CreateNewPlaylistScreen(
                       playlistName = playlistTitle,
                       playlistDescription = playlistDescription,
                       playlistPublic = playlistIsPublic,
-                      userId = "",
+                      userId = playlistViewModel.getUserId() ?: "",
                       playlistOwner = profileData?.username ?: "",
                       playlistCollaborators = playlistCollab,
                       playlistTracks = emptyList(),
