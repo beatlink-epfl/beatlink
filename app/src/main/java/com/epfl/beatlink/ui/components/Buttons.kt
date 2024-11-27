@@ -119,7 +119,8 @@ fun VoteButton(
 
                 // Trigger the callback to update the playlist
                 onVoteChanged(spotifyTrack)
-              }.testTag("voteButton"),
+              }
+              .testTag("voteButton"),
   ) {
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),

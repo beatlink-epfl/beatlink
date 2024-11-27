@@ -8,17 +8,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
-import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
-import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,157 +22,154 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 
 class PlaylistOverviewScreenTest {
 
-    private lateinit var playlistRepository: PlaylistRepository
-    private lateinit var playlistViewModel: PlaylistViewModel
-    private lateinit var navigationActions: NavigationActions
+  private lateinit var playlistRepository: PlaylistRepository
+  private lateinit var playlistViewModel: PlaylistViewModel
+  private lateinit var navigationActions: NavigationActions
 
-    private val sampleTrack = SpotifyTrack(
-        name = "Test Track",
-        artist = "Test Artist",
-        trackId = "1",
-        cover = "",
-        duration = 200,
-        popularity = 50,
-        state = State.PAUSE,
-        likes = 5
-    )
+  private val sampleTrack =
+      SpotifyTrack(
+          name = "Test Track",
+          artist = "Test Artist",
+          trackId = "1",
+          cover = "",
+          duration = 200,
+          popularity = 50,
+          state = State.PAUSE,
+          likes = 5)
 
-    private val playlistWithTracks = Playlist(
-        playlistID = "1",
-        playlistCover = "",
-        playlistName = "Playlist with Tracks",
-        playlistDescription = "Test Playlist Description",
-        playlistPublic = true,
-        userId = "testUserId",
-        playlistOwner = "testOwner",
-        playlistCollaborators = listOf("collab1"),
-        playlistTracks = listOf(sampleTrack),
-        nbTracks = 1
-    )
+  private val playlistWithTracks =
+      Playlist(
+          playlistID = "1",
+          playlistCover = "",
+          playlistName = "Playlist with Tracks",
+          playlistDescription = "Test Playlist Description",
+          playlistPublic = true,
+          userId = "testUserId",
+          playlistOwner = "testOwner",
+          playlistCollaborators = listOf("collab1"),
+          playlistTracks = listOf(sampleTrack),
+          nbTracks = 1)
 
-    private val emptyPlaylist = Playlist(
-        playlistID = "2",
-        playlistCover = "",
-        playlistName = "Empty Playlist",
-        playlistDescription = "No tracks here",
-        playlistPublic = true,
-        userId = "testUserId",
-        playlistOwner = "testOwner",
-        playlistCollaborators = listOf(),
-        playlistTracks = emptyList(),
-        nbTracks = 0
-    )
+  private val emptyPlaylist =
+      Playlist(
+          playlistID = "2",
+          playlistCover = "",
+          playlistName = "Empty Playlist",
+          playlistDescription = "No tracks here",
+          playlistPublic = true,
+          userId = "testUserId",
+          playlistOwner = "testOwner",
+          playlistCollaborators = listOf(),
+          playlistTracks = emptyList(),
+          nbTracks = 0)
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createComposeRule()
 
-    @Before
-    fun setUp() {
-        playlistRepository = mock(PlaylistRepository::class.java)
-        playlistViewModel = PlaylistViewModel(playlistRepository)
-        navigationActions = mock(NavigationActions::class.java)
-        `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
+  @Before
+  fun setUp() {
+    playlistRepository = mock(PlaylistRepository::class.java)
+    playlistViewModel = PlaylistViewModel(playlistRepository)
+    navigationActions = mock(NavigationActions::class.java)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
+  }
+
+  @Test
+  fun playlistOverviewScreen_displaysPlaylistDetails() {
+    playlistViewModel.selectPlaylist(playlistWithTracks)
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
     }
 
-    @Test
-    fun playlistOverviewScreen_displaysPlaylistDetails() {
-        playlistViewModel.selectPlaylist(playlistWithTracks)
+    // Check playlist details are displayed
+    composeTestRule
+        .onNodeWithTag("playlistTitle")
+        .assertTextContains(playlistWithTracks.playlistName)
+    composeTestRule
+        .onNodeWithTag("ownerText")
+        .assertTextContains("@" + playlistWithTracks.playlistOwner)
+    composeTestRule.onNodeWithTag("publicText").assertTextContains("Public")
+  }
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel
-            )
-        }
+  @Test
+  fun playlistOverviewScreen_displaysTracksWhenNotEmpty() {
+    playlistViewModel.selectPlaylist(playlistWithTracks)
 
-        // Check playlist details are displayed
-        composeTestRule.onNodeWithTag("playlistTitle").assertTextContains(playlistWithTracks.playlistName)
-        composeTestRule.onNodeWithTag("ownerText").assertTextContains("@" + playlistWithTracks.playlistOwner)
-        composeTestRule.onNodeWithTag("publicText").assertTextContains("Public")
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
     }
 
-    @Test
-    fun playlistOverviewScreen_displaysTracksWhenNotEmpty() {
-        playlistViewModel.selectPlaylist(playlistWithTracks)
+    // Check track is displayed in TrackVoteCard
+    composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
+  }
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel
-            )
-        }
+  @Test
+  fun playlistOverviewScreen_displaysEmptyPromptWhenNoTracks() {
+    playlistViewModel.selectPlaylist(emptyPlaylist)
 
-        // Check track is displayed in TrackVoteCard
-        composeTestRule.onNodeWithTag("trackVoteCard").performScrollTo().assertIsDisplayed()
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
     }
 
-    @Test
-    fun playlistOverviewScreen_displaysEmptyPromptWhenNoTracks() {
-        playlistViewModel.selectPlaylist(emptyPlaylist)
+    // Check empty playlist prompt is displayed
+    composeTestRule.onNodeWithTag("emptyPlaylistPrompt").assertIsDisplayed()
+  }
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel
-            )
-        }
+  @Test
+  fun voteButton_updatesTrackLikes() {
+    playlistViewModel.selectPlaylist(playlistWithTracks)
 
-        // Check empty playlist prompt is displayed
-        composeTestRule.onNodeWithTag("emptyPlaylistPrompt").assertIsDisplayed()
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
     }
 
-    @Test
-    fun voteButton_updatesTrackLikes() {
-        playlistViewModel.selectPlaylist(playlistWithTracks)
+    // Perform click on the vote button
+    composeTestRule.onNodeWithTag("voteButton").performClick()
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel
-            )
-        }
+    // Verify the track likes are updated
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
+  }
 
-        // Perform click on the vote button
-        composeTestRule.onNodeWithTag("voteButton").performClick()
+  @Test
+  fun navigationButtons_workCorrectly() {
+    playlistViewModel.selectPlaylist(playlistWithTracks)
 
-        // Verify the track likes are updated
-        verify(playlistRepository).updatePlaylist(any(), any(), any())
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
     }
 
-    @Test
-    fun navigationButtons_workCorrectly() {
-        playlistViewModel.selectPlaylist(playlistWithTracks)
+    // Navigate to Home
+    composeTestRule.onNodeWithTag("Home").performClick()
+    verify(navigationActions).navigateTo(TopLevelDestinations.HOME)
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel
-            )
-        }
+    // Navigate to Search
+    composeTestRule.onNodeWithTag("Search").performClick()
+    verify(navigationActions).navigateTo(TopLevelDestinations.SEARCH)
 
-        // Navigate to Home
-        composeTestRule.onNodeWithTag("Home").performClick()
-        verify(navigationActions).navigateTo(TopLevelDestinations.HOME)
+    // Navigate to Library
+    composeTestRule.onNodeWithTag("Library").performClick()
+    verify(navigationActions).navigateTo(TopLevelDestinations.LIBRARY)
 
-        // Navigate to Search
-        composeTestRule.onNodeWithTag("Search").performClick()
-        verify(navigationActions).navigateTo(TopLevelDestinations.SEARCH)
-
-        // Navigate to Library
-        composeTestRule.onNodeWithTag("Library").performClick()
-        verify(navigationActions).navigateTo(TopLevelDestinations.LIBRARY)
-
-        // Navigate to Profile
-        composeTestRule.onNodeWithTag("Profile").performClick()
-        verify(navigationActions).navigateTo(TopLevelDestinations.PROFILE)
-    }
+    // Navigate to Profile
+    composeTestRule.onNodeWithTag("Profile").performClick()
+    verify(navigationActions).navigateTo(TopLevelDestinations.PROFILE)
+  }
 }
