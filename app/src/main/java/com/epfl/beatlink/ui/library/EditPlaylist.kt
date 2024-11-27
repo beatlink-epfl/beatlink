@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.library
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,13 +54,25 @@ fun EditPlaylistScreen(
   var playlistTitle by remember { mutableStateOf(selectedPlaylistState.playlistName) }
   var playlistDescription by remember { mutableStateOf(selectedPlaylistState.playlistDescription) }
   var playlistIsPublic by remember { mutableStateOf(selectedPlaylistState.playlistPublic) }
-  val playlistCollab by remember {
+  var playlistCollab by remember {
     mutableStateOf(selectedPlaylistState.playlistCollaborators)
   } // user IDs
   val coverImage by remember { mutableStateOf(selectedPlaylistState.playlistCover) }
 
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
+
+  val fetchedUsernames = mutableListOf<String>()
+  var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+
+  selectedPlaylistState.playlistCollaborators.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null) {
+        fetchedUsernames.add(username)
+      }
+      collabUsernames = fetchedUsernames.toList()
+    }
+  }
 
   Scaffold(
       modifier = Modifier.testTag("editPlaylistScreen"),
@@ -128,7 +141,23 @@ fun EditPlaylistScreen(
                 playlistIsPublic = newOption
               }
 
-              CollaboratorsSection(playlistCollab)
+              CollaboratorsSection(
+                  collabUsernames,
+                  onRemove = { usernameToRemove ->
+                    profileViewModel.getUserIdByUsername(
+                        username = usernameToRemove,
+                        onResult = { userIdToRemove ->
+                          if (userIdToRemove != null) {
+                            val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                            playlistCollab = updatedCollabList
+                            playlistViewModel.updateCollaborators(
+                                playlist = selectedPlaylistState, newCollabList = updatedCollabList)
+                            collabUsernames = collabUsernames.filter { it != usernameToRemove }
+                          } else {
+                            Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
+                          }
+                        })
+                  })
 
               PrincipalButton("Save", "saveEditPlaylist") {
                 if (titleError || descriptionError) {
@@ -148,7 +177,7 @@ fun EditPlaylistScreen(
                           nbTracks = selectedPlaylistState.nbTracks)
                   playlistViewModel.updatePlaylist(updatedPlaylist)
                   playlistViewModel.selectPlaylist(updatedPlaylist)
-                  navigationActions.navigateTo(PLAYLIST_OVERVIEW)
+                  navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
                 }
               }
             }

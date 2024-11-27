@@ -302,6 +302,81 @@ class ProfileViewModelTest {
       }
 
   @Test
+  fun `getUsername should return username when repository returns a username`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val expectedUsername = "testUsername"
+    val onResult: (String?) -> Unit = mock()
+
+    `when`(mockRepository.getUsername(userId)).thenReturn(expectedUsername)
+
+    // Act
+    val result = viewModel.getUsername(userId, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(mockRepository).getUsername(userId) // Verify repository method was called
+    verify(onResult).invoke(expectedUsername)
+  }
+
+  @Test
+  fun `getUsername should return null and log an error when repository throws an exception`() =
+      runTest {
+        // Arrange
+        val userId = "testUserId"
+        val exception = RuntimeException("Error fetching username")
+        val onResult: (String?) -> Unit = mock()
+
+        `when`(mockRepository.getUsername(userId)).thenThrow(exception)
+
+        // Act
+        val result = viewModel.getUsername(userId, onResult)
+        advanceUntilIdle()
+
+        // Assert
+        verify(mockRepository).getUsername(userId) // Verify repository method was called
+        verify(onResult).invoke(null)
+      }
+
+  @Test
+  fun `getUserIdByUsername should invoke onResult with user ID when repository returns user ID`() =
+      runTest {
+        val username = "testUsername"
+        val expectedUserId = "testUserId"
+        val onResult: (String?) -> Unit = mock() // Mock the callback
+
+        // Mock repository behavior
+        `when`(mockRepository.getUserIdByUsername(username)).thenReturn(expectedUserId)
+
+        // Act
+        viewModel.getUserIdByUsername(username, onResult)
+        advanceUntilIdle() // Advance the coroutine execution
+
+        // Assert
+        verify(mockRepository).getUserIdByUsername(username)
+        verify(onResult).invoke(expectedUserId)
+      }
+
+  @Test
+  fun `getUserIdByUsername should invoke onResult with null when repository throws an exception`() =
+      runTest {
+        val username = "testUsername"
+        val exception = RuntimeException("Firestore error")
+        val onResult: (String?) -> Unit = mock() // Mock the callback
+
+        // Mock repository behavior to throw an exception
+        `when`(mockRepository.getUserIdByUsername(username)).thenThrow(exception)
+
+        // Act
+        viewModel.getUserIdByUsername(username, onResult)
+        advanceUntilIdle() // Advance the coroutine execution
+
+        // Assert
+        verify(mockRepository).getUserIdByUsername(username)
+        verify(onResult).invoke(null)
+      }
+
+  @Test
   fun `test searchUsers updates LiveData with search results`(): Unit = runTest {
     // Arrange
     val query = "john"
