@@ -7,14 +7,14 @@ import androidx.compose.ui.graphics.Color
 val PrimaryRed = Color(0xFFEF3535)
 val SecondaryRed = Color(0x80EF3535) // label input
 val PrimaryPurple = Color(0xFF5F2A83)
+val SecondaryPurple = Color(0x805F2A83) // label input
 val PrimaryOrange = Color(0xFFFF7C1E)
 val PrimaryBlue = Color(0xFF35A1EF)
-val SecondaryPurple = Color(0x805F2A83) // label input
 
 // Define the vertical gradient brush
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 val IconsGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryPurple, PrimaryRed))
-val RedGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, SecondaryRed))
+val RedGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryRed))
 val PositiveGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryOrange, PrimaryRed))
 val NegativeGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryBlue, PrimaryPurple))
 

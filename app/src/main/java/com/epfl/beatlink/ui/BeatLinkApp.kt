@@ -121,7 +121,7 @@ fun BeatLinkApp(
         PublicPlaylistsScreen(navigationActions, playlistViewModel)
       }
       composable(Screen.PLAYLIST_OVERVIEW) {
-        PlaylistOverviewScreen(navigationActions, playlistViewModel)
+        PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
       }
     }
 

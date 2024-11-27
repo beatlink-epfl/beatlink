@@ -86,6 +86,29 @@ open class ProfileRepositoryFirestore(
     return userId
   }
 
+  override suspend fun getUsername(userId: String): String? {
+    return try {
+      val docRef = db.collection(collection).document(userId).get().await()
+      val username = docRef.getString("username")
+      Log.d("GET_USERNAME", "Username retrieved successfully for user: $userId")
+      username
+    } catch (e: Exception) {
+      Log.e("GET_USERNAME_ERROR", "Error retrieving username: ${e.message}")
+      null
+    }
+  }
+
+  override suspend fun getUserIdByUsername(username: String): String? {
+    return try {
+      val docRef = db.collection(collection).whereEqualTo("username", username).get().await()
+      val userId = docRef.documents.first().id
+      userId
+    } catch (e: Exception) {
+      Log.e("GET_USERID_ERROR", "Error retrieving user ID: ${e.message}")
+      null
+    }
+  }
+
   fun base64ToBitmap(base64: String): Bitmap? {
     return try {
       val bytes = Base64.decode(base64, Base64.DEFAULT)
@@ -166,5 +189,20 @@ open class ProfileRepositoryFirestore(
           }
         }
         .addOnFailureListener { onBitmapLoaded(null) }
+  }
+
+  override suspend fun searchUsers(query: String): List<ProfileData> {
+    return try {
+      val snapshot =
+          db.collection(collection)
+              .whereGreaterThanOrEqualTo("username", query)
+              .whereLessThanOrEqualTo("username", query + "\uf8ff")
+              .get()
+              .await()
+      snapshot.documents.mapNotNull { it.toObject(ProfileData::class.java) }
+    } catch (e: Exception) {
+      Log.e("SEARCH", "Error searching users: ${e.message}")
+      emptyList()
+    }
   }
 }

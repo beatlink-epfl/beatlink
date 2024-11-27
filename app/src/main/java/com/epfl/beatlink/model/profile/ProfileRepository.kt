@@ -14,6 +14,20 @@ interface ProfileRepository {
   fun getUserId(): String?
 
   /**
+   * Retrieve the username of the user given the userId.
+   *
+   * @return The username of the user, or `null` if no username found.
+   */
+  suspend fun getUsername(userId: String): String?
+
+  /**
+   * Retrieve the userId of the user.
+   *
+   * @return The userId, or `null` if no userId found.
+   */
+  suspend fun getUserIdByUsername(username: String): String?
+
+  /**
    * Fetch the profile data of a specific user.
    *
    * @param userId The unique identifier of the user.
@@ -64,4 +78,12 @@ interface ProfileRepository {
    * @param onBitmapLoaded A callback function that is called when the profile picture is loaded.
    */
   fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit)
+
+  /**
+   * Search for users based on a query string.
+   *
+   * @param query The search query.
+   * @return A list of [ProfileData] objects matching the search query.
+   */
+  suspend fun searchUsers(query: String): List<ProfileData>
 }

@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -38,6 +40,10 @@ open class ProfileViewModel(
   private val _profile = MutableStateFlow(initialProfile)
   val profile: StateFlow<ProfileData?>
     get() = _profile
+
+  private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
+  val searchResult: LiveData<List<ProfileData>>
+    get() = _searchResult
 
   fun fetchProfile() {
     val userId = repository.getUserId() ?: return
@@ -84,6 +90,42 @@ open class ProfileViewModel(
         _profile.value = null
       } else {
         Log.e("DELETE_PROFILE", "Error deleting profile")
+      }
+    }
+  }
+
+  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val username = repository.getUsername(userId)
+        onResult(username)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching username", e)
+        onResult(null)
+      }
+    }
+  }
+
+  fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userId = repository.getUserIdByUsername(username)
+        onResult(userId)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching user id", e)
+        onResult(null)
+      }
+    }
+  }
+
+  fun searchUsers(query: String) {
+    viewModelScope.launch {
+      try {
+        val profiles = repository.searchUsers(query)
+        _searchResult.value = profiles
+      } catch (e: Exception) {
+        Log.e("SEARCH_PROFILES", "Error searching profiles: ${e.message}")
+        _searchResult.value = emptyList()
       }
     }
   }
