@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -105,6 +106,41 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
     getOwnedPlaylists()
+  }
+
+  fun addTrack(track: SpotifyTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    selectedPlaylist_.value?.let { playlist ->
+      try {
+        val newTrackList = playlist.playlistTracks.toMutableList()
+        newTrackList.add(track)
+        val updatedPlaylist = playlist.copy(playlistTracks = newTrackList)
+
+        // Update the playlist and track count
+        updatePlaylist(updatedPlaylist)
+        updateTrackCount(updatedPlaylist, newTrackList.size)
+
+        // Call the success callback
+        onSuccess()
+      } catch (e: Exception) {
+        // Call the failure callback
+        onFailure(e)
+      }
+    }
+        ?: run {
+          // If no playlist is selected, trigger the failure callback with an exception
+          onFailure(IllegalStateException("No playlist selected"))
+        }
+  }
+
+  fun updateTrackLikes(updatedTrack: SpotifyTrack) {
+    selectedPlaylist_.value?.let { playlist ->
+      val updatedTracks =
+          playlist.playlistTracks.map { track ->
+            if (track.trackId == updatedTrack.trackId) updatedTrack else track
+          }
+      val updatedPlaylist = playlist.copy(playlistTracks = updatedTracks)
+      updatePlaylist(updatedPlaylist)
+    }
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {

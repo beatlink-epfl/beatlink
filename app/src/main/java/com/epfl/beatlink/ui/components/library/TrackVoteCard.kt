@@ -3,11 +3,9 @@ package com.epfl.beatlink.ui.components.library
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -22,12 +20,11 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.VoteButton
-import com.epfl.beatlink.ui.theme.NegativeGradientBrush
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
 
 @Composable
-fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
+fun TrackVoteCard(spotifyTrack: SpotifyTrack, onVoteChanged: (SpotifyTrack) -> Unit) {
   Card(
       modifier = Modifier.fillMaxSize().testTag("trackVoteCard"),
       colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
@@ -47,16 +44,12 @@ fun TrackVoteCard(spotifyTrack: SpotifyTrack) {
                 style = TypographySongs.titleMedium,
             )
           }
-
-          VoteButton(
-              NegativeGradientBrush,
-              MaterialTheme.colorScheme.primary,
-              painterResource(R.drawable.boring_face))
-          Spacer(Modifier.width(10.dp))
           VoteButton(
               PositiveGradientBrush,
               MaterialTheme.colorScheme.secondary,
-              painterResource(R.drawable.fire))
+              painterResource(R.drawable.fire),
+              spotifyTrack = spotifyTrack,
+              onVoteChanged = onVoteChanged)
         }
       }
 }

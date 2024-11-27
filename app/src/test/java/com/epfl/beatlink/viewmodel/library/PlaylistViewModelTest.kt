@@ -20,6 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
@@ -271,5 +272,94 @@ class PlaylistViewModelTest {
     // Assert: Verify both delete and refresh actions
     verify(playlistRepository).deletePlaylistById(eq(playlistID), any(), any())
     verify(playlistRepository).getOwnedPlaylists(any(), any())
+  }
+
+  @Test
+  fun addTrack_shouldAddTrackToSelectedPlaylist_andTriggerSuccessCallback() = runTest {
+    // Arrange
+    val selectedPlaylist = playlist2
+    playlistViewModel.selectPlaylist(selectedPlaylist)
+
+    val trackToAdd = song1.copy(trackId = "newTrack")
+    doAnswer { invocation ->
+          // Simulate successful update of playlist
+          val callback = invocation.arguments[1] as? () -> Unit
+          callback?.invoke()
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    doAnswer { invocation ->
+          // Simulate successful track count update
+          val callback = invocation.arguments[2] as? () -> Unit
+          callback?.invoke()
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylistTrackCount(any(), any(), any(), any())
+
+    // Act
+    var successCallbackInvoked = false
+    playlistViewModel.addTrack(
+        trackToAdd, onSuccess = { successCallbackInvoked = true }, onFailure = {})
+
+    // Assert
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
+    verify(playlistRepository)
+        .updatePlaylistTrackCount(any(), eq(2), any(), any()) // Total tracks = 2
+    assert(successCallbackInvoked) // Ensure success callback is called
+  }
+
+  @Test
+  fun addTrack_shouldNotAddTrack_whenNoPlaylistSelected_andTriggerFailureCallback() = runTest {
+    // Arrange
+    val trackToAdd = song1
+    var failureCallbackInvoked = false
+
+    // Act
+    playlistViewModel.addTrack(
+        trackToAdd, onSuccess = {}, onFailure = { failureCallbackInvoked = true })
+
+    // Assert
+    verify(playlistRepository, never()).updatePlaylist(any(), any(), any())
+    assert(failureCallbackInvoked) // Ensure failure callback is called
+  }
+
+  @Test
+  fun updateTrackLikes_shouldUpdateTrackLikes_andTriggerPlaylistUpdate() = runTest {
+    // Arrange
+    val selectedPlaylist = playlist2
+    playlistViewModel.selectPlaylist(selectedPlaylist)
+
+    val updatedTrack = song1.copy(likes = 10)
+    doAnswer { invocation ->
+          // Simulate successful update
+          val callback = invocation.arguments[1] as? () -> Unit
+          callback?.invoke()
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    // Act
+    playlistViewModel.updateTrackLikes(updatedTrack)
+
+    // Assert
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
+    Assert.assertTrue(
+        playlistViewModel.selectedPlaylist.value?.playlistTracks?.any { it.likes == 10 } ?: false)
+  }
+
+  @Test
+  fun updateTrackLikes_shouldDoNothing_whenNoPlaylistSelected() = runTest {
+    // Arrange
+    val updatedTrack = song1.copy(likes = 5)
+
+    // Act
+    playlistViewModel.updateTrackLikes(updatedTrack)
+
+    // Assert
+    verify(playlistRepository, never()).updatePlaylist(any(), any(), any())
   }
 }

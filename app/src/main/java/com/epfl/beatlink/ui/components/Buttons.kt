@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.primaryWhite
 
@@ -88,8 +88,14 @@ fun ViewDescriptionButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun VoteButton(gradient: Brush, color: Color, painter: Painter) {
-  var nbVote by remember { mutableIntStateOf(0) }
+fun VoteButton(
+    gradient: Brush,
+    color: Color,
+    painter: Painter,
+    spotifyTrack: SpotifyTrack,
+    onVoteChanged: (SpotifyTrack) -> Unit
+) {
+
   var isVoted by remember { mutableStateOf(false) }
 
   Box(
@@ -103,14 +109,17 @@ fun VoteButton(gradient: Brush, color: Color, painter: Painter) {
                       if (isVoted) gradient
                       else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent)))
               .clickable { // Handle click directly
+                // Handle vote changes
                 if (isVoted) {
-                  nbVote-- // Decrease vote count
-                  isVoted = false
+                  spotifyTrack.likes--
                 } else {
-                  nbVote++ // Increase vote count
-                  isVoted = true
+                  spotifyTrack.likes++
                 }
-              },
+                isVoted = !isVoted
+
+                // Trigger the callback to update the playlist
+                onVoteChanged(spotifyTrack)
+              }.testTag("voteButton"),
   ) {
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
@@ -119,7 +128,7 @@ fun VoteButton(gradient: Brush, color: Color, painter: Painter) {
           Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
           Spacer(modifier = Modifier.width(6.dp))
           Text(
-              text = nbVote.toString(),
+              text = spotifyTrack.likes.toString(),
               color = if (isVoted) MaterialTheme.colorScheme.primaryWhite else color,
               modifier = Modifier.testTag("nbVote"))
         }

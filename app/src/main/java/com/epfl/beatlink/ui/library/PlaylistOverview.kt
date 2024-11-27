@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +50,7 @@ import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
@@ -158,7 +160,8 @@ fun PlaylistOverviewScreen(
               if (isOwner || isCollab) {
                 FilledButton(
                     "Add to this playlist",
-                    "addToThisPlaylistButton") { /* Opens a page to add songs */}
+                    "addToThisPlaylistButton",
+                    onClick = { navigationActions.navigateTo(ADD_TRACK) })
                 Spacer(modifier = Modifier.height(16.dp))
               }
 
@@ -180,9 +183,15 @@ fun PlaylistOverviewScreen(
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                       modifier = Modifier.fillMaxSize()) {
                         // List of tracks
-                        items(1) { trackId ->
-                          // val track = playlistViewModel.getTrackById(trackId)
-                          TrackVoteCard(sample)
+                        playlistViewModel.selectedPlaylist.value?.let {
+                          items(it.playlistTracks) { track ->
+                            TrackVoteCard(
+                                spotifyTrack = track,
+                                onVoteChanged = { updatedTrack ->
+                                  // Update the playlist with the new track state
+                                  playlistViewModel.updateTrackLikes(updatedTrack)
+                                })
+                          }
                         }
                       }
                 }
