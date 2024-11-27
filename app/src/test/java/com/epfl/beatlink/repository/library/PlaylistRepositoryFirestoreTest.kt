@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
-import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
@@ -326,7 +325,7 @@ class PlaylistRepositoryFirestoreTest {
     `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
     `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
 
-    playlistRepositoryFirestore.getPlaylists(
+    playlistRepositoryFirestore.getOwnedPlaylists(
         onSuccess = { playlists ->
           println("Retrieved playlists: $playlists")
 
@@ -366,7 +365,7 @@ class PlaylistRepositoryFirestoreTest {
     `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
     `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
 
-    playlistRepositoryFirestore.getPlaylists(
+    playlistRepositoryFirestore.getOwnedPlaylists(
         onSuccess = { playlists ->
           println("Retrieved playlists: $playlists")
 
@@ -390,7 +389,7 @@ class PlaylistRepositoryFirestoreTest {
     `when`(mockCollectionReference.whereEqualTo(anyString(), any())).thenReturn(mockQuery)
     `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
 
-    playlistRepositoryFirestore.getPlaylists(
+    playlistRepositoryFirestore.getOwnedPlaylists(
         onSuccess = { fail("Success callback should not be called") },
         onFailure = { error -> assert(error == exception) })
 

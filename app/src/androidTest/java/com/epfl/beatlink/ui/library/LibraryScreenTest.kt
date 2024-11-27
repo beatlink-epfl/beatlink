@@ -135,7 +135,7 @@ class LibraryScreenTest {
   @Test
   fun playlistItemIsNotDisplayedWhenNoPlaylists() {
     // Mock `getPlaylists` to return an empty list
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf()) // Return an empty list
     }
 
@@ -148,20 +148,20 @@ class LibraryScreenTest {
 
   @Test
   fun playlistItemsAreDisplayed() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
   }
 
   @Test
   fun playlistItemsNavigatesToPlaylistOverview() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed().performClick()
     playlistViewModel.selectPlaylist(playlist)

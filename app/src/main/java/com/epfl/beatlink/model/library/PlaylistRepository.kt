@@ -11,10 +11,10 @@ interface PlaylistRepository {
   /** Retrieve the unique identifier (UID) of the currently authenticated user. */
   fun getUserId(): String?
 
-  /** Retrieves a list of playlists of the user from Firestore */
-  fun getPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
+  /** Retrieves a list of playlists of the current user from Firestore */
+  fun getOwnedPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
 
-  /** Retrieve a list of playlists of playlists that are shared with the user from Firestore */
+  /** Retrieve a list of playlists that are shared with the user from Firestore */
   fun getSharedPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
 
   /** Retrieves a list of public playlists from Firestore */

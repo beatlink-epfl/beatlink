@@ -118,7 +118,10 @@ class PlaylistRepositoryFirestore(
   }
 
   /** Retrieves a list of playlists of the user from Firestore */
-  override fun getPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit) {
+  override fun getOwnedPlaylists(
+      onSuccess: (List<Playlist>) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
     val docRef = db.collection(collectionPath).whereEqualTo("userId", userID)
     docRef
         .get()

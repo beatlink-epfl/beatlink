@@ -40,7 +40,7 @@ fun LibraryScreen(
 
   LaunchedEffect(Unit) { playlistViewModel.fetchData() }
 
-  val playlistListFlow by playlistViewModel.playlistList.collectAsState()
+  val playlistListFlow by playlistViewModel.ownedPlaylistList.collectAsState()
   val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
   val publicPlaylistListFlow by playlistViewModel.publicPlaylistList.collectAsState()
 

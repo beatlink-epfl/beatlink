@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
-  private val playlistList_ = MutableStateFlow<List<Playlist>>(emptyList())
-  val playlistList: StateFlow<List<Playlist>>
-    get() = playlistList_
+  private val ownedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val ownedPlaylistList: StateFlow<List<Playlist>>
+    get() = ownedPlaylistList_
 
   private val sharedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
   val sharedPlaylistList: StateFlow<List<Playlist>>
@@ -49,15 +49,15 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
   }
 
   fun fetchData() {
-    getPlaylists()
+    getOwnedPlaylists()
     getSharedPlaylists()
     getPublicPlaylists()
   }
 
-  fun getPlaylists() {
+  fun getOwnedPlaylists() {
     Log.d("PlaylistViewModel", "Fetching user playlists...")
-    repository.getPlaylists(
-        onSuccess = { playlistList_.value = it },
+    repository.getOwnedPlaylists(
+        onSuccess = { ownedPlaylistList_.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch user playlists", it) })
   }
 
@@ -86,7 +86,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
   fun addPlaylist(playlist: Playlist) {
     repository.addPlaylist(
         playlist,
-        onSuccess = { getPlaylists() },
+        onSuccess = { getOwnedPlaylists() },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to add playlist", e) })
   }
 
@@ -95,7 +95,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         playlist,
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update playlist", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 
   fun updateTrackCount(playlist: Playlist, newTrackCount: Int) {
@@ -104,7 +104,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         newTrackCount = newTrackCount,
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
@@ -113,7 +113,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         newCollabList,
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update collab list", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 
   fun deletePlaylist(playlistUID: String) {
@@ -121,6 +121,6 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         playlistUID,
         onSuccess = {},
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlist", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 }

@@ -5,7 +5,6 @@ import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
-import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -103,8 +102,8 @@ class PlaylistViewModelTest {
 
   @Test
   fun getPlaylistsCallsRepository() {
-    playlistViewModel.getPlaylists()
-    verify(playlistRepository).getPlaylists(any(), any())
+    playlistViewModel.getOwnedPlaylists()
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test
@@ -161,7 +160,7 @@ class PlaylistViewModelTest {
     playlistViewModel.addPlaylist(playlist)
 
     // Check that getPlaylists() was called after successful addition
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test
@@ -179,7 +178,7 @@ class PlaylistViewModelTest {
     // Check that the selected playlist is updated
     Assert.assertEquals(playlist2, playlistViewModel.selectedPlaylist.value)
     // Verify that getPlaylists() was called after update
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test
@@ -196,7 +195,7 @@ class PlaylistViewModelTest {
 
         playlistViewModel.updateCollaborators(playlist2, newCollabList)
 
-        verify(playlistRepository).getPlaylists(any(), any())
+        verify(playlistRepository).getOwnedPlaylists(any(), any())
       }
 
   @Test
@@ -211,7 +210,7 @@ class PlaylistViewModelTest {
 
     playlistViewModel.updateTrackCount(playlist, newTrackCount)
 
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test
@@ -271,6 +270,6 @@ class PlaylistViewModelTest {
 
     // Assert: Verify both delete and refresh actions
     verify(playlistRepository).deletePlaylistById(eq(playlistID), any(), any())
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 }
