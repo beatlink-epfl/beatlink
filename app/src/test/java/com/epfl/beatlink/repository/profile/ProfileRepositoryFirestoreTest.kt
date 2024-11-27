@@ -18,6 +18,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.UploadTask
@@ -53,6 +54,7 @@ class ProfileRepositoryFirestoreTest {
   private lateinit var mockUploadTask: UploadTask
   private lateinit var mockUri: Uri
   private lateinit var mockContext: Context
+  private lateinit var mockQuery: Query
 
   @Mock private lateinit var mockQuerySnapshot: QuerySnapshot
 
@@ -72,6 +74,7 @@ class ProfileRepositoryFirestoreTest {
     mockUploadTask = mock(UploadTask::class.java)
     mockUri = mock(Uri::class.java)
     mockContext = mock(Context::class.java)
+    mockQuery = mock(Query::class.java)
 
     // Setup mock behavior for collection and document references
     `when`(mockDb.collection("userProfiles")).thenReturn(mockCollectionReference)
@@ -403,6 +406,7 @@ class ProfileRepositoryFirestoreTest {
     }
   }
 
+  @Suppress("UNCHECKED_CAST")
   @Test
   fun `saveProfilePictureBase64 saves base64 image successfully`() {
     // Arrange
@@ -454,6 +458,7 @@ class ProfileRepositoryFirestoreTest {
     verify(mockTask).addOnSuccessListener(any())
   }
 
+  @Suppress("UNCHECKED_CAST")
   @Test
   fun `saveProfilePictureBase64 handles failure`() {
     // Arrange
@@ -580,5 +585,85 @@ class ProfileRepositoryFirestoreTest {
 
     // Assert
     assertNull(result)
+  }
+
+  @Test
+  fun `test searchUsers returns list of matching users`() = runBlocking {
+    // Arrange
+    val query = "john"
+    val mockSnapshot = mock(QuerySnapshot::class.java)
+    val mockDocument1 = mock(DocumentSnapshot::class.java)
+    val mockDocument2 = mock(DocumentSnapshot::class.java)
+
+    val user1 =
+        ProfileData(
+            bio = "Bio 1",
+            links = 2,
+            name = "John Doe",
+            profilePicture = null,
+            username = "john_doe",
+            favoriteMusicGenres = listOf("Rock"))
+    val user2 =
+        ProfileData(
+            bio = "Bio 2",
+            links = 3,
+            name = "John Smith",
+            profilePicture = null,
+            username = "john_smith",
+            favoriteMusicGenres = listOf("Pop"))
+
+    `when`(mockDocument1.toObject(ProfileData::class.java)).thenReturn(user1)
+    `when`(mockDocument2.toObject(ProfileData::class.java)).thenReturn(user2)
+    `when`(mockSnapshot.documents).thenReturn(listOf(mockDocument1, mockDocument2))
+    `when`(mockCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockSnapshot))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assertEquals(2, result.size)
+    assert(result.contains(user1))
+    assert(result.contains(user2))
+  }
+
+  @Test
+  fun `test searchUsers returns empty list when no matches found`() = runBlocking {
+    // Arrange
+    val query = "nonexistent"
+    val mockSnapshot = mock(QuerySnapshot::class.java)
+
+    `when`(mockSnapshot.documents).thenReturn(emptyList())
+    `when`(mockCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockSnapshot))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assert(result.isEmpty())
+  }
+
+  @Test
+  fun `test searchUsers returns empty list on error`() = runBlocking {
+    // Arrange
+    val query = "john"
+    `when`(mockCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(Exception("Firestore error")))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assert(result.isEmpty())
   }
 }

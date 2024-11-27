@@ -78,4 +78,12 @@ interface ProfileRepository {
    * @param onBitmapLoaded A callback function that is called when the profile picture is loaded.
    */
   fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit)
+
+  /**
+   * Search for users based on a query string.
+   *
+   * @param query The search query.
+   * @return A list of [ProfileData] objects matching the search query.
+   */
+  suspend fun searchUsers(query: String): List<ProfileData>
 }
