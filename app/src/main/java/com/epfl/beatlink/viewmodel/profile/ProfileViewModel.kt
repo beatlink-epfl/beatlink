@@ -83,6 +83,30 @@ open class ProfileViewModel(
     }
   }
 
+  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val username = repository.getUsername(userId)
+        onResult(username)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching username", e)
+        onResult(null)
+      }
+    }
+  }
+
+  fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userId = repository.getUserIdByUsername(username)
+        onResult(userId)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching user id", e)
+        onResult(null)
+      }
+    }
+  }
+
   // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =

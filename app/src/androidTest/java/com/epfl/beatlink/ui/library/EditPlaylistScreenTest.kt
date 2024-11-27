@@ -13,6 +13,7 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
+import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -152,30 +153,23 @@ class EditPlaylistScreenTest {
   @Test
   fun updatePlaylistButtonWorks() {
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
-
     verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun testNavigationAfterPlaylistUpdate() {
+    composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
+    verify(navigationActions).navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
+  }
+
+  @Test
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }

@@ -3,10 +3,14 @@ package com.epfl.beatlink.ui.library
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,7 +38,9 @@ fun LibraryScreen(
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-  val playlistListFlow by playlistViewModel.playlistList.collectAsState()
+  LaunchedEffect(Unit) { playlistViewModel.fetchData() }
+
+  val playlistListFlow by playlistViewModel.ownedPlaylistList.collectAsState()
   val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
   val publicPlaylistListFlow by playlistViewModel.publicPlaylistList.collectAsState()
 
@@ -61,14 +67,17 @@ fun LibraryScreen(
       },
       content = { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
+            modifier =
+                Modifier.padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
           // MY PLAYLISTS
           TitleWithArrow("MY PLAYLISTS") { navigationActions.navigateTo(Screen.MY_PLAYLISTS) }
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth()) {
+              modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
                 items(playlistListFlow.size) { i ->
                   PlaylistCard(playlistListFlow[i], navigationActions, playlistViewModel)
                 }
@@ -80,7 +89,7 @@ fun LibraryScreen(
           }
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth()) {
+              modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
                 items(sharedPlaylistListFlow.size) { i ->
                   PlaylistCard(sharedPlaylistListFlow[i], navigationActions, playlistViewModel)
                 }
@@ -90,7 +99,7 @@ fun LibraryScreen(
           TitleWithArrow("PUBLIC") { navigationActions.navigateTo(Screen.PUBLIC_PLAYLISTS) }
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(16.dp),
-              modifier = Modifier.fillMaxWidth()) {
+              modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)) {
                 items(publicPlaylistListFlow.size) { i ->
                   PlaylistCard(publicPlaylistListFlow[i], navigationActions, playlistViewModel)
                 }

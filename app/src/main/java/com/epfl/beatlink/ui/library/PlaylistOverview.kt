@@ -26,6 +26,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -48,15 +52,32 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun PlaylistOverviewScreen(
     navigationActions: NavigationActions,
+    profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
   val selectedPlaylistState =
       playlistViewModel.selectedPlaylist.collectAsState().value
           ?: return Text("No Playlist selected.")
+
+  val isOwner = selectedPlaylistState.userId == playlistViewModel.getUserId()
+  val isCollab = selectedPlaylistState.playlistCollaborators.contains(playlistViewModel.getUserId())
+
+  val fetchedUsernames = mutableListOf<String>()
+  var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+
+  selectedPlaylistState.playlistCollaborators.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null) {
+        fetchedUsernames.add(username)
+      }
+      collabUsernames = fetchedUsernames.toList()
+    }
+  }
 
   val sample =
       SpotifyTrack(
@@ -75,7 +96,7 @@ fun PlaylistOverviewScreen(
             selectedPlaylistState.playlistName,
             "playlistName",
             navigationActions,
-            listOf { EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
+            listOf { if (isOwner) EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
       },
       bottomBar = {
         BottomNavigationMenu(
@@ -91,9 +112,9 @@ fun PlaylistOverviewScreen(
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Row(
-                  horizontalArrangement = Arrangement.spacedBy(46.dp),
+                  horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
-                      Modifier.padding(vertical = 16.dp, horizontal = 50.dp).height(122.dp)) {
+                      Modifier.padding(top = 14.dp, bottom = 14.dp, start = 30.dp).height(150.dp)) {
                     // Cover image
                     Card(
                         modifier = Modifier.testTag("playlistCoverCard"),
@@ -101,7 +122,7 @@ fun PlaylistOverviewScreen(
                           Image(
                               painter = painterResource(id = R.drawable.cover_test1), // TODO
                               contentDescription = "Playlist cover",
-                              modifier = Modifier.size(121.dp))
+                              modifier = Modifier.size(150.dp))
                         }
 
                     // Playlist details
@@ -120,7 +141,7 @@ fun PlaylistOverviewScreen(
                               Icons.Outlined.AccountCircle,
                               TypographyPlaylist.headlineMedium)
                           IconWithText(
-                              selectedPlaylistState.playlistCollaborators.joinToString(", "),
+                              collabUsernames.joinToString(", "),
                               "collaboratorsText",
                               collab,
                               TypographyPlaylist.headlineSmall)
@@ -134,13 +155,19 @@ fun PlaylistOverviewScreen(
                         }
                   }
               Spacer(modifier = Modifier.height(16.dp))
-              FilledButton(
-                  "Add to this playlist",
-                  "addToThisPlaylistButton") { /* Opens a page to add songs */}
-              Spacer(modifier = Modifier.height(16.dp))
-              PrincipalButton(
-                  "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
-              Spacer(modifier = Modifier.height(16.dp))
+              if (isOwner || isCollab) {
+                FilledButton(
+                    "Add to this playlist",
+                    "addToThisPlaylistButton") { /* Opens a page to add songs */}
+                Spacer(modifier = Modifier.height(16.dp))
+              }
+
+              if (isOwner) {
+                PrincipalButton(
+                    "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
+                Spacer(modifier = Modifier.height(16.dp))
+              }
+
               if (selectedPlaylistState.nbTracks == 0) {
                 Text(
                     text = "NO SONGS ADDED",

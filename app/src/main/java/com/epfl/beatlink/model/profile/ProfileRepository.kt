@@ -14,6 +14,20 @@ interface ProfileRepository {
   fun getUserId(): String?
 
   /**
+   * Retrieve the username of the user given the userId.
+   *
+   * @return The username of the user, or `null` if no username found.
+   */
+  suspend fun getUsername(userId: String): String?
+
+  /**
+   * Retrieve the userId of the user.
+   *
+   * @return The userId, or `null` if no userId found.
+   */
+  suspend fun getUserIdByUsername(username: String): String?
+
+  /**
    * Fetch the profile data of a specific user.
    *
    * @param userId The unique identifier of the user.
