@@ -11,8 +11,8 @@ import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 
 @Suppress("UNCHECKED_CAST")
 /**
@@ -31,6 +31,29 @@ open class ProfileRepositoryFirestore(
     val userId = auth.currentUser?.uid
     Log.d("AUTH", "Current user ID: $userId") // Log user ID for debugging
     return userId
+  }
+
+  override suspend fun getUsername(userId: String): String? {
+    return try {
+      val docRef = db.collection(collection).document(userId).get().await()
+      val username = docRef.getString("username")
+      Log.d("GET_USERNAME", "Username retrieved successfully for user: $userId")
+      username
+    } catch (e: Exception) {
+      Log.e("GET_USERNAME_ERROR", "Error retrieving username: ${e.message}")
+      null
+    }
+  }
+
+  override suspend fun getUserIdByUsername(username: String): String? {
+    return try {
+      val docRef = db.collection(collection).whereEqualTo("username", username).get().await()
+      val userId = docRef.documents.first().id
+      userId
+    } catch (e: Exception) {
+      Log.e("GET_USERID_ERROR", "Error retrieving user ID: ${e.message}")
+      null
+    }
   }
 
   override suspend fun fetchProfile(userId: String): ProfileData? {
@@ -56,13 +79,14 @@ open class ProfileRepositoryFirestore(
   override suspend fun addProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
-        // Add profile to `userProfiles` collection
-        transaction.set(db.collection(collection).document(userId), profileData)
+            // Add profile to `userProfiles` collection
+            transaction.set(db.collection(collection).document(userId), profileData)
 
-        // Add the username to the `usernames` collection
-        val usernameDocRef = db.collection("usernames").document(profileData.username)
-        transaction.set(usernameDocRef, mapOf<String, Any>())
-      }.await()
+            // Add the username to the `usernames` collection
+            val usernameDocRef = db.collection("usernames").document(profileData.username)
+            transaction.set(usernameDocRef, mapOf<String, Any>())
+          }
+          .await()
       Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -74,24 +98,25 @@ open class ProfileRepositoryFirestore(
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
-        // Update user profile
-        val profileDocRef = db.collection(collection).document(userId)
-        transaction.set(profileDocRef, profileData)
+            // Update user profile
+            val profileDocRef = db.collection(collection).document(userId)
+            transaction.set(profileDocRef, profileData)
 
-        // Get the current username from the profile
-        val userSnapshot = transaction.get(profileDocRef)
-        val currentUsername = userSnapshot.getString("username")
+            // Get the current username from the profile
+            val userSnapshot = transaction.get(profileDocRef)
+            val currentUsername = userSnapshot.getString("username")
 
-        // Check if the username has changed
-        if (currentUsername != null && currentUsername != profileData.username) {
-          // Delete the current username
-          transaction.delete(db.collection("usernames").document(currentUsername))
+            // Check if the username has changed
+            if (currentUsername != null && currentUsername != profileData.username) {
+              // Delete the current username
+              transaction.delete(db.collection("usernames").document(currentUsername))
 
-          // Add the new username
-          val newUsernameDocRef = db.collection("usernames").document(profileData.username)
-          transaction.set(newUsernameDocRef, mapOf<String, Any>())
-        }
-      }.await()
+              // Add the new username
+              val newUsernameDocRef = db.collection("usernames").document(profileData.username)
+              transaction.set(newUsernameDocRef, mapOf<String, Any>())
+            }
+          }
+          .await()
       Log.d("PROFILE_UPDATE", "Profile and username updated successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -103,19 +128,20 @@ open class ProfileRepositoryFirestore(
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
       db.runTransaction { transaction ->
-        // Delete the user profile
-        val profileDocRef = db.collection(collection).document(userId)
-        transaction.delete(profileDocRef)
+            // Delete the user profile
+            val profileDocRef = db.collection(collection).document(userId)
+            transaction.delete(profileDocRef)
 
-        // Fetch the username from the profile
-        val userSnapshot = transaction.get(profileDocRef)
-        val username = userSnapshot.getString("username")
-        if (username != null) {
-          // Delete the username
-          val usernameDocRef = db.collection("usernames").document(username)
-          transaction.delete(usernameDocRef)
-        }
-      }.await()
+            // Fetch the username from the profile
+            val userSnapshot = transaction.get(profileDocRef)
+            val username = userSnapshot.getString("username")
+            if (username != null) {
+              // Delete the username
+              val usernameDocRef = db.collection("usernames").document(username)
+              transaction.delete(usernameDocRef)
+            }
+          }
+          .await()
       Log.d("PROFILE_DELETE", "Profile and username deleted successfully for user: $userId")
       true
     } catch (e: Exception) {
@@ -167,6 +193,21 @@ open class ProfileRepositoryFirestore(
     }
   }
 
+  override suspend fun searchUsers(query: String): List<ProfileData> {
+    return try {
+      val snapshot =
+          db.collection(collection)
+              .whereGreaterThanOrEqualTo("username", query)
+              .whereLessThanOrEqualTo("username", query + "\uf8ff")
+              .get()
+              .await()
+      snapshot.documents.mapNotNull { it.toObject(ProfileData::class.java) }
+    } catch (e: Exception) {
+      Log.e("SEARCH", "Error searching users: ${e.message}")
+      emptyList()
+    }
+  }
+
   /**
    * Resize and compress an image from a URI and convert it to a Base64-encoded string.
    *
@@ -174,17 +215,17 @@ open class ProfileRepositoryFirestore(
    * @param context The application context.
    * @param maxWidth The maximum width for resizing the image (default is 512 pixels).
    * @param maxHeight The maximum height for resizing the image (default is 512 pixels).
-   * @param quality The quality level for JPEG compression, ranging from 0 to 100
-   *                (default is 80, where 100 is maximum quality).
-   * @return A Base64-encoded string representing the resized and compressed image,
-   *         or `null` if the operation fails.
+   * @param quality The quality level for JPEG compression, ranging from 0 to 100 (default is 80,
+   *   where 100 is maximum quality).
+   * @return A Base64-encoded string representing the resized and compressed image, or `null` if the
+   *   operation fails.
    */
   fun resizeAndCompressImageFromUri(
-    uri: Uri,
-    context: Context,
-    maxWidth: Int = 512,
-    maxHeight: Int = 512,
-    quality: Int = 80
+      uri: Uri,
+      context: Context,
+      maxWidth: Int = 512,
+      maxHeight: Int = 512,
+      quality: Int = 80
   ): String? {
     return try {
       val contentResolver = context.contentResolver
@@ -195,15 +236,15 @@ open class ProfileRepositoryFirestore(
       // Resize the bitmap
       val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
       val resizedBitmap =
-        if (aspectRatio > 1) {
-          // Landscape image
-          Bitmap.createScaledBitmap(
-            originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
-        } else {
-          // Portrait image
-          Bitmap.createScaledBitmap(
-            originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
-        }
+          if (aspectRatio > 1) {
+            // Landscape image
+            Bitmap.createScaledBitmap(
+                originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
+          } else {
+            // Portrait image
+            Bitmap.createScaledBitmap(
+                originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
+          }
 
       // Compress the resized bitmap
       val outputStream = ByteArrayOutputStream()

@@ -12,9 +12,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
-  private val playlistList_ = MutableStateFlow<List<Playlist>>(emptyList())
-  val playlistList: StateFlow<List<Playlist>>
-    get() = playlistList_
+  private val ownedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val ownedPlaylistList: StateFlow<List<Playlist>>
+    get() = ownedPlaylistList_
+
+  private val sharedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val sharedPlaylistList: StateFlow<List<Playlist>>
+    get() = sharedPlaylistList_
+
+  private val publicPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  val publicPlaylistList: StateFlow<List<Playlist>>
+    get() = publicPlaylistList_
 
   private val selectedPlaylist_ = MutableStateFlow<Playlist?>(null)
   val selectedPlaylist: StateFlow<Playlist?>
@@ -33,11 +41,38 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
 
   // Initialization block that runs when ViewModel is created
   init {
-    repository.init(onSuccess = { getPlaylists() })
+    repository.init(onSuccess = { fetchData() })
   }
 
-  fun getPlaylists() {
-    repository.getPlaylists(onSuccess = { playlistList_.value = it }, onFailure = {})
+  fun getUserId(): String? {
+    return repository.getUserId()
+  }
+
+  fun fetchData() {
+    getOwnedPlaylists()
+    getSharedPlaylists()
+    getPublicPlaylists()
+  }
+
+  fun getOwnedPlaylists() {
+    Log.d("PlaylistViewModel", "Fetching user playlists...")
+    repository.getOwnedPlaylists(
+        onSuccess = { ownedPlaylistList_.value = it },
+        onFailure = { Log.e("PlaylistViewModel", "Failed to fetch user playlists", it) })
+  }
+
+  fun getSharedPlaylists() {
+    Log.d("PlaylistViewModel", "Fetching shared playlists...")
+    repository.getSharedPlaylists(
+        onSuccess = { sharedPlaylistList_.value = it },
+        onFailure = { Log.e("PlaylistViewModel", "Failed to fetch shared playlists", it) })
+  }
+
+  fun getPublicPlaylists() {
+    Log.d("PlaylistViewModel", "Fetching public playlists...")
+    repository.getPublicPlaylists(
+        onSuccess = { publicPlaylistList_.value = it },
+        onFailure = { Log.e("PlaylistViewModel", "Failed to fetch public playlists", it) })
   }
 
   fun getNewUid(): String {
@@ -51,7 +86,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
   fun addPlaylist(playlist: Playlist) {
     repository.addPlaylist(
         playlist,
-        onSuccess = { getPlaylists() },
+        onSuccess = { getOwnedPlaylists() },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to add playlist", e) })
   }
 
@@ -60,15 +95,25 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         playlist,
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update playlist", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 
   fun updateTrackCount(playlist: Playlist, newTrackCount: Int) {
     repository.updatePlaylistTrackCount(
         playlist = playlist,
         newTrackCount = newTrackCount,
-        onSuccess = { getPlaylists() },
+        onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
+    getOwnedPlaylists()
+  }
+
+  fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
+    repository.updatePlaylistCollaborators(
+        playlist,
+        newCollabList,
+        onSuccess = { selectedPlaylist_.value = playlist },
+        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update collab list", e) })
+    getOwnedPlaylists()
   }
 
   fun deletePlaylist(playlistUID: String) {
@@ -76,6 +121,6 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         playlistUID,
         onSuccess = {},
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlist", e) })
-    getPlaylists()
+    getOwnedPlaylists()
   }
 }

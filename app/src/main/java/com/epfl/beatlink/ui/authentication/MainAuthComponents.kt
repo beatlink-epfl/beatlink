@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,7 +24,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.auth.AuthState
-import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.components.BackArrowButton
 import com.epfl.beatlink.ui.theme.PrimaryRed
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 
@@ -34,15 +32,8 @@ import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 @Composable
 fun AuthTopAppBar(navigationAction: () -> Unit) {
   TopAppBar(
-      title = { BeatLinkTopLogo(Modifier.padding(end = 36.dp)) },
-      navigationIcon = {
-        CornerIcons(
-            onClick = navigationAction,
-            icon = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Go back",
-            modifier = Modifier.testTag("goBackButton"),
-            iconSize = 30.dp)
-      })
+      title = { BeatLinkTopLogo(Modifier.padding(end = 46.dp)) },
+      navigationIcon = { BackArrowButton { navigationAction() } })
 }
 
 @Composable

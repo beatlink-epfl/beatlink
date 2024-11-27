@@ -4,6 +4,8 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,7 +19,7 @@ class PlaylistRepositoryFirestore(
   private val collectionPath = "playlists"
   private var userID = ""
 
-  // helper function to convert DocumentSnapShot to Playlist
+  /** helper function to convert DocumentSnapShot to Playlist */
   fun documentToPlaylist(doc: DocumentSnapshot): Playlist {
     val playlistID: String = doc.getString("playlistID") ?: ""
     val playlistName: String = doc.getString("playlistName") ?: ""
@@ -28,7 +30,23 @@ class PlaylistRepositoryFirestore(
     val playlistOwner: String = doc.getString("playlistOwner") ?: ""
     val playlistCollaborators: List<String> =
         doc.get("playlistCollaborators") as? List<String> ?: emptyList()
-    val playlistSongs: List<String> = doc.get("playlistSongs") as? List<String> ?: emptyList()
+    val playlistTracks: List<SpotifyTrack> =
+        (doc.get("playlistTracks") as? List<Map<String, Any>>)?.mapNotNull { trackData ->
+          try {
+            SpotifyTrack(
+                name = trackData["name"] as? String ?: "",
+                artist = trackData["artist"] as? String ?: "",
+                trackId = trackData["trackId"] as? String ?: "",
+                cover = trackData["cover"] as? String ?: "",
+                duration = (trackData["duration"] as? Long)?.toInt() ?: 0,
+                popularity = (trackData["popularity"] as? Long)?.toInt() ?: 0,
+                state = State.valueOf(trackData["state"] as? String ?: State.PAUSE.toString()),
+                likes = (trackData["likes"] as? Long)?.toInt() ?: 0)
+          } catch (e: Exception) {
+            Log.e("documentToPlaylist", "Error mapping SpotifyTrack: $trackData", e)
+            null
+          }
+        } ?: emptyList()
 
     return Playlist(
         playlistID = playlistID,
@@ -39,8 +57,39 @@ class PlaylistRepositoryFirestore(
         userId = userId,
         playlistOwner = playlistOwner,
         playlistCollaborators = playlistCollaborators,
-        playlistTracks = playlistSongs,
-        nbTracks = playlistSongs.size)
+        playlistTracks = playlistTracks,
+        nbTracks = playlistTracks.size)
+  }
+
+  /** Helper function: Storing the SpotifyTrack in Firestore */
+  fun spotifyTrackToMap(track: SpotifyTrack): Map<String, Any> {
+    return mapOf(
+        "name" to track.name,
+        "artist" to track.artist,
+        "trackId" to track.trackId,
+        "cover" to track.cover,
+        "duration" to track.duration,
+        "popularity" to track.popularity,
+        "state" to track.state.name, // Convert enum to string
+        "likes" to track.likes)
+  }
+
+  /** Helper function: Convert Playlist to a Map for Firestore */
+  fun playlistToMap(playlist: Playlist): Map<String, Any> {
+    return mapOf(
+        "playlistID" to playlist.playlistID,
+        "playlistCover" to playlist.playlistCover,
+        "playlistName" to playlist.playlistName,
+        "playlistDescription" to playlist.playlistDescription,
+        "playlistPublic" to playlist.playlistPublic,
+        "userId" to playlist.userId,
+        "playlistOwner" to playlist.playlistOwner,
+        "playlistCollaborators" to playlist.playlistCollaborators,
+        "playlistTracks" to
+            playlist.playlistTracks.map {
+              spotifyTrackToMap(it)
+            }, // Convert each SpotifyTrack to a map
+        "nbTracks" to playlist.nbTracks)
   }
 
   /** Generates and returns a new unique ID for a playlist item */
@@ -61,8 +110,18 @@ class PlaylistRepositoryFirestore(
     }
   }
 
-  /** Retrieves a list of playlists from Firestore */
-  override fun getPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit) {
+  override fun getUserId(): String? {
+    val userId = auth.currentUser?.uid
+    Log.d("AUTH", "Current user ID: $userId")
+    userID = userId ?: ""
+    return userId
+  }
+
+  /** Retrieves a list of playlists of the user from Firestore */
+  override fun getOwnedPlaylists(
+      onSuccess: (List<Playlist>) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
     val docRef = db.collection(collectionPath).whereEqualTo("userId", userID)
     docRef
         .get()
@@ -78,6 +137,52 @@ class PlaylistRepositoryFirestore(
         }
   }
 
+  /** Retrieve a list of playlists of playlists that are shared with the user from Firestore */
+  override fun getSharedPlaylists(
+      onSuccess: (List<Playlist>) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    val docRef =
+        db.collection(collectionPath)
+            .whereArrayContains("playlistCollaborators", userID)
+            .whereNotEqualTo("userId", userID)
+    docRef
+        .get()
+        .addOnSuccessListener { res ->
+          val playlistList =
+              res?.documents?.mapNotNull { doc -> documentToPlaylist(doc) }
+                  ?: emptyList() // If no documents, return an empty list
+          onSuccess(playlistList)
+        }
+        .addOnFailureListener { exception ->
+          Log.e(TAG, "Error retrieving shared playlists", exception)
+          onFailure(exception)
+        }
+  }
+
+  /** Retrieves a list of public playlists from Firestore */
+  override fun getPublicPlaylists(
+      onSuccess: (List<Playlist>) -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    val docRef =
+        db.collection(collectionPath)
+            .whereEqualTo("playlistPublic", true)
+            .whereNotEqualTo("userId", userID)
+    docRef
+        .get()
+        .addOnSuccessListener { res ->
+          val playlistList =
+              res?.documents?.mapNotNull { doc -> documentToPlaylist(doc) }
+                  ?: emptyList() // If no documents, return an empty list
+          onSuccess(playlistList)
+        }
+        .addOnFailureListener { exception ->
+          Log.e(TAG, "Error retrieving public playlists", exception)
+          onFailure(exception)
+        }
+  }
+
   /** Add a new playlist to Firestore */
   override fun addPlaylist(
       playlist: Playlist,
@@ -85,11 +190,10 @@ class PlaylistRepositoryFirestore(
       onFailure: (Exception) -> Unit
   ) {
     try {
-      // Create a new playlist with the `ownerId` field
-      val playlistWithOwner = playlist.copy(userId = userID)
-      val docRef = db.collection(collectionPath).document(playlistWithOwner.playlistID)
+      val playlistData = playlistToMap(playlist)
+      val docRef = db.collection(collectionPath).document(playlist.playlistID)
       docRef
-          .set(playlistWithOwner)
+          .set(playlistData)
           .addOnSuccessListener {
             Log.d(TAG, "DocumentSnapshot written with ID: ${docRef.id}")
             onSuccess()
@@ -111,9 +215,10 @@ class PlaylistRepositoryFirestore(
       onFailure: (Exception) -> Unit
   ) {
     try {
+      val playlistData = playlistToMap(playlist)
       db.collection(collectionPath)
           .document(playlist.playlistID)
-          .set(playlist)
+          .set(playlistData)
           .addOnSuccessListener { onSuccess() }
           .addOnFailureListener { err ->
             Log.e(TAG, "Error updating document", err)
@@ -123,6 +228,22 @@ class PlaylistRepositoryFirestore(
       Log.e(TAG, "Unexpected error in updatePlaylist", e)
       onFailure(e)
     }
+  }
+
+  override fun updatePlaylistCollaborators(
+      playlist: Playlist,
+      newCollabList: List<String>,
+      onSuccess: () -> Unit,
+      onFailure: (Exception) -> Unit
+  ) {
+    db.collection(collectionPath)
+        .document(playlist.playlistID)
+        .update("playlistCollaborators", newCollabList)
+        .addOnSuccessListener { onSuccess() }
+        .addOnFailureListener { err ->
+          Log.e(TAG, "Error updating document CollabList field", err)
+          onFailure(err)
+        }
   }
 
   /** Updates only the track count of a specific playlist in Firestore */
@@ -145,14 +266,15 @@ class PlaylistRepositoryFirestore(
   /** Updates only the list of tracks contained in the playlist in Firestore */
   override fun updatePlaylistTracks(
       playlist: Playlist,
-      newListSongs: List<String>,
+      newListTracks: List<SpotifyTrack>,
       onSuccess: () -> Unit,
       onFailure: (Exception) -> Unit
   ) {
-
+    // Convert the list of SpotifyTrack objects to a list of maps
+    val playlistTracksMap = newListTracks.map { spotifyTrackToMap(it) }
     db.collection(collectionPath)
         .document(playlist.playlistID)
-        .update("playlistSongs", newListSongs)
+        .update("playlistTracks", playlistTracksMap)
         .addOnSuccessListener { onSuccess() }
         .addOnFailureListener { err ->
           Log.e(TAG, "Error updating document Songs field", err)

@@ -3,23 +3,23 @@ package com.epfl.beatlink.repository.spotify.auth
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.epfl.beatlink.model.spotify.auth.MusicServiceAuthRepository
-import java.io.IOException
-import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
-import java.security.SecureRandom
-import java.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.IOException
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.Base64
 
 const val REDIRECT_URI = "myapp://callback"
 const val CLIENT_ID = "5025edc6cd4b4e508839ae45296d1c82"
 const val SPOTIFY_AUTH_PREFS = "spotify_auth"
 const val SCOPES =
-    "user-read-private user-read-email user-top-read user-modify-playback-state user-read-playback-state playlist-read-private"
+    "user-read-private user-read-email user-top-read user-modify-playback-state user-read-playback-state playlist-read-private playlist-modify-public"
 
 open class SpotifyAuthRepository(private val client: OkHttpClient) : MusicServiceAuthRepository {
   suspend fun refreshAccessToken(refreshToken: String, context: Context): Result<Unit> {

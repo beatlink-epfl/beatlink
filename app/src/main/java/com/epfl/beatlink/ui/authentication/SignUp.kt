@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -46,7 +45,6 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(
@@ -192,41 +190,41 @@ fun CreateNewAccountButton(
               .width(320.dp)
               .height(48.dp),
       contentAlignment = Alignment.Center) {
-      Button(
-          onClick = {
-                  when {
-                      email.isBlank() ||
-                              username.isBlank() ||
-                              password.isBlank() ||
-                              confirmPassword.isBlank() -> {
-                          Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+        Button(
+            onClick = {
+              when {
+                email.isBlank() ||
+                    username.isBlank() ||
+                    password.isBlank() ||
+                    confirmPassword.isBlank() -> {
+                  Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                }
+                password != confirmPassword -> {
+                  Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                  profileViewModel.verifyUsername(username) { usernameValidationResult ->
+                    when (usernameValidationResult) {
+                      is ProfileViewModel.UsernameValidationResult.Invalid -> {
+                        Toast.makeText(
+                                context, usernameValidationResult.errorMessage, Toast.LENGTH_SHORT)
+                            .show()
                       }
-                      password != confirmPassword -> {
-                          Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                      ProfileViewModel.UsernameValidationResult.Valid -> {
+                        authViewModel.signUp(email, password)
                       }
-                      else -> {
-                          profileViewModel.verifyUsername(username) { usernameValidationResult ->
-                              when (usernameValidationResult) {
-                                  is ProfileViewModel.UsernameValidationResult.Invalid -> {
-                                      Toast.makeText(context, usernameValidationResult.errorMessage, Toast.LENGTH_SHORT).show()
-                                  }
-                                  ProfileViewModel.UsernameValidationResult.Valid -> {
-                                      authViewModel.signUp(email, password)
-                                  }
-                              }
-                          }
-                      }
+                    }
                   }
-          },
-          modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
-          colors = ButtonDefaults.buttonColors(
-              containerColor = MaterialTheme.colorScheme.surfaceVariant,
-              contentColor = MaterialTheme.colorScheme.primary
-          ),
-          shape = RoundedCornerShape(30.dp),
-          elevation = null
-      )
-      {
+                }
+              }
+            },
+            modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.primary),
+            shape = RoundedCornerShape(30.dp),
+            elevation = null) {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",
