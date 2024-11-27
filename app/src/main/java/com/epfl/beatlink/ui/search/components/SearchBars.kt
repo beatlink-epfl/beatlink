@@ -5,8 +5,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.materialIcon
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -37,9 +41,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
+import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.LightGray
+import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
@@ -50,25 +56,17 @@ fun FullSearchBar(navigationActions: NavigationActions) {
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.testTag("nonWritableSearchBar")
-              .padding(start = 8.dp, top = 6.dp, end = 8.dp, bottom = 6.dp)
-              .background(color = lightThemeBackground)) {
+              .background(color = MaterialTheme.colorScheme.background)
+              .topAppBarModifier()) {
         Box(
             modifier =
                 Modifier.testTag("nonWritableSearchBarBox")
-                    .fillMaxWidth()
-                    .height(36.dp)
-                    .shadow(
-                        elevation = 4.dp,
-                        spotColor = Color(0x26000000),
-                        ambientColor = Color(0x26000000))
-                    .background(color = Color(0xFFF2F2F2), shape = RoundedCornerShape(size = 5.dp))
-                    .border(
-                        width = 1.dp,
-                        color = Color.Transparent,
-                        shape = RoundedCornerShape(size = 5.dp))
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .background(color = LightGray, shape = RoundedCornerShape(size = 5.dp))
                     .clickable {
                       navigationActions.navigateTo(Screen.SEARCH_BAR)
-                    } // Handle click here
+                    }
             ) {
               Row(
                   verticalAlignment = Alignment.CenterVertically,
@@ -77,7 +75,7 @@ fun FullSearchBar(navigationActions: NavigationActions) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon",
-                        tint = Color(0xFF6F6F6F),
+                        tint = MaterialTheme.colorScheme.primaryContainer,
                         modifier =
                             Modifier.testTag("nonWritableSearchBarIcon")
                                 .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
@@ -87,7 +85,7 @@ fun FullSearchBar(navigationActions: NavigationActions) {
                             TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight(400),
-                                color = Color(0xFF6F6F6F),
+                                color =  MaterialTheme.colorScheme.primaryContainer,
                             ),
                         modifier =
                             Modifier.testTag("nonWritableSearchBarText")
@@ -108,7 +106,8 @@ fun ShortSearchBarLayout(
       modifier =
           Modifier.testTag("shortSearchBarRow")
               .fillMaxWidth()
-              .padding(start = 21.dp, end = 8.dp, top = 6.dp, bottom = 6.dp)) {
+              .height(60.dp)
+              .topAppBarModifier()) {
         // Back Icon
         Icon(
             painter = painterResource(id = R.drawable.back_arrow),
@@ -130,35 +129,36 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
 
   // Request focus when the composable is first loaded
   LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-  OutlinedTextField(
-      value = searchQuery,
-      onValueChange = onQueryChange,
-      singleLine = true,
-      leadingIcon = {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search Icon",
-            tint = MaterialTheme.colorScheme.primaryContainer,
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onQueryChange,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon",
+                    tint = MaterialTheme.colorScheme.primaryContainer,
+                    modifier =
+                    Modifier.testTag("writableSearchBarIcon")
+                        .size(28.dp)
+                        .padding(start = 5.dp)
+                )
+            },
+            colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+                cursorColor = MaterialTheme.colorScheme.primary
+            ),
+            shape = RoundedCornerShape(5.dp),
             modifier =
-                Modifier.testTag("writableSearchBarIcon")
-                    .size(28.dp)
-                    .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
-      },
-      colors =
-          OutlinedTextFieldDefaults.colors(
-              focusedBorderColor = Color.Transparent,
-              unfocusedBorderColor = Color.Transparent,
-              cursorColor = Color.Black),
-      shape = RoundedCornerShape(5.dp),
-      modifier =
-          Modifier.testTag("writableSearchBar")
-              .focusRequester(focusRequester)
-              .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
-              .border(width = 1.dp, color = Color.White)
-              .width(334.dp)
-              .height(51.dp)
-              .border(
-                  width = 1.dp, color = Color.Transparent, shape = RoundedCornerShape(size = 5.dp))
-              .background(color = LightGray, shape = RoundedCornerShape(size = 5.dp)))
+            Modifier.testTag("writableSearchBar")
+                .focusRequester(focusRequester)
+                .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
+                .width(334.dp)
+                .height(48.dp)
+        )
+
+
 }

@@ -56,6 +56,8 @@ fun CreateNewPlaylistScreen(
   var titleError by remember { mutableStateOf(true) }
   var descriptionError by remember { mutableStateOf(false) }
 
+    var showDialog by remember { mutableStateOf(true) }
+
   Scaffold(
       modifier = Modifier.testTag("createNewPlaylistScreen"),
       topBar = {
@@ -112,7 +114,7 @@ fun CreateNewPlaylistScreen(
             playlistIsPublic = it
           }
 
-          CollaboratorsSection(playlistCollab)
+          CollaboratorsSection(navigationActions, playlistCollab)
 
           PrincipalButton("Create", "createPlaylist") {
             if (titleError || descriptionError) {
@@ -137,4 +139,11 @@ fun CreateNewPlaylistScreen(
           }
         }
   }
+    if (showDialog) {
+        InviteCollaboratorsOverlay(
+            onDismissRequest = { showDialog = false },
+            onAddCollaborator = { username -> println("Added: $username") }
+        )
+    }
+
 }

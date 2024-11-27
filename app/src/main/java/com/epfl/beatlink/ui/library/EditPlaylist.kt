@@ -128,7 +128,7 @@ fun EditPlaylistScreen(
                 playlistIsPublic = newOption
               }
 
-              CollaboratorsSection(playlistCollab)
+              CollaboratorsSection(navigationActions, playlistCollab)
 
               PrincipalButton("Save", "saveEditPlaylist") {
                 if (titleError || descriptionError) {

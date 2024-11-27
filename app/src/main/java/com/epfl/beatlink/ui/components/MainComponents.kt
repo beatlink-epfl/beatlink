@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.util.Size
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -547,7 +548,7 @@ fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
 }
 
 @Composable
-fun ProfilePicture(id: MutableState<Bitmap?>) {
+fun ProfilePicture(id: MutableState<Bitmap?>, size: Dp = 100.dp) {
   // Profile picture
   id.value?.let { bitmap ->
     Image(
@@ -564,7 +565,7 @@ fun ProfilePicture(id: MutableState<Bitmap?>) {
             painter = painterResource(id = R.drawable.default_profile_picture),
             contentDescription = "Profile Picture",
             modifier =
-                Modifier.size(100.dp)
+                Modifier.size(size)
                     .testTag("profilePicture")
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))
