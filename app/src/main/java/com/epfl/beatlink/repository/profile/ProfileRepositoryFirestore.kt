@@ -27,6 +27,12 @@ open class ProfileRepositoryFirestore(
 ) : ProfileRepository {
   private val collection = "userProfiles"
 
+  override fun getUserId(): String? {
+    val userId = auth.currentUser?.uid
+    Log.d("AUTH", "Current user ID: $userId") // Log user ID for debugging
+    return userId
+  }
+
   override suspend fun fetchProfile(userId: String): ProfileData? {
     return try {
       val snapshot = db.collection(collection).document(userId).get().await()
@@ -49,8 +55,15 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun addProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
-      db.collection(collection).document(userId).set(profileData).await()
-      Log.d("PROFILE_ADD", "Profile added successfully for user: $userId")
+      db.runTransaction { transaction ->
+        // Add profile to `userProfiles` collection
+        transaction.set(db.collection(collection).document(userId), profileData)
+
+        // Add the username to the `usernames` collection
+        val usernameDocRef = db.collection("usernames").document(profileData.username)
+        transaction.set(usernameDocRef, mapOf<String, Any>())
+      }.await()
+      Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")
       true
     } catch (e: Exception) {
       Log.e("PROFILE_ADD_ERROR", "Error adding profile: ${e.message}")
@@ -60,8 +73,26 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
-      db.collection(collection).document(userId).set(profileData).await()
-      Log.d("PROFILE_UPDATE", "Profile updated successfully for user: $userId")
+      db.runTransaction { transaction ->
+        // Update user profile
+        val profileDocRef = db.collection(collection).document(userId)
+        transaction.set(profileDocRef, profileData)
+
+        // Get the current username from the profile
+        val userSnapshot = transaction.get(profileDocRef)
+        val currentUsername = userSnapshot.getString("username")
+
+        // Check if the username has changed
+        if (currentUsername != null && currentUsername != profileData.username) {
+          // Delete the current username
+          transaction.delete(db.collection("usernames").document(currentUsername))
+
+          // Add the new username
+          val newUsernameDocRef = db.collection("usernames").document(profileData.username)
+          transaction.set(newUsernameDocRef, mapOf<String, Any>())
+        }
+      }.await()
+      Log.d("PROFILE_UPDATE", "Profile and username updated successfully for user: $userId")
       true
     } catch (e: Exception) {
       Log.e("PROFILE_UPDATE_ERROR", "Error updating profile: ${e.message}")
@@ -71,74 +102,25 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
-      db.collection(collection).document(userId).delete().await()
-      Log.d("PROFILE_DELETE", "Profile deleted successfully for user: $userId")
+      db.runTransaction { transaction ->
+        // Delete the user profile
+        val profileDocRef = db.collection(collection).document(userId)
+        transaction.delete(profileDocRef)
+
+        // Fetch the username from the profile
+        val userSnapshot = transaction.get(profileDocRef)
+        val username = userSnapshot.getString("username")
+        if (username != null) {
+          // Delete the username
+          val usernameDocRef = db.collection("usernames").document(username)
+          transaction.delete(usernameDocRef)
+        }
+      }.await()
+      Log.d("PROFILE_DELETE", "Profile and username deleted successfully for user: $userId")
       true
     } catch (e: Exception) {
       Log.e("PROFILE_DELETE_ERROR", "Error deleting profile: ${e.message}")
       false
-    }
-  }
-
-  override fun getUserId(): String? {
-    val userId = auth.currentUser?.uid
-    Log.d("AUTH", "Current user ID: $userId") // Log user ID for debugging
-    return userId
-  }
-
-  fun base64ToBitmap(base64: String): Bitmap? {
-    return try {
-      val bytes = Base64.decode(base64, Base64.DEFAULT)
-      BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    } catch (e: Exception) {
-      Log.e("BASE64", "Error decoding Base64 to Bitmap: ${e.message}")
-      null
-    }
-  }
-
-  private fun saveProfilePictureBase64(userId: String, base64Image: String) {
-    val userDoc = db.collection(collection).document(userId)
-    val profileData = mapOf("profilePicture" to base64Image)
-
-    userDoc.set(profileData, SetOptions.merge())
-  }
-
-  fun resizeAndCompressImageFromUri(
-      uri: Uri,
-      context: Context,
-      maxWidth: Int = 512,
-      maxHeight: Int = 512,
-      quality: Int = 80
-  ): String? {
-    return try {
-      val contentResolver = context.contentResolver
-      val inputStream = contentResolver.openInputStream(uri)
-      val originalBitmap = BitmapFactory.decodeStream(inputStream)
-      inputStream?.close()
-
-      // Resize the bitmap
-      val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
-      val resizedBitmap =
-          if (aspectRatio > 1) {
-            // Landscape image
-            Bitmap.createScaledBitmap(
-                originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
-          } else {
-            // Portrait image
-            Bitmap.createScaledBitmap(
-                originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
-          }
-
-      // Compress the resized bitmap
-      val outputStream = ByteArrayOutputStream()
-      resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-      val compressedBytes = outputStream.toByteArray()
-
-      // Convert to Base64
-      Base64.encodeToString(compressedBytes, Base64.DEFAULT)
-    } catch (e: Exception) {
-      Log.e("COMPRESS", "Error resizing and compressing image: ${e.message}")
-      null
     }
   }
 
@@ -147,7 +129,7 @@ open class ProfileRepositoryFirestore(
     if (base64Image != null) {
       saveProfilePictureBase64(userId, base64Image)
     } else {
-      Log.e("UPLOAD", "Failed to convert image to Base64")
+      Log.e("UPLOAD_PROFILE_PICTURE_ERROR", "Failed to convert image to Base64")
     }
   }
 
@@ -166,5 +148,102 @@ open class ProfileRepositoryFirestore(
           }
         }
         .addOnFailureListener { onBitmapLoaded(null) }
+  }
+
+  override suspend fun isUsernameAvailable(username: String): Boolean {
+    return try {
+      // Check if the collection "usernames" exists
+      val collectionSnapshot = db.collection("usernames").limit(1).get().await()
+
+      // If the collection does not exist or is empty, return true
+      if (collectionSnapshot.isEmpty) {
+        return true
+      }
+      val snapshot = db.collection("usernames").document(username).get().await()
+      !snapshot.exists()
+    } catch (e: Exception) {
+      Log.e("USERNAME_CHECK_ERROR", "Error checking username availability: ${e.message}")
+      false
+    }
+  }
+
+  /**
+   * Resize and compress an image from a URI and convert it to a Base64-encoded string.
+   *
+   * @param uri The URI of the image.
+   * @param context The application context.
+   * @param maxWidth The maximum width for resizing the image (default is 512 pixels).
+   * @param maxHeight The maximum height for resizing the image (default is 512 pixels).
+   * @param quality The quality level for JPEG compression, ranging from 0 to 100
+   *                (default is 80, where 100 is maximum quality).
+   * @return A Base64-encoded string representing the resized and compressed image,
+   *         or `null` if the operation fails.
+   */
+  fun resizeAndCompressImageFromUri(
+    uri: Uri,
+    context: Context,
+    maxWidth: Int = 512,
+    maxHeight: Int = 512,
+    quality: Int = 80
+  ): String? {
+    return try {
+      val contentResolver = context.contentResolver
+      val inputStream = contentResolver.openInputStream(uri)
+      val originalBitmap = BitmapFactory.decodeStream(inputStream)
+      inputStream?.close()
+
+      // Resize the bitmap
+      val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
+      val resizedBitmap =
+        if (aspectRatio > 1) {
+          // Landscape image
+          Bitmap.createScaledBitmap(
+            originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
+        } else {
+          // Portrait image
+          Bitmap.createScaledBitmap(
+            originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
+        }
+
+      // Compress the resized bitmap
+      val outputStream = ByteArrayOutputStream()
+      resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+      val compressedBytes = outputStream.toByteArray()
+
+      // Convert to Base64
+      Base64.encodeToString(compressedBytes, Base64.DEFAULT)
+    } catch (e: Exception) {
+      Log.e("COMPRESS", "Error resizing and compressing image: ${e.message}")
+      null
+    }
+  }
+
+  /**
+   * Save a Base64-encoded profile picture to the `userProfiles` collection in Firestore.
+   *
+   * @param userId The unique identifier of the user.
+   * @param base64Image The Base64-encoded string representation of the profile picture.
+   */
+  private fun saveProfilePictureBase64(userId: String, base64Image: String) {
+    val userDoc = db.collection(collection).document(userId)
+    val profileData = mapOf("profilePicture" to base64Image)
+
+    userDoc.set(profileData, SetOptions.merge())
+  }
+
+  /**
+   * Convert a Base64-encoded string to a Bitmap.
+   *
+   * @param base64 The Base64-encoded string representation of the image.
+   * @return A Bitmap object if the conversion is successful, or `null` if an error occurs.
+   */
+  fun base64ToBitmap(base64: String): Bitmap? {
+    return try {
+      val bytes = Base64.decode(base64, Base64.DEFAULT)
+      BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    } catch (e: Exception) {
+      Log.e("BASE64", "Error decoding Base64 to Bitmap: ${e.message}")
+      null
+    }
   }
 }

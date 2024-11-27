@@ -29,6 +29,23 @@ open class ProfileViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
+  /**
+   * Represents the result of username validation.
+   */
+  sealed class UsernameValidationResult {
+    /**
+     * Indicates that the username is valid.
+     */
+    object Valid : UsernameValidationResult()
+
+    /**
+     * Indicates that the username is invalid.
+     *
+     * @param errorMessage A message describing why the username is invalid.
+     */
+    data class Invalid(val errorMessage: String) : UsernameValidationResult()
+  }
+
   private val _profile = MutableStateFlow(initialProfile)
   val profile: StateFlow<ProfileData?>
     get() = _profile
@@ -61,6 +78,16 @@ open class ProfileViewModel(
     }
   }
 
+  fun deleteProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.deleteProfile(userId)
+      if (success) {
+        _profile.value = null
+      }
+    }
+  }
+
   fun uploadProfilePicture(context: Context, uri: Uri) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
@@ -71,13 +98,30 @@ open class ProfileViewModel(
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
-  fun deleteProfile() {
-    val userId = repository.getUserId() ?: return
+  fun verifyUsername(username: String, onResult: (UsernameValidationResult) -> Unit) {
     viewModelScope.launch {
-      val success = repository.deleteProfile(userId)
-      if (success) {
-        _profile.value = null
+      val result = when {
+        username.length !in 1..30 ->
+          UsernameValidationResult.Invalid("Username must be between 1 and 30 characters")
+
+        !username.matches("^[a-zA-Z0-9._]+$".toRegex()) ->
+          UsernameValidationResult.Invalid("Username can only contain letters, numbers, dots and underscores")
+
+        username.startsWith(".") || username.endsWith(".") ->
+          UsernameValidationResult.Invalid("Username cannot start or end with a dot")
+
+        username.contains("..") ->
+          UsernameValidationResult.Invalid("Username cannot have consecutive dots")
+
+        username.contains("___") ->
+          UsernameValidationResult.Invalid("Username cannot have more than two consecutive underscores")
+
+        !repository.isUsernameAvailable(username) ->
+          UsernameValidationResult.Invalid("Username is already taken")
+
+        else -> UsernameValidationResult.Valid
       }
+      onResult(result)
     }
   }
 

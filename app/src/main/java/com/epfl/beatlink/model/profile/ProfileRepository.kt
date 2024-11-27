@@ -23,7 +23,7 @@ interface ProfileRepository {
   suspend fun fetchProfile(userId: String): ProfileData?
 
   /**
-   * Add a new user profile to Firestore.
+   * Add a new user profile to Firestore, and add the corresponding username to the "usernames" collection.
    *
    * @param userId The unique identifier of the user.
    * @param profileData A [ProfileData] object containing the profile information to be added.
@@ -32,7 +32,7 @@ interface ProfileRepository {
   suspend fun addProfile(userId: String, profileData: ProfileData): Boolean
 
   /**
-   * Update the profile of a specific user.
+   * Update a user's profile in Firestore, and update the corresponding username in the "usernames" collection if it changes.
    *
    * @param userId The unique identifier of the user.
    * @param profileData A [ProfileData] object containing the updated profile information.
@@ -41,7 +41,7 @@ interface ProfileRepository {
   suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean
 
   /**
-   * Delete the profile of a specific user.
+   * Delete a user's profile from Firestore, and remove the corresponding username from the "usernames" collection.
    *
    * @param userId The unique identifier of the user.
    * @return `true` if the profile was successfully deleted, `false` otherwise.
@@ -64,4 +64,12 @@ interface ProfileRepository {
    * @param onBitmapLoaded A callback function that is called when the profile picture is loaded.
    */
   fun loadProfilePicture(userId: String, onBitmapLoaded: (Bitmap?) -> Unit)
+
+  /**
+   * Check if a username is available (no duplicates) in the "usernames" collection.
+   *
+   * @param username The username to check for availability.
+   * @return `true` if the username is available, `false` otherwise.
+   */
+  suspend fun isUsernameAvailable(username: String): Boolean
 }

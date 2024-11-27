@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -45,6 +46,7 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUpScreen(
@@ -109,40 +111,44 @@ fun SignUpScreen(
               CustomInputField(
                   value = email,
                   onValueChange = { email = it },
-                  label = "My Email Address",
+                  label = "My Email Address *",
                   placeholder = "Enter email address",
                   keyboardType = KeyboardType.Email,
+                  isError = email.isBlank(),
                   modifier = Modifier.testTag("inputEmail"))
 
               // Username input field
               CustomInputField(
                   value = username,
-                  onValueChange = { username = it },
-                  label = "My Username",
+                  onValueChange = { username = it.lowercase() },
+                  label = "My Username *",
                   placeholder = "Enter username",
                   supportingText = "No special characters, no spaces",
+                  isError = username.isBlank(),
                   modifier = Modifier.testTag("inputUsername"))
 
               // Password input field
               CustomInputField(
                   value = password,
                   onValueChange = { password = it },
-                  label = "My Password",
+                  label = "My Password *",
                   placeholder = "Enter password",
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
+                  isError = password.isBlank() || password.length !in 6..18,
                   modifier = Modifier.testTag("inputPassword"))
 
               // Confirm Password input field
               CustomInputField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
-                  label = "Confirm Password",
+                  label = "Confirm Password *",
                   placeholder = "Enter password",
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
+                  isError = confirmPassword.isBlank() || confirmPassword.length !in 6..18,
                   modifier = Modifier.testTag("inputConfirmPassword"))
 
               // Link Spotify button
@@ -153,6 +159,7 @@ fun SignUpScreen(
               // Create new account button
               CreateNewAccountButton(
                   authViewModel = firebaseAuthViewModel,
+                  profileViewModel = profileViewModel,
                   email = email,
                   password = password,
                   confirmPassword = confirmPassword,
@@ -171,6 +178,7 @@ fun SignUpScreen(
 @Composable
 fun CreateNewAccountButton(
     authViewModel: FirebaseAuthViewModel,
+    profileViewModel: ProfileViewModel,
     email: String,
     password: String,
     confirmPassword: String,
@@ -184,30 +192,41 @@ fun CreateNewAccountButton(
               .width(320.dp)
               .height(48.dp),
       contentAlignment = Alignment.Center) {
-        Button(
-            onClick = {
-              when {
-                email.isBlank() ||
-                    username.isBlank() ||
-                    password.isBlank() ||
-                    confirmPassword.isBlank() -> {
-                  Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                }
-                password != confirmPassword -> {
-                  Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                }
-                else -> {
-                  authViewModel.signUp(email, password)
-                }
-              }
-            },
-            modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary),
-            shape = RoundedCornerShape(30.dp),
-            elevation = null) {
+      Button(
+          onClick = {
+                  when {
+                      email.isBlank() ||
+                              username.isBlank() ||
+                              password.isBlank() ||
+                              confirmPassword.isBlank() -> {
+                          Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                      }
+                      password != confirmPassword -> {
+                          Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                      }
+                      else -> {
+                          profileViewModel.verifyUsername(username) { usernameValidationResult ->
+                              when (usernameValidationResult) {
+                                  is ProfileViewModel.UsernameValidationResult.Invalid -> {
+                                      Toast.makeText(context, usernameValidationResult.errorMessage, Toast.LENGTH_SHORT).show()
+                                  }
+                                  ProfileViewModel.UsernameValidationResult.Valid -> {
+                                      authViewModel.signUp(email, password)
+                                  }
+                              }
+                          }
+                      }
+                  }
+          },
+          modifier = Modifier.fillMaxSize().testTag("createAccountButton"),
+          colors = ButtonDefaults.buttonColors(
+              containerColor = MaterialTheme.colorScheme.surfaceVariant,
+              contentColor = MaterialTheme.colorScheme.primary
+          ),
+          shape = RoundedCornerShape(30.dp),
+          elevation = null
+      )
+      {
               Text(
                   modifier = Modifier.testTag("createAccountText"),
                   text = "Create New Account",

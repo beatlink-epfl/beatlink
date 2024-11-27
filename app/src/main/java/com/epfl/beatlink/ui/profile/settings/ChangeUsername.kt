@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -30,6 +31,7 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: ProfileViewModel) {
@@ -57,7 +59,7 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
               Spacer(modifier = Modifier.height(40.dp))
               CustomInputField(
                   value = username,
-                  onValueChange = { username = it },
+                  onValueChange = { username = it.lowercase() },
                   label = "My Username",
                   placeholder = "Enter your new username",
                   supportingText = "No special characters, no spaces",
@@ -68,19 +70,20 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                   "saveButton",
                   onClick = {
                     try {
-                      val newData =
-                          ProfileData(
-                              bio = profileData?.bio ?: "",
-                              links = profileData?.links ?: 0,
-                              name = profileData?.name ?: "",
-                              profilePicture = profileData?.profilePicture,
-                              username = username,
-                              favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList())
-                      profileViewModel.updateProfile(newData)
-                      Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
-                      navigationActions.navigateTo(Screen.PROFILE)
-                    } catch (e: Exception) {
-                      e.printStackTrace()
+                        profileViewModel.verifyUsername(username) { usernameValidationResult ->
+                            when (usernameValidationResult) {
+                                is ProfileViewModel.UsernameValidationResult.Invalid -> {
+                                    Toast.makeText(context, usernameValidationResult.errorMessage, Toast.LENGTH_SHORT).show()
+                                }
+                                ProfileViewModel.UsernameValidationResult.Valid -> {
+                                    profileViewModel.updateProfile(ProfileData(username = username))
+                                    Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                                    navigationActions.navigateTo(Screen.PROFILE)
+                                }
+                            }
+                        }
+                        } catch (e: Exception) {
+                        Toast.makeText(context, "Error updating username", Toast.LENGTH_SHORT).show()
                     }
                   })
             }
