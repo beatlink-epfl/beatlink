@@ -4,6 +4,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -33,6 +40,10 @@ open class ProfileViewModel(
   private val _profile = MutableStateFlow(initialProfile)
   val profile: StateFlow<ProfileData?>
     get() = _profile
+
+  private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
+  val searchResult: LiveData<List<ProfileData>>
+    get() = _searchResult
 
   fun fetchProfile() {
     val userId = repository.getUserId() ?: return
@@ -105,6 +116,46 @@ open class ProfileViewModel(
         onResult(null)
       }
     }
+  }
+
+  fun searchUsers(query: String) {
+    viewModelScope.launch {
+      try {
+        val profiles = repository.searchUsers(query)
+        _searchResult.value = profiles
+      } catch (e: Exception) {
+        Log.e("SEARCH_PROFILES", "Error searching profiles: ${e.message}")
+        _searchResult.value = emptyList()
+      }
+    }
+  }
+
+  fun handlePermissionResult(
+      isGranted: Boolean,
+      galleryLauncher: ManagedActivityResultLauncher<String, Uri?>,
+      context: Context
+  ) {
+    if (isGranted) {
+      galleryLauncher.launch("image/*")
+    } else {
+      Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  @Composable
+  fun permissionLauncher(
+      context: Context,
+      onResult: (Uri?) -> Unit
+  ): ManagedActivityResultLauncher<String, Boolean> {
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(), onResult = onResult)
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+            isGranted: Boolean ->
+          handlePermissionResult(isGranted, galleryLauncher, context)
+        }
+    return permissionLauncher
   }
 
   // Create factory

@@ -190,4 +190,19 @@ open class ProfileRepositoryFirestore(
         }
         .addOnFailureListener { onBitmapLoaded(null) }
   }
+
+  override suspend fun searchUsers(query: String): List<ProfileData> {
+    return try {
+      val snapshot =
+          db.collection(collection)
+              .whereGreaterThanOrEqualTo("username", query)
+              .whereLessThanOrEqualTo("username", query + "\uf8ff")
+              .get()
+              .await()
+      snapshot.documents.mapNotNull { it.toObject(ProfileData::class.java) }
+    } catch (e: Exception) {
+      Log.e("SEARCH", "Error searching users: ${e.message}")
+      emptyList()
+    }
+  }
 }
