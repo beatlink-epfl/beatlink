@@ -11,9 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -51,6 +54,7 @@ fun getBitmapDescriptorFromDrawableResource(
  * applies additional styling options like corner radius, stroke, and shadow.
  *
  * @param imageUrl The URL of the image to convert.
+ * @param context The context for image loading.
  * @param width The desired width of the resulting bitmap.
  * @param height The desired height of the resulting bitmap.
  * @param cornerRadius The radius for the corners of the drawable.
@@ -62,6 +66,7 @@ fun getBitmapDescriptorFromDrawableResource(
  */
 suspend fun getBitmapDescriptorFromImageUrlSongPopUp(
     imageUrl: String,
+    context: Context,
     width: Int,
     height: Int,
     cornerRadius: Float = 6f,
@@ -72,7 +77,21 @@ suspend fun getBitmapDescriptorFromImageUrlSongPopUp(
 ): BitmapDescriptor? {
   return withContext(Dispatchers.IO) {
     try {
-      val bitmap = Picasso.get().load(imageUrl).resize(width, height).get()
+      // Load the bitmap using Coil
+      val imageLoader = ImageLoader(context)
+      val request =
+          ImageRequest.Builder(context)
+              .data(imageUrl)
+              .size(width, height) // Resize the image
+              .allowHardware(false) // Disable hardware bitmaps for Canvas drawing
+              .build()
+      val result = imageLoader.execute(request)
+      val bitmap = (result as? SuccessResult)?.drawable?.toBitmap(width, height)
+
+      if (bitmap == null) {
+        Log.e("BitmapDescriptorError", "Failed to load image from URL: $imageUrl")
+        return@withContext null
+      }
 
       // Create a bitmap with extra padding for the shadow
       val styledBitmap =

@@ -88,7 +88,10 @@ fun GoogleMapView(
           coroutineScope
               .async(Dispatchers.IO) {
                 getBitmapDescriptorFromImageUrlSongPopUp(
-                    imageUrl = user.currentPlayingTrack.albumCover, width = 100, height = 100)
+                    imageUrl = user.currentPlayingTrack.albumCover,
+                    context = context,
+                    width = 100,
+                    height = 100)
               }
               .await()
     }

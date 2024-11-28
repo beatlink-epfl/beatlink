@@ -21,7 +21,6 @@ import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModelFactory
-import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
@@ -34,10 +33,6 @@ class MainActivity : ComponentActivity() {
   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    // Disable Picasso notifications
-    val picasso = Picasso.Builder(this).indicatorsEnabled(false).loggingEnabled(false).build()
-    Picasso.setSingletonInstance(picasso)
 
     val spotifyAuthFactory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
     spotifyAuthViewModel =
