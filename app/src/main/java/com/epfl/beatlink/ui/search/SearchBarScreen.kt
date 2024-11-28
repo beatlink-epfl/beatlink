@@ -34,9 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.search.ArtistItem
+import com.epfl.beatlink.ui.components.search.PeopleItem
 import com.epfl.beatlink.ui.components.search.TrackItem
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -46,34 +48,41 @@ import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.ui.theme.PrimaryOrange
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun SearchBarScreen(
     navigationActions: NavigationActions,
-    spotifyApiViewModel: SpotifyApiViewModel
+    spotifyApiViewModel: SpotifyApiViewModel,
+    profileViewModel: ProfileViewModel
 ) {
   val selectedCategory = remember { mutableStateOf("Songs") }
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
   val results = remember {
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
+  val peopleResult = remember { mutableStateOf(emptyList<ProfileData>()) }
 
   val context = LocalContext.current
 
   // Observe search query changes and fetch corresponding results
   LaunchedEffect(searchQuery.value.text) {
     if (searchQuery.value.text.isNotEmpty()) {
-      spotifyApiViewModel.searchArtistsAndTracks(
-          query = searchQuery.value.text,
-          onSuccess = { artists, tracks -> results.value = Pair(tracks, artists) },
-          onFailure = { _, _ ->
-            Toast.makeText(
-                    context,
-                    "Sorry, we couldn't find any matches for that search.",
-                    Toast.LENGTH_SHORT)
-                .show()
-          })
+      if (selectedCategory.value == "People") {
+        profileViewModel.searchUsers(query = searchQuery.value.text) { peopleResult.value = it }
+      } else {
+        spotifyApiViewModel.searchArtistsAndTracks(
+            query = searchQuery.value.text,
+            onSuccess = { artists, tracks -> results.value = Pair(tracks, artists) },
+            onFailure = { _, _ ->
+              Toast.makeText(
+                      context,
+                      "Sorry, we couldn't find any matches for that search.",
+                      Toast.LENGTH_SHORT)
+                  .show()
+            })
+      }
     }
   }
 
@@ -107,8 +116,9 @@ fun SearchBarScreen(
                 "Artists" -> {
                   SearchResultsLazyColumn(artists = results.value.second)
                 }
-                "Events" -> {
-                  SearchResultsLazyColumn()
+                "People" -> {
+                  SearchResultsLazyColumn(
+                      people = peopleResult.value, profileViewModel = profileViewModel)
                 }
               }
             }
@@ -130,8 +140,8 @@ fun CategoryButtons(selectedCategory: MutableState<String>) {
         CategoryButton("Artists", selectedCategory.value, PrimaryOrange) {
           selectedCategory.value = "Artists"
         }
-        CategoryButton("Events", selectedCategory.value, PrimaryPurple) {
-          selectedCategory.value = "Events"
+        CategoryButton("People", selectedCategory.value, PrimaryPurple) {
+          selectedCategory.value = "People"
         }
       }
 }
@@ -171,7 +181,9 @@ fun CategoryButton(
 @Composable
 fun SearchResultsLazyColumn(
     tracks: List<SpotifyTrack>? = null,
-    artists: List<SpotifyArtist>? = null
+    artists: List<SpotifyArtist>? = null,
+    people: List<ProfileData>? = null,
+    profileViewModel: ProfileViewModel? = null
 ) {
   Column(modifier = Modifier.fillMaxSize().padding(8.dp).testTag("searchResultsColumn")) {
     // Gradient title for the search results
@@ -189,6 +201,11 @@ fun SearchResultsLazyColumn(
           items(artists) { artist ->
             ArtistItem(artist = artist)
             Spacer(modifier = Modifier.height(16.dp))
+          }
+        }
+        people != null -> {
+          items(people) { person ->
+            PeopleItem(people = person, profileViewModel = profileViewModel!!)
           }
         }
       }

@@ -347,6 +347,8 @@ fun CornerIcons(
 fun PrincipalButton(
     buttonText: String,
     buttonTag: String,
+    width: Dp = 320.dp,
+    height: Dp = 48.dp,
     isRed: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -356,8 +358,8 @@ fun PrincipalButton(
                   width = 2.dp,
                   brush = if (!isRed) PrimaryGradientBrush else RedGradientBrush,
                   shape = RoundedCornerShape(30.dp))
-              .width(320.dp)
-              .height(48.dp),
+              .width(width)
+              .height(height),
       contentAlignment = Alignment.Center) {
         Button(
             onClick = onClick,
