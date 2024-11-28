@@ -47,15 +47,15 @@ class DeleteAccountButtonTest {
   private lateinit var profileRepository: ProfileRepository
   private lateinit var spotifyRepository: SpotifyAuthRepository
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
-    private lateinit var mapUserRepository: MapUserRepository
-    private lateinit var mapUsersViewModel: MapUsersViewModel
+  private lateinit var mapUserRepository: MapUserRepository
+  private lateinit var mapUsersViewModel: MapUsersViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     authRepository = mockk(relaxed = true)
     profileRepository = mockk(relaxed = true)
-      mapUserRepository = mockk(relaxed = true)
+    mapUserRepository = mockk(relaxed = true)
     every { profileRepository.getUserId() } returns "testUserId"
     // Mock Profile Data
     val mockProfile =
@@ -73,7 +73,7 @@ class DeleteAccountButtonTest {
     val application = ApplicationProvider.getApplicationContext<Application>()
     spotifyRepository = SpotifyAuthRepository(client = OkHttpClient()) // or any required client
     spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyRepository)
-      mapUsersViewModel = MapUsersViewModel(mapUserRepository)
+    mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {

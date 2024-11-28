@@ -35,19 +35,22 @@ class SignOutButtonTest {
   private lateinit var authViewModel: FirebaseAuthViewModel
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var mapUserRepository: MapUserRepository
-    private lateinit var mapUsersViewModel: MapUsersViewModel
+  private lateinit var mapUsersViewModel: MapUsersViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
-      mapUserRepository = mock(MapUserRepository::class.java)
-      mapUsersViewModel = MapUsersViewModel(mapUserRepository)
+    mapUserRepository = mock(MapUserRepository::class.java)
+    mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
-      SettingsScreen(navigationActions = navigationActions, firebaseAuthViewModel = authViewModel, mapUsersViewModel = mapUsersViewModel)
+      SettingsScreen(
+          navigationActions = navigationActions,
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = mapUsersViewModel)
     }
   }
 

@@ -124,7 +124,7 @@ fun AccountScreen(
                 val currentProfile = profileData
 
                 profileViewModel.deleteProfile()
-                  mapUsersViewModel.deleteMapUser()
+                mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.deleteAccount(
                     currentPassword = password,
                     onSuccess = {

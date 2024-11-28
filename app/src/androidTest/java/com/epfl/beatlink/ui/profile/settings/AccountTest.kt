@@ -56,8 +56,8 @@ class AccountScreenTest {
     profileViewModel = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
-      mapUserRepository = mock(MapUserRepository::class.java)
-      mapUsersViewModel = MapUsersViewModel(mapUserRepository)
+    mapUserRepository = mock(MapUserRepository::class.java)
+    mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     every { navigationActions.currentRoute() } returns Screen.ACCOUNT
     every { profileViewModel.profile } returns

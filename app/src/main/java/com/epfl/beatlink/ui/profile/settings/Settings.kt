@@ -97,7 +97,7 @@ fun SettingsScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                  mapUsersViewModel.deleteMapUser()
+                mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.signOut(
                     onSuccess = {
                       navigationActions.navigateTo(Screen.WELCOME)
