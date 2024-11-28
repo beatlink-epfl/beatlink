@@ -99,15 +99,25 @@ class PlayScreenTest {
 
   @Test
   fun testPlaybackButtonsTogglePlayback() {
-    // Start with the player in a paused state
-    spotifyApiViewModel.isPlaying = false
 
-    // Click the play button, should start playing
-    composeTestRule.onNodeWithTag("playSongButton").performClick()
-    assertTrue(spotifyApiViewModel.isPlaying)
+    if (spotifyApiViewModel.isPlaying) {
+      // Click to pause
+      composeTestRule.onNodeWithTag("playSongButton").performClick()
+      assertFalse(spotifyApiViewModel.isPlaying)
 
-    // Click again to pause
-    composeTestRule.onNodeWithTag("playSongButton").performClick()
-    assertFalse(spotifyApiViewModel.isPlaying)
+      Thread.sleep(2000)
+
+      composeTestRule.onNodeWithTag("playSongButton").performClick()
+      assertTrue(spotifyApiViewModel.isPlaying)
+    } else {
+      // Click the play button, should start playing
+      composeTestRule.onNodeWithTag("playSongButton").performClick()
+      assertTrue(spotifyApiViewModel.isPlaying)
+
+      Thread.sleep(2000)
+
+      composeTestRule.onNodeWithTag("playSongButton").performClick()
+      assertFalse(spotifyApiViewModel.isPlaying)
+    }
   }
 }
