@@ -26,6 +26,7 @@ import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.player.PlayScreen
 import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
@@ -90,6 +91,9 @@ fun BeatLinkApp(
             spotifyApiViewModel,
             profileViewModel,
             mapUsersViewModel)
+      }
+      composable(Screen.PLAY_SCREEN) {
+        PlayScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
       }
     }
 

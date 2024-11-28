@@ -75,7 +75,7 @@ fun SearchScreen(
       topBar = { FullSearchBar(navigationActions) },
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
           // Bottom navigation bar
           BottomNavigationMenu(
               onTabSelect = { route -> navigationActions.navigateTo(route) },
