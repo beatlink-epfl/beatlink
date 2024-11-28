@@ -170,18 +170,17 @@ open class NavigationActions(private val navController: NavHostController) {
     }
   }
 
-    /**
-     * Navigate to a specified screen and clear the entire back stack.
-     *
-     * @param screen The screen to navigate to.
-     */
-    open fun navigateToAndClearAllBackStack(screen: String) {
-        navController.navigate(screen) {
-            // Pop up to the start destination of the graph to clear the back stack
-            popUpTo(0) { inclusive = true }
-            // Avoid multiple copies of the same destination
-            launchSingleTop = true
-        }
+  /**
+   * Navigate to a specified screen and clear the entire back stack.
+   *
+   * @param screen The screen to navigate to.
+   */
+  open fun navigateToAndClearAllBackStack(screen: String) {
+    navController.navigate(screen) {
+      // Pop up to the start destination of the graph to clear the back stack
+      popUpTo(0) { inclusive = true }
+      // Avoid multiple copies of the same destination
+      launchSingleTop = true
     }
-
+  }
 }

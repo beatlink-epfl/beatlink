@@ -131,7 +131,7 @@ class NavigationActionsTest {
   }
 
   @Test
-  fun navigateToAndClearAllBackStackClearsBackStack(){
+  fun navigateToAndClearAllBackStackClearsBackStack() {
     val mockBackStackEntry = mock(NavBackStackEntry::class.java)
 
     // Simulate previous entries in the back stack

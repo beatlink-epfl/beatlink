@@ -43,10 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestination
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 
