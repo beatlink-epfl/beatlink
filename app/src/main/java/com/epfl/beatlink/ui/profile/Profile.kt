@@ -108,7 +108,7 @@ fun ProfileScreen(
       },
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationAction, spotifyApiViewModel, mapUsersViewModel)
           BottomNavigationMenu(
               onTabSelect = { route -> navigationAction.navigateTo(route) },
               tabList = LIST_TOP_LEVEL_DESTINATION,

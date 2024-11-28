@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
@@ -374,7 +375,7 @@ fun PrincipalButton(
 }
 
 @Composable
-fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
+fun MusicPlayerUI(navigationActions: NavigationActions, api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
   var showPlayer by remember { mutableStateOf(api.playbackActive) }
   var isPlaying by remember { mutableStateOf(api.isPlaying) }
@@ -407,7 +408,8 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
             Modifier.fillMaxWidth()
                 .height(76.dp)
                 .background(color = SecondaryGray)
-                .testTag("playerContainer"),
+                .testTag("playerContainer")
+                .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
     ) {
       // Cover image
