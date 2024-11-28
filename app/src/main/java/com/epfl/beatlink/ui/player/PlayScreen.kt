@@ -47,8 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -58,7 +56,6 @@ import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,32 +65,12 @@ fun PlayScreen(
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-  var isPlaying by remember { mutableStateOf(api.isPlaying) }
-  var currentAlbum by remember { mutableStateOf(api.currentAlbum) }
-  var currentTrack by remember { mutableStateOf(api.currentTrack) }
-  var currentArtist by remember { mutableStateOf(api.currentArtist) }
-
-  LaunchedEffect(api.isPlaying) {
-    api.updatePlayer()
-    isPlaying = api.isPlaying
-  }
-
-  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
-    currentAlbum = api.currentAlbum
-    currentTrack = api.currentTrack
-    currentArtist = api.currentArtist
-    mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-  }
+    SharedPlayerEffect(api, mapUsersViewModel)
 
   LaunchedEffect(api.playbackActive) {
     if (!api.playbackActive) {
       navigationActions.goBack()
     }
-  }
-
-  LaunchedEffect(api.triggerChange) {
-    delay(5000L)
-    api.updatePlayer()
   }
 
   Scaffold(
@@ -135,7 +112,7 @@ fun PlayScreen(
                     .background(
                         Brush.verticalGradient(colors = listOf(Color.White, SecondaryPurple)))
                     .testTag("playScreenContent")) {
-              PlayScreenUpperBox(currentTrack, currentAlbum, isPlaying, api)
+              PlayScreenUpperBox(api)
               PlayScreenLowerBox(api)
             }
       })
@@ -143,9 +120,6 @@ fun PlayScreen(
 
 @Composable
 fun PlayScreenUpperBox(
-    track: SpotifyTrack,
-    album: SpotifyAlbum,
-    isPlaying: Boolean,
     api: SpotifyApiViewModel
 ) {
   Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.65F)) {
@@ -158,23 +132,23 @@ fun PlayScreenUpperBox(
         shape = RoundedCornerShape(5.dp),
     ) {
       AsyncImage(
-          model = track.cover,
+          model = api.currentTrack.cover,
           contentDescription = "Album cover",
           modifier = Modifier.fillMaxSize())
     }
     Text(
-        text = track.name,
+        text = api.currentTrack.name,
         modifier =
             Modifier.testTag("trackName")
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 15.dp),
         style = TypographySongs.headlineLarge)
     Text(
-        text = album.artist,
+        text = api.currentAlbum.artist,
         modifier = Modifier.testTag("artistName").align(Alignment.CenterHorizontally),
         style = TypographySongs.headlineMedium)
     Text(
-        text = "${album.name} - ${album.year}",
+        text = "${api.currentAlbum.name} - ${api.currentAlbum.year}",
         modifier = Modifier.testTag("albumNameYear").align(Alignment.CenterHorizontally),
         style = TypographySongs.headlineSmall)
     Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding(30.dp)) {
@@ -194,13 +168,13 @@ fun PlayScreenUpperBox(
         IconButton(
             modifier = Modifier.testTag("playSongButton"),
             onClick = {
-              if (isPlaying) {
+              if (api.isPlaying) {
                 api.pausePlayback()
               } else {
                 api.playPlayback()
               }
             }) {
-              if (isPlaying) {
+              if (api.isPlaying) {
                 Icon(
                     painter = painterResource(R.drawable.pause),
                     contentDescription = "Pause",

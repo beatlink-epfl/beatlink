@@ -312,6 +312,7 @@ open class SpotifyApiViewModel(
           playbackActive = false
           triggerChange = !triggerChange
         })
+    buildQueue()
   }
 
   /**
@@ -383,11 +384,12 @@ open class SpotifyApiViewModel(
         val queueJson = queueOrNull.getJSONArray("queue")
         val top = minOf(5, queueJson.length())
 
-        // Use a List transform to directly map JSONObjects to SpotifyTrack
-        val returnQueue =
-            List(top) { i -> createSpotifyTrack(queueJson.getJSONObject(i)) }.toMutableStateList()
+        // Map JSON objects to SpotifyTrack and update the mutable state list in-place
+        val newQueue = List(top) { i -> createSpotifyTrack(queueJson.getJSONObject(i)) }
 
-        queue = returnQueue
+        // Instead of replacing the entire list, update the state list in-place:
+        queue.clear()  // Clear the existing list
+        queue.addAll(newQueue)  // Add new tracks to the list
       }
     }
   }
