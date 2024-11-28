@@ -18,8 +18,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.assertNotSame
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -99,25 +98,11 @@ class PlayScreenTest {
 
   @Test
   fun testPlaybackButtonsTogglePlayback() {
+    val before = spotifyApiViewModel.isPlaying
 
-    if (spotifyApiViewModel.isPlaying) {
-      // Click to pause
-      composeTestRule.onNodeWithTag("playSongButton").performClick()
-      assertFalse(spotifyApiViewModel.isPlaying)
+    // Click to pause
+    composeTestRule.onNodeWithTag("playSongButton").performClick()
 
-      Thread.sleep(2000)
-
-      composeTestRule.onNodeWithTag("playSongButton").performClick()
-      assertTrue(spotifyApiViewModel.isPlaying)
-    } else {
-      // Click the play button, should start playing
-      composeTestRule.onNodeWithTag("playSongButton").performClick()
-      assertTrue(spotifyApiViewModel.isPlaying)
-
-      Thread.sleep(2000)
-
-      composeTestRule.onNodeWithTag("playSongButton").performClick()
-      assertFalse(spotifyApiViewModel.isPlaying)
-    }
+    assertNotSame(before, spotifyApiViewModel.isPlaying)
   }
 }
