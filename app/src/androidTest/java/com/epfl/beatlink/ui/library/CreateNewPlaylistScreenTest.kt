@@ -1,22 +1,15 @@
 package com.epfl.beatlink.ui.library
 
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -24,21 +17,14 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import io.mockk.every
 import io.mockk.invoke
-import io.mockk.mockk
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.flow.MutableStateFlow
-import net.bytebuddy.implementation.InvokeDynamic.lambda
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
-
 
 class CreateNewPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
@@ -46,12 +32,13 @@ class CreateNewPlaylistScreenTest {
   private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
-  val profile = ProfileData(
-  bio = "Existing bio",
-  links = 3,
-  name = "John Doe",
-  profilePicture = null,
-  username = "TestUser")
+  val profile =
+      ProfileData(
+          bio = "Existing bio",
+          links = 3,
+          name = "John Doe",
+          profilePicture = null,
+          username = "TestUser")
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -62,7 +49,6 @@ class CreateNewPlaylistScreenTest {
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.CREATE_NEW_PLAYLIST)
-
 
     composeTestRule.setContent {
       CreateNewPlaylistScreen(

@@ -69,12 +69,11 @@ fun BackArrowButton(onClick: () -> Unit) {
 
 @Composable
 fun CheckButton(onClick: () -> Unit) {
-    CornerIcons(
-        onClick = onClick,
-        icon = Icons.Filled.Check,
-        contentDescription = "Check",
-        modifier = Modifier.testTag("checkButton")
-    )
+  CornerIcons(
+      onClick = onClick,
+      icon = Icons.Filled.Check,
+      contentDescription = "Check",
+      modifier = Modifier.testTag("checkButton"))
 }
 
 @Composable

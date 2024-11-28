@@ -2,7 +2,6 @@ package com.epfl.beatlink.ui.components
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.util.Size
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -81,7 +80,6 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import kotlinx.coroutines.delay
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable

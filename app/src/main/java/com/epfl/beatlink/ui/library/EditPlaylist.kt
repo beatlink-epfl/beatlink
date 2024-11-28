@@ -39,7 +39,6 @@ import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Screen.CREATE_NEW_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
@@ -55,21 +54,23 @@ fun EditPlaylistScreen(
     playlistViewModel: PlaylistViewModel
 ) {
   val context = LocalContext.current
-  val selectedPlaylistState = playlistViewModel.selectedPlaylist.collectAsState().value ?: return Text("No Playlist selected.")
-    // Preload Temporary State
-    LaunchedEffect(selectedPlaylistState) {
-        playlistViewModel.preloadTemporaryState(selectedPlaylistState)
-    }
-    val playlistTitle by playlistViewModel.tempPlaylistTitle.collectAsState()
-    val playlistDescription by playlistViewModel.tempPlaylistDescription.collectAsState()
-    val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
-    val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
+  val selectedPlaylistState =
+      playlistViewModel.selectedPlaylist.collectAsState().value
+          ?: return Text("No Playlist selected.")
+  // Preload Temporary State
+  LaunchedEffect(selectedPlaylistState) {
+    playlistViewModel.preloadTemporaryState(selectedPlaylistState)
+  }
+  val playlistTitle by playlistViewModel.tempPlaylistTitle.collectAsState()
+  val playlistDescription by playlistViewModel.tempPlaylistDescription.collectAsState()
+  val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
+  val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
   val coverImage by remember { mutableStateOf(selectedPlaylistState.playlistCover) }
 
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
 
-    var showDialog by remember { mutableStateOf(false) }
+  var showDialog by remember { mutableStateOf(false) }
 
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -83,13 +84,13 @@ fun EditPlaylistScreen(
     }
   }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            if (navigationActions.currentRoute() !in listOf(EDIT_PLAYLIST, INVITE_COLLABORATORS)) {
-                playlistViewModel.resetTemporaryState()
-            }
-        }
+  DisposableEffect(Unit) {
+    onDispose {
+      if (navigationActions.currentRoute() !in listOf(EDIT_PLAYLIST, INVITE_COLLABORATORS)) {
+        playlistViewModel.resetTemporaryState()
+      }
     }
+  }
   Scaffold(
       modifier = Modifier.testTag("editPlaylistScreen"),
       topBar = {
@@ -127,7 +128,7 @@ fun EditPlaylistScreen(
               CustomInputField(
                   value = playlistTitle,
                   onValueChange = { newTitle ->
-                      playlistViewModel.updateTemporallyTitle(newTitle)
+                    playlistViewModel.updateTemporallyTitle(newTitle)
                     titleError = newTitle.length !in 1..MAX_PLAYLIST_TITLE_LENGTH
                   },
                   label = "Playlist Title",
@@ -140,7 +141,7 @@ fun EditPlaylistScreen(
               CustomInputField(
                   value = playlistDescription,
                   onValueChange = { newDescription ->
-                   playlistViewModel.updateTemporallyDescription(newDescription)
+                    playlistViewModel.updateTemporallyDescription(newDescription)
                     descriptionError = newDescription.length >= MAX_PLAYLIST_DESCRIPTION_LENGTH
                   },
                   label = "Playlist Description",
@@ -165,9 +166,9 @@ fun EditPlaylistScreen(
                         username = usernameToRemove,
                         onResult = { userIdToRemove ->
                           if (userIdToRemove != null) {
-                              val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
-                              playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
-                              collabUsernames = collabUsernames.filter { it != usernameToRemove }
+                            val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                            playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                            collabUsernames = collabUsernames.filter { it != usernameToRemove }
                           } else {
                             Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
                           }
@@ -197,11 +198,10 @@ fun EditPlaylistScreen(
               }
             }
       })
-    if (showDialog) {
-        InviteCollaboratorsOverlay(
-            navigationActions,
-            onDismissRequest = { showDialog = false },
-            onAddCollaborator = { username -> println("Added: $username") }
-        )
-    }
+  if (showDialog) {
+    InviteCollaboratorsOverlay(
+        navigationActions,
+        onDismissRequest = { showDialog = false },
+        onAddCollaborator = { username -> println("Added: $username") })
+  }
 }
