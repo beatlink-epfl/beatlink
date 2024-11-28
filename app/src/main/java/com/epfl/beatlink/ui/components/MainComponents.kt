@@ -39,12 +39,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,7 +56,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -71,6 +65,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.player.SharedPlayerEffect
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.IconsGradientBrush
 import com.epfl.beatlink.ui.theme.LightGray
@@ -84,7 +80,6 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import kotlinx.coroutines.delay
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable
@@ -376,40 +371,22 @@ fun PrincipalButton(
 }
 
 @Composable
-fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
+fun MusicPlayerUI(
+    navigationActions: NavigationActions,
+    api: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
 
-  var showPlayer by remember { mutableStateOf(api.playbackActive) }
-  var isPlaying by remember { mutableStateOf(api.isPlaying) }
-  var currentAlbum by remember { mutableStateOf(api.currentAlbum) }
-  var currentTrack by remember { mutableStateOf(api.currentTrack) }
-  var currentArtist by remember { mutableStateOf(api.currentArtist) }
+  SharedPlayerEffect(api, mapUsersViewModel)
 
-  LaunchedEffect(api.isPlaying) {
-    api.updatePlayer()
-    isPlaying = api.isPlaying
-  }
-
-  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
-    currentAlbum = api.currentAlbum
-    currentTrack = api.currentTrack
-    currentArtist = api.currentArtist
-    mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
-  }
-
-  LaunchedEffect(api.playbackActive) { showPlayer = api.playbackActive }
-
-  LaunchedEffect(api.triggerChange) {
-    delay(5000L)
-    api.updatePlayer()
-  }
-
-  if (showPlayer) {
+  if (api.playbackActive) {
     Row(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
                 .background(color = SecondaryGray)
-                .testTag("playerContainer"),
+                .testTag("playerContainer")
+                .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
     ) {
       // Cover image
@@ -421,7 +398,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
           shape = RoundedCornerShape(5.dp),
       ) {
         AsyncImage(
-            model = currentTrack.cover,
+            model = api.currentTrack.cover,
             contentDescription = "Cover",
             modifier = Modifier.fillMaxSize())
       }
@@ -430,9 +407,9 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = currentTrack.name, style = TypographySongs.titleLarge)
+        Text(text = api.currentTrack.name, style = TypographySongs.titleLarge)
         Text(
-            text = "${currentArtist.name} - ${currentAlbum.name}",
+            text = "${api.currentArtist.name} - ${api.currentAlbum.name}",
             style = TypographySongs.titleSmall)
       }
 
@@ -441,13 +418,13 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
       // Play/Stop button
       IconButton(
           onClick = {
-            if (isPlaying) {
+            if (api.isPlaying) {
               api.pausePlayback()
             } else {
               api.playPlayback()
             }
           }) {
-            if (isPlaying) {
+            if (api.isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
