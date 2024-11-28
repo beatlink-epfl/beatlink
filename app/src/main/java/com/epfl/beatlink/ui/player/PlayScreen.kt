@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.player
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,18 +27,25 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -48,10 +55,47 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.SecondaryPurple
+import com.epfl.beatlink.ui.theme.TypographySongs
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album: SpotifyAlbum) {
+fun PlayScreen(
+    navigationActions: NavigationActions,
+    api: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
+
+  var isPlaying by remember { mutableStateOf(api.isPlaying) }
+  var currentAlbum by remember { mutableStateOf(api.currentAlbum) }
+  var currentTrack by remember { mutableStateOf(api.currentTrack) }
+  var currentArtist by remember { mutableStateOf(api.currentArtist) }
+
+  LaunchedEffect(api.isPlaying) {
+    api.updatePlayer()
+    isPlaying = api.isPlaying
+  }
+
+  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
+    currentAlbum = api.currentAlbum
+    currentTrack = api.currentTrack
+    currentArtist = api.currentArtist
+    mapUsersViewModel.updatePlayback(currentAlbum, currentTrack, currentArtist)
+  }
+
+  LaunchedEffect(api.playbackActive) {
+    if (!api.playbackActive) {
+      navigationActions.goBack()
+    }
+  }
+
+  LaunchedEffect(api.triggerChange) {
+    delay(5000L)
+    api.updatePlayer()
+  }
+
   Scaffold(
       modifier = Modifier.testTag("playScreen"),
       topBar = {
@@ -62,22 +106,18 @@ fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album:
               Text(
                   text = "Now Playing",
                   fontSize = 20.sp,
-                  modifier = Modifier.testTag("topBarTitle"))
+                  modifier = Modifier.testTag("topBarTitle"),
+                  style = TypographySongs.headlineLarge)
             },
             navigationIcon = {
               IconButton(
                   modifier = Modifier.testTag("backButton"),
                   onClick = { navigationActions.goBack() }) {
                     Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
+                        modifier = Modifier.size(30.dp),
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Go back")
+                        contentDescription = "Go back",
+                        tint = PrimaryPurple)
                   }
             })
       },
@@ -95,85 +135,112 @@ fun PlayScreen(navigationActions: NavigationActions, track: SpotifyTrack, album:
                     .background(
                         Brush.verticalGradient(colors = listOf(Color.White, SecondaryPurple)))
                     .testTag("playScreenContent")) {
-              PlayScreenUpperBox(track, album)
-              PlayScreenLowerBox(album)
+              PlayScreenUpperBox(currentTrack, currentAlbum, isPlaying, api)
+              PlayScreenLowerBox(api)
             }
       })
 }
 
 @Composable
-fun PlayScreenUpperBox(track: SpotifyTrack, album: SpotifyAlbum) {
+fun PlayScreenUpperBox(
+    track: SpotifyTrack,
+    album: SpotifyAlbum,
+    isPlaying: Boolean,
+    api: SpotifyApiViewModel
+) {
   Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.65F)) {
-    Image(
-        painter = painterResource(id = R.drawable.play), // change to album.cover
-        contentDescription = "Album cover",
+    Card(
         modifier =
-            Modifier.testTag("albumCover")
-                .align(Alignment.CenterHorizontally)
+            Modifier.align(Alignment.CenterHorizontally)
                 .size(250.dp)
-                .padding(15.dp))
+                .padding(15.dp)
+                .testTag("albumCover"),
+        shape = RoundedCornerShape(5.dp),
+    ) {
+      AsyncImage(
+          model = track.cover,
+          contentDescription = "Album cover",
+          modifier = Modifier.fillMaxSize())
+    }
     Text(
         text = track.name,
         modifier =
             Modifier.testTag("trackName")
                 .align(Alignment.CenterHorizontally)
-                .padding(bottom = 15.dp))
+                .padding(bottom = 15.dp),
+        style = TypographySongs.headlineLarge)
     Text(
         text = album.artist,
-        modifier = Modifier.testTag("artistName").align(Alignment.CenterHorizontally))
+        modifier = Modifier.testTag("artistName").align(Alignment.CenterHorizontally),
+        style = TypographySongs.headlineMedium)
     Text(
         text = "${album.name} - ${album.year}",
-        modifier = Modifier.testTag("albumNameYear").align(Alignment.CenterHorizontally))
+        modifier = Modifier.testTag("albumNameYear").align(Alignment.CenterHorizontally),
+        style = TypographySongs.headlineSmall)
     Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding(30.dp)) {
       Row(horizontalArrangement = Arrangement.spacedBy(35.dp, Alignment.CenterHorizontally)) {
         IconButton(
             modifier = Modifier.testTag("previousSongButton"),
-            onClick = { /*back to previous song*/}) {
+            onClick = {
+              api.previousSong()
+              api.updatePlayer()
+            }) {
               Icon(
-                  modifier =
-                      Modifier.size(50.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                        onDrawWithContent {
-                          drawContent()
-                          drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                        }
-                      },
+                  modifier = Modifier.size(50.dp),
                   painter = painterResource(R.drawable.skip_backward),
-                  contentDescription = "Go back to previous song")
+                  contentDescription = "Go back to previous song",
+                  tint = Color.Unspecified)
             }
         IconButton(
-            modifier = Modifier.testTag("playSongButton"), onClick = { /*change song state*/}) {
-              Icon(
-                  modifier =
-                      Modifier.size(50.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                        onDrawWithContent {
-                          drawContent()
-                          drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                        }
-                      },
-                  painter = painterResource(R.drawable.play),
-                  contentDescription = "Play or pause the song")
+            modifier = Modifier.testTag("playSongButton"),
+            onClick = {
+              if (isPlaying) {
+                api.pausePlayback()
+              } else {
+                api.playPlayback()
+              }
+            }) {
+              if (isPlaying) {
+                Icon(
+                    painter = painterResource(R.drawable.pause),
+                    contentDescription = "Pause",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(50.dp))
+              } else {
+                Icon(
+                    painter = painterResource(R.drawable.play),
+                    contentDescription = "Play",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(50.dp))
+              }
             }
         IconButton(
-            modifier = Modifier.testTag("skipSongButton"), onClick = { /*change song state*/}) {
+            modifier = Modifier.testTag("skipSongButton"),
+            onClick = {
+              api.skipSong()
+              api.updatePlayer()
+            }) {
               Icon(
-                  modifier =
-                      Modifier.size(50.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                        onDrawWithContent {
-                          drawContent()
-                          drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                        }
-                      },
+                  modifier = Modifier.size(50.dp),
                   painter = painterResource(R.drawable.skip_forward),
-                  contentDescription = "Skip to next song")
+                  contentDescription = "Skip to next song",
+                  tint = Color.Unspecified)
             }
       }
     }
   }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
-fun PlayScreenLowerBox(album: SpotifyAlbum) {
+fun PlayScreenLowerBox(api: SpotifyApiViewModel) {
+
+  var queue by remember { mutableStateOf(api.queue) }
+
+  api.buildQueue()
+
+  LaunchedEffect(api.queue) { queue = api.queue }
+
   Scaffold(
       modifier = Modifier.fillMaxWidth(),
       containerColor = Color.Transparent,
@@ -181,36 +248,17 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp),
             verticalAlignment = Alignment.CenterVertically) {
-              Text(text = "NEXT PLAYED", modifier = Modifier.testTag("nextSongTitle"))
+              Text(
+                  text = "NEXT PLAYED",
+                  modifier = Modifier.testTag("nextSongTitle"),
+                  style =
+                      TextStyle(
+                          brush = PrimaryGradientBrush,
+                          fontSize = 20.sp,
+                          fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                          fontWeight = FontWeight(700),
+                          letterSpacing = 0.22.sp))
               Spacer(modifier = Modifier.weight(1f))
-              IconButton(
-                  modifier = Modifier.testTag("replayButton"),
-                  onClick = { /*change to replay mode*/}) {
-                    Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryPurple, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        painter = painterResource(R.drawable.replay_button),
-                        contentDescription = "")
-                  }
-              IconButton(
-                  modifier = Modifier.testTag("shuffleButton"),
-                  onClick = { /*change to shuffle mode*/}) {
-                    Icon(
-                        modifier =
-                            Modifier.size(30.dp).graphicsLayer(alpha = 0.99f).drawWithCache {
-                              onDrawWithContent {
-                                drawContent()
-                                drawRect(PrimaryPurple, blendMode = BlendMode.SrcAtop)
-                              }
-                            },
-                        painter = painterResource(R.drawable.shuffle_button),
-                        contentDescription = "Go back")
-                  }
             }
       },
       content = { _ ->
@@ -220,12 +268,12 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                     .verticalScroll(rememberScrollState())
                     .fillMaxHeight()
                     .fillMaxWidth()) {
-              if (album.tracks.isEmpty()) {
+              if (queue.isEmpty()) {
                 Text(
                     text = "The track list is empty",
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 25.dp))
               } else {
-                for (i in 0 until album.tracks.size) {
+                for (i in 0 until queue.size) {
                   Box(
                       modifier =
                           Modifier.padding(vertical = 10.dp)
@@ -236,44 +284,32 @@ fun PlayScreenLowerBox(album: SpotifyAlbum) {
                             modifier =
                                 Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),
                             verticalAlignment = Alignment.CenterVertically) {
-                              Image(
-                                  painter =
-                                      painterResource(
-                                          id = R.drawable.play), // change to album.cover
-                                  contentDescription = "Album cover",
+                              Card(
                                   modifier =
-                                      Modifier.testTag("albumCover")
-                                          .size(55.dp)
-                                          .padding(start = 5.dp))
+                                      Modifier.size(55.dp)
+                                          .padding(start = 5.dp)
+                                          .testTag("albumCover"),
+                                  shape = RoundedCornerShape(5.dp),
+                              ) {
+                                AsyncImage(
+                                    model = queue[i].cover,
+                                    contentDescription = "Album cover",
+                                    modifier = Modifier.fillMaxSize())
+                              }
                               Column(
                                   modifier =
                                       Modifier.align(Alignment.CenterVertically)
                                           .padding(start = 10.dp)) {
                                     Text(
-                                        text = album.tracks[i].name,
-                                        modifier = Modifier.testTag("trackName"))
+                                        text = queue[i].name,
+                                        modifier = Modifier.testTag("trackName"),
+                                        style = TypographySongs.titleLarge)
                                     Text(
-                                        text = "${album.artist} - ${album.name}",
-                                        modifier = Modifier.testTag("albumArtistNameIn"))
+                                        text = "${queue[i].artist} - ${queue[i].name}",
+                                        modifier = Modifier.testTag("albumArtistNameIn"),
+                                        style = TypographySongs.titleMedium)
                                   }
                               Spacer(modifier = Modifier.weight(1f))
-                              IconButton(
-                                  modifier = Modifier.testTag("moveTrackButton"),
-                                  onClick = { /*moveTrack*/}) {
-                                    Icon(
-                                        contentDescription = "Move the track",
-                                        modifier =
-                                            Modifier.padding(end = 10.dp)
-                                                .graphicsLayer(alpha = 0.99f)
-                                                .drawWithCache {
-                                                  onDrawWithContent {
-                                                    drawContent()
-                                                    drawRect(
-                                                        Color.Gray, blendMode = BlendMode.SrcAtop)
-                                                  }
-                                                },
-                                        painter = painterResource(id = R.drawable.move_icon))
-                                  }
                             }
                       }
                 }
