@@ -296,4 +296,86 @@ class PlaylistViewModelTest {
 
     verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
+
+  @Test
+  fun addTrack_shouldAddTrackToPlaylist_andTriggerSuccessCallback() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    val newTrack =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "new song",
+                    artist = "artist",
+                    trackId = "3",
+                    cover = "",
+                    duration = 1,
+                    popularity = 2,
+                    state = State.PAUSE),
+            likes = 0,
+            likedBy = mutableListOf())
+
+    doAnswer { invocation ->
+          val onSuccess = invocation.arguments[1] as? () -> Unit
+          onSuccess?.invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    // Act
+    var successCallbackTriggered = false
+    playlistViewModel.addTrack(
+        newTrack, onSuccess = { successCallbackTriggered = true }, onFailure = {})
+
+    // Assert
+    val updatedPlaylist = playlistViewModel.selectedPlaylist.value
+    Assert.assertTrue(successCallbackTriggered)
+    Assert.assertNotNull(updatedPlaylist)
+    Assert.assertEquals(3, updatedPlaylist?.playlistTracks?.size) // 2 original + 1 new
+    Assert.assertTrue(updatedPlaylist?.playlistTracks?.contains(newTrack) == true)
+    verify(playlistRepository).updatePlaylist(eq(updatedPlaylist!!), any(), any())
+  }
+
+  @Test
+  fun addTrack_shouldCallOnFailure_whenNoPlaylistSelected() = runTest {
+    // Arrange
+    val newTrack =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "new track",
+                    artist = "new artist",
+                    trackId = "3",
+                    cover = "",
+                    duration = 180,
+                    popularity = 50,
+                    state = State.PAUSE),
+            likes = 0,
+            likedBy = mutableListOf())
+
+    var failureCallbackCalled = false
+
+    // Act
+    playlistViewModel.addTrack(
+        newTrack, onSuccess = {}, onFailure = { failureCallbackCalled = true })
+
+    // Assert
+    verify(playlistRepository, never()).updatePlaylist(any(), any(), any())
+    Assert.assertTrue(failureCallbackCalled) // Ensure failure callback is triggered
+  }
+
+  @Test
+  fun addTrack_shouldCallOnFailure_whenUpdateFails() = runTest {
+    val exception = Exception("Failed to add playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylist(eq(playlist), any(), any())
+
+    playlistViewModel.addTrack(track1, onSuccess = {}, onFailure = {})
+  }
 }

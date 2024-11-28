@@ -111,16 +111,12 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
       try {
         val newTrackList = playlist.playlistTracks.toMutableList()
         newTrackList.add(track)
-        val updatedPlaylist = playlist.copy(playlistTracks = newTrackList)
+        val updatedPlaylist =
+            playlist.copy(playlistTracks = newTrackList, nbTracks = newTrackList.size)
 
-        // Update the playlist and track count
         updatePlaylist(updatedPlaylist)
-        updateTrackCount(updatedPlaylist, newTrackList.size)
-
-        // Call the success callback
         onSuccess()
       } catch (e: Exception) {
-        // Call the failure callback
         onFailure(e)
       }
     } ?: run { onFailure(IllegalStateException("No playlist selected")) }
