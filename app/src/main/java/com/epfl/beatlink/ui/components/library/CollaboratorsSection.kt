@@ -159,7 +159,8 @@ fun CollaboratorCard(
 
   Card(
       modifier =
-          Modifier.fillMaxWidth()
+          Modifier.testTag("CollabCard")
+              .fillMaxWidth()
               .height(67.dp)
               .border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(5.dp)),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {

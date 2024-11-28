@@ -160,6 +160,15 @@ class EditPlaylistScreenTest {
   }
 
   @Test
+  fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    // Perform click on the "Invite Collaborators" button
+    composeTestRule.onNodeWithTag("collabButton").performClick()
+    // Verify the overlay is visible after the click
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+  }
+
+  @Test
   fun testNavigationAfterPlaylistUpdate() {
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
     verify(navigationActions).navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)

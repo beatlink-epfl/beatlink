@@ -1,7 +1,5 @@
 package com.epfl.beatlink.ui.library
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -91,7 +89,6 @@ class CreateNewPlaylistScreenTest {
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
-    composeTestRule.onNodeWithTag("collabButton").performScrollTo().performClick()
     composeTestRule.onNodeWithTag("gradientSwitch").performScrollTo().performClick()
   }
 
@@ -110,6 +107,15 @@ class CreateNewPlaylistScreenTest {
     composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
 
     verify(playlistRepository).addPlaylist(any(), any(), any())
+  }
+
+  @Test
+  fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    // Perform click on the "Invite Collaborators" button
+    composeTestRule.onNodeWithTag("collabButton").performClick()
+    // Verify the overlay is visible after the click
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
   }
 
   @Test

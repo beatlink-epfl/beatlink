@@ -199,9 +199,6 @@ fun EditPlaylistScreen(
             }
       })
   if (showDialog) {
-    InviteCollaboratorsOverlay(
-        navigationActions,
-        onDismissRequest = { showDialog = false },
-        onAddCollaborator = { username -> println("Added: $username") })
+    InviteCollaboratorsOverlay(navigationActions, onDismissRequest = { showDialog = false })
   }
 }

@@ -40,17 +40,14 @@ import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 
 @Composable
-fun InviteCollaboratorsOverlay(
-    navigationActions: NavigationActions,
-    onDismissRequest: () -> Unit,
-    onAddCollaborator: (String) -> Unit
-) {
+fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRequest: () -> Unit) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
   val list = listOf("Alice", "Morgane")
   // Overlay background
   Box(
       modifier =
-          Modifier.fillMaxSize()
+          Modifier.testTag("inviteCollaboratorsOverlay")
+              .fillMaxSize()
               .background(Color.Black.copy(alpha = 0.4f)) // Semi-transparent background
               .pointerInput(Unit) {
                 detectTapGestures(
@@ -84,7 +81,8 @@ fun InviteCollaboratorsOverlay(
                                 .topAppBarModifier()) {
                           Row(
                               modifier =
-                                  Modifier.fillMaxSize()
+                                  Modifier.testTag("searchBar")
+                                      .fillMaxSize()
                                       .padding(horizontal = 8.dp, vertical = 6.dp)
                                       .background(
                                           color = LightGray, shape = RoundedCornerShape(5.dp))
