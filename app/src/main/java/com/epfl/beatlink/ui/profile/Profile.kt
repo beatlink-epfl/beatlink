@@ -177,6 +177,7 @@ fun ProfileScreen(
                   color = Color.Black,
                   style = MaterialTheme.typography.bodyMedium,
                   modifier = Modifier.padding(horizontal = 10.dp).testTag("bio"))
+
               Spacer(modifier = Modifier.height(32.dp))
 
               // Favorite music genres
@@ -193,14 +194,18 @@ fun ProfileScreen(
                 }
               }
 
-              // Display top songs and top artists only if available
-              if (topSongsState.value.isNotEmpty() && topArtistsState.value.isNotEmpty()) {
+              // Display top songs if available
+              if (topSongsState.value.isNotEmpty()) {
                 GradientTitle("TOP SONGS")
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(11.dp),
                     modifier = Modifier.padding(vertical = 16.dp)) {
                       items(topSongsState.value.size) { i -> TrackCard(topSongsState.value[i]) }
                     }
+              }
+
+              // Display top artists if available
+              if (topArtistsState.value.isNotEmpty()) {
                 GradientTitle("TOP ARTISTS")
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(11.dp),
