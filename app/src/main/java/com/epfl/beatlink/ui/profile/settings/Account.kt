@@ -128,7 +128,7 @@ fun AccountScreen(
                 firebaseAuthViewModel.deleteAccount(
                     currentPassword = password,
                     onSuccess = {
-                      navigationActions.navigateTo(Screen.WELCOME)
+                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
                       Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
                           .show()
                       showDialog = false

@@ -152,7 +152,7 @@ class DeleteAccountButtonTest {
     coVerify { profileRepository.deleteProfile(eq("testUserId")) }
 
     // Verify navigation to the WELCOME screen
-    verify { navigationActions.navigateTo(Screen.WELCOME) }
+    verify { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
   @Test
@@ -176,7 +176,7 @@ class DeleteAccountButtonTest {
     coVerify(exactly = 0) { profileRepository.deleteProfile(any()) }
 
     // Verify no navigation to the login screen
-    verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
+    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
   @Test
@@ -232,6 +232,6 @@ class DeleteAccountButtonTest {
     composeTestRule.onNodeWithTag("passwordField").assertDoesNotExist()
 
     // Verify that no navigation occurs
-    verify(exactly = 0) { navigationActions.navigateTo(Screen.WELCOME) }
+    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 }
