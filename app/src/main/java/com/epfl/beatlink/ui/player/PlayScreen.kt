@@ -65,7 +65,7 @@ fun PlayScreen(
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-    SharedPlayerEffect(api, mapUsersViewModel)
+  SharedPlayerEffect(api, mapUsersViewModel)
 
   LaunchedEffect(api.playbackActive) {
     if (!api.playbackActive) {
@@ -119,9 +119,7 @@ fun PlayScreen(
 }
 
 @Composable
-fun PlayScreenUpperBox(
-    api: SpotifyApiViewModel
-) {
+fun PlayScreenUpperBox(api: SpotifyApiViewModel) {
   Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.65F)) {
     Card(
         modifier =

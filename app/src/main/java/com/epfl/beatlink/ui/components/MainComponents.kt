@@ -56,7 +56,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -81,7 +80,6 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import kotlinx.coroutines.delay
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable
@@ -377,7 +375,7 @@ fun MusicPlayerUI(
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-    SharedPlayerEffect(api, mapUsersViewModel)
+  SharedPlayerEffect(api, mapUsersViewModel)
 
   if (api.playbackActive) {
     Row(

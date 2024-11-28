@@ -7,21 +7,16 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SharedPlayerEffect(
-    api: SpotifyApiViewModel,
-    mapUsersViewModel: MapUsersViewModel
-){
+fun SharedPlayerEffect(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
 
-    LaunchedEffect(api.isPlaying) {
-        api.updatePlayer()
-    }
+  LaunchedEffect(api.isPlaying) { api.updatePlayer() }
 
-    LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
-        mapUsersViewModel.updatePlayback(api.currentAlbum, api.currentTrack, api.currentArtist)
-    }
+  LaunchedEffect(api.currentAlbum, api.currentArtist, api.currentTrack) {
+    mapUsersViewModel.updatePlayback(api.currentAlbum, api.currentTrack, api.currentArtist)
+  }
 
-    LaunchedEffect(api.triggerChange) {
-        delay(5000L)
-        api.updatePlayer()
-    }
+  LaunchedEffect(api.triggerChange) {
+    delay(5000L)
+    api.updatePlayer()
+  }
 }

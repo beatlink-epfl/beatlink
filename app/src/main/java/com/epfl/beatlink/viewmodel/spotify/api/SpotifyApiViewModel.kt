@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.library.UserPlaylist
@@ -388,8 +387,8 @@ open class SpotifyApiViewModel(
         val newQueue = List(top) { i -> createSpotifyTrack(queueJson.getJSONObject(i)) }
 
         // Instead of replacing the entire list, update the state list in-place:
-        queue.clear()  // Clear the existing list
-        queue.addAll(newQueue)  // Add new tracks to the list
+        queue.clear() // Clear the existing list
+        queue.addAll(newQueue) // Add new tracks to the list
       }
     }
   }
