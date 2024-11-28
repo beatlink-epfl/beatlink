@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.MapUser
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -32,6 +34,8 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
@@ -73,6 +77,24 @@ fun GoogleMapView(
     }
   }
 
+  // Mutable state map for user markers
+  val userIcons = remember { mutableStateOf<Map<String, BitmapDescriptor?>>(emptyMap()) }
+
+  // Load icons asynchronously
+  LaunchedEffect(mapUsers) {
+    val icons = mutableMapOf<String, BitmapDescriptor?>()
+    mapUsers.forEach { user ->
+      icons[user.username] =
+          coroutineScope
+              .async(Dispatchers.IO) {
+                getBitmapDescriptorFromImageUrlSongPopUp(
+                    imageUrl = user.currentPlayingTrack.albumCover, width = 100, height = 100)
+              }
+              .await()
+    }
+    userIcons.value = icons
+  }
+
   // Main container for the map view
   Box(Modifier.fillMaxSize()) {
     // Google Map composable
@@ -102,23 +124,19 @@ fun GoogleMapView(
                   fillColor = MaterialTheme.colorScheme.onBackground)
             }
           }
-          // Add markers for each user in the mutable list
+          // Add markers for each user in the list
           mapUsers.forEach { user ->
+            val icon = userIcons.value[user.username] ?: BitmapDescriptorFactory.defaultMarker()
             Marker(
                 contentDescription = "markerMapUser",
                 state =
                     MarkerState(position = LatLng(user.location.latitude, user.location.longitude)),
                 title = user.username,
-                icon =
-                    getBitmapDescriptorFromDrawableResourceSongPopUp(
-                        R.drawable.cover_test1,
-                        context,
-                        100,
-                        100), // TODO change to actual cover when conversion implemented
+                icon = icon,
                 anchor = Offset(0.5f, 0.5f),
                 onClick = {
-                  selectedUser.value = user // Set the selected user when marker is clicked
-                  true // Return true to consume the click event
+                  selectedUser.value = user
+                  true
                 })
           }
         }
