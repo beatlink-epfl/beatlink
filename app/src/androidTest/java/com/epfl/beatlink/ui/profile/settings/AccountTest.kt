@@ -9,11 +9,13 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.every
@@ -38,6 +40,8 @@ class AccountScreenTest {
   private lateinit var spotifyRepository: SpotifyAuthRepository
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var authViewModel: FirebaseAuthViewModel
+  private lateinit var mapUserRepository: MapUserRepository
+  private lateinit var mapUsersViewModel: MapUsersViewModel
 
   private val testEmail = "user@example.com"
   private val testUsername = "testuser"
@@ -52,6 +56,8 @@ class AccountScreenTest {
     profileViewModel = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
+      mapUserRepository = mock(MapUserRepository::class.java)
+      mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     every { navigationActions.currentRoute() } returns Screen.ACCOUNT
     every { profileViewModel.profile } returns
@@ -73,7 +79,8 @@ class AccountScreenTest {
           navigationActions = navigationActions,
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
-          firebaseAuthViewModel = authViewModel)
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = mapUsersViewModel)
     }
 
     // Check if title is displayed
@@ -92,7 +99,8 @@ class AccountScreenTest {
           navigationActions = navigationActions,
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
-          firebaseAuthViewModel = authViewModel)
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = mapUsersViewModel)
     }
 
     // Test "Username" clickable text box

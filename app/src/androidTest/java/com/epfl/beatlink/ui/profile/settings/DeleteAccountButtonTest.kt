@@ -13,12 +13,14 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.coEvery
@@ -45,12 +47,15 @@ class DeleteAccountButtonTest {
   private lateinit var profileRepository: ProfileRepository
   private lateinit var spotifyRepository: SpotifyAuthRepository
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
+    private lateinit var mapUserRepository: MapUserRepository
+    private lateinit var mapUsersViewModel: MapUsersViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     authRepository = mockk(relaxed = true)
     profileRepository = mockk(relaxed = true)
+      mapUserRepository = mockk(relaxed = true)
     every { profileRepository.getUserId() } returns "testUserId"
     // Mock Profile Data
     val mockProfile =
@@ -68,6 +73,7 @@ class DeleteAccountButtonTest {
     val application = ApplicationProvider.getApplicationContext<Application>()
     spotifyRepository = SpotifyAuthRepository(client = OkHttpClient()) // or any required client
     spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyRepository)
+      mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
@@ -75,7 +81,8 @@ class DeleteAccountButtonTest {
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
           profileViewModel = profileViewModel,
-          spotifyAuthViewModel = spotifyAuthViewModel)
+          spotifyAuthViewModel = spotifyAuthViewModel,
+          mapUsersViewModel = mapUsersViewModel)
     }
   }
 
