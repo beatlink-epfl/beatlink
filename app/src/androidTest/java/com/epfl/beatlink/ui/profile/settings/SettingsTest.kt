@@ -4,9 +4,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
-import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
@@ -28,8 +28,6 @@ class SettingsScreenTest {
   private lateinit var navigationActions: NavigationActions
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var authViewModel: FirebaseAuthViewModel
-  private lateinit var mapUserRepository: MapUserRepository
-  private lateinit var mapUsersViewModel: MapUsersViewModel
 
   @Before
   fun setUp() {
@@ -38,14 +36,15 @@ class SettingsScreenTest {
 
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
-    mapUserRepository = mock(MapUserRepository::class.java)
-    mapUsersViewModel = MapUsersViewModel(mapUserRepository)
   }
 
   @Test
   fun settingsScreen_rendersCorrectly() {
     composeTestRule.setContent {
-      SettingsScreen(navigationActions = navigationActions, authViewModel, mapUsersViewModel)
+      SettingsScreen(
+          navigationActions = navigationActions,
+          authViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Check if the title is displayed
@@ -58,7 +57,10 @@ class SettingsScreenTest {
   @Test
   fun settingsScreen_buttonsNavigateCorrectly() {
     composeTestRule.setContent {
-      SettingsScreen(navigationActions = navigationActions, authViewModel, mapUsersViewModel)
+      SettingsScreen(
+          navigationActions = navigationActions,
+          authViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Test "Account Settings" button

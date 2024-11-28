@@ -6,10 +6,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
-import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -40,8 +40,6 @@ class AccountScreenTest {
   private lateinit var spotifyRepository: SpotifyAuthRepository
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var authViewModel: FirebaseAuthViewModel
-  private lateinit var mapUserRepository: MapUserRepository
-  private lateinit var mapUsersViewModel: MapUsersViewModel
 
   private val testEmail = "user@example.com"
   private val testUsername = "testuser"
@@ -56,8 +54,6 @@ class AccountScreenTest {
     profileViewModel = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
-    mapUserRepository = mock(MapUserRepository::class.java)
-    mapUsersViewModel = MapUsersViewModel(mapUserRepository)
 
     every { navigationActions.currentRoute() } returns Screen.ACCOUNT
     every { profileViewModel.profile } returns
@@ -80,7 +76,7 @@ class AccountScreenTest {
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = mapUsersViewModel)
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Check if title is displayed
@@ -100,7 +96,7 @@ class AccountScreenTest {
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = mapUsersViewModel)
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Test "Username" clickable text box
