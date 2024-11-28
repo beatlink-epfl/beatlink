@@ -92,6 +92,7 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
           onSuccess = { /* Optionally refresh users or perform other actions */},
           onFailure = { /* Handle any failures as needed */})
       _mapUser.value = null
+        _playbackState.value = null
     }
   }
 
