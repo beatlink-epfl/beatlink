@@ -3,7 +3,6 @@ package com.epfl.beatlink.ui.library
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,10 +29,10 @@ import coil.compose.AsyncImage
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.epfl.beatlink.ui.components.search.DisplayResults
+import com.epfl.beatlink.ui.components.search.HandleSearchQuery
+import com.epfl.beatlink.ui.components.search.SearchScaffold
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
@@ -53,80 +48,27 @@ fun SearchTracksScreen(
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
 
-  val context = LocalContext.current
+  HandleSearchQuery(
+      query = searchQuery.value.text,
+      onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
+      onFailure = { results.value = Pair(emptyList(), emptyList()) },
+      spotifyApiViewModel = spotifyApiViewModel)
 
-  // Observe search query changes and fetch corresponding results
-  LaunchedEffect(searchQuery.value.text) {
-    if (searchQuery.value.text.isNotEmpty()) {
-      spotifyApiViewModel.searchArtistsAndTracks(
-          query = searchQuery.value.text,
-          onSuccess = { artists, tracks -> results.value = Pair(tracks, artists) },
-          onFailure = { _, _ ->
-            Toast.makeText(
-                    context,
-                    "Sorry, we couldn't find any matches for that search.",
-                    Toast.LENGTH_SHORT)
-                .show()
-          })
-    } else {
-      results.value = Pair(emptyList(), emptyList())
-    }
-  }
-
-  Scaffold(
-      topBar = {
-        ShortSearchBarLayout(
-            navigationActions = navigationActions,
-            searchQuery = searchQuery.value,
-            onQueryChange = { newQuery -> searchQuery.value = newQuery })
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      },
-      modifier = Modifier.testTag("searchTracksScreen")) { paddingValues ->
-        Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .padding(paddingValues)
-                    .background(color = MaterialTheme.colorScheme.background)) {
-              SearchTracksLazyColumn(
-                  tracks = results.value.first,
-                  playlistViewModel = playlistViewModel,
-                  onClearQuery = {
-                    searchQuery.value = TextFieldValue("")
-                    results.value = Pair(emptyList(), emptyList())
-                  })
-            }
-      }
-}
-
-@Composable
-fun SearchTracksLazyColumn(
-    tracks: List<SpotifyTrack>?,
-    playlistViewModel: PlaylistViewModel,
-    onClearQuery: () -> Unit
-) {
-  if (tracks.isNullOrEmpty()) {
-    // Display message when no tracks are available
+  SearchScaffold(navigationActions = navigationActions, searchQuery = searchQuery) { paddingValues
+    ->
     Column(
-        modifier = Modifier.fillMaxSize().testTag("noResultsMessage"),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-          Text(
-              text = "Search for a song to add and click on it",
-              style = MaterialTheme.typography.bodyLarge)
+        modifier =
+            Modifier.fillMaxSize()
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.background)) {
+          DisplayResults(
+              tracks = results.value.first,
+              playlistViewModel = playlistViewModel,
+              onClearQuery = {
+                searchQuery.value = TextFieldValue("")
+                results.value = Pair(emptyList(), emptyList())
+              })
         }
-  } else {
-    // Display tracks
-    LazyColumn(modifier = Modifier.testTag("searchResultsColumn")) {
-      items(tracks) { track ->
-        TrackPlaylistItem(
-            track = track, playlistViewModel = playlistViewModel, onClearQuery = onClearQuery)
-      }
-    }
   }
 }
 
@@ -144,7 +86,7 @@ fun TrackPlaylistItem(
               .padding(vertical = 8.dp)
               .background(MaterialTheme.colorScheme.background, RoundedCornerShape(8.dp))
               .padding(horizontal = 8.dp)
-              .testTag("trackItem")
+              .testTag("trackItem-${track.trackId}") // Unique testTag for the Row
               .clickable {
                 playlistViewModel.addTrack(
                     PlaylistTrack(track, 0, mutableListOf()),
@@ -161,14 +103,16 @@ fun TrackPlaylistItem(
               }) {
         // Album cover
         Card(
-            modifier = Modifier.padding(start = 8.dp).testTag("trackAlbumCover").size(55.dp),
-            shape = RoundedCornerShape(5.dp),
-        ) {
-          AsyncImage(
-              model = track.cover,
-              contentDescription = "Cover for ${track.name}",
-              contentScale = ContentScale.Crop)
-        }
+            modifier =
+                Modifier.padding(start = 8.dp)
+                    .size(55.dp)
+                    .testTag("trackAlbumCover-${track.trackId}"),
+            shape = RoundedCornerShape(5.dp)) {
+              AsyncImage(
+                  model = track.cover,
+                  contentDescription = "Cover for ${track.name}",
+                  contentScale = ContentScale.Crop)
+            }
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -176,11 +120,11 @@ fun TrackPlaylistItem(
         Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
           Text(
               text = track.name,
-              modifier = Modifier.testTag(track.name),
+              modifier = Modifier.testTag("trackName-${track.trackId}"),
               style = TypographySongs.titleLarge)
           Text(
               text = track.artist,
-              modifier = Modifier.testTag(track.artist),
+              modifier = Modifier.testTag("trackArtist-${track.trackId}"),
               style = TypographySongs.titleSmall)
         }
       }
