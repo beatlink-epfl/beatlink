@@ -185,7 +185,7 @@ fun PlaylistOverviewScreen(
                         items(sortedTracks) { track ->
                           TrackVoteCard(
                               playlistTrack = track, // Ensure track is of type PlaylistTrack
-                              onVoteChanged = { trackId, isVoted ->
+                              onVoteChanged = { trackId, _ ->
                                 playlistViewModel.updateTrackLikes(
                                     trackId = trackId,
                                     userId =
