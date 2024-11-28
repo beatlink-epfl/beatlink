@@ -225,6 +225,20 @@ class PlaylistViewModelTest {
   }
 
   @Test
+  fun addPlaylist_shouldCallOnFailure_whenAddFails() = runTest {
+    val exception = Exception("Failed to add playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .addPlaylist(eq(playlist), any(), any())
+
+    playlistViewModel.addPlaylist(playlist)
+  }
+
+  @Test
   fun deletePlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
     doAnswer { invocation ->
           (invocation.arguments[1] as () -> Unit).invoke()
@@ -236,6 +250,50 @@ class PlaylistViewModelTest {
     playlistViewModel.deletePlaylist(playlist.playlistID)
 
     verify(playlistRepository).deletePlaylistById(eq(playlist.playlistID), any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
+  }
+
+  @Test
+  fun updatePlaylist_shouldCallOnFailure_whenUpdateFails() = runTest {
+    val exception = Exception("Failed to update playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylist(eq(playlist), any(), any())
+
+    playlistViewModel.updatePlaylist(playlist)
+  }
+
+  @Test
+  fun deletePlaylist_shouldCallOnFailure_whenDeleteFails() = runTest {
+    val playlistUID = "test_playlist_id"
+    val exception = Exception("Failed to delete playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .deletePlaylistById(eq(playlistUID), any(), any())
+
+    playlistViewModel.deletePlaylist(playlistUID)
+  }
+
+  @Test
+  fun updateTrackCount_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
+    val newTrackCount = 5
+    doAnswer { invocation ->
+          (invocation.arguments[2] as () -> Unit).invoke() // invoke onSuccess callback
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylistTrackCount(eq(playlist), eq(newTrackCount), any(), any())
+
+    playlistViewModel.updateTrackCount(playlist, newTrackCount)
+
     verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 }
