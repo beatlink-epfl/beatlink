@@ -103,7 +103,6 @@ class PlaylistViewModelTest {
           playlistTracks = listOf(track1),
           nbTracks = 1)
 
-
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   fun setUp() {
