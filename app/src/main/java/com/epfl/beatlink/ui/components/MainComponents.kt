@@ -375,7 +375,11 @@ fun PrincipalButton(
 }
 
 @Composable
-fun MusicPlayerUI(navigationActions: NavigationActions, api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel) {
+fun MusicPlayerUI(
+    navigationActions: NavigationActions,
+    api: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel
+) {
 
   var showPlayer by remember { mutableStateOf(api.playbackActive) }
   var isPlaying by remember { mutableStateOf(api.isPlaying) }

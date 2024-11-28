@@ -3,8 +3,10 @@ package com.epfl.beatlink.viewmodel.spotify.api
 import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.library.UserPlaylist
@@ -36,6 +38,8 @@ open class SpotifyApiViewModel(
   var currentAlbum by mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
 
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
+
+  var queue = mutableStateListOf<SpotifyTrack>()
 
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
   fun createBeatLinkPlaylist(
@@ -369,6 +373,23 @@ open class SpotifyApiViewModel(
     val artist = artists.getJSONObject(0)
     retArtist = SpotifyArtist("", artist.getString("name"), listOf(), 0)
     return retArtist
+  }
+
+  fun buildQueue() {
+    viewModelScope.launch {
+      val queueResponse = apiRepository.get("me/player/queue")
+      if (queueResponse.isSuccess) {
+        val queueOrNull = queueResponse.getOrNull() ?: return@launch
+        val queueJson = queueOrNull.getJSONArray("queue")
+        val top = minOf(5, queueJson.length())
+
+        // Use a List transform to directly map JSONObjects to SpotifyTrack
+        val returnQueue =
+            List(top) { i -> createSpotifyTrack(queueJson.getJSONObject(i)) }.toMutableStateList()
+
+        queue = returnQueue
+      }
+    }
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
