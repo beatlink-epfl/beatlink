@@ -279,6 +279,9 @@ dependencies {
     implementation(libs.maps.compose.utils)
     // Coil for image loading
     implementation (libs.coil.compose)
+    //Picasso
+    implementation(libs.picasso)
+
 
 }
 
