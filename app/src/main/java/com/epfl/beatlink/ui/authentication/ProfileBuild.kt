@@ -136,7 +136,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
                 if (imageUri != null) {
                   profileViewModel.uploadProfilePicture(context, imageUri)
                 }
-                navigationActions.navigateTo(Screen.HOME)
+                navigationActions.navigateToAndClearAllBackStack(Screen.HOME)
               }
 
               // Show music genre selection dialog if visible
