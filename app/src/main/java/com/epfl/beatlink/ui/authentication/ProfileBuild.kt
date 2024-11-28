@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +18,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -46,13 +49,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.MusicGenre
 import com.epfl.beatlink.model.profile.MusicGenre.Companion.MAX_SELECTABLE_GENRES
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
+import com.epfl.beatlink.ui.components.GradientTitle
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ProfilePicture
+import com.epfl.beatlink.ui.components.profile.MusicGenreCard
+import com.epfl.beatlink.ui.components.profile.genreGradients
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
@@ -105,8 +112,6 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
               // Add Profile Picture
               AddProfilePicture(permissionLauncher, profilePicture)
 
-              Spacer(modifier = Modifier.height(16.dp))
-
               // Name input field
               CustomInputField(
                   value = name,
@@ -128,6 +133,8 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
               SelectFavoriteMusicGenres(
                   favoriteGenres = favoriteMusicGenres,
                   onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
+
+              Spacer(modifier = Modifier.height(6.dp))
 
               // Save button
               PrincipalButton("Save", "saveButton") {
@@ -191,23 +198,40 @@ fun SelectFavoriteMusicGenres(
     favoriteGenres: List<String>,
     onGenreSelectionVisibilityChanged: (Boolean) -> Unit
 ) {
-  Text(
-      text =
-          if (favoriteGenres.isEmpty()) "Select Favorite Genres"
-          else "Selected Genres: ${favoriteGenres.joinToString(", ")}",
-      modifier =
-          Modifier.clickable { onGenreSelectionVisibilityChanged(true) }
-              .padding(16.dp)
-              .graphicsLayer(alpha = 0.99f)
-              .drawWithCache {
-                onDrawWithContent {
-                  drawContent()
-                  drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                }
-              }
-              .testTag("selectFavoriteGenresText"),
-      style = MaterialTheme.typography.titleMedium,
-  )
+  if (favoriteGenres.isEmpty()) {
+    Box(
+        modifier =
+            Modifier.clickable { onGenreSelectionVisibilityChanged(true) }
+                .padding(16.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(10.dp))
+                .height(52.dp)
+                .padding(16.dp),
+        contentAlignment = Alignment.Center) {
+          Text(
+              text = "Select Your Favorite Music Genres",
+              modifier = Modifier.testTag("selectFavoriteGenresText"),
+              style = MaterialTheme.typography.bodyLarge)
+        }
+  } else {
+    // Display the selected favorite music genres as clickable cards
+    Spacer(modifier = Modifier.height(8.dp))
+    GradientTitle("YOUR FAVORITE MUSIC GENRES")
+    Row(
+        modifier = Modifier.padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      favoriteGenres.forEach { genre ->
+        val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
+        MusicGenreCard(
+            genre = genre,
+            brush = genreGradient,
+            onClick = { onGenreSelectionVisibilityChanged(true) })
+      }
+    }
+  }
 }
 
 @Composable
@@ -270,11 +294,15 @@ fun MusicGenreSelectionDialog(
 
             // Show message when the set limit of music genres are selected
             if (selectedCount >= MAX_SELECTABLE_GENRES) {
-              Text(
-                  text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
-                  color = MaterialTheme.colorScheme.error,
-                  modifier = Modifier.padding(top = 8.dp),
-                  style = MaterialTheme.typography.bodyMedium)
+              Box(
+                  modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                  contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium)
+                  }
             }
           }
 

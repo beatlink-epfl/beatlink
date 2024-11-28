@@ -183,12 +183,12 @@ fun ProfileScreen(
               if (profileData?.favoriteMusicGenres?.isNotEmpty() == true) {
                 GradientTitle("MUSIC GENRES")
                 Row(
-                    modifier = Modifier.padding(vertical = 16.dp),
+                    modifier = Modifier.padding(vertical = 16.dp).testTag("favoriteMusicGenresRow"),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                   profileData!!.favoriteMusicGenres.forEach { genre ->
                     val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                    MusicGenreCard(genre = genre, brush = genreGradient)
+                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
                   }
                 }
               }
