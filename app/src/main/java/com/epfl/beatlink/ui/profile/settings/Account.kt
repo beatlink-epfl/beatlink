@@ -41,6 +41,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
@@ -49,7 +50,8 @@ fun AccountScreen(
     navigationActions: NavigationActions,
     spotifyAuthViewModel: SpotifyAuthViewModel,
     profileViewModel: ProfileViewModel,
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    mapUsersViewModel: MapUsersViewModel
 ) {
   val context = LocalContext.current
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
@@ -122,6 +124,7 @@ fun AccountScreen(
                 val currentProfile = profileData
 
                 profileViewModel.deleteProfile()
+                  mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.deleteAccount(
                     currentPassword = password,
                     onSuccess = {
