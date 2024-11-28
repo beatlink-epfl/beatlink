@@ -29,9 +29,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -41,11 +43,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.R
+import com.epfl.beatlink.ui.components.BackArrowButton
 import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.PrimaryGray
+import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
 @Composable
@@ -107,17 +112,22 @@ fun ShortSearchBarLayout(
           Modifier.testTag("shortSearchBarRow")
               .fillMaxWidth()
               .height(60.dp)
-              .topAppBarModifier()) {
-        // Back Icon
-        Icon(
-            painter = painterResource(id = R.drawable.back_arrow),
-            contentDescription = "Back Icon",
-            tint = Color.Unspecified,
-            modifier =
-                Modifier.testTag("backButton").size(24.dp).clickable { navigationActions.goBack() })
-
-        Spacer(modifier = Modifier.width(21.dp))
-
+              .background(color = MaterialTheme.colorScheme.background)
+              .drawWithCache {
+                  onDrawWithContent {
+                      drawContent()
+                      drawLine(
+                          color = BorderColor,
+                          strokeWidth = 1.dp.toPx(),
+                          start = Offset(0f, size.height), // Bottom left
+                          end = Offset(size.width, size.height) // Bottom right
+                      )
+                  }
+              }
+              .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)
+              ) {
+        BackArrowButton { navigationActions.goBack() }
+      Spacer(Modifier.width(12.dp))
         // Search Bar
         ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange)
       }
@@ -149,15 +159,16 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
             OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent,
-                cursorColor = MaterialTheme.colorScheme.primary
+                cursorColor = MaterialTheme.colorScheme.primaryContainer
             ),
             shape = RoundedCornerShape(5.dp),
             modifier =
             Modifier.testTag("writableSearchBar")
                 .focusRequester(focusRequester)
                 .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
-                .width(334.dp)
-                .height(48.dp)
+                .width(350.dp)
+                .height(50.dp)
+                .background(color = LightGray, shape = RoundedCornerShape(5.dp))
         )
 
 

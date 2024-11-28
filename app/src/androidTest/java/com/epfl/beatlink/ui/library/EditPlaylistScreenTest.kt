@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -17,6 +18,7 @@ import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -30,6 +32,7 @@ import org.mockito.kotlin.verify
 class EditPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
+  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
   private val playlist =
@@ -51,6 +54,7 @@ class EditPlaylistScreenTest {
   fun setUp() {
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
+      profileViewModel = mockk(relaxed = true)
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.EDIT_PLAYLIST)
@@ -143,7 +147,7 @@ class EditPlaylistScreenTest {
     assertEquals("This is a valid playlist description.", updatedPlaylist.playlistDescription)
   }
 
-  @Test
+    @Test
   fun deletePlaylistButtonWorks() {
     composeTestRule.onNodeWithTag("deleteButton").performClick()
 

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,6 +84,7 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.ui.theme.lightThemePurple
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import kotlinx.coroutines.delay
@@ -407,7 +409,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = SecondaryGray)
+                .background(color = lightThemePurple)
                 .testTag("playerContainer"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -418,6 +420,7 @@ fun MusicPlayerUI(api: SpotifyApiViewModel, mapUsersViewModel: MapUsersViewModel
                   .testTag("songCardContainer")
                   .size(55.dp),
           shape = RoundedCornerShape(5.dp),
+          colors = CardDefaults.cardColors(containerColor = Color.Transparent)
       ) {
         AsyncImage(
             model = currentTrack.cover,

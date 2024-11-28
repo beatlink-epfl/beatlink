@@ -124,7 +124,8 @@ fun BeatLinkApp(
       composable(Screen.PLAYLIST_OVERVIEW) {
         PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
       }
-      composable(Screen.INVITE_COLLABORATORS) { InviteCollaboratorsScreen(navigationActions) }
+      composable(Screen.INVITE_COLLABORATORS) {
+        InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel) }
     }
 
     navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.AddButton
 import com.epfl.beatlink.ui.components.ProfilePicture
+import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import com.epfl.beatlink.ui.components.library.PlaylistCard
 import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -117,41 +118,15 @@ fun InviteCollaboratorsOverlay(navigationActions: NavigationActions,
                         .padding(horizontal = 16.dp, vertical = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(11.dp)) {
                     items(list.size) { i ->
-                        CollaboratorCard(list[i], "hello", profilePicture)
+                        CollaboratorCard(list[i],
+                            "hello",
+                            profilePicture,
+                            false,
+                            onAdd = {},
+                            onRemove = {})
                     }
                 }
             }
         }
     }
-}
-
-
-@Composable
-fun CollaboratorCard(name: String?, username: String, profilePicture: MutableState<Bitmap?>) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth().height(67.dp)
-            .border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(5.dp)),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            ProfilePicture(profilePicture, 55.dp)
-            Column(modifier = Modifier.padding(start = 14.dp)) {
-                Text(
-                    text = name ?: "",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "@$username".uppercase(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            AddButton { }
-        }
-    }
-
 }

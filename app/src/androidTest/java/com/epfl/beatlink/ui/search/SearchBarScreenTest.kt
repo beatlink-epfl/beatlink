@@ -73,7 +73,7 @@ class SearchBarScreenTest {
     composeTestRule.onNodeWithTag("searchBarScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
     composeTestRule
@@ -108,8 +108,7 @@ class SearchBarScreenTest {
 
   @Test
   fun testBackNavigation() {
-
-    composeTestRule.onNodeWithTag("backButton").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
   }
 

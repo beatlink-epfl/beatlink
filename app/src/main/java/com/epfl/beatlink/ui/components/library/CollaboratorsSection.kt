@@ -1,10 +1,12 @@
 package com.epfl.beatlink.ui.components.library
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,10 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +30,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.ui.components.AddButton
+import com.epfl.beatlink.ui.components.CheckButton
 import com.epfl.beatlink.ui.components.CloseButton
+import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.navigation.AppIcons.collabAdd
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
@@ -34,7 +41,9 @@ import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.primaryGray
 
 @Composable
-fun CollaboratorsSection(navigationActions: NavigationActions, collabUsernames: List<String>, onRemove: (String) -> Unit) {
+fun CollaboratorsSection(collabUsernames: List<String>,
+                         onClick: () -> Unit,
+                         onRemove: (String) -> Unit) {
   Spacer(Modifier.height(5.dp))
   Row(
       verticalAlignment = Alignment.CenterVertically, // Center items vertically
@@ -45,7 +54,7 @@ fun CollaboratorsSection(navigationActions: NavigationActions, collabUsernames: 
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.testTag("collaboratorsTitle"))
-        CollabButton {}
+        CollabButton { onClick() }
       }
   CollabList(collaborators = collabUsernames, onRemove)
   Spacer(modifier = Modifier.height(10.dp))
@@ -106,15 +115,16 @@ fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
         } else {
           LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(collaborators.size) { i ->
-              CollabCard(collaborators[i]) { onRemove(collaborators[i]) }
+              MiniCollabCard(collaborators[i]) { onRemove(collaborators[i]) }
             }
           }
         }
       }
 }
 
+/** Collaborator card in the Collaborator List with cross button */
 @Composable
-fun CollabCard(username: String, onRemove: () -> Unit) {
+fun MiniCollabCard(username: String, onRemove: () -> Unit) {
   Card(
       modifier = Modifier.fillMaxWidth().testTag("collabCard"),
       shape = RoundedCornerShape(size = 5.dp),
@@ -133,4 +143,45 @@ fun CollabCard(username: String, onRemove: () -> Unit) {
           CloseButton { onRemove() }
         }
   }
+}
+
+/** Collaborator card in the collaborator search with add/check button */
+@Composable
+fun CollaboratorCard(name: String?,
+                     username: String,
+                     profilePicture: MutableState<Bitmap?>,
+                     isCollaborator: Boolean,
+                     onAdd: () -> Unit,
+                     onRemove: () -> Unit) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth().height(67.dp)
+            .border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(5.dp)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            ProfilePicture(profilePicture, 55.dp)
+            Column(modifier = Modifier.padding(start = 14.dp)) {
+                Text(
+                    text = name ?: "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "@$username".uppercase(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primaryContainer
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            if (isCollaborator) {
+                CheckButton { onRemove() }
+            } else {
+                AddButton {
+                    onAdd()
+                }
+            }
+        }
+    }
 }
