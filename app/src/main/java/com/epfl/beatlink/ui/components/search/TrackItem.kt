@@ -35,7 +35,10 @@ fun TrackItem(track: SpotifyTrack, onClick: (() -> Unit)? = null) {
               .testTag("trackItem"),
       verticalAlignment = Alignment.CenterVertically) {
         // Album cover
-        Card(modifier = Modifier.size(55.dp), shape = RoundedCornerShape(8.dp)) {
+        Card(
+            modifier = Modifier.padding(start = 8.dp).testTag("trackAlbumCover").size(55.dp),
+            shape = RoundedCornerShape(5.dp),
+        ) {
           AsyncImage(
               model = track.cover,
               contentDescription = "Cover for ${track.name}",
