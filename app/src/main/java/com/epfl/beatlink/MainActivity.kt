@@ -36,10 +36,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
 
     // Disable Picasso notifications
-    val picasso = Picasso.Builder(this)
-      .indicatorsEnabled(false)
-      .loggingEnabled(false)
-      .build()
+    val picasso = Picasso.Builder(this).indicatorsEnabled(false).loggingEnabled(false).build()
     Picasso.setSingletonInstance(picasso)
 
     val spotifyAuthFactory = SpotifyAuthViewModelFactory(application, spotifyAuthRepository)
