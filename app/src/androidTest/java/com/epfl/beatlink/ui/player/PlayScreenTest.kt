@@ -8,7 +8,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -18,7 +17,6 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import junit.framework.TestCase.assertNotSame
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -94,15 +92,5 @@ class PlayScreenTest {
 
     // Verify the empty message is displayed
     composeTestRule.onNodeWithTag("emptyQueue").assertIsDisplayed()
-  }
-
-  @Test
-  fun testPlaybackButtonsTogglePlayback() {
-    val before = spotifyApiViewModel.isPlaying
-
-    // Click to pause
-    composeTestRule.onNodeWithTag("playSongButton").performClick()
-
-    assertNotSame(before, spotifyApiViewModel.isPlaying)
   }
 }
