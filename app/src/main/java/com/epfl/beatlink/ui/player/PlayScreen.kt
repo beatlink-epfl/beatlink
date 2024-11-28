@@ -243,7 +243,10 @@ fun PlayScreenLowerBox(api: SpotifyApiViewModel) {
               if (queue.isEmpty()) {
                 Text(
                     text = "The track list is empty",
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 25.dp))
+                    modifier =
+                        Modifier.testTag("emptyQueue")
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 25.dp))
               } else {
                 for (i in 0 until queue.size) {
                   Box(
@@ -251,7 +254,8 @@ fun PlayScreenLowerBox(api: SpotifyApiViewModel) {
                           Modifier.padding(vertical = 10.dp)
                               .clip(RoundedCornerShape(5.dp))
                               .fillMaxWidth(0.92F)
-                              .align(Alignment.CenterHorizontally)) {
+                              .align(Alignment.CenterHorizontally)
+                              .testTag("trackBox${i}")) {
                         Row(
                             modifier =
                                 Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),

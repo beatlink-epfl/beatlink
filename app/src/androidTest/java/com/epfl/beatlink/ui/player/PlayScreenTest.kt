@@ -2,18 +2,24 @@ package com.epfl.beatlink.ui.player
 
 import android.app.Application
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -67,7 +73,41 @@ class PlayScreenTest {
   }
 
   @Test
-  fun testPlayScreenButton() {
-    // Test the PlayScreen button
+  fun testPlayScreenLowerBoxDisplaysQueueContent() {
+    // Mock the queue with sample data
+    spotifyApiViewModel.queue.apply {
+      clear()
+      addAll(
+          listOf(
+              SpotifyTrack("Track 1", "Artist 1", "id1", "CoverUrl1", 300, 80, State.PAUSE),
+              SpotifyTrack("Track 2", "Artist 2", "id2", "CoverUrl2", 250, 90, State.PLAY)))
+    }
+
+    // Assert the tracks in the queue are displayed
+    composeTestRule.onNodeWithTag("trackBox0").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackBox1").assertIsDisplayed()
+  }
+
+  @Test
+  fun testPlayScreenLowerBoxDisplaysEmptyQueueMessage() {
+    // Set an empty queue
+    spotifyApiViewModel.queue = SnapshotStateList()
+
+    // Verify the empty message is displayed
+    composeTestRule.onNodeWithTag("emptyQueue").assertIsDisplayed()
+  }
+
+  @Test
+  fun testPlaybackButtonsTogglePlayback() {
+    // Start with the player in a paused state
+    spotifyApiViewModel.isPlaying = false
+
+    // Click the play button, should start playing
+    composeTestRule.onNodeWithTag("playSongButton").performClick()
+    assertTrue(spotifyApiViewModel.isPlaying)
+
+    // Click again to pause
+    composeTestRule.onNodeWithTag("playSongButton").performClick()
+    assertFalse(spotifyApiViewModel.isPlaying)
   }
 }
