@@ -129,4 +129,17 @@ class NavigationActionsTest {
     // Verify the navigation to the new screen
     verify(navHostController).navigate(eq("NewScreen"), any<NavOptionsBuilder.() -> Unit>())
   }
+
+  @Test
+  fun navigateToAndClearAllBackStackClearsBackStack(){
+    val mockBackStackEntry = mock(NavBackStackEntry::class.java)
+
+    // Simulate previous entries in the back stack
+    `when`(navHostController.previousBackStackEntry).thenReturn(mockBackStackEntry)
+
+    navigationActions.navigateToAndClearAllBackStack("NewScreen")
+
+    // Verify the navigation to the new screen
+    verify(navHostController).navigate(eq("NewScreen"), any<NavOptionsBuilder.() -> Unit>())
+  }
 }
