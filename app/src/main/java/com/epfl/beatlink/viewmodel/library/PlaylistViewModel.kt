@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -29,7 +29,6 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
   val selectedPlaylist: StateFlow<Playlist?>
     get() = selectedPlaylist_
 
-  // create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
@@ -40,7 +39,6 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         }
   }
 
-  // Initialization block that runs when ViewModel is created
   init {
     repository.init(onSuccess = { fetchData() })
   }
@@ -108,7 +106,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
     getOwnedPlaylists()
   }
 
-  fun addTrack(track: SpotifyTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+  fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     selectedPlaylist_.value?.let { playlist ->
       try {
         val newTrackList = playlist.playlistTracks.toMutableList()
@@ -125,22 +123,37 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         // Call the failure callback
         onFailure(e)
       }
-    }
-        ?: run {
-          // If no playlist is selected, trigger the failure callback with an exception
-          onFailure(IllegalStateException("No playlist selected"))
-        }
+    } ?: run { onFailure(IllegalStateException("No playlist selected")) }
   }
 
-  fun updateTrackLikes(updatedTrack: SpotifyTrack) {
+  fun updateTrackLikes(trackId: String, userId: String) {
     selectedPlaylist_.value?.let { playlist ->
+      // Update the tracks in the playlist
       val updatedTracks =
           playlist.playlistTracks.map { track ->
-            if (track.trackId == updatedTrack.trackId) updatedTrack else track
+            if (track.track.trackId == trackId) {
+              if (track.likedBy.contains(userId)) {
+                // User has already liked the track, so remove the like
+                track.copy(
+                    likes = track.likes - 1,
+                    likedBy = track.likedBy.toMutableList().apply { remove(userId) })
+              } else {
+                // User has not liked the track, so add a like
+                track.copy(
+                    likes = track.likes + 1,
+                    likedBy = track.likedBy.toMutableList().apply { add(userId) })
+              }
+            } else {
+              track // Keep other tracks unchanged
+            }
           }
+
+      // Create a new playlist with the updated tracks
       val updatedPlaylist = playlist.copy(playlistTracks = updatedTracks)
+
+      // Update the playlist in the repository
       updatePlaylist(updatedPlaylist)
-    }
+    } ?: run { Log.e("PlaylistViewModel", "No playlist selected to update track likes") }
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {

@@ -11,7 +11,7 @@ data class Playlist(
     val userId: String, // user ID of the owner
     val playlistOwner: String, // username
     val playlistCollaborators: List<String>, // list of user IDs
-    val playlistTracks: List<SpotifyTrack>, // list of SpotifyTrack
+    val playlistTracks: List<PlaylistTrack>, // list of SpotifyTrack
     val nbTracks: Int = 0
 ) {
   companion object {
@@ -19,3 +19,9 @@ data class Playlist(
     const val MAX_PLAYLIST_DESCRIPTION_LENGTH = 200
   }
 }
+
+data class PlaylistTrack(
+    val track: SpotifyTrack,
+    var likes: Int = 0,
+    val likedBy: MutableList<String> = mutableListOf()
+)

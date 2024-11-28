@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,7 @@ class PlaylistRepositoryFirestore(
   private val collectionPath = "playlists"
   private var userID = ""
 
-  /** helper function to convert DocumentSnapShot to Playlist */
+  /** Helper function to convert DocumentSnapshot to Playlist */
   fun documentToPlaylist(doc: DocumentSnapshot): Playlist {
     val playlistID: String = doc.getString("playlistID") ?: ""
     val playlistName: String = doc.getString("playlistName") ?: ""
@@ -30,20 +31,25 @@ class PlaylistRepositoryFirestore(
     val playlistOwner: String = doc.getString("playlistOwner") ?: ""
     val playlistCollaborators: List<String> =
         doc.get("playlistCollaborators") as? List<String> ?: emptyList()
-    val playlistTracks: List<SpotifyTrack> =
+    val playlistTracks: List<PlaylistTrack> =
         (doc.get("playlistTracks") as? List<Map<String, Any>>)?.mapNotNull { trackData ->
           try {
-            SpotifyTrack(
-                name = trackData["name"] as? String ?: "",
-                artist = trackData["artist"] as? String ?: "",
-                trackId = trackData["trackId"] as? String ?: "",
-                cover = trackData["cover"] as? String ?: "",
-                duration = (trackData["duration"] as? Long)?.toInt() ?: 0,
-                popularity = (trackData["popularity"] as? Long)?.toInt() ?: 0,
-                state = State.valueOf(trackData["state"] as? String ?: State.PAUSE.toString()),
-                likes = (trackData["likes"] as? Long)?.toInt() ?: 0)
+            PlaylistTrack(
+                track =
+                    SpotifyTrack(
+                        name = trackData["name"] as? String ?: "",
+                        artist = trackData["artist"] as? String ?: "",
+                        trackId = trackData["trackId"] as? String ?: "",
+                        cover = trackData["cover"] as? String ?: "",
+                        duration = (trackData["duration"] as? Long)?.toInt() ?: 0,
+                        popularity = (trackData["popularity"] as? Long)?.toInt() ?: 0,
+                        state =
+                            State.valueOf(trackData["state"] as? String ?: State.PAUSE.toString())),
+                likes = (trackData["likes"] as? Long)?.toInt() ?: 0,
+                likedBy =
+                    (trackData["likedBy"] as? List<String>)?.toMutableList() ?: mutableListOf())
           } catch (e: Exception) {
-            Log.e("documentToPlaylist", "Error mapping SpotifyTrack: $trackData", e)
+            Log.e("documentToPlaylist", "Error mapping PlaylistTrack: $trackData", e)
             null
           }
         } ?: emptyList()
@@ -61,17 +67,18 @@ class PlaylistRepositoryFirestore(
         nbTracks = playlistTracks.size)
   }
 
-  /** Helper function: Storing the SpotifyTrack in Firestore */
-  fun spotifyTrackToMap(track: SpotifyTrack): Map<String, Any> {
+  /** Helper function: Storing PlaylistTrack in Firestore */
+  fun playlistTrackToMap(track: PlaylistTrack): Map<String, Any> {
     return mapOf(
-        "name" to track.name,
-        "artist" to track.artist,
-        "trackId" to track.trackId,
-        "cover" to track.cover,
-        "duration" to track.duration,
-        "popularity" to track.popularity,
-        "state" to track.state.name, // Convert enum to string
-        "likes" to track.likes)
+        "name" to track.track.name,
+        "artist" to track.track.artist,
+        "trackId" to track.track.trackId,
+        "cover" to track.track.cover,
+        "duration" to track.track.duration,
+        "popularity" to track.track.popularity,
+        "state" to track.track.state.name, // Convert enum to string
+        "likes" to track.likes,
+        "likedBy" to track.likedBy)
   }
 
   /** Helper function: Convert Playlist to a Map for Firestore */
@@ -85,10 +92,7 @@ class PlaylistRepositoryFirestore(
         "userId" to playlist.userId,
         "playlistOwner" to playlist.playlistOwner,
         "playlistCollaborators" to playlist.playlistCollaborators,
-        "playlistTracks" to
-            playlist.playlistTracks.map {
-              spotifyTrackToMap(it)
-            }, // Convert each SpotifyTrack to a map
+        "playlistTracks" to playlist.playlistTracks.map { playlistTrackToMap(it) },
         "nbTracks" to playlist.nbTracks)
   }
 
@@ -266,18 +270,18 @@ class PlaylistRepositoryFirestore(
   /** Updates only the list of tracks contained in the playlist in Firestore */
   override fun updatePlaylistTracks(
       playlist: Playlist,
-      newListTracks: List<SpotifyTrack>,
+      newListTracks: List<PlaylistTrack>,
       onSuccess: () -> Unit,
       onFailure: (Exception) -> Unit
   ) {
-    // Convert the list of SpotifyTrack objects to a list of maps
-    val playlistTracksMap = newListTracks.map { spotifyTrackToMap(it) }
+    // Convert the list of PlaylistTrack objects to a list of maps
+    val playlistTracksMap = newListTracks.map { playlistTrackToMap(it) }
     db.collection(collectionPath)
         .document(playlist.playlistID)
         .update("playlistTracks", playlistTracksMap)
         .addOnSuccessListener { onSuccess() }
         .addOnFailureListener { err ->
-          Log.e(TAG, "Error updating document Songs field", err)
+          Log.e(TAG, "Error updating playlistTracks field", err)
           onFailure(err)
         }
   }

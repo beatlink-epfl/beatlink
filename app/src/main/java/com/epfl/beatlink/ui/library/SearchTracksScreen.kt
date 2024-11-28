@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -146,7 +147,7 @@ fun TrackPlaylistItem(
               .testTag("trackItem")
               .clickable {
                 playlistViewModel.addTrack(
-                    track,
+                    PlaylistTrack(track, 0, mutableListOf()),
                     onSuccess = {
                       Toast.makeText(context, "Track added to playlist!", Toast.LENGTH_SHORT).show()
                       onClearQuery()

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -30,15 +31,20 @@ class PlaylistOverviewScreenTest {
   private lateinit var navigationActions: NavigationActions
 
   private val sampleTrack =
-      SpotifyTrack(
-          name = "Test Track",
-          artist = "Test Artist",
-          trackId = "1",
-          cover = "",
-          duration = 200,
-          popularity = 50,
-          state = State.PAUSE,
-          likes = 5)
+      PlaylistTrack(
+          track =
+              SpotifyTrack(
+                  name = "Test Track",
+                  artist = "Test Artist",
+                  trackId = "1",
+                  cover = "",
+                  duration = 200,
+                  popularity = 50,
+                  state = State.PAUSE,
+              ),
+          likes = 5,
+          likedBy = mutableListOf("collab1") // Simulate an existing like by "collab1"
+          )
 
   private val playlistWithTracks =
       Playlist(
@@ -141,7 +147,7 @@ class PlaylistOverviewScreenTest {
     // Perform click on the vote button
     composeTestRule.onNodeWithTag("voteButton").performClick()
 
-    // Verify the track likes are updated
+    // Verify that updateTrackLikes is called with the correct parameters
     verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 

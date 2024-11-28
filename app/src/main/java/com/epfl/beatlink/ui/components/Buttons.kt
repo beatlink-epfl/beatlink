@@ -20,8 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +31,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
-import com.epfl.beatlink.ui.theme.primaryWhite
 
 /** Principal Button filled with Gradient color */
 @Composable
@@ -92,11 +89,12 @@ fun VoteButton(
     gradient: Brush,
     color: Color,
     painter: Painter,
-    spotifyTrack: SpotifyTrack,
-    onVoteChanged: (SpotifyTrack) -> Unit
+    playlistTrack: PlaylistTrack,
+    userId: String, // Pass the current user's ID
+    onVoteChanged: (String, Boolean) -> Unit // Pass track ID and vote status
 ) {
-
-  var isVoted by remember { mutableStateOf(false) }
+  // Check if the current user has already voted
+  val isVoted = playlistTrack.likedBy.contains(userId) // No need for local state
 
   Box(
       modifier =
@@ -108,30 +106,21 @@ fun VoteButton(
                   brush =
                       if (isVoted) gradient
                       else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent)))
-              .clickable { // Handle click directly
-                // Handle vote changes
-                if (isVoted) {
-                  spotifyTrack.likes--
-                } else {
-                  spotifyTrack.likes++
-                }
-                isVoted = !isVoted
-
-                // Trigger the callback to update the playlist
-                onVoteChanged(spotifyTrack)
+              .clickable {
+                // Notify the ViewModel about the vote change
+                onVoteChanged(playlistTrack.track.trackId, !isVoted)
               }
-              .testTag("voteButton"),
-  ) {
-    Row(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.Start, // Space them out horizontally
-        verticalAlignment = Alignment.CenterVertically) {
-          Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
-          Spacer(modifier = Modifier.width(6.dp))
-          Text(
-              text = spotifyTrack.likes.toString(),
-              color = if (isVoted) MaterialTheme.colorScheme.primaryWhite else color,
-              modifier = Modifier.testTag("nbVote"))
-        }
-  }
+              .testTag("voteButton")) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically) {
+              Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+                  text = playlistTrack.likes.toString(),
+                  color = if (isVoted) MaterialTheme.colorScheme.primary else color,
+                  modifier = Modifier.testTag("nbVote"))
+            }
+      }
 }

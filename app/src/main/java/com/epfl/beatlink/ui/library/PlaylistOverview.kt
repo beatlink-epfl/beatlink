@@ -37,8 +37,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
@@ -62,34 +60,29 @@ fun PlaylistOverviewScreen(
     profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
+  // Observe the currently selected playlist
   val selectedPlaylistState =
       playlistViewModel.selectedPlaylist.collectAsState().value
           ?: return Text("No Playlist selected.")
 
-  val isOwner = selectedPlaylistState.userId == playlistViewModel.getUserId()
-  val isCollab = selectedPlaylistState.playlistCollaborators.contains(playlistViewModel.getUserId())
+  // Determine if the user is the owner or a collaborator
+  val currentUserId = playlistViewModel.getUserId()
+  val isOwner = selectedPlaylistState.userId == currentUserId
+  val isCollab = selectedPlaylistState.playlistCollaborators.contains(currentUserId)
 
-  val fetchedUsernames = mutableListOf<String>()
+  // Fetch collaborator usernames
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+  val fetchedUsernames = remember { mutableSetOf<String>() }
 
+  // Retrieve collaborator usernames
   selectedPlaylistState.playlistCollaborators.forEach { userId ->
     profileViewModel.getUsername(userId) { username ->
-      if (username != null) {
+      if (username != null && !fetchedUsernames.contains(username)) {
         fetchedUsernames.add(username)
+        collabUsernames = fetchedUsernames.toList()
       }
-      collabUsernames = fetchedUsernames.toList()
     }
   }
-
-  val sample =
-      SpotifyTrack(
-          name = "This is a song",
-          artist = "john",
-          trackId = "1",
-          cover = "",
-          duration = 1,
-          popularity = 50,
-          state = State.PAUSE)
 
   Scaffold(
       modifier = Modifier.testTag("playlistOverviewScreen"),
@@ -113,16 +106,17 @@ fun PlaylistOverviewScreen(
                     .padding(vertical = 16.dp)
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
+              // Playlist Header Section
               Row(
                   horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
-                      Modifier.padding(top = 14.dp, bottom = 14.dp, start = 30.dp).height(150.dp)) {
-                    // Cover image
+                      Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
+                    // Playlist Cover Image
                     Card(
                         modifier = Modifier.testTag("playlistCoverCard"),
                         shape = RoundedCornerShape(10.dp)) {
                           Image(
-                              painter = painterResource(id = R.drawable.cover_test1), // TODO
+                              painter = painterResource(id = R.drawable.cover_test1),
                               contentDescription = "Playlist cover",
                               modifier = Modifier.size(150.dp))
                         }
@@ -157,6 +151,8 @@ fun PlaylistOverviewScreen(
                         }
                   }
               Spacer(modifier = Modifier.height(16.dp))
+
+              // Action Buttons for Playlist Management
               if (isOwner || isCollab) {
                 FilledButton(
                     "Add to this playlist",
@@ -171,6 +167,7 @@ fun PlaylistOverviewScreen(
                 Spacer(modifier = Modifier.height(16.dp))
               }
 
+              // Display Tracks or Empty State
               if (selectedPlaylistState.nbTracks == 0) {
                 Text(
                     text = "NO SONGS ADDED",
@@ -182,16 +179,23 @@ fun PlaylistOverviewScreen(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                       modifier = Modifier.fillMaxSize()) {
-                        // List of tracks
-                        playlistViewModel.selectedPlaylist.value?.let {
-                          items(it.playlistTracks) { track ->
-                            TrackVoteCard(
-                                spotifyTrack = track,
-                                onVoteChanged = { updatedTrack ->
-                                  // Update the playlist with the new track state
-                                  playlistViewModel.updateTrackLikes(updatedTrack)
-                                })
-                          }
+                        // Sort tracks by likes in descending order before displaying
+                        val sortedTracks =
+                            selectedPlaylistState.playlistTracks.sortedByDescending { it.likes }
+                        items(sortedTracks) { track ->
+                          TrackVoteCard(
+                              playlistTrack = track, // Ensure track is of type PlaylistTrack
+                              onVoteChanged = { trackId, isVoted ->
+                                playlistViewModel.updateTrackLikes(
+                                    trackId = trackId,
+                                    userId =
+                                        playlistViewModel.getUserId()
+                                            ?: "" // Fallback to empty string if null
+                                    )
+                              },
+                              userId =
+                                  playlistViewModel.getUserId() ?: "" // Pass the current user ID
+                              )
                         }
                       }
                 }

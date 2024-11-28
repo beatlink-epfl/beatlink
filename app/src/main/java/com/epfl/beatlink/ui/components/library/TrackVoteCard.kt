@@ -18,37 +18,46 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.components.VoteButton
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
 
 @Composable
-fun TrackVoteCard(spotifyTrack: SpotifyTrack, onVoteChanged: (SpotifyTrack) -> Unit) {
+fun TrackVoteCard(
+    playlistTrack: PlaylistTrack,
+    onVoteChanged: (String, Boolean) -> Unit,
+    userId: String
+) {
   Card(
       modifier = Modifier.fillMaxSize().testTag("trackVoteCard"),
       colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+          // Album cover
           Image(
-              painter = painterResource(id = R.drawable.cover_test1), // TODO
-              contentDescription = "Playlist cover",
+              painter = painterResource(id = R.drawable.cover_test1), // Replace with dynamic cover
+              contentDescription = "Track cover",
               modifier = Modifier.size(55.dp).padding(horizontal = 6.dp))
-          // Playlist details
+
+          // Track details
           Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = spotifyTrack.name,
+                text = playlistTrack.track.name,
                 style = TypographySongs.titleLarge,
                 color = MaterialTheme.colorScheme.primary)
             Text(
-                text = spotifyTrack.artist,
+                text = playlistTrack.track.artist,
                 style = TypographySongs.titleMedium,
             )
           }
+
+          // Vote button
           VoteButton(
               PositiveGradientBrush,
               MaterialTheme.colorScheme.secondary,
               painterResource(R.drawable.fire),
-              spotifyTrack = spotifyTrack,
+              playlistTrack = playlistTrack,
+              userId = userId,
               onVoteChanged = onVoteChanged)
         }
       }
