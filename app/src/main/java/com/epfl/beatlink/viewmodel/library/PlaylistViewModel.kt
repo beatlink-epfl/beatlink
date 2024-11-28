@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -60,7 +61,6 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         }
   }
 
-  // Initialization block that runs when ViewModel is created
   init {
     repository.init(onSuccess = { fetchData() })
   }
@@ -126,6 +126,52 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
         onSuccess = { selectedPlaylist_.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
     getOwnedPlaylists()
+  }
+
+  fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    selectedPlaylist_.value?.let { playlist ->
+      try {
+        val newTrackList = playlist.playlistTracks.toMutableList()
+        newTrackList.add(track)
+        val updatedPlaylist =
+            playlist.copy(playlistTracks = newTrackList, nbTracks = newTrackList.size)
+
+        updatePlaylist(updatedPlaylist)
+        onSuccess()
+      } catch (e: Exception) {
+        onFailure(e)
+      }
+    } ?: run { onFailure(IllegalStateException("No playlist selected")) }
+  }
+
+  fun updateTrackLikes(trackId: String, userId: String) {
+    selectedPlaylist_.value?.let { playlist ->
+      // Update the tracks in the playlist
+      val updatedTracks =
+          playlist.playlistTracks.map { track ->
+            if (track.track.trackId == trackId) {
+              if (track.likedBy.contains(userId)) {
+                // User has already liked the track, so remove the like
+                track.copy(
+                    likes = track.likes - 1,
+                    likedBy = track.likedBy.toMutableList().apply { remove(userId) })
+              } else {
+                // User has not liked the track, so add a like
+                track.copy(
+                    likes = track.likes + 1,
+                    likedBy = track.likedBy.toMutableList().apply { add(userId) })
+              }
+            } else {
+              track // Keep other tracks unchanged
+            }
+          }
+
+      // Create a new playlist with the updated tracks
+      val updatedPlaylist = playlist.copy(playlistTracks = updatedTracks)
+
+      // Update the playlist in the repository
+      updatePlaylist(updatedPlaylist)
+    } ?: run { Log.e("PlaylistViewModel", "No playlist selected to update track likes") }
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {

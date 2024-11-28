@@ -35,6 +35,7 @@ object Screen {
   const val CREATE_NEW_PLAYLIST = "Create New Playlist Screen"
   const val EDIT_PLAYLIST = "Edit playlist Screen"
   const val PLAYLIST_OVERVIEW = "Playlist Overview Screen"
+  const val ADD_TRACK_TO_PLAYLIST = "Add Track Screen"
   const val INVITE_COLLABORATORS = "Invite Collaborators Screen"
   const val PROFILE = "Profile Screen"
   const val EDIT_PROFILE = "Edit Profile Screen"

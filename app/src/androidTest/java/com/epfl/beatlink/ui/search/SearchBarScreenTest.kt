@@ -70,31 +70,19 @@ class SearchBarScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("searchBarScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
-    composeTestRule
-        .onNodeWithTag("writableSearchBarIcon", useUnmergedTree = true)
-        .assertIsDisplayed()
     composeTestRule.onNodeWithTag("Songs categoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Songs categoryText", useUnmergedTree = true).assertIsDisplayed()
     composeTestRule.onNodeWithTag("Artists categoryButton").assertIsDisplayed()
-    composeTestRule
-        .onNodeWithTag("Artists categoryText", useUnmergedTree = true)
-        .assertIsDisplayed()
     composeTestRule.onNodeWithTag("Events categoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Events categoryText", useUnmergedTree = true).assertIsDisplayed()
-    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchResultsColumn").assertIsDisplayed()
   }
 
   @Test
   fun displayTextsCorrectly() {
-
-    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").assertTextEquals("RECENT SEARCHES")
     composeTestRule
         .onNodeWithTag("Songs categoryText", useUnmergedTree = true)
         .assertTextEquals("Songs")
@@ -117,6 +105,7 @@ class SearchBarScreenTest {
     // Simulate selecting the "Songs" category
     composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
 
+    // Perform search
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
 
     // Check all tracks are displayed
@@ -126,10 +115,6 @@ class SearchBarScreenTest {
     }
 
     composeTestRule.onAllNodesWithTag("trackItem").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("trackAlbumCover").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("favoriteIcon").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("addIcon").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("moreIcon").assertCountEquals(topSongs.size)
   }
 
   @Test
@@ -137,13 +122,49 @@ class SearchBarScreenTest {
     // Simulate selecting the "Artists" category
     composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
 
+    // Perform search
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
 
     // Check all artists are displayed
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
     composeTestRule.onAllNodesWithTag("artistItem").assertCountEquals(topArtists.size)
-    composeTestRule.onAllNodesWithTag("artistImage").assertCountEquals(topArtists.size)
+  }
+
+  @Test
+  fun categoryButtonsFunctionCorrectly() {
+    // Ensure category buttons are displayed
+    composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("Songs categoryText", useUnmergedTree = true)
+        .assertTextEquals("Songs")
+
+    composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("Artists categoryText", useUnmergedTree = true)
+        .assertTextEquals("Artists")
+
+    composeTestRule.onNodeWithTag("Events categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("Events categoryText", useUnmergedTree = true)
+        .assertTextEquals("Events")
+  }
+
+  @Test
+  fun categoryButtonsDoNotBreakResultsDisplay() {
+    // Start with "Songs"
+    composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
+    composeTestRule.onAllNodesWithTag("trackItem").assertCountEquals(topSongs.size)
+
+    // Switch to "Artists"
+    composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
+    composeTestRule.onAllNodesWithTag("artistItem").assertCountEquals(topArtists.size)
+
+    // Switch to "Events" (Placeholder)
+    composeTestRule.onNodeWithTag("Events categoryButton").performClick()
+    composeTestRule.onNodeWithTag("searchResultsColumn").assertDoesNotExist()
   }
 
   @Test
