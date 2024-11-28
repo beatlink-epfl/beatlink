@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 
 /** Principal Button filled with Gradient color */
@@ -84,8 +85,6 @@ fun ViewDescriptionButton(onClick: () -> Unit) {
 
 @Composable
 fun VoteButton(
-    gradient: Brush,
-    color: Color,
     painter: Painter,
     playlistTrack: PlaylistTrack,
     userId: String, // Pass the current user's ID
@@ -96,13 +95,14 @@ fun VoteButton(
 
   Box(
       modifier =
-          Modifier.border(width = 2.dp, brush = gradient, shape = RoundedCornerShape(30.dp))
+          Modifier.border(
+                  width = 2.dp, brush = PositiveGradientBrush, shape = RoundedCornerShape(30.dp))
               .width(78.dp)
               .height(30.dp)
               .clip(RoundedCornerShape(30.dp))
               .background(
                   brush =
-                      if (isVoted) gradient
+                      if (isVoted) PositiveGradientBrush
                       else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent)))
               .clickable {
                 // Notify the ViewModel about the vote change
@@ -117,7 +117,9 @@ fun VoteButton(
               Spacer(modifier = Modifier.width(6.dp))
               Text(
                   text = playlistTrack.likes.toString(),
-                  color = if (isVoted) MaterialTheme.colorScheme.primary else color,
+                  color =
+                      if (isVoted) MaterialTheme.colorScheme.primary
+                      else MaterialTheme.colorScheme.secondary,
                   modifier = Modifier.testTag("nbVote"))
             }
       }

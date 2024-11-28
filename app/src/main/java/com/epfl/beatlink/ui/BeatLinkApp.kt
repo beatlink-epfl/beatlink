@@ -124,7 +124,7 @@ fun BeatLinkApp(
       composable(Screen.PLAYLIST_OVERVIEW) {
         PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
       }
-      composable(Screen.ADD_TRACK) {
+      composable(Screen.ADD_TRACK_TO_PLAYLIST) {
         SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
       }
     }

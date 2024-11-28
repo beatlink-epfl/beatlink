@@ -24,7 +24,6 @@ import coil.compose.AsyncImage
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.components.VoteButton
-import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
 
 @Composable
@@ -63,8 +62,6 @@ fun TrackVoteCard(
 
           // Vote button
           VoteButton(
-              PositiveGradientBrush,
-              MaterialTheme.colorScheme.secondary,
               painterResource(R.drawable.fire),
               playlistTrack = playlistTrack,
               userId = userId,

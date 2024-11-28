@@ -54,7 +54,7 @@ class SearchTracksScreenTest {
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
-    `when`(navigationActions.currentRoute()).thenReturn(Screen.ADD_TRACK)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.ADD_TRACK_TO_PLAYLIST)
 
     fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     fakeSpotifyApiViewModel.setTopTracks(topSongs)

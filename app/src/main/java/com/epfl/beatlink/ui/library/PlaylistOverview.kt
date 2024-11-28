@@ -48,7 +48,7 @@ import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK
+import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK_TO_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
@@ -157,7 +157,7 @@ fun PlaylistOverviewScreen(
                 FilledButton(
                     "Add to this playlist",
                     "addToThisPlaylistButton",
-                    onClick = { navigationActions.navigateTo(ADD_TRACK) })
+                    onClick = { navigationActions.navigateTo(ADD_TRACK_TO_PLAYLIST) })
                 Spacer(modifier = Modifier.height(16.dp))
               }
 
