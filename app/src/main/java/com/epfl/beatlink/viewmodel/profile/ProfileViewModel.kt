@@ -37,6 +37,19 @@ open class ProfileViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
+  /** Represents the result of username validation. */
+  sealed class UsernameValidationResult {
+    /** Indicates that the username is valid. */
+    object Valid : UsernameValidationResult()
+
+    /**
+     * Indicates that the username is invalid.
+     *
+     * @param errorMessage A message describing why the username is invalid.
+     */
+    data class Invalid(val errorMessage: String) : UsernameValidationResult()
+  }
+
   private val _profile = MutableStateFlow(initialProfile)
   val profile: StateFlow<ProfileData?>
     get() = _profile
@@ -44,6 +57,30 @@ open class ProfileViewModel(
   private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
   val searchResult: LiveData<List<ProfileData>>
     get() = _searchResult
+
+  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val username = repository.getUsername(userId)
+        onResult(username)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching username", e)
+        onResult(null)
+      }
+    }
+  }
+
+  open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userId = repository.getUserIdByUsername(username)
+        onResult(userId)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching user id", e)
+        onResult(null)
+      }
+    }
+  }
 
   open fun fetchProfile() {
     val userId = repository.getUserId() ?: return
@@ -73,6 +110,17 @@ open class ProfileViewModel(
     }
   }
 
+  open fun deleteProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      if (repository.deleteProfile(userId)) {
+        _profile.value = null
+      } else {
+        Log.e("DELETE_PROFILE", "Error deleting profile")
+      }
+    }
+  }
+
   open fun uploadProfilePicture(context: Context, uri: Uri) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
@@ -88,41 +136,6 @@ open class ProfileViewModel(
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
-  open fun deleteProfile() {
-    val userId = repository.getUserId() ?: return
-    viewModelScope.launch {
-      if (repository.deleteProfile(userId)) {
-        _profile.value = null
-      } else {
-        Log.e("DELETE_PROFILE", "Error deleting profile")
-      }
-    }
-  }
-
-  fun getUsername(userId: String, onResult: (String?) -> Unit) {
-    viewModelScope.launch {
-      try {
-        val username = repository.getUsername(userId)
-        onResult(username)
-      } catch (e: Exception) {
-        Log.e("ERROR", "Error fetching username", e)
-        onResult(null)
-      }
-    }
-  }
-
-  open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
-    viewModelScope.launch {
-      try {
-        val userId = repository.getUserIdByUsername(username)
-        onResult(userId)
-      } catch (e: Exception) {
-        Log.e("ERROR", "Error fetching user id", e)
-        onResult(null)
-      }
-    }
-  }
-
   open fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit = {}) {
     viewModelScope.launch {
       try {
@@ -136,6 +149,13 @@ open class ProfileViewModel(
     }
   }
 
+  /**
+   * Handle the result of a permission request.
+   *
+   * @param isGranted `true` if the permission was granted, `false` otherwise.
+   * @param galleryLauncher The launcher to open the gallery if permission is granted.
+   * @param context The application context.
+   */
   fun handlePermissionResult(
       isGranted: Boolean,
       galleryLauncher: ManagedActivityResultLauncher<String, Uri?>,
@@ -149,6 +169,13 @@ open class ProfileViewModel(
   }
 
   @Composable
+  /**
+   * Create a permission launcher for requesting storage permissions and opening the gallery.
+   *
+   * @param context The application context.
+   * @param onResult A callback function that is called with the URI of the selected image.
+   * @return A [ManagedActivityResultLauncher] for requesting permissions.
+   */
   fun permissionLauncher(
       context: Context,
       onResult: (Uri?) -> Unit
@@ -162,6 +189,36 @@ open class ProfileViewModel(
           handlePermissionResult(isGranted, galleryLauncher, context)
         }
     return permissionLauncher
+  }
+
+  /**
+   * Verify the validity of a username based on specific criteria.
+   *
+   * @param username The username to be verified.
+   * @param onResult A callback function that is called with the result of the validation.
+   */
+  fun verifyUsername(username: String, onResult: (UsernameValidationResult) -> Unit) {
+    viewModelScope.launch {
+      val result =
+          when {
+            username.length !in 1..30 ->
+                UsernameValidationResult.Invalid("Username must be between 1 and 30 characters")
+            !username.matches("^[a-zA-Z0-9._]+$".toRegex()) ->
+                UsernameValidationResult.Invalid(
+                    "Username can only contain letters, numbers, dots and underscores")
+            username.startsWith(".") || username.endsWith(".") ->
+                UsernameValidationResult.Invalid("Username cannot start or end with a dot")
+            username.contains("..") ->
+                UsernameValidationResult.Invalid("Username cannot have consecutive dots")
+            username.contains("___") ->
+                UsernameValidationResult.Invalid(
+                    "Username cannot have more than two consecutive underscores")
+            !repository.isUsernameAvailable(username) ->
+                UsernameValidationResult.Invalid("Username is already taken")
+            else -> UsernameValidationResult.Valid
+          }
+      onResult(result)
+    }
   }
 
   // Create factory

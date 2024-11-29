@@ -57,7 +57,7 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
               Spacer(modifier = Modifier.height(40.dp))
               CustomInputField(
                   value = username,
-                  onValueChange = { username = it },
+                  onValueChange = { username = it.lowercase() },
                   label = "My Username",
                   placeholder = "Enter your new username",
                   supportingText = "No special characters, no spaces",
@@ -68,19 +68,33 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                   "saveButton",
                   onClick = {
                     try {
-                      val newData =
-                          ProfileData(
-                              bio = profileData?.bio ?: "",
-                              links = profileData?.links ?: 0,
-                              name = profileData?.name ?: "",
-                              profilePicture = profileData?.profilePicture,
-                              username = username,
-                              favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList())
-                      profileViewModel.updateProfile(newData)
-                      Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
-                      navigationActions.navigateTo(Screen.PROFILE)
+                      profileViewModel.verifyUsername(username) { usernameValidationResult ->
+                        when (usernameValidationResult) {
+                          is ProfileViewModel.UsernameValidationResult.Invalid -> {
+                            Toast.makeText(
+                                    context,
+                                    usernameValidationResult.errorMessage,
+                                    Toast.LENGTH_SHORT)
+                                .show()
+                          }
+                          ProfileViewModel.UsernameValidationResult.Valid -> {
+                            val updatedProfileData =
+                                ProfileData(
+                                    bio = profileData?.bio ?: "",
+                                    links = profileData?.links ?: 0,
+                                    name = profileData?.name ?: "",
+                                    profilePicture = profileData?.profilePicture,
+                                    username = username,
+                                    favoriteMusicGenres =
+                                        profileData?.favoriteMusicGenres ?: emptyList())
+                            profileViewModel.updateProfile(updatedProfileData)
+                            Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                            navigationActions.navigateTo(Screen.PROFILE)
+                          }
+                        }
+                      }
                     } catch (e: Exception) {
-                      e.printStackTrace()
+                      Toast.makeText(context, "Error updating username", Toast.LENGTH_SHORT).show()
                     }
                   })
             }
