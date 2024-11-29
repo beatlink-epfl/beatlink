@@ -19,12 +19,14 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
@@ -116,7 +118,9 @@ class SignUpScreenTest {
   }
 
   @Test
-  fun signUpWithCorrectInputs() {
+  fun signUpWithCorrectInputs() = runTest {
+    `when`(profileRepository.isUsernameAvailable(any())).thenReturn(true)
+
     // Input email, username, password, and confirm password
     composeTestRule
         .onNodeWithTag("inputEmail")
