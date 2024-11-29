@@ -1,20 +1,20 @@
 package com.epfl.beatlink.ui.library
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
-import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
@@ -25,13 +25,10 @@ import org.mockito.Mockito.`when`
 class InviteCollaboratorsScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
-  private lateinit var profileRepository: ProfileRepositoryFirestore
-  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
-  // Test variables
-  private val testName = "John Doe"
-  private val testDescription = "This is a test description."
+  private val profiles =
+      listOf(ProfileData(username = "username1"), ProfileData(username = "username2"))
 
   val profile =
       ProfileData(
@@ -53,26 +50,17 @@ class InviteCollaboratorsScreenTest {
             PlaylistRepository::class
                 .java) // Use relaxed if you don't want to manually mock every behavior
     playlistViewModel = PlaylistViewModel(playlistRepository)
-    profileRepository = mock(ProfileRepositoryFirestore::class.java)
 
-    // Initialize ProfileViewModel with an initial profile state
-    profileViewModel =
-        ProfileViewModel(
-            repository = profileRepository,
-            initialProfile =
-                ProfileData(
-                    bio = testDescription,
-                    links = 5,
-                    name = testName,
-                    profilePicture = null,
-                    username = "johndoe"))
+    val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeProfiles(profiles)
+
+    fakeProfileViewModel.setFakeProfiles(profiles)
 
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.INVITE_COLLABORATORS)
     composeTestRule.setContent {
-      InviteCollaboratorsScreen(
-          navigationActions, viewModel(factory = ProfileViewModel.Factory), playlistViewModel)
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
     }
   }
 
@@ -95,6 +83,13 @@ class InviteCollaboratorsScreenTest {
   fun testSearchBarInteraction() {
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("John Doe")
     composeTestRule.onNodeWithTag("writableSearchBar").assertTextEquals("John Doe")
+  }
+
+  @Test
+  fun searchResultsDisplayPeopleWhenSearching() {
+    composeTestRule.onNodeWithTag("writableSearchBar").performClick()
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("username")
+    composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(profiles.size)
   }
 
   @Test

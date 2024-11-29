@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -51,14 +51,16 @@ fun InviteCollaboratorsScreen(
   }
 
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
-  val results by profileViewModel.searchResult.observeAsState(emptyList())
+  val results = remember { mutableStateOf(emptyList<ProfileData>()) }
 
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
   // Observe search query changes and fetch corresponding results
   LaunchedEffect(searchQuery.value.text) {
     if (searchQuery.value.text.isNotEmpty()) {
-      profileViewModel.searchUsers(query = searchQuery.value.text)
+      profileViewModel.searchUsers(query = searchQuery.value.text) { fetchedResults ->
+        results.value = fetchedResults
+      }
     }
   }
 
@@ -77,50 +79,48 @@ fun InviteCollaboratorsScreen(
             selectedItem = navigationActions.currentRoute())
       },
       content = { paddingValues ->
-        if (results.isNotEmpty()) {
-          LazyColumn(
-              modifier =
-                  Modifier.padding(paddingValues)
-                      .padding(16.dp)
-                      .fillMaxSize()
-                      .background(color = MaterialTheme.colorScheme.background),
-              verticalArrangement = Arrangement.spacedBy(16.dp),
-          ) {
-            items(results.size) { i ->
-              val profile = results[i]
-              val isCollaborator = collabUsernames.contains(profile.username)
-              CollaboratorCard(
-                  profile.name,
-                  profile.username,
-                  profilePicture,
-                  isCollaborator,
-                  onAdd = {
-                    profileViewModel.getUserIdByUsername(
-                        username = profile.username,
-                        onResult = { userIdToAdd ->
-                          if (userIdToAdd != null) {
-                            val updatedCollabList = playlistCollab + userIdToAdd
-                            playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
-                            collabUsernames = collabUsernames + profile.username
-                          } else {
-                            Log.e("ERROR", "Failed to get userId for username: $userIdToAdd")
-                          }
-                        })
-                  },
-                  onRemove = {
-                    profileViewModel.getUserIdByUsername(
-                        username = profile.username,
-                        onResult = { userIdToRemove ->
-                          if (userIdToRemove != null) {
-                            val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
-                            playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
-                            collabUsernames = collabUsernames.filter { it != profile.username }
-                          } else {
-                            Log.e("ERROR", "Failed to get userId for username")
-                          }
-                        })
-                  })
-            }
+        LazyColumn(
+            modifier =
+                Modifier.padding(paddingValues)
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+          items(results.value.size) { i ->
+            val profile = results.value[i]
+            val isCollaborator = collabUsernames.contains(profile.username)
+            CollaboratorCard(
+                profile.name,
+                profile.username,
+                profilePicture,
+                isCollaborator,
+                onAdd = {
+                  profileViewModel.getUserIdByUsername(
+                      username = profile.username,
+                      onResult = { userIdToAdd ->
+                        if (userIdToAdd != null) {
+                          val updatedCollabList = playlistCollab + userIdToAdd
+                          playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                          collabUsernames = collabUsernames + profile.username
+                        } else {
+                          Log.e("ERROR", "Failed to get userId for username: $userIdToAdd")
+                        }
+                      })
+                },
+                onRemove = {
+                  profileViewModel.getUserIdByUsername(
+                      username = profile.username,
+                      onResult = { userIdToRemove ->
+                        if (userIdToRemove != null) {
+                          val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                          playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                          collabUsernames = collabUsernames.filter { it != profile.username }
+                        } else {
+                          Log.e("ERROR", "Failed to get userId for username")
+                        }
+                      })
+                })
           }
         }
       })
