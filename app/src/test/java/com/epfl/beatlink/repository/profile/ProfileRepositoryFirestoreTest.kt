@@ -249,20 +249,33 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `addProfile succeeds and adds username in usernames collection`() = runBlocking {
+  fun `addProfile succeeds and adds username in usernames collection`(): Unit = runBlocking {
     // Arrange
     val profileData = ProfileData(username = "testUsername")
-    `when`(mockDb.runTransaction<Transaction>(any())).thenReturn(Tasks.forResult(mockTransaction))
+    val userId = "testUserId"
+
+    // Mock transaction behavior
     `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
         .thenReturn(mockTransaction)
     `when`(mockTransaction.set(mockUsernameDocumentReference, mapOf<String, Any>()))
         .thenReturn(mockTransaction)
 
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.addProfile(userId, profileData)
 
     // Assert
     assertTrue(success)
+
+    // Verify that the `set` method was called with the correct arguments
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockTransaction).set(mockUsernameDocumentReference, mapOf<String, Any>())
   }
 
   @Test
@@ -280,29 +293,37 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `updateProfile succeeds and doesn't update usernames collection`() = runBlocking {
+  fun `updateProfile succeeds and doesn't update usernames collection`(): Unit = runBlocking {
     // Arrange
     val profileData = ProfileData(username = "testUsername")
 
-    `when`(mockDb.runTransaction<Transaction>(any())).thenReturn(Tasks.forResult(mockTransaction))
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
     `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
         .thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
 
     // Act
     val success = repository.updateProfile("testUserId", profileData)
 
     // Assert
     assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
   }
 
   @Test
-  fun `updateProfile succeeds and updates usernames collection`() = runBlocking {
+  fun `updateProfile succeeds and updates usernames collection`(): Unit = runBlocking {
     // Arrange
     val profileData = ProfileData(username = "testUsername")
 
-    `when`(mockDb.runTransaction<Transaction>(any())).thenReturn(Tasks.forResult(mockTransaction))
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
         .thenReturn(mockTransaction)
@@ -315,11 +336,24 @@ class ProfileRepositoryFirestoreTest {
                 mapOf<String, Any>()))
         .thenReturn(mockTransaction)
 
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
     // Act
     val success = repository.updateProfile("testUserId", profileData)
 
     // Assert
     assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).delete(mockUsernamesCollectionReference.document("testOtherUsername"))
+    verify(mockTransaction)
+        .set(mockUsernamesCollectionReference.document(profileData.username), mapOf<String, Any>())
   }
 
   @Test
@@ -338,28 +372,34 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `deleteProfile succeeds and deletes username in usernames collection`() = runBlocking {
+  fun `deleteProfile succeeds and deletes username in usernames collection`(): Unit = runBlocking {
     // Arrange
-    val profileData = ProfileData(username = "testUsername")
-
-    `when`(mockDb.runTransaction<Transaction>(any())).thenReturn(Tasks.forResult(mockTransaction))
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
     `when`(mockTransaction.delete(mockProfileDocumentReference)).thenReturn(mockTransaction)
     `when`(mockTransaction.delete(mockUsernameDocumentReference)).thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
 
     // Act
     val success = repository.deleteProfile("testUserId")
 
     // Assert
     assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).delete(mockProfileDocumentReference)
+    verify(mockTransaction).delete(mockUsernameDocumentReference)
   }
 
   @Test
   fun `deleteProfile fails`() = runBlocking {
     // Arrange
-    val profileData = ProfileData(username = "testUsername")
-
     `when`(mockDb.runTransaction<Transaction>(any()))
         .thenReturn(Tasks.forException(Exception("Delete profile failed")))
 
