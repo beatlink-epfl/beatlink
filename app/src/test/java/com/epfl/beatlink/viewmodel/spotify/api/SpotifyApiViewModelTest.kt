@@ -1171,7 +1171,7 @@ class SpotifyApiViewModelTest {
                 playlistCover = "https://example.com/cover.jpg",
                 playlistName = "Chill Vibes",
                 playlistPublic = true,
-                playlistSongs = emptyList(),
+                playlistTracks = emptyList(),
                 nbTracks = 10))
     verify(observer).onChanged(expectedPlaylists)
     verify(mockApiRepository).get("me/playlists?limit=50")

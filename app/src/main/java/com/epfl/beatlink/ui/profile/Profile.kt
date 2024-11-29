@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.ArtistCard
@@ -46,6 +49,7 @@ import com.epfl.beatlink.ui.components.PageTopAppBar
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.components.TrackCard
 import com.epfl.beatlink.ui.components.profile.MusicGenreCard
+import com.epfl.beatlink.ui.components.profile.UserPlaylistCard
 import com.epfl.beatlink.ui.components.profile.genreGradients
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -74,6 +78,7 @@ fun ProfileScreen(
   LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
+    val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
   // Fetch top songs and top artists
   LaunchedEffect(Unit) {
@@ -83,6 +88,11 @@ fun ProfileScreen(
     spotifyApiViewModel.getCurrentUserTopArtists(
         onSuccess = { artists -> topArtistsState.value = artists },
         onFailure = { topArtistsState.value = emptyList() })
+      spotifyApiViewModel.getCurrentUserPlaylists(
+          onSuccess = { playlist -> userPlaylists.value = playlist},
+          onFailure = { userPlaylists.value = emptyList() }
+      )
+
   }
 
   Scaffold(
@@ -215,6 +225,22 @@ fun ProfileScreen(
                       }
                     }
               }
+
+            if (userPlaylists.value.isNotEmpty()) {
+                GradientTitle("PLAYLISTS")
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(11.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .heightIn(max = 400.dp)) {
+                    items(userPlaylists.value.size) { i ->
+                        UserPlaylistCard(userPlaylists.value[i])
+                    }
+                }
+
+            }
+
             }
       })
 }

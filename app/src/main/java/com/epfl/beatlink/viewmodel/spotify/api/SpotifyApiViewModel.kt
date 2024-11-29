@@ -251,6 +251,27 @@ open class SpotifyApiViewModel(
     }
   }
 
+  /**
+   * The context_uri should be in the format spotify:<type>:<id>, where <type> can be album,
+   * artist, playlist, or track, and <id> is the unique identifier of the item.*/
+  fun playContext(contextUri: String) {
+    viewModelScope.launch {
+      // Construct the JSON body with the context_uri
+      val body = JSONObject().apply {
+        put("context_uri", contextUri)
+      }
+
+      // Send the POST request to play the context
+      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playback started successfully in context: $contextUri")
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to start playback in context: $contextUri")
+      }
+    }
+  }
+
   /** Fetches the current playback state. */
   fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
@@ -458,7 +479,7 @@ open class SpotifyApiViewModel(
                   playlistCover = coverUrl,
                   playlistName = name,
                   playlistPublic = public,
-                  playlistSongs = tracks,
+                  playlistTracks = tracks,
                   nbTracks = nbTracks)
           if (public) {
             playlists.add(userPlaylist)
