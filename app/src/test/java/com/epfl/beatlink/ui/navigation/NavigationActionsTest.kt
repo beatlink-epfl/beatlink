@@ -56,6 +56,12 @@ class NavigationActionsTest {
 
     navigationActions.navigateTo(Screen.LIBRARY)
     verify(navHostController).navigate(Screen.LIBRARY)
+
+    navigationActions.navigateTo(Screen.ACCOUNT)
+    verify(navHostController).navigate(Screen.ACCOUNT)
+
+    navigationActions.navigateTo(Screen.SETTINGS)
+    verify(navHostController).navigate(Screen.SETTINGS)
   }
 
   @Test

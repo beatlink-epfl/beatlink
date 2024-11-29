@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
@@ -19,6 +20,7 @@ import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.coEvery
@@ -75,7 +77,8 @@ class DeleteAccountButtonTest {
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
           profileViewModel = profileViewModel,
-          spotifyAuthViewModel = spotifyAuthViewModel)
+          spotifyAuthViewModel = spotifyAuthViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
   }
 
