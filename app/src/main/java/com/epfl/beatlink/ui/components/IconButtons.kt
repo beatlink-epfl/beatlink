@@ -48,14 +48,13 @@ fun SearchButton(onClick: () -> Unit) {
 
 @Composable
 fun PlayButton(onClick: () -> Unit) {
-    IconButton(onClick) {
-        Icon(
-            painter = painterResource(id = R.drawable.play),
-            contentDescription = "Play",
-            tint = Color.Unspecified,
-            modifier = Modifier.testTag("playButton").size(30.dp)
-        )
-    }
+  IconButton(onClick) {
+    Icon(
+        painter = painterResource(id = R.drawable.play),
+        contentDescription = "Play",
+        tint = Color.Unspecified,
+        modifier = Modifier.testTag("playButton").size(30.dp))
+  }
 }
 
 @Composable

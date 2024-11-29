@@ -25,54 +25,39 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.model.library.UserPlaylist
-import com.epfl.beatlink.ui.components.MoreOptionsButton
 import com.epfl.beatlink.ui.components.PlayButton
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 
-
 @Composable
 fun UserPlaylistCard(playlist: UserPlaylist) {
-    Card(
-        modifier = Modifier
-            .height(88.dp)
-            .fillMaxWidth()
-            .testTag("userPlaylistCard"),
-        shape = RoundedCornerShape(size = 5.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-    ) {
-        Row(modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically) {
-            Spacer(Modifier.width(12.dp))
-            // Playlist Cover
-            Box(modifier = Modifier
-                .size(70.dp)
-                .clip(RoundedCornerShape(4.dp))) {
-                AsyncImage(
-                    model = playlist.playlistCover,
-                    contentDescription = "Cover for ${playlist.playlistName}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            // Playlist Name, Owner, Nb of tracks
-            Column(modifier = Modifier
-                .padding(horizontal = 12.dp).weight(1f)) {
-                Text(
-                    text = playlist.playlistName,
-                    style = TypographyPlaylist.headlineLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 2)
-                Text(
-                    text = playlist.nbTracks.toString() + " tracks",
-                    style = TypographyPlaylist.titleSmall,
-                )
-            }
-            PlayButton { }
-            Spacer(Modifier.width(12.dp))
-            MoreOptionsButton { }
-            Spacer(Modifier.width(12.dp))
+  Card(
+      modifier = Modifier.height(88.dp).fillMaxWidth().testTag("userPlaylistCard"),
+      shape = RoundedCornerShape(size = 5.dp),
+      colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+          Spacer(Modifier.width(12.dp))
+          // Playlist Cover
+          Box(modifier = Modifier.size(70.dp).clip(RoundedCornerShape(4.dp))) {
+            AsyncImage(
+                model = playlist.playlistCover,
+                contentDescription = "Cover for ${playlist.playlistName}",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop)
+          }
+          // Playlist Name, Owner, Nb of tracks
+          Column(modifier = Modifier.padding(horizontal = 12.dp).weight(1f)) {
+            Text(
+                text = playlist.playlistName,
+                style = TypographyPlaylist.headlineLarge,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 2)
+            Text(
+                text = playlist.nbTracks.toString() + " tracks",
+                style = TypographyPlaylist.titleSmall,
+            )
+          }
+          PlayButton {}
+          Spacer(Modifier.width(12.dp))
         }
-    }
-
-
+      }
 }

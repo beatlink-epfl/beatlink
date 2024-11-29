@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.profile
 
 import androidx.test.core.app.ApplicationProvider
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
@@ -13,6 +14,7 @@ open class FakeSpotifyApiViewModel(
 
   private var topTracks: List<SpotifyTrack> = emptyList()
   private var topArtists: List<SpotifyArtist> = emptyList()
+  private var userPlaylists: List<UserPlaylist> = emptyList()
 
   fun setTopTracks(tracks: List<SpotifyTrack>) {
     topTracks = tracks
@@ -20,6 +22,10 @@ open class FakeSpotifyApiViewModel(
 
   fun setTopArtists(artists: List<SpotifyArtist>) {
     topArtists = artists
+  }
+
+  fun setUserPlaylists(playlists: List<UserPlaylist>) {
+    userPlaylists = playlists
   }
 
   override fun getCurrentUserTopTracks(
@@ -39,6 +45,17 @@ open class FakeSpotifyApiViewModel(
   ) {
     if (topArtists.isNotEmpty()) {
       onSuccess(topArtists)
+    } else {
+      onFailure(emptyList())
+    }
+  }
+
+  override fun getCurrentUserPlaylists(
+      onSuccess: (List<UserPlaylist>) -> Unit,
+      onFailure: (List<UserPlaylist>) -> Unit
+  ) {
+    if (userPlaylists.isNotEmpty()) {
+      onSuccess(userPlaylists)
     } else {
       onFailure(emptyList())
     }

@@ -70,7 +70,7 @@ fun PlaylistCard(
           }
 
           MoreOptionsButton {}
-            Spacer(Modifier.width(12.dp))
+          Spacer(Modifier.width(12.dp))
         }
       }
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -91,6 +92,11 @@ class ProfileTest {
       listOf(
           SpotifyArtist(image = "1", name = "Artist 1", genres = emptyList(), popularity = 23),
           SpotifyArtist(image = "2", name = "Artist 2", genres = emptyList(), popularity = 24))
+
+  private val userPlaylists =
+      listOf(
+          UserPlaylist("1", "me", "url", "name1", false, emptyList(), 0),
+          UserPlaylist("2", "me2", "url", "name2", false, emptyList(), 0))
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -265,6 +271,28 @@ class ProfileTest {
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
     composeTestRule.onAllNodesWithTag("ArtistCard").assertCountEquals(topArtists.size)
+  }
+
+  @Test
+  fun userPlaylistsAreDisplayed() {
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeSpotifyApiViewModel.setUserPlaylists(userPlaylists)
+
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          fakeSpotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+
+    composeTestRule.onNodeWithTag("PLAYLISTSTitle").assertIsDisplayed()
+
+    userPlaylists.forEach { playlist ->
+      composeTestRule.onNodeWithText(playlist.playlistName).assertExists()
+    }
+
+    composeTestRule.onAllNodesWithTag("userPlaylistCard").assertCountEquals(userPlaylists.size)
   }
 
   @Test

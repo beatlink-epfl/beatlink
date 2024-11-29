@@ -252,14 +252,13 @@ open class SpotifyApiViewModel(
   }
 
   /**
-   * The context_uri should be in the format spotify:<type>:<id>, where <type> can be album,
-   * artist, playlist, or track, and <id> is the unique identifier of the item.*/
+   * The context_uri should be in the format spotify:<type>:<id>, where <type> can be album, artist,
+   * playlist, or track, and <id> is the unique identifier of the item.
+   */
   fun playContext(contextUri: String) {
     viewModelScope.launch {
       // Construct the JSON body with the context_uri
-      val body = JSONObject().apply {
-        put("context_uri", contextUri)
-      }
+      val body = JSONObject().apply { put("context_uri", contextUri) }
 
       // Send the POST request to play the context
       val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
@@ -451,7 +450,7 @@ open class SpotifyApiViewModel(
         popularity = artist.getInt("popularity"))
   }
 
-  fun getCurrentUserPlaylists(
+  open fun getCurrentUserPlaylists(
       onSuccess: (List<UserPlaylist>) -> Unit,
       onFailure: (List<UserPlaylist>) -> Unit
   ) {
