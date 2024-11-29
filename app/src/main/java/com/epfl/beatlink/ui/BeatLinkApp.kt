@@ -101,7 +101,9 @@ fun BeatLinkApp(
       composable(Screen.SEARCH) {
         SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
       }
-      composable(Screen.SEARCH_BAR) { SearchBarScreen(navigationActions, spotifyApiViewModel) }
+      composable(Screen.SEARCH_BAR) {
+        SearchBarScreen(navigationActions, spotifyApiViewModel, profileViewModel)
+      }
       composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
       composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
       composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
