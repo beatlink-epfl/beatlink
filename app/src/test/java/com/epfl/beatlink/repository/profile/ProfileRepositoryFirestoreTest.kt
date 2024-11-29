@@ -261,7 +261,7 @@ class ProfileRepositoryFirestoreTest {
         .thenReturn(mockTransaction)
 
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.updateProfile("testUserId", profileData)
 
     // Assert
     assertTrue(success)
@@ -286,7 +286,7 @@ class ProfileRepositoryFirestoreTest {
         .thenReturn(mockTransaction)
 
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.updateProfile("testUserId", profileData)
 
     // Assert
     assertTrue(success)
@@ -301,7 +301,7 @@ class ProfileRepositoryFirestoreTest {
         .thenReturn(Tasks.forException(Exception("Update profile failed")))
 
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.updateProfile("testUserId", profileData)
 
     // Assert
     assertFalse(success)
@@ -319,7 +319,7 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockTransaction.delete(mockUsernameDocumentReference)).thenReturn(mockTransaction)
 
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.deleteProfile("testUserId")
 
     // Assert
     assertTrue(success)
@@ -334,7 +334,7 @@ class ProfileRepositoryFirestoreTest {
         .thenReturn(Tasks.forException(Exception("Delete profile failed")))
 
     // Act
-    val success = repository.addProfile("testUserId", profileData)
+    val success = repository.deleteProfile("testUserId")
 
     // Assert
     assertFalse(success)
