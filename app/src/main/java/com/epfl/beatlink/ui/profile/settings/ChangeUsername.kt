@@ -78,7 +78,16 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                                 .show()
                           }
                           ProfileViewModel.UsernameValidationResult.Valid -> {
-                            profileViewModel.updateProfile(ProfileData(username = username))
+                            val updatedProfileData =
+                                ProfileData(
+                                    bio = profileData?.bio ?: "",
+                                    links = profileData?.links ?: 0,
+                                    name = profileData?.name ?: "",
+                                    profilePicture = profileData?.profilePicture,
+                                    username = username,
+                                    favoriteMusicGenres =
+                                        profileData?.favoriteMusicGenres ?: emptyList())
+                            profileViewModel.updateProfile(updatedProfileData)
                             Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
                             navigationActions.navigateTo(Screen.PROFILE)
                           }
