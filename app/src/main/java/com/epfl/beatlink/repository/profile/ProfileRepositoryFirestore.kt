@@ -11,8 +11,8 @@ import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.tasks.await
 
 @Suppress("UNCHECKED_CAST")
 /**
@@ -98,13 +98,15 @@ open class ProfileRepositoryFirestore(
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
-            // Update user profile
+            // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
-            transaction.set(profileDocRef, profileData)
 
-            // Get the current username from the profile
+            // Read the current profile
             val userSnapshot = transaction.get(profileDocRef)
             val currentUsername = userSnapshot.getString("username")
+
+            // Update user profile
+            transaction.set(profileDocRef, profileData)
 
             // Check if the username has changed
             if (currentUsername != null && currentUsername != profileData.username) {
@@ -128,15 +130,18 @@ open class ProfileRepositoryFirestore(
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
       db.runTransaction { transaction ->
-            // Delete the user profile
+            // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
-            transaction.delete(profileDocRef)
 
             // Fetch the username from the profile
             val userSnapshot = transaction.get(profileDocRef)
             val username = userSnapshot.getString("username")
+
+            // Delete the user profile
+            transaction.delete(profileDocRef)
+
+            // Delete the username if it exists
             if (username != null) {
-              // Delete the username
               val usernameDocRef = db.collection("usernames").document(username)
               transaction.delete(usernameDocRef)
             }

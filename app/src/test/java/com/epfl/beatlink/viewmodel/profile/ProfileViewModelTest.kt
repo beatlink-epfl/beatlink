@@ -9,6 +9,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -32,8 +34,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProfileViewModelTest {
@@ -422,6 +422,145 @@ class ProfileViewModelTest {
         verify(mockRepository).getUserIdByUsername(username)
         verify(onResult).invoke(null)
       }
+
+  @Test
+  fun `verifyUsername returns invalid result when username is too short`() = runTest {
+    // Arrange
+    val username = ""
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult)
+        .invoke(
+            ProfileViewModel.UsernameValidationResult.Invalid(
+                "Username must be between 1 and 30 characters"))
+  }
+
+  @Test
+  fun `verifyUsername returns invalid result when username is too long`() = runTest {
+    // Arrange
+    val username = "a".repeat(31)
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult)
+        .invoke(
+            ProfileViewModel.UsernameValidationResult.Invalid(
+                "Username must be between 1 and 30 characters"))
+  }
+
+  @Test
+  fun `verifyUsername returns invalid result when username contains invalid characters`() =
+      runTest {
+        // Arrange
+        val username = "invalid@username" // Invalid character '@'
+        val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+        // Act
+        viewModel.verifyUsername(username, onResult)
+        advanceUntilIdle()
+
+        // Assert
+        verify(onResult)
+            .invoke(
+                ProfileViewModel.UsernameValidationResult.Invalid(
+                    "Username can only contain letters, numbers, dots and underscores"))
+      }
+
+  @Test
+  fun `verifyUsername returns invalid result when username starts with a dot`() = runTest {
+    // Arrange
+    val username = ".invalidusername"
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult)
+        .invoke(
+            ProfileViewModel.UsernameValidationResult.Invalid(
+                "Username cannot start or end with a dot"))
+  }
+
+  @Test
+  fun `verifyUsername returns invalid result when username contains consecutive dots`() = runTest {
+    // Arrange
+    val username = "user..name"
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult)
+        .invoke(
+            ProfileViewModel.UsernameValidationResult.Invalid(
+                "Username cannot have consecutive dots"))
+  }
+
+  @Test
+  fun `verifyUsername returns invalid result when username contains more than two consecutive underscores`() =
+      runTest {
+        // Arrange
+        val username = "user___name"
+        val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+        // Act
+        viewModel.verifyUsername(username, onResult)
+        advanceUntilIdle()
+
+        // Assert
+        verify(onResult)
+            .invoke(
+                ProfileViewModel.UsernameValidationResult.Invalid(
+                    "Username cannot have more than two consecutive underscores"))
+      }
+
+  @Test
+  fun `verifyUsername returns invalid result when username is already taken`() = runTest {
+    // Arrange
+    val username = "takenUsername"
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Mock the repository to return that the username is not available
+    `when`(mockRepository.isUsernameAvailable(username)).thenReturn(false)
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult)
+        .invoke(ProfileViewModel.UsernameValidationResult.Invalid("Username is already taken"))
+  }
+
+  @Test
+  fun `verifyUsername returns valid result when username is valid and available`() = runTest {
+    // Arrange
+    val username = "valid_username"
+    val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
+
+    // Mock the repository to return that the username is available
+    `when`(mockRepository.isUsernameAvailable(username)).thenReturn(true)
+
+    // Act
+    viewModel.verifyUsername(username, onResult)
+    advanceUntilIdle()
+
+    // Assert
+    verify(onResult).invoke(ProfileViewModel.UsernameValidationResult.Valid)
+  }
 
   @Test
   fun `test searchUsers updates LiveData with search results`(): Unit = runTest {
