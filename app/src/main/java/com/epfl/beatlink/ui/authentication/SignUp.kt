@@ -67,8 +67,7 @@ fun SignUpScreen(
       context = context,
       onSuccess = {
         // Add user profile to Firestore
-        profileViewModel.addProfile(ProfileData(username = username))
-
+        profileViewModel.addProfile(ProfileData(username = username, email = email))
         navigationActions.navigateTo(Screen.PROFILE_BUILD)
       },
       authViewModel = firebaseAuthViewModel,
