@@ -36,7 +36,7 @@ class DiscoverPeopleScreenTest {
     composeTestRule.onNodeWithTag("discoverPeopleScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("profileSearchColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
     composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
@@ -51,7 +51,7 @@ class DiscoverPeopleScreenTest {
   @Test
   fun testBackNavigation() {
 
-    composeTestRule.onNodeWithTag("backButton").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
   }
 

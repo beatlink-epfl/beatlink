@@ -36,7 +36,7 @@ class TrendingSongsScreenTest {
     composeTestRule.onNodeWithTag("trendingSongsScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("TRENDING SONGSTitle").assertIsDisplayed()
     composeTestRule.onNodeWithTag("trendingSongsColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
@@ -53,7 +53,7 @@ class TrendingSongsScreenTest {
   @Test
   fun testBackNavigation() {
 
-    composeTestRule.onNodeWithTag("backButton").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
   }
 

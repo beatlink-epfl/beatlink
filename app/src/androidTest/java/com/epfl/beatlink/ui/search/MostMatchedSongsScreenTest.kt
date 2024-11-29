@@ -36,7 +36,7 @@ class MostMatchedSongsScreenTest {
     composeTestRule.onNodeWithTag("mostMatchedSongsScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("mostMatchedSearchColumn").assertIsDisplayed()
     composeTestRule.onNodeWithTag("divider").assertIsDisplayed()
     composeTestRule.onNodeWithTag("placeholderText").assertIsDisplayed()
@@ -51,7 +51,7 @@ class MostMatchedSongsScreenTest {
   @Test
   fun testBackNavigation() {
 
-    composeTestRule.onNodeWithTag("backButton").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
   }
 

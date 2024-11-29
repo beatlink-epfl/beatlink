@@ -1,5 +1,7 @@
 package com.epfl.beatlink.ui.library
 
+import android.graphics.Bitmap
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
@@ -7,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.ui.components.library.CollabList
+import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -56,5 +59,16 @@ class CollaboratorsSectionTest {
 
     // Verify the correct collaborator was removed
     assertEquals("Alice", removedCollaborator)
+  }
+
+  @Test
+  fun collaboratorCardHasCheckWhenUserIsCollaborator() {
+    val isCollab = true
+    val profilePicture = mutableStateOf<Bitmap?>(null)
+    composeTestRule.setContent {
+      CollaboratorCard("Alice", "alice", profilePicture, isCollab, {}, {})
+    }
+    composeTestRule.onNodeWithTag("checkButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("checkButton").performClick()
   }
 }
