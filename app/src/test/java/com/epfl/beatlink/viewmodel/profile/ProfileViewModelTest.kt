@@ -41,7 +41,7 @@ class ProfileViewModelTest {
   @get:Rule
   val instantTaskExecutorRule = InstantTaskExecutorRule() // Rule to allow LiveData testing
 
-  private lateinit var viewModel: ProfileViewModel
+  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var mockRepository: ProfileRepositoryFirestore
 
   @Before
@@ -53,7 +53,7 @@ class ProfileViewModelTest {
     mockRepository = mock(ProfileRepositoryFirestore::class.java)
 
     // Create the ViewModel with the mocked repository
-    viewModel = ProfileViewModel(mockRepository)
+    profileViewModel = ProfileViewModel(mockRepository)
   }
 
   @After
@@ -77,13 +77,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.fetchProfile(userId)).thenReturn(expectedProfile)
 
     // Act
-    viewModel.fetchProfile()
+    profileViewModel.fetchProfile()
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(expectedProfile, actualProfile)
   }
 
@@ -93,10 +93,10 @@ class ProfileViewModelTest {
     `when`(mockRepository.getUserId()).thenReturn(null)
 
     // Act
-    viewModel.fetchProfile()
+    profileViewModel.fetchProfile()
 
     // Assert
-    assertEquals(null, viewModel.profile.value)
+    assertEquals(null, profileViewModel.profile.value)
   }
 
   @Test
@@ -115,13 +115,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.addProfile(userId, newProfile)).thenReturn(true)
 
     // Act
-    viewModel.addProfile(newProfile)
+    profileViewModel.addProfile(newProfile)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(newProfile, actualProfile)
   }
 
@@ -141,13 +141,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.addProfile(userId, newProfile)).thenReturn(false)
 
     // Act
-    viewModel.addProfile(newProfile)
+    profileViewModel.addProfile(newProfile)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(null, actualProfile)
   }
 
@@ -168,13 +168,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(true)
 
     // Act
-    viewModel.updateProfile(updatedProfile)
+    profileViewModel.updateProfile(updatedProfile)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(updatedProfile, actualProfile)
   }
 
@@ -194,13 +194,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(false)
 
     // Act
-    viewModel.updateProfile(updatedProfile)
+    profileViewModel.updateProfile(updatedProfile)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(null, actualProfile)
   }
 
@@ -220,19 +220,19 @@ class ProfileViewModelTest {
     `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
     `when`(mockRepository.deleteProfile(userId)).thenReturn(true)
 
-    viewModel.addProfile(existingProfile) // Adding an initial profile
+    profileViewModel.addProfile(existingProfile) // Adding an initial profile
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Act
-    viewModel.deleteProfile()
+    profileViewModel.deleteProfile()
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(null, actualProfile)
   }
 
@@ -252,19 +252,19 @@ class ProfileViewModelTest {
     `when`(mockRepository.addProfile(userId, existingProfile)).thenReturn(true)
     `when`(mockRepository.deleteProfile(userId)).thenReturn(false)
 
-    viewModel.addProfile(existingProfile) // Adding an initial profile
+    profileViewModel.addProfile(existingProfile) // Adding an initial profile
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Act
-    viewModel.deleteProfile()
+    profileViewModel.deleteProfile()
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val actualProfile = viewModel.profile.value
+    val actualProfile = profileViewModel.profile.value
     assertEquals(existingProfile, actualProfile)
   }
 
@@ -280,7 +280,7 @@ class ProfileViewModelTest {
         doNothing().`when`(mockRepository).uploadProfilePicture(any(), any(), eq(userId))
 
         // Act
-        viewModel.uploadProfilePicture(mockContext, mockUri)
+        profileViewModel.uploadProfilePicture(mockContext, mockUri)
         runCurrent() // Ensure the coroutine block executes
 
         // Assert
@@ -298,7 +298,7 @@ class ProfileViewModelTest {
         `when`(mockRepository.getUserId()).thenReturn(null)
 
         // Act
-        viewModel.uploadProfilePicture(mockContext, mockUri)
+        profileViewModel.uploadProfilePicture(mockContext, mockUri)
 
         // Assert
         verify(mockRepository).getUserId()
@@ -315,7 +315,7 @@ class ProfileViewModelTest {
     val mockContext = mock(Context::class.java)
 
     // Act
-    viewModel.handlePermissionResult(true, mockGalleryLauncher, mockContext)
+    profileViewModel.handlePermissionResult(true, mockGalleryLauncher, mockContext)
 
     // Assert
     verify(mockGalleryLauncher).launch("image/*") // Verify galleryLauncher was called
@@ -337,7 +337,7 @@ class ProfileViewModelTest {
           .thenReturn(toastMock)
 
       // Act
-      viewModel.handlePermissionResult(false, mockGalleryLauncher, mockContext)
+      profileViewModel.handlePermissionResult(false, mockGalleryLauncher, mockContext)
 
       // Assert
       verify(mockGalleryLauncher, never()).launch(any()) // Ensure galleryLauncher is NOT called
@@ -358,7 +358,7 @@ class ProfileViewModelTest {
     `when`(mockRepository.getUsername(userId)).thenReturn(expectedUsername)
 
     // Act
-    val result = viewModel.getUsername(userId, onResult)
+    val result = profileViewModel.getUsername(userId, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -377,7 +377,7 @@ class ProfileViewModelTest {
         `when`(mockRepository.getUsername(userId)).thenThrow(exception)
 
         // Act
-        val result = viewModel.getUsername(userId, onResult)
+        val result = profileViewModel.getUsername(userId, onResult)
         advanceUntilIdle()
 
         // Assert
@@ -396,7 +396,7 @@ class ProfileViewModelTest {
         `when`(mockRepository.getUserIdByUsername(username)).thenReturn(expectedUserId)
 
         // Act
-        viewModel.getUserIdByUsername(username, onResult)
+        profileViewModel.getUserIdByUsername(username, onResult)
         advanceUntilIdle() // Advance the coroutine execution
 
         // Assert
@@ -415,7 +415,7 @@ class ProfileViewModelTest {
         `when`(mockRepository.getUserIdByUsername(username)).thenThrow(exception)
 
         // Act
-        viewModel.getUserIdByUsername(username, onResult)
+        profileViewModel.getUserIdByUsername(username, onResult)
         advanceUntilIdle() // Advance the coroutine execution
 
         // Assert
@@ -430,7 +430,7 @@ class ProfileViewModelTest {
     val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -447,7 +447,7 @@ class ProfileViewModelTest {
     val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -465,7 +465,7 @@ class ProfileViewModelTest {
         val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
         // Act
-        viewModel.verifyUsername(username, onResult)
+        profileViewModel.verifyUsername(username, onResult)
         advanceUntilIdle()
 
         // Assert
@@ -482,7 +482,7 @@ class ProfileViewModelTest {
     val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -499,7 +499,7 @@ class ProfileViewModelTest {
     val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -517,7 +517,7 @@ class ProfileViewModelTest {
         val onResult: (ProfileViewModel.UsernameValidationResult) -> Unit = mock()
 
         // Act
-        viewModel.verifyUsername(username, onResult)
+        profileViewModel.verifyUsername(username, onResult)
         advanceUntilIdle()
 
         // Assert
@@ -537,7 +537,7 @@ class ProfileViewModelTest {
     `when`(mockRepository.isUsernameAvailable(username)).thenReturn(false)
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -555,7 +555,7 @@ class ProfileViewModelTest {
     `when`(mockRepository.isUsernameAvailable(username)).thenReturn(true)
 
     // Act
-    viewModel.verifyUsername(username, onResult)
+    profileViewModel.verifyUsername(username, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -585,13 +585,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.searchUsers(query)).thenReturn(mockUsers)
 
     // Act
-    viewModel.searchUsers(query)
+    profileViewModel.searchUsers(query)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val result = viewModel.searchResult.getOrAwaitValue() // Use a LiveData test helper
+    val result = profileViewModel.searchResult.getOrAwaitValue() // Use a LiveData test helper
     assertNotNull(result)
     assertEquals(2, result.size)
     assert(result.containsAll(mockUsers))
@@ -604,13 +604,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.searchUsers(query)).thenReturn(emptyList())
 
     // Act
-    viewModel.searchUsers(query)
+    profileViewModel.searchUsers(query)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val result = viewModel.searchResult.getOrAwaitValue()
+    val result = profileViewModel.searchResult.getOrAwaitValue()
     assertNotNull(result)
     assert(result.isEmpty())
   }
@@ -622,13 +622,13 @@ class ProfileViewModelTest {
     `when`(mockRepository.searchUsers(query)).thenThrow(RuntimeException("Mocked error"))
 
     // Act
-    viewModel.searchUsers(query)
+    profileViewModel.searchUsers(query)
 
     // Advance time to let the coroutine run
     advanceUntilIdle()
 
     // Assert
-    val result = viewModel.searchResult.getOrAwaitValue()
+    val result = profileViewModel.searchResult.getOrAwaitValue()
     assertNotNull(result)
     assert(result.isEmpty())
   }

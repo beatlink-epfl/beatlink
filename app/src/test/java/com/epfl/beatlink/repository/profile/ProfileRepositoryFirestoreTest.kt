@@ -6,11 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -34,7 +30,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.anyMap
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -152,6 +147,21 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
+  fun `test fetchProfile fails`() = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+
+    `when`(mockProfileDocumentReference.get())
+        .thenReturn(Tasks.forException(Exception("Fetch profile failed")))
+
+    // Act
+    val result = repository.fetchProfile(userId)
+
+    // Assert
+    assert(result == null)
+  }
+
+  @Test
   fun `getUsername returns username on success`(): Unit = runBlocking {
     // Arrange
     val userId = "testUserId"
@@ -216,6 +226,26 @@ class ProfileRepositoryFirestoreTest {
     verify(mockProfileCollectionReference).get()
     verify(mockQuerySnapshot).documents
     verify(mockDocumentSnapshot).id
+  }
+
+  @Test
+  fun `getUserIdByUsername fails`(): Unit = runBlocking {
+    // Arrange
+    val username = "testUsername"
+
+    // Mocking behavior for Firestore query
+    `when`(mockProfileCollectionReference.whereEqualTo("username", username))
+        .thenReturn(mockProfileCollectionReference)
+    `when`(mockProfileCollectionReference.get())
+        .thenReturn(Tasks.forException(Exception("getUserIdByUsername failed")))
+
+    // Act
+    val result = repository.getUserIdByUsername(username)
+
+    // Assert
+    assertEquals(null, result)
+    verify(mockProfileCollectionReference).whereEqualTo("username", username)
+    verify(mockProfileCollectionReference).get()
   }
 
   @Test
@@ -424,107 +454,18 @@ class ProfileRepositoryFirestoreTest {
     }
   }
 
-  @Suppress("UNCHECKED_CAST")
   @Test
-  fun `saveProfilePictureBase64 saves base64 image successfully`() {
+  fun `saveProfilePictureBase64 calls Firestore set() with correct data`() {
     // Arrange
-    val mockDb = mock(FirebaseFirestore::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockDocumentReference = mock(DocumentReference::class.java)
-    val mockTask = mock(Task::class.java) as Task<Void>
-    val mockSuccessListener =
-        ArgumentCaptor.forClass(OnSuccessListener::class.java)
-            as ArgumentCaptor<OnSuccessListener<Void>>
-
-    // Mock Firestore behavior
-    `when`(mockDb.collection("your_collection_name")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("user_id")).thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.set(anyMap<String, String>(), eq(SetOptions.merge())))
-        .thenReturn(mockTask)
-
-    // Ensure that addOnSuccessListener and addOnFailureListener return mockTask for chaining
-    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
-    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
-
-    val testClass =
-        object {
-          val db: FirebaseFirestore = mockDb
-
-          fun saveProfilePictureBase64(userId: String, base64Image: String) {
-            val userDoc = db.collection("your_collection_name").document(userId)
-            val profileData = mapOf("profilePicture" to base64Image)
-
-            userDoc
-                .set(profileData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("FIRESTORE", "Base64 image saved successfully!") }
-                .addOnFailureListener { e ->
-                  Log.e("FIRESTORE", "Error saving Base64 image: ${e.message}")
-                }
-          }
-        }
+    val userId = "testUserId"
+    val base64Image = "base64_image_data"
+    val profileData = mapOf("profilePicture" to base64Image)
 
     // Act
-    testClass.saveProfilePictureBase64("user_id", "base64_image_data")
-
-    // Simulate success
-    verify(mockTask).addOnSuccessListener(mockSuccessListener.capture())
-    mockSuccessListener.value.onSuccess(null)
+    repository.saveProfilePictureBase64(userId, base64Image)
 
     // Assert
-    verify(mockDocumentReference)
-        .set(mapOf("profilePicture" to "base64_image_data"), SetOptions.merge())
-    verify(mockTask).addOnSuccessListener(any())
-  }
-
-  @Suppress("UNCHECKED_CAST")
-  @Test
-  fun `saveProfilePictureBase64 handles failure`() {
-    // Arrange
-    val mockDb = mock(FirebaseFirestore::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockDocumentReference = mock(DocumentReference::class.java)
-    val mockTask = mock(Task::class.java) as Task<Void>
-    val mockFailureListener =
-        ArgumentCaptor.forClass(OnFailureListener::class.java) as ArgumentCaptor<OnFailureListener>
-
-    // Mock Firestore behavior
-    `when`(mockDb.collection("your_collection_name")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("user_id")).thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.set(anyMap<String, String>(), eq(SetOptions.merge())))
-        .thenReturn(mockTask)
-
-    // Ensure that addOnSuccessListener and addOnFailureListener return mockTask for chaining
-    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
-    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
-
-    val testClass =
-        object {
-          val db: FirebaseFirestore = mockDb
-
-          fun saveProfilePictureBase64(userId: String, base64Image: String) {
-            val userDoc = db.collection("your_collection_name").document(userId)
-            val profileData = mapOf("profilePicture" to base64Image)
-
-            userDoc
-                .set(profileData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("FIRESTORE", "Base64 image saved successfully!") }
-                .addOnFailureListener { e ->
-                  Log.e("FIRESTORE", "Error saving Base64 image: ${e.message}")
-                }
-          }
-        }
-
-    // Act
-    testClass.saveProfilePictureBase64("user_id", "base64_image_data")
-
-    // Simulate failure
-    verify(mockTask).addOnFailureListener(mockFailureListener.capture())
-    mockFailureListener.value.onFailure(Exception("Test error"))
-
-    // Assert
-    verify(mockDocumentReference)
-        .set(mapOf("profilePicture" to "base64_image_data"), SetOptions.merge())
-    verify(mockTask).addOnFailureListener(any())
+    verify(mockProfileDocumentReference).set(profileData, SetOptions.merge())
   }
 
   @Test

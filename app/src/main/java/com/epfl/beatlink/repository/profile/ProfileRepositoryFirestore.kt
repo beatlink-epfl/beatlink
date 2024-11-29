@@ -270,7 +270,7 @@ open class ProfileRepositoryFirestore(
    * @param userId The unique identifier of the user.
    * @param base64Image The Base64-encoded string representation of the profile picture.
    */
-  private fun saveProfilePictureBase64(userId: String, base64Image: String) {
+  fun saveProfilePictureBase64(userId: String, base64Image: String) {
     val userDoc = db.collection(collection).document(userId)
     val profileData = mapOf("profilePicture" to base64Image)
 
