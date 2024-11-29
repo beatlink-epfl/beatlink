@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Search
@@ -49,7 +51,7 @@ fun MoreOptionsButton(onClick: () -> Unit) {
   CornerIcons(
       onClick = onClick,
       icon = Icons.Filled.MoreVert,
-      contentDescription = "More Options Button",
+      contentDescription = "More Options",
       modifier = Modifier.padding(end = 12.dp).testTag("moreOptionsButton"),
       iconSize = 35.dp)
 }
@@ -63,6 +65,15 @@ fun BackArrowButton(onClick: () -> Unit) {
         tint = Color.Unspecified,
         modifier = Modifier.testTag("goBackButton").size(30.dp).clickable { onClick() })
   }
+}
+
+@Composable
+fun CheckButton(onClick: () -> Unit) {
+  CornerIcons(
+      onClick = onClick,
+      icon = Icons.Filled.Check,
+      contentDescription = "Check",
+      modifier = Modifier.testTag("checkButton"))
 }
 
 @Composable

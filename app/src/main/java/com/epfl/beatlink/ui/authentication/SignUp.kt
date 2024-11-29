@@ -109,40 +109,44 @@ fun SignUpScreen(
               CustomInputField(
                   value = email,
                   onValueChange = { email = it },
-                  label = "My Email Address",
+                  label = "My Email Address *",
                   placeholder = "Enter email address",
                   keyboardType = KeyboardType.Email,
+                  isError = email.isBlank(),
                   modifier = Modifier.testTag("inputEmail"))
 
               // Username input field
               CustomInputField(
                   value = username,
-                  onValueChange = { username = it },
-                  label = "My Username",
+                  onValueChange = { username = it.lowercase() },
+                  label = "My Username *",
                   placeholder = "Enter username",
                   supportingText = "No special characters, no spaces",
+                  isError = username.isBlank(),
                   modifier = Modifier.testTag("inputUsername"))
 
               // Password input field
               CustomInputField(
                   value = password,
                   onValueChange = { password = it },
-                  label = "My Password",
+                  label = "My Password *",
                   placeholder = "Enter password",
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
+                  isError = password.isBlank() || password.length !in 6..18,
                   modifier = Modifier.testTag("inputPassword"))
 
               // Confirm Password input field
               CustomInputField(
                   value = confirmPassword,
                   onValueChange = { confirmPassword = it },
-                  label = "Confirm Password",
+                  label = "Confirm Password *",
                   placeholder = "Enter password",
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
+                  isError = confirmPassword.isBlank() || confirmPassword.length !in 6..18,
                   modifier = Modifier.testTag("inputConfirmPassword"))
 
               // Link Spotify button
@@ -153,6 +157,7 @@ fun SignUpScreen(
               // Create new account button
               CreateNewAccountButton(
                   authViewModel = firebaseAuthViewModel,
+                  profileViewModel = profileViewModel,
                   email = email,
                   password = password,
                   confirmPassword = confirmPassword,
@@ -171,6 +176,7 @@ fun SignUpScreen(
 @Composable
 fun CreateNewAccountButton(
     authViewModel: FirebaseAuthViewModel,
+    profileViewModel: ProfileViewModel,
     email: String,
     password: String,
     confirmPassword: String,
@@ -197,7 +203,18 @@ fun CreateNewAccountButton(
                   Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                  authViewModel.signUp(email, password)
+                  profileViewModel.verifyUsername(username) { usernameValidationResult ->
+                    when (usernameValidationResult) {
+                      is ProfileViewModel.UsernameValidationResult.Invalid -> {
+                        Toast.makeText(
+                                context, usernameValidationResult.errorMessage, Toast.LENGTH_SHORT)
+                            .show()
+                      }
+                      ProfileViewModel.UsernameValidationResult.Valid -> {
+                        authViewModel.signUp(email, password)
+                      }
+                    }
+                  }
                 }
               }
             },

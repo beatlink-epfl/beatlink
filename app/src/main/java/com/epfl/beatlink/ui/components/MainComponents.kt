@@ -467,7 +467,7 @@ fun CircleWithIcon(icon: ImageVector, backgroundColor: Color) {
 }
 
 @Composable
-fun ProfilePicture(id: MutableState<Bitmap?>) {
+fun ProfilePicture(id: MutableState<Bitmap?>, size: Dp = 100.dp) {
   // Profile picture
   id.value?.let { bitmap ->
     Image(
@@ -484,7 +484,7 @@ fun ProfilePicture(id: MutableState<Bitmap?>) {
             painter = painterResource(id = R.drawable.default_profile_picture),
             contentDescription = "Profile Picture",
             modifier =
-                Modifier.size(100.dp)
+                Modifier.size(size)
                     .testTag("profilePicture")
                     .clip(CircleShape)
                     .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape))

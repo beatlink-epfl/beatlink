@@ -79,7 +79,7 @@ fun NavigationTextRow(
 fun AuthStateHandler(
     authState: AuthState,
     context: Context,
-    onSuccess: () -> Unit, // Updated parameter name for better flexibility
+    onSuccess: () -> Unit,
     authViewModel: FirebaseAuthViewModel,
     successMessage: String
 ) {

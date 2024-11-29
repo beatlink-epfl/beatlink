@@ -6,8 +6,10 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -76,6 +78,30 @@ class PlaylistViewModelTest {
           playlistCollaborators = emptyList(),
           playlistTracks = listOf(track1, track2),
           nbTracks = 2)
+  private val playlist1 =
+      Playlist(
+          playlistID = "1",
+          playlistCover = "",
+          playlistName = "playlist 1",
+          playlistDescription = "this is a description",
+          playlistPublic = false,
+          userId = "testUserId",
+          playlistOwner = "luna",
+          playlistCollaborators = emptyList(),
+          playlistTracks = emptyList(),
+          nbTracks = 0)
+  private val playlist2 =
+      Playlist(
+          playlistID = "2",
+          playlistCover = "",
+          playlistName = "playlist 2",
+          playlistDescription = "testingggg 2",
+          playlistPublic = false,
+          userId = "testUserId2",
+          playlistOwner = "luna2",
+          playlistCollaborators = emptyList(),
+          playlistTracks = listOf(track1),
+          nbTracks = 1)
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
@@ -377,5 +403,60 @@ class PlaylistViewModelTest {
         .updatePlaylist(eq(playlist), any(), any())
 
     playlistViewModel.addTrack(track1, onSuccess = {}, onFailure = {})
+  }
+
+  @Test
+  fun `preloadTemporaryState sets correct temporary values when uninitialized`() = runTest {
+    playlistViewModel.preloadTemporaryState(playlist1)
+    // Assert
+    assertEquals("playlist 1", playlistViewModel.tempPlaylistTitle.first())
+    assertEquals("this is a description", playlistViewModel.tempPlaylistDescription.first())
+    assertEquals(false, playlistViewModel.tempPlaylistIsPublic.first())
+    assertEquals(emptyList<String>(), playlistViewModel.tempPlaylistCollaborators.first())
+    assertEquals(true, playlistViewModel.isTempStateInitialized.first())
+  }
+
+  @Test
+  fun `resetTemporaryState clears all temporary values`() = runTest {
+    playlistViewModel.preloadTemporaryState(playlist1)
+    playlistViewModel.resetTemporaryState()
+    // Assert
+    assertEquals("", playlistViewModel.tempPlaylistTitle.first())
+    assertEquals("", playlistViewModel.tempPlaylistDescription.first())
+    assertEquals(false, playlistViewModel.tempPlaylistIsPublic.first())
+    assertEquals(emptyList<String>(), playlistViewModel.tempPlaylistCollaborators.first())
+    assertEquals(false, playlistViewModel.isTempStateInitialized.first())
+  }
+
+  @Test
+  fun `updateTemporallyTitle updates the temporary title`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyTitle("New Title")
+    // Assert
+    assertEquals("New Title", playlistViewModel.tempPlaylistTitle.first())
+  }
+
+  @Test
+  fun `updateTemporallyDescription updates the temporary description`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyDescription("New Description")
+    // Assert
+    assertEquals("New Description", playlistViewModel.tempPlaylistDescription.first())
+  }
+
+  @Test
+  fun `updateTemporallyIsPublic updates the temporary public state`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyIsPublic(true)
+    // Assert
+    assertEquals(true, playlistViewModel.tempPlaylistIsPublic.first())
+  }
+
+  @Test
+  fun `updateTemporallyCollaborators updates the temporary collaborators list`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyCollaborators(listOf("user1", "user2"))
+    // Assert
+    assertEquals(listOf("user1", "user2"), playlistViewModel.tempPlaylistCollaborators.first())
   }
 }
