@@ -142,6 +142,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
                         bio = description,
                         name = name,
                         username = currentProfile.value?.username ?: "",
+                        email = currentProfile.value?.email ?: "",
                         favoriteMusicGenres = favoriteMusicGenres,
                         profilePicture = "")
                 profileViewModel.updateProfile(updatedProfile)

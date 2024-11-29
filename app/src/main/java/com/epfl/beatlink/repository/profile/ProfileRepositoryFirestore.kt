@@ -66,6 +66,7 @@ open class ProfileRepositoryFirestore(
               name = snapshot.getString("name"),
               profilePicture = snapshot.getString("profilePicture"),
               username = snapshot.getString("username") ?: "",
+              email = snapshot.getString("email") ?: "",
               favoriteMusicGenres =
                   snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
       Log.d("PROFILE_FETCH", "Fetched profile data")
