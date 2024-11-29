@@ -68,7 +68,7 @@ fun MapScreen(
   Scaffold(
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
           BottomNavigationMenu(
               onTabSelect = { route -> navigationActions.navigateTo(route) },
               selectedItem = navigationActions.currentRoute(),

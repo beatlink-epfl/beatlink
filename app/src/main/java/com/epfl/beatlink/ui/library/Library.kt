@@ -57,7 +57,7 @@ fun LibraryScreen(
       },
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
 
           BottomNavigationMenu(
               onTabSelect = { route -> navigationActions.navigateTo(route) },

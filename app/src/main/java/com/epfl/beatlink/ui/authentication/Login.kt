@@ -63,7 +63,7 @@ fun LoginScreen(
   AuthStateHandler(
       authState = authState,
       context = context,
-      onSuccess = { navigationActions.navigateTo(Screen.HOME) },
+      onSuccess = { navigationActions.navigateToAndClearAllBackStack(Screen.HOME) },
       authViewModel = firebaseAuthViewModel,
       successMessage = "Login successful")
 

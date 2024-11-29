@@ -1,7 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.os.Handler
-import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -28,13 +26,10 @@ open class FakeSpotifyApiViewModel(
       onSuccess: (List<SpotifyTrack>) -> Unit,
       onFailure: (List<SpotifyTrack>) -> Unit
   ) {
-    // Dispatch on the main thread
-    Handler(Looper.getMainLooper()).post {
-      if (topTracks.isNotEmpty()) {
-        onSuccess(topTracks)
-      } else {
-        onFailure(emptyList())
-      }
+    if (topTracks.isNotEmpty()) {
+      onSuccess(topTracks)
+    } else {
+      onFailure(emptyList())
     }
   }
 

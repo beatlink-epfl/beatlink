@@ -20,11 +20,13 @@ import com.epfl.beatlink.ui.library.LibraryScreen
 import com.epfl.beatlink.ui.library.MyPlaylistsScreen
 import com.epfl.beatlink.ui.library.PlaylistOverviewScreen
 import com.epfl.beatlink.ui.library.PublicPlaylistsScreen
+import com.epfl.beatlink.ui.library.SearchTracksScreen
 import com.epfl.beatlink.ui.library.SharedWithMeScreen
 import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.player.PlayScreen
 import com.epfl.beatlink.ui.profile.EditProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
@@ -90,6 +92,9 @@ fun BeatLinkApp(
             profileViewModel,
             mapUsersViewModel)
       }
+      composable(Screen.PLAY_SCREEN) {
+        PlayScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+      }
     }
 
     navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
@@ -122,6 +127,9 @@ fun BeatLinkApp(
       }
       composable(Screen.PLAYLIST_OVERVIEW) {
         PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+      }
+      composable(Screen.ADD_TRACK_TO_PLAYLIST) {
+        SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
       }
     }
 

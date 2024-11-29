@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.components.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryRed
@@ -24,13 +26,18 @@ import com.epfl.beatlink.ui.theme.rap
 import com.epfl.beatlink.ui.theme.rock
 
 @Composable
-fun MusicGenreCard(genre: String, brush: Brush) {
+fun MusicGenreCard(genre: String, brush: Brush, onClick: () -> Unit) {
   Box(
       modifier =
-          Modifier.height(100.dp).width(80.dp).clip(RoundedCornerShape(10.dp)).background(brush)) {
+          Modifier.height(90.dp)
+              .width(82.dp)
+              .clip(RoundedCornerShape(10.dp))
+              .background(brush)
+              .clickable { onClick() }) {
         Text(
             text = genre,
-            modifier = Modifier.align(Alignment.BottomStart).padding(8.dp),
+            modifier =
+                Modifier.align(Alignment.BottomStart).padding(8.dp).testTag(genre + "MusicCard"),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.primaryWhite)
       }

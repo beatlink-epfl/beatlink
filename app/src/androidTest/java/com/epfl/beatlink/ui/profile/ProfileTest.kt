@@ -59,7 +59,7 @@ class ProfileTest {
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
 
-  private val user =
+  private val profileData =
       ProfileData(
           username = "",
           name = null,
@@ -100,14 +100,9 @@ class ProfileTest {
     MockitoAnnotations.openMocks(this)
     Dispatchers.setMain(testDispatcher)
 
-    // spotifyApiRepository = SpotifyApiRepository(mockClient, mockSharedPreferences)
-    // spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
-    // spotifyApiViewModel = mock()
-    // spotifyApiRepository = mock()
-
     profileRepositoryFirestore = mock(ProfileRepositoryFirestore::class.java)
     profileViewModel =
-        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = user)
+        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
@@ -136,11 +131,6 @@ class ProfileTest {
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
-    // Check if title is displayed
-    /*composeTestRule
-    .onNodeWithTag("titleUsername")
-    .assertIsDisplayed()
-    .assertTextContains(user.username)*/
 
     // Check if the icons are displayed
     composeTestRule
@@ -162,7 +152,7 @@ class ProfileTest {
     composeTestRule
         .onNodeWithTag("linksCount")
         .assertExists()
-        .assertTextContains("${user.links} Links")
+        .assertTextContains("${profileData.links} Links")
 
     // Check if the edit button is displayed
     composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
@@ -176,9 +166,6 @@ class ProfileTest {
 
     // Check if the user's bio is displayed
     composeTestRule.onNodeWithTag("bio").assertExists()
-
-    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
   }
 
   @Test
@@ -211,7 +198,7 @@ class ProfileTest {
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
-    user.favoriteMusicGenres.forEach { genre ->
+    profileData.favoriteMusicGenres.forEach { genre ->
       composeTestRule.onNodeWithText(genre).assertExists()
     }
   }

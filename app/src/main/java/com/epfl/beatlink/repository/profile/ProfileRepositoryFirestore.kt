@@ -68,7 +68,7 @@ open class ProfileRepositoryFirestore(
               username = snapshot.getString("username") ?: "",
               favoriteMusicGenres =
                   snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
-      Log.d("PROFILE_FETCH", "Fetched profile data: $profileData")
+      Log.d("PROFILE_FETCH", "Fetched profile data")
       profileData
     } catch (e: Exception) {
       Log.e("PROFILE_FETCH_ERROR", "Error fetching profile: ${e.message}")

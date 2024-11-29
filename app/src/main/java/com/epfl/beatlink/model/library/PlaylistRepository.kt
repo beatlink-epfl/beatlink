@@ -1,7 +1,5 @@
 package com.epfl.beatlink.model.library
 
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-
 interface PlaylistRepository {
   /** Generates and returns a new unique ID for a playlist item */
   fun getNewUid(): String
@@ -45,7 +43,7 @@ interface PlaylistRepository {
   /** Updates only the list of tracks contained in the playlist in Firestore */
   fun updatePlaylistTracks(
       playlist: Playlist,
-      newListTracks: List<SpotifyTrack>,
+      newListTracks: List<PlaylistTrack>,
       onSuccess: () -> Unit,
       onFailure: (Exception) -> Unit
   )

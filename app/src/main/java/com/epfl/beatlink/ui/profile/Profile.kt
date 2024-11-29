@@ -67,8 +67,6 @@ fun ProfileScreen(
 ) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
-  val genres = listOf("Pop", "Rock", "Jazz", "Classic") // Sample genres
-
   val profileData by profileViewModel.profile.collectAsState()
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
@@ -108,7 +106,7 @@ fun ProfileScreen(
       },
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationAction, spotifyApiViewModel, mapUsersViewModel)
           BottomNavigationMenu(
               onTabSelect = { route -> navigationAction.navigateTo(route) },
               tabList = LIST_TOP_LEVEL_DESTINATION,
@@ -123,8 +121,12 @@ fun ProfileScreen(
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())) {
               Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+
+                // Profile picture
                 ProfilePicture(profilePicture)
+
                 Spacer(modifier = Modifier.width(24.dp))
+
                 Column {
                   Text(
                       text = "${profileData?.links ?: 0} Links",
@@ -156,46 +158,63 @@ fun ProfileScreen(
                       }
                 }
               }
+
               Spacer(modifier = Modifier.padding(vertical = 8.dp))
+
+              // Name
               Text(
                   text = profileData?.name ?: "",
                   fontWeight = FontWeight.Bold,
                   color = MaterialTheme.colorScheme.primary,
                   style = MaterialTheme.typography.bodyLarge,
                   modifier = Modifier.padding(horizontal = 10.dp).testTag("name"))
+
               Spacer(modifier = Modifier.height(5.dp))
+
+              // Bio
               Text(
                   text = profileData?.bio ?: "No description provided",
                   color = Color.Black,
                   style = MaterialTheme.typography.bodyMedium,
                   modifier = Modifier.padding(horizontal = 10.dp).testTag("bio"))
+
               Spacer(modifier = Modifier.height(32.dp))
 
+              // Favorite music genres
               if (profileData?.favoriteMusicGenres?.isNotEmpty() == true) {
                 GradientTitle("MUSIC GENRES")
                 Row(
-                    modifier = Modifier.padding(vertical = 16.dp),
+                    modifier = Modifier.padding(vertical = 16.dp).testTag("favoriteMusicGenresRow"),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                  genres.take(4).forEach { genre -> // TODO (hardcoded)
+                  profileData!!.favoriteMusicGenres.forEach { genre ->
                     val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                    MusicGenreCard(genre = genre, brush = genreGradient)
+                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
                   }
                 }
               }
 
-              GradientTitle("TOP SONGS")
-              LazyRow(
-                  horizontalArrangement = Arrangement.spacedBy(11.dp),
-                  modifier = Modifier.padding(vertical = 16.dp)) {
-                    items(topSongsState.value.size) { i -> TrackCard(topSongsState.value[i]) }
-                  }
-              GradientTitle("TOP ARTISTS")
-              LazyRow(
-                  horizontalArrangement = Arrangement.spacedBy(11.dp),
-                  modifier = Modifier.padding(vertical = 16.dp)) {
-                    items(topArtistsState.value.size) { i -> ArtistCard(topArtistsState.value[i]) }
-                  }
+              // Display top songs if available
+              if (topSongsState.value.isNotEmpty()) {
+                GradientTitle("TOP SONGS")
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(11.dp),
+                    modifier = Modifier.padding(vertical = 16.dp)) {
+                      items(topSongsState.value.size) { i -> TrackCard(topSongsState.value[i]) }
+                    }
+              }
+
+              // Display top artists if available
+              if (topArtistsState.value.isNotEmpty()) {
+                GradientTitle("TOP ARTISTS")
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(11.dp),
+                    modifier = Modifier.padding(vertical = 16.dp)) {
+                      items(topArtistsState.value.size) { i ->
+                        ArtistCard(topArtistsState.value[i])
+                      }
+                    }
+              }
             }
       })
 }
