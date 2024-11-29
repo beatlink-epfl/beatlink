@@ -99,7 +99,7 @@ class SignOutButtonTest {
     verify(authRepository).signOut(any(), any())
 
     // Verify navigation to the welcome screen
-    io.mockk.verify { navigationActions.navigateTo(Screen.WELCOME) }
+    io.mockk.verify { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
   @Test

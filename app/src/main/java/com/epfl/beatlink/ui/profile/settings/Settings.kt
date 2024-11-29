@@ -97,7 +97,7 @@ fun SettingsScreen(
               onClick = {
                 firebaseAuthViewModel.signOut(
                     onSuccess = {
-                      navigationActions.navigateTo(Screen.WELCOME)
+                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
                       Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
                       showDialog = false
                     },

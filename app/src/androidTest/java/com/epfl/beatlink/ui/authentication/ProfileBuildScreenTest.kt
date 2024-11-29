@@ -140,6 +140,6 @@ class ProfileBuildScreenTest {
   fun saveButtonUpdatesProfileAndNavigatesToHomeScreen() {
     composeTestRule.onNodeWithTag("saveButton").performScrollTo().performClick()
     coVerify { profileRepository.updateProfile(any(), any<ProfileData>()) }
-    verify { navigationActions.navigateTo(Screen.HOME) }
+    verify { navigationActions.navigateToAndClearAllBackStack(Screen.HOME) }
   }
 }
