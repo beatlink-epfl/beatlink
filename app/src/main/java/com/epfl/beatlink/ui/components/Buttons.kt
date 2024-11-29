@@ -19,11 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,8 +29,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
-import com.epfl.beatlink.ui.theme.primaryWhite
 
 /** Principal Button filled with Gradient color */
 @Composable
@@ -88,40 +84,43 @@ fun ViewDescriptionButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun VoteButton(gradient: Brush, color: Color, painter: Painter) {
-  var nbVote by remember { mutableIntStateOf(0) }
-  var isVoted by remember { mutableStateOf(false) }
+fun VoteButton(
+    painter: Painter,
+    playlistTrack: PlaylistTrack,
+    userId: String, // Pass the current user's ID
+    onVoteChanged: (String, Boolean) -> Unit // Pass track ID and vote status
+) {
+  // Check if the current user has already voted
+  val isVoted = playlistTrack.likedBy.contains(userId) // No need for local state
 
   Box(
       modifier =
-          Modifier.border(width = 2.dp, brush = gradient, shape = RoundedCornerShape(30.dp))
+          Modifier.border(
+                  width = 2.dp, brush = PositiveGradientBrush, shape = RoundedCornerShape(30.dp))
               .width(78.dp)
               .height(30.dp)
               .clip(RoundedCornerShape(30.dp))
               .background(
                   brush =
-                      if (isVoted) gradient
+                      if (isVoted) PositiveGradientBrush
                       else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent)))
-              .clickable { // Handle click directly
-                if (isVoted) {
-                  nbVote-- // Decrease vote count
-                  isVoted = false
-                } else {
-                  nbVote++ // Increase vote count
-                  isVoted = true
-                }
-              },
-  ) {
-    Row(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.Start, // Space them out horizontally
-        verticalAlignment = Alignment.CenterVertically) {
-          Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
-          Spacer(modifier = Modifier.width(6.dp))
-          Text(
-              text = nbVote.toString(),
-              color = if (isVoted) MaterialTheme.colorScheme.primaryWhite else color,
-              modifier = Modifier.testTag("nbVote"))
-        }
-  }
+              .clickable {
+                // Notify the ViewModel about the vote change
+                onVoteChanged(playlistTrack.track.trackId, !isVoted)
+              }
+              .testTag("voteButton")) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically) {
+              Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+                  text = playlistTrack.likes.toString(),
+                  color =
+                      if (isVoted) MaterialTheme.colorScheme.primary
+                      else MaterialTheme.colorScheme.secondary,
+                  modifier = Modifier.testTag("nbVote"))
+            }
+      }
 }

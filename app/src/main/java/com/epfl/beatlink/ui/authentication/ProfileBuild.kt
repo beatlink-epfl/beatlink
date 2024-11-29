@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -39,17 +41,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.profile.MusicGenre
+import com.epfl.beatlink.model.profile.MusicGenre.Companion.MAX_SELECTABLE_GENRES
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
+import com.epfl.beatlink.ui.components.GradientTitle
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ProfilePicture
+import com.epfl.beatlink.ui.components.profile.MusicGenreCard
+import com.epfl.beatlink.ui.components.profile.genreGradients
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
@@ -63,12 +72,13 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: ProfileViewModel) {
   var name by remember { mutableStateOf("") }
   var description by remember { mutableStateOf("") }
-  var favoriteGenres by remember { mutableStateOf(mutableListOf<String>()) }
+  var favoriteMusicGenres by remember { mutableStateOf(mutableListOf<String>()) }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
   val currentProfile = profileViewModel.profile.collectAsState()
   val context = LocalContext.current
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+
   // Load profile picture
   LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
   val permissionLauncher =
@@ -81,6 +91,8 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
           profileViewModel.loadProfilePicture { profilePicture.value = it }
         }
       }
+
+  // Fetch profile
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
   Scaffold(
@@ -98,8 +110,6 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
 
               // Add Profile Picture
               AddProfilePicture(permissionLauncher, profilePicture)
-
-              Spacer(modifier = Modifier.height(16.dp))
 
               // Name input field
               CustomInputField(
@@ -120,8 +130,10 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
 
               // Select favorite music genres
               SelectFavoriteMusicGenres(
-                  favoriteGenres = favoriteGenres,
+                  favoriteGenres = favoriteMusicGenres,
                   onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
+
+              Spacer(modifier = Modifier.height(6.dp))
 
               // Save button
               PrincipalButton("Save", "saveButton") {
@@ -130,23 +142,23 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
                         bio = description,
                         name = name,
                         username = currentProfile.value?.username ?: "",
-                        favoriteMusicGenres = favoriteGenres,
+                        favoriteMusicGenres = favoriteMusicGenres,
                         profilePicture = "")
                 profileViewModel.updateProfile(updatedProfile)
                 if (imageUri != null) {
                   profileViewModel.uploadProfilePicture(context, imageUri)
                 }
-                navigationActions.navigateTo(Screen.HOME)
+                navigationActions.navigateToAndClearAllBackStack(Screen.HOME)
               }
 
               // Show music genre selection dialog if visible
               if (isGenreSelectionVisible) {
                 MusicGenreSelectionDialog(
-                    genres = listOf("Pop", "Rap", "Electro", "Rock", "Metal", "Jazz", "Classical"),
-                    selectedGenres = favoriteGenres,
+                    musicGenres = MusicGenre.getAllGenres(),
+                    selectedGenres = favoriteMusicGenres,
                     onDismissRequest = { isGenreSelectionVisible = false },
                     onGenresSelected = { selectedGenres ->
-                      favoriteGenres = selectedGenres
+                      favoriteMusicGenres = selectedGenres
                       isGenreSelectionVisible = false
                     })
               }
@@ -185,28 +197,45 @@ fun SelectFavoriteMusicGenres(
     favoriteGenres: List<String>,
     onGenreSelectionVisibilityChanged: (Boolean) -> Unit
 ) {
-  Text(
-      text =
-          if (favoriteGenres.isEmpty()) "Select Favorite Genres"
-          else "Selected Genres: ${favoriteGenres.joinToString(", ")}",
-      modifier =
-          Modifier.clickable { onGenreSelectionVisibilityChanged(true) }
-              .padding(16.dp)
-              .graphicsLayer(alpha = 0.99f)
-              .drawWithCache {
-                onDrawWithContent {
-                  drawContent()
-                  drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                }
-              }
-              .testTag("selectFavoriteGenresText"),
-      style = MaterialTheme.typography.titleMedium,
-  )
+  if (favoriteGenres.isEmpty()) {
+    Box(
+        modifier =
+            Modifier.clickable { onGenreSelectionVisibilityChanged(true) }
+                .padding(16.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(10.dp))
+                .height(52.dp)
+                .padding(16.dp),
+        contentAlignment = Alignment.Center) {
+          Text(
+              text = "Select Your Favorite Music Genres",
+              modifier = Modifier.testTag("selectFavoriteGenresText"),
+              style = MaterialTheme.typography.bodyLarge)
+        }
+  } else {
+    // Display the selected favorite music genres as clickable cards
+    Spacer(modifier = Modifier.height(8.dp))
+    GradientTitle("YOUR FAVORITE MUSIC GENRES")
+    Row(
+        modifier = Modifier.padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      favoriteGenres.forEach { genre ->
+        val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
+        MusicGenreCard(
+            genre = genre,
+            brush = genreGradient,
+            onClick = { onGenreSelectionVisibilityChanged(true) })
+      }
+    }
+  }
 }
 
 @Composable
 fun MusicGenreSelectionDialog(
-    genres: List<String>,
+    musicGenres: List<String>,
     selectedGenres: MutableList<String>,
     onDismissRequest: () -> Unit,
     onGenresSelected: (MutableList<String>) -> Unit
@@ -214,7 +243,12 @@ fun MusicGenreSelectionDialog(
   val genreCheckedStates = remember { mutableStateMapOf<String, Boolean>() }
 
   // Initialize genre states
-  genres.forEach { genre -> genreCheckedStates.putIfAbsent(genre, selectedGenres.contains(genre)) }
+  musicGenres.forEach { genre ->
+    genreCheckedStates.putIfAbsent(genre, selectedGenres.contains(genre))
+  }
+
+  // Track number of selected genres
+  val selectedCount = genreCheckedStates.filter { it.value }.size
 
   // Dialog for selecting user's favorite music genres
   androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest) {
@@ -227,6 +261,7 @@ fun MusicGenreSelectionDialog(
                 .verticalScroll(rememberScrollState())
                 .testTag("musicGenreSelectionDialog")) {
           Column(modifier = Modifier.fillMaxWidth().padding(bottom = 72.dp)) {
+
             // Dialog Title
             MusicGenreSelectionDialogTitle()
 
@@ -237,13 +272,36 @@ fun MusicGenreSelectionDialog(
                 color = SecondaryGray)
 
             // Loop through each genre and create a checkbox with a label
-            genres.forEach { genre ->
+            musicGenres.forEach { genre ->
+              val isChecked = genreCheckedStates[genre] ?: false
+              val isDisabled = selectedCount >= MAX_SELECTABLE_GENRES && !isChecked
+
               MusicGenreCheckbox(
-                  genre = genre,
-                  checkedState = genreCheckedStates[genre] ?: false,
+                  musicGenre = genre,
+                  checkedState = isChecked,
+                  isDisabled = isDisabled,
                   onCheckedChange = { newCheckedState ->
-                    genreCheckedStates[genre] = newCheckedState
+                    if (newCheckedState) {
+                      if (selectedCount < MAX_SELECTABLE_GENRES) {
+                        genreCheckedStates[genre] = true
+                      }
+                    } else {
+                      genreCheckedStates[genre] = false
+                    }
                   })
+            }
+
+            // Show message when the set limit of music genres are selected
+            if (selectedCount >= MAX_SELECTABLE_GENRES) {
+              Box(
+                  modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                  contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium)
+                  }
             }
           }
 
@@ -251,16 +309,9 @@ fun MusicGenreSelectionDialog(
           MusicGenreSelectionDialogButtons(
               onDismissRequest = onDismissRequest,
               onGenresSelected = {
-                onGenresSelected(
-                    genreCheckedStates
-                        .filter { it.value }
-                        .keys
-                        .toMutableList()) // Save selected genres
+                onGenresSelected(genreCheckedStates.filter { it.value }.keys.toMutableList())
               },
-              modifier =
-                  Modifier.align(Alignment.BottomCenter)
-                      .testTag("dialogButtonRow") // Align buttons at the bottom center
-              )
+              modifier = Modifier.align(Alignment.BottomCenter).testTag("dialogButtonRow"))
         }
   }
 }
@@ -285,7 +336,12 @@ fun MusicGenreSelectionDialogTitle() {
 
 // Genre checkbox --> Checkbox + Label
 @Composable
-fun MusicGenreCheckbox(genre: String, checkedState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+fun MusicGenreCheckbox(
+    musicGenre: String,
+    checkedState: Boolean,
+    isDisabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
   Row(
       Modifier.fillMaxWidth()
           .height(56.dp)
@@ -293,25 +349,26 @@ fun MusicGenreCheckbox(genre: String, checkedState: Boolean, onCheckedChange: (B
           .padding(horizontal = 16.dp),
       verticalAlignment = Alignment.CenterVertically) {
 
-        // Checkbox with a unique test tag based on genre
+        // Checkbox
         Checkbox(
             checked = checkedState,
-            onCheckedChange = null, // Handled by toggleable
+            onCheckedChange = { if (!isDisabled) onCheckedChange(!checkedState) },
             colors =
                 CheckboxDefaults.colors(
                     uncheckedColor = MaterialTheme.colorScheme.primary,
                     checkmarkColor = MaterialTheme.colorScheme.surface,
                     checkedColor = MaterialTheme.colorScheme.primary),
-            modifier = Modifier.testTag("genreCheckbox_${genre.replace(" ", "_")}"))
+            modifier = Modifier.testTag("genreCheckbox_${musicGenre.replace(" ", "_")}"))
 
-        // Text with a unique test tag based on genre
+        // Music genre text
         Text(
-            text = genre,
+            text = musicGenre,
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodyMedium,
             modifier =
                 Modifier.padding(start = 16.dp)
-                    .testTag("genreCheckboxLabel_${genre.replace(" ", "_")}"))
+                    .testTag("genreCheckboxLabel_${musicGenre.replace(" ", "_")}")
+                    .alpha(if (isDisabled) 0.5f else 1f))
       }
 }
 
