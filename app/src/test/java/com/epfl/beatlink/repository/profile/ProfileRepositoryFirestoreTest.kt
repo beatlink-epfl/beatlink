@@ -127,6 +127,7 @@ class ProfileRepositoryFirestoreTest {
             name = "John Doe",
             profilePicture = null,
             username = "johndoe",
+            email = "example@gmail.com",
             favoriteMusicGenres = listOf("Rock", "Pop"))
 
     // Simulate the behavior of the document get() call
@@ -136,6 +137,7 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockDocumentSnapshot.getString("name")).thenReturn(profileData.name)
     `when`(mockDocumentSnapshot.getString("profilePicture")).thenReturn(null)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn(profileData.username)
+    `when`(mockDocumentSnapshot.getString("email")).thenReturn(profileData.email)
     `when`(mockDocumentSnapshot.get("favoriteMusicGenres"))
         .thenReturn(profileData.favoriteMusicGenres)
 
