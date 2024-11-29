@@ -70,7 +70,7 @@ open class ProfileViewModel(
     }
   }
 
-  fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+  open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {
         val userId = repository.getUserIdByUsername(username)
@@ -82,7 +82,7 @@ open class ProfileViewModel(
     }
   }
 
-  fun fetchProfile() {
+  open fun fetchProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
       val userProfile = repository.fetchProfile(userId)
@@ -90,7 +90,7 @@ open class ProfileViewModel(
     }
   }
 
-  fun addProfile(profileData: ProfileData) {
+  open fun addProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
       val success = repository.addProfile(userId, profileData)
@@ -100,7 +100,7 @@ open class ProfileViewModel(
     }
   }
 
-  fun updateProfile(profileData: ProfileData) {
+  open fun updateProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
       val success = repository.updateProfile(userId, profileData)
@@ -110,31 +110,38 @@ open class ProfileViewModel(
     }
   }
 
-  fun deleteProfile() {
+  open fun deleteProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
-      val success = repository.deleteProfile(userId)
-      if (success) {
+      if (repository.deleteProfile(userId)) {
         _profile.value = null
+      } else {
+        Log.e("DELETE_PROFILE", "Error deleting profile")
       }
     }
   }
 
-  fun uploadProfilePicture(context: Context, uri: Uri) {
+  open fun uploadProfilePicture(context: Context, uri: Uri) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
   }
 
-  fun loadProfilePicture(onBitmapLoaded: (Bitmap?) -> Unit) {
-    val userId = repository.getUserId() ?: return
+  open fun loadProfilePicture(
+      userId: String? = repository.getUserId(),
+      onBitmapLoaded: (Bitmap?) -> Unit
+  ) {
+    if (userId == null) {
+      return
+    }
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
-  fun searchUsers(query: String) {
+  open fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit = {}) {
     viewModelScope.launch {
       try {
         val profiles = repository.searchUsers(query)
         _searchResult.value = profiles
+        callback(profiles)
       } catch (e: Exception) {
         Log.e("SEARCH_PROFILES", "Error searching profiles: ${e.message}")
         _searchResult.value = emptyList()

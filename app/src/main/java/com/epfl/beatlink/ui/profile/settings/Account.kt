@@ -92,7 +92,10 @@ fun AccountScreen(
               SpotifyAuth(spotifyAuthViewModel)
               Spacer(modifier = Modifier.height(165.dp))
               PrincipalButton(
-                  "Delete account", "deleteAccountButton", true, onClick = { showDialog = true })
+                  "Delete account",
+                  "deleteAccountButton",
+                  isRed = true,
+                  onClick = { showDialog = true })
             }
       })
 

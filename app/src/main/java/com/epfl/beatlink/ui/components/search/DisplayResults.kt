@@ -14,19 +14,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.library.TrackPlaylistItem
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun DisplayResults(
     tracks: List<SpotifyTrack>? = null,
     artists: List<SpotifyArtist>? = null,
+    people: List<ProfileData>? = null,
     playlistViewModel: PlaylistViewModel? = null,
+    profileViewModel: ProfileViewModel? = null,
     onClearQuery: (() -> Unit)? = null
 ) {
-  if (tracks.isNullOrEmpty() && artists.isNullOrEmpty()) {
+  if (tracks.isNullOrEmpty() && artists.isNullOrEmpty() && people.isNullOrEmpty()) {
     // Empty state
     Column(
         modifier = Modifier.fillMaxSize().testTag("noResultsMessage"),
@@ -53,6 +57,13 @@ fun DisplayResults(
         items(it) { artist ->
           ArtistItem(artist = artist)
           Spacer(modifier = Modifier.height(16.dp))
+        }
+      }
+      people?.let {
+        items(it) { person ->
+          if (profileViewModel != null) {
+            PeopleItem(person, profileViewModel = profileViewModel)
+          }
         }
       }
     }

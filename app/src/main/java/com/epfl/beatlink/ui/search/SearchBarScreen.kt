@@ -27,8 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.ui.components.search.DatabaseSearchQuery
 import com.epfl.beatlink.ui.components.search.DisplayResults
 import com.epfl.beatlink.ui.components.search.HandleSearchQuery
 import com.epfl.beatlink.ui.components.search.SearchScaffold
@@ -36,24 +38,34 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.PrimaryOrange
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.PrimaryRed
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun SearchBarScreen(
     navigationActions: NavigationActions,
-    spotifyApiViewModel: SpotifyApiViewModel
+    spotifyApiViewModel: SpotifyApiViewModel,
+    profileViewModel: ProfileViewModel
 ) {
   val selectedCategory = remember { mutableStateOf("Songs") }
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
   val results = remember {
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
+  val peopleResult = remember { mutableStateOf(emptyList<ProfileData>()) }
 
-  HandleSearchQuery(
-      query = searchQuery.value.text,
-      onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
-      onFailure = { results.value = Pair(emptyList(), emptyList()) },
-      spotifyApiViewModel = spotifyApiViewModel)
+  if (selectedCategory.value == "People") {
+    DatabaseSearchQuery(
+        query = searchQuery.value.text,
+        onResults = { peopleResult.value = it },
+        profileViewModel = profileViewModel)
+  } else {
+    HandleSearchQuery(
+        query = searchQuery.value.text,
+        onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
+        onFailure = { results.value = Pair(emptyList(), emptyList()) },
+        spotifyApiViewModel = spotifyApiViewModel)
+  }
 
   SearchScaffold(navigationActions = navigationActions, searchQuery = searchQuery) { paddingValues
     ->
@@ -73,8 +85,8 @@ fun SearchBarScreen(
             "Artists" -> {
               DisplayResults(artists = results.value.second)
             }
-            "Events" -> {
-              DisplayResults() // Placeholder for events, if applicable
+            "People" -> {
+              DisplayResults(people = peopleResult.value, profileViewModel = profileViewModel)
             }
           }
         }
@@ -96,8 +108,8 @@ fun CategoryButtons(selectedCategory: MutableState<String>) {
         CategoryButton("Artists", selectedCategory.value, PrimaryOrange) {
           selectedCategory.value = "Artists"
         }
-        CategoryButton("Events", selectedCategory.value, PrimaryPurple) {
-          selectedCategory.value = "Events"
+        CategoryButton("People", selectedCategory.value, PrimaryPurple) {
+          selectedCategory.value = "People"
         }
       }
 }
