@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     val spotifyApiViewModel = SpotifyApiViewModel(application, spotifyApiRepository)
 
     setContent {
-      BeatLinkAppTheme(darkTheme = true) {
+      BeatLinkAppTheme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
