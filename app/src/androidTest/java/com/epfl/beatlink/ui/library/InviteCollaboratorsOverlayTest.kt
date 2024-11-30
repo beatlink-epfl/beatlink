@@ -26,9 +26,8 @@ class InviteCollaboratorsOverlayTest {
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
     composeTestRule.onNodeWithTag("searchBar").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("CollabCard")
   }
 
   @Test

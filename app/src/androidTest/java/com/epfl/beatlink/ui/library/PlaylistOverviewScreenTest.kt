@@ -152,6 +152,23 @@ class PlaylistOverviewScreenTest {
   }
 
   @Test
+  fun view_description_button_opens_overlay() {
+    playlistViewModel.selectPlaylist(playlistWithTracks)
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel)
+    }
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
+    // Perform click on the "Invite Collaborators" button
+    composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().performClick()
+    // Verify the overlay is visible after the click
+    composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
+  }
+
+  @Test
   fun navigationButtons_workCorrectly() {
     playlistViewModel.selectPlaylist(playlistWithTracks)
 
@@ -165,15 +182,12 @@ class PlaylistOverviewScreenTest {
     // Navigate to Home
     composeTestRule.onNodeWithTag("Home").performClick()
     verify(navigationActions).navigateTo(TopLevelDestinations.HOME)
-
     // Navigate to Search
     composeTestRule.onNodeWithTag("Search").performClick()
     verify(navigationActions).navigateTo(TopLevelDestinations.SEARCH)
-
     // Navigate to Library
     composeTestRule.onNodeWithTag("Library").performClick()
     verify(navigationActions).navigateTo(TopLevelDestinations.LIBRARY)
-
     // Navigate to Profile
     composeTestRule.onNodeWithTag("Profile").performClick()
     verify(navigationActions).navigateTo(TopLevelDestinations.PROFILE)

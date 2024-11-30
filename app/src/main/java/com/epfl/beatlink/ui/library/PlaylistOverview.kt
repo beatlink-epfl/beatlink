@@ -65,6 +65,9 @@ fun PlaylistOverviewScreen(
       playlistViewModel.selectedPlaylist.collectAsState().value
           ?: return Text("No Playlist selected.")
 
+  // Description Overlay Display
+  var showDialog by remember { mutableStateOf(false) }
+
   // Determine if the user is the owner or a collaborator
   val currentUserId = playlistViewModel.getUserId()
   val isOwner = selectedPlaylistState.userId == currentUserId
@@ -147,7 +150,7 @@ fun PlaylistOverviewScreen(
                               Icons.Outlined.Lock,
                               TypographyPlaylist.headlineSmall)
                           Spacer(modifier = Modifier.height(10.dp))
-                          ViewDescriptionButton {}
+                          ViewDescriptionButton { showDialog = true }
                         }
                   }
               Spacer(modifier = Modifier.height(16.dp))
@@ -202,4 +205,10 @@ fun PlaylistOverviewScreen(
               }
             }
       })
+  // Show the description overlay if visible
+  if (showDialog) {
+    ViewDescriptionOverlay(
+        onDismissRequest = { showDialog = false },
+        description = selectedPlaylistState.playlistDescription)
+  }
 }

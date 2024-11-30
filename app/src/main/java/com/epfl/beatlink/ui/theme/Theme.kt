@@ -20,6 +20,8 @@ import androidx.core.view.WindowCompat
 
 val ColorScheme.primaryWhite: Color
   get() = lightThemeBackground
+val ColorScheme.primaryRed: Color
+  get() = PrimaryRed
 val ColorScheme.primaryGray: Color
   get() = PrimaryGray
 val ColorScheme.secondaryGray: Color
