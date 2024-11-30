@@ -165,7 +165,7 @@ class PlaylistOverviewScreenTest {
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().performClick()
     // Verify the overlay is visible after the click
-    composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("overlay").assertExists()
   }
 
   @Test

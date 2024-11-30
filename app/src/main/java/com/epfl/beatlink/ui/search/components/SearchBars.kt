@@ -141,6 +141,7 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
       },
       colors =
           OutlinedTextFieldDefaults.colors(
+              focusedTextColor = MaterialTheme.colorScheme.primary,
               focusedBorderColor = Color.Transparent,
               unfocusedBorderColor = Color.Transparent,
               cursorColor = MaterialTheme.colorScheme.primaryContainer),
@@ -151,5 +152,7 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
               .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
               .width(350.dp)
               .height(50.dp)
-              .background(color = LightGray, shape = RoundedCornerShape(5.dp)))
+              .background(
+                  color = MaterialTheme.colorScheme.surfaceContainer,
+                  shape = RoundedCornerShape(5.dp)))
 }

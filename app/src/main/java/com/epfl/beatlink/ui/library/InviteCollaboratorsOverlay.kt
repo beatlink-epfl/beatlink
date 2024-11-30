@@ -31,7 +31,6 @@ import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
-import com.epfl.beatlink.ui.theme.LightGray
 
 @Composable
 fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRequest: () -> Unit) {
@@ -53,14 +52,16 @@ fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRe
           Row(
               modifier =
                   Modifier.fillMaxWidth()
-                      .background(color = MaterialTheme.colorScheme.background)
+                      .background(color = MaterialTheme.colorScheme.surfaceVariant)
                       .topAppBarModifier()) {
                 Row(
                     modifier =
                         Modifier.testTag("searchBar")
                             .fillMaxSize()
                             .padding(horizontal = 8.dp, vertical = 6.dp)
-                            .background(color = LightGray, shape = RoundedCornerShape(5.dp))
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                shape = RoundedCornerShape(5.dp))
                             .clickable { navigationActions.navigateTo(INVITE_COLLABORATORS) },
                     verticalAlignment = Alignment.CenterVertically) {
                       Icon(

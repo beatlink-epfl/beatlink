@@ -54,6 +54,7 @@ fun ViewDescriptionOverlay(onDismissRequest: () -> Unit, description: String) {
                     Text(
                         text = description,
                         modifier = Modifier.padding(16.dp).testTag("description"),
+                        color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodyLarge)
                   }
             }
