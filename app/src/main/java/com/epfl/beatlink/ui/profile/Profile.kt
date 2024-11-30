@@ -81,7 +81,7 @@ fun ProfileScreen(
   val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
   // Fetch top songs and top artists
-  LaunchedEffect(Unit) {
+  LaunchedEffect(spotifyApiViewModel) {
     spotifyApiViewModel.getCurrentUserTopTracks(
         onSuccess = { tracks -> topSongsState.value = tracks },
         onFailure = { topSongsState.value = emptyList() })
