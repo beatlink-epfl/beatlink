@@ -3,11 +3,12 @@ package com.epfl.beatlink.model.library
 /**
  * Represents a beatlink playlist that exists within the application to then export on Spotify.
  *
- *
  * @property playlistID Unique identifier for the playlist.
  * @property playlistCover URL to the playlist's cover image.
- * @property playlistName Name of the playlist (mandatory, with a max length defined by [MAX_PLAYLIST_TITLE_LENGTH]).
- * @property playlistDescription Optional description of the playlist (max length defined by [MAX_PLAYLIST_DESCRIPTION_LENGTH]).
+ * @property playlistName Name of the playlist (mandatory, with a max length defined by
+ *   [MAX_PLAYLIST_TITLE_LENGTH]).
+ * @property playlistDescription Optional description of the playlist (max length defined by
+ *   [MAX_PLAYLIST_DESCRIPTION_LENGTH]).
  * @property playlistPublic Indicates whether the playlist is publicly visible or private.
  * @property userId ID of the user who owns the playlist.
  * @property playlistOwner Username of the playlist's owner.

@@ -5,7 +5,6 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 /**
  * Represents a playlist that already exists on Spotify and belongs to the user.
  *
- *
  * @property playlistID Unique identifier for the playlist on Spotify.
  * @property ownerID ID of the user who owns the playlist on Spotify.
  * @property playlistCover URL or reference to the playlist's cover image.
