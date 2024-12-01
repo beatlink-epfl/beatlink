@@ -8,6 +8,6 @@ data class UserPlaylist(
     val playlistCover: String,
     val playlistName: String, // mandatory
     val playlistPublic: Boolean = false,
-    val playlistTracks: List<SpotifyTrack>, // list of ids of SpotifyTrack
+    val playlistTracks: List<SpotifyTrack>, // list of SpotifyTrack
     val nbTracks: Int
 )
