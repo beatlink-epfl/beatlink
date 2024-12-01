@@ -33,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -80,6 +81,7 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.ui.theme.primaryWhite
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -360,7 +362,10 @@ fun CornerIcons(
     iconSize: Dp = 28.dp,
     gradientBrush: Brush = IconsGradientBrush
 ) {
-  IconButton(onClick = onClick, modifier = modifier) {
+  IconButton(
+      onClick = onClick,
+      modifier = modifier,
+  ) {
     Icon(
         imageVector = icon,
         contentDescription = contentDescription,
