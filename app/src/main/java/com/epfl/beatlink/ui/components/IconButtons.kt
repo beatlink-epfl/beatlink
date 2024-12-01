@@ -47,12 +47,23 @@ fun SearchButton(onClick: () -> Unit) {
 }
 
 @Composable
+fun PlayButton(onClick: () -> Unit) {
+  IconButton(onClick) {
+    Icon(
+        painter = painterResource(id = R.drawable.play),
+        contentDescription = "Play",
+        tint = Color.Unspecified,
+        modifier = Modifier.testTag("playButton").size(30.dp))
+  }
+}
+
+@Composable
 fun MoreOptionsButton(onClick: () -> Unit) {
   CornerIcons(
       onClick = onClick,
       icon = Icons.Filled.MoreVert,
       contentDescription = "More Options",
-      modifier = Modifier.padding(end = 12.dp).testTag("moreOptionsButton"),
+      modifier = Modifier.testTag("moreOptionsButton"),
       iconSize = 35.dp)
 }
 

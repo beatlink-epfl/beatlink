@@ -430,7 +430,7 @@ open class SpotifyApiViewModel(
         popularity = artist.getInt("popularity"))
   }
 
-  fun getCurrentUserPlaylists(
+  open fun getCurrentUserPlaylists(
       onSuccess: (List<UserPlaylist>) -> Unit,
       onFailure: (List<UserPlaylist>) -> Unit
   ) {
@@ -458,7 +458,7 @@ open class SpotifyApiViewModel(
                   playlistCover = coverUrl,
                   playlistName = name,
                   playlistPublic = public,
-                  playlistSongs = tracks,
+                  playlistTracks = tracks,
                   nbTracks = nbTracks)
           if (public) {
             playlists.add(userPlaylist)
