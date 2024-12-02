@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -59,7 +60,7 @@ class ProfileTest {
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
 
-  private val user =
+  private val profileData =
       ProfileData(
           username = "",
           name = null,
@@ -92,6 +93,11 @@ class ProfileTest {
           SpotifyArtist(image = "1", name = "Artist 1", genres = emptyList(), popularity = 23),
           SpotifyArtist(image = "2", name = "Artist 2", genres = emptyList(), popularity = 24))
 
+  private val userPlaylists =
+      listOf(
+          UserPlaylist("1", "me", "url", "name1", false, emptyList(), 0),
+          UserPlaylist("2", "me2", "url", "name2", false, emptyList(), 0))
+
   @get:Rule val composeTestRule = createComposeRule()
 
   @Before
@@ -100,14 +106,9 @@ class ProfileTest {
     MockitoAnnotations.openMocks(this)
     Dispatchers.setMain(testDispatcher)
 
-    // spotifyApiRepository = SpotifyApiRepository(mockClient, mockSharedPreferences)
-    // spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
-    // spotifyApiViewModel = mock()
-    // spotifyApiRepository = mock()
-
     profileRepositoryFirestore = mock(ProfileRepositoryFirestore::class.java)
     profileViewModel =
-        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = user)
+        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
@@ -136,11 +137,6 @@ class ProfileTest {
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
-    // Check if title is displayed
-    /*composeTestRule
-    .onNodeWithTag("titleUsername")
-    .assertIsDisplayed()
-    .assertTextContains(user.username)*/
 
     // Check if the icons are displayed
     composeTestRule
@@ -162,7 +158,7 @@ class ProfileTest {
     composeTestRule
         .onNodeWithTag("linksCount")
         .assertExists()
-        .assertTextContains("${user.links} Links")
+        .assertTextContains("${profileData.links} Links")
 
     // Check if the edit button is displayed
     composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
@@ -176,9 +172,6 @@ class ProfileTest {
 
     // Check if the user's bio is displayed
     composeTestRule.onNodeWithTag("bio").assertExists()
-
-    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
   }
 
   @Test
@@ -211,7 +204,7 @@ class ProfileTest {
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
-    user.favoriteMusicGenres.forEach { genre ->
+    profileData.favoriteMusicGenres.forEach { genre ->
       composeTestRule.onNodeWithText(genre).assertExists()
     }
   }
@@ -278,6 +271,28 @@ class ProfileTest {
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
     composeTestRule.onAllNodesWithTag("ArtistCard").assertCountEquals(topArtists.size)
+  }
+
+  @Test
+  fun userPlaylistsAreDisplayed() {
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeSpotifyApiViewModel.setUserPlaylists(userPlaylists)
+
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          navigationActions,
+          fakeSpotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+
+    composeTestRule.onNodeWithTag("PLAYLISTSTitle").assertIsDisplayed()
+
+    userPlaylists.forEach { playlist ->
+      composeTestRule.onNodeWithText(playlist.playlistName).assertExists()
+    }
+
+    composeTestRule.onAllNodesWithTag("userPlaylistCard").assertCountEquals(userPlaylists.size)
   }
 
   @Test

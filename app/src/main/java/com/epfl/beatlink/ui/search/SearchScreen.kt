@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,7 +33,6 @@ import com.epfl.beatlink.ui.search.components.PartyCard
 import com.epfl.beatlink.ui.search.components.ProfileCard
 import com.epfl.beatlink.ui.search.components.SongCard
 import com.epfl.beatlink.ui.search.components.StandardLazyRow
-import com.epfl.beatlink.ui.theme.lightThemeBackground
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -75,7 +75,7 @@ fun SearchScreen(
       topBar = { FullSearchBar(navigationActions) },
       bottomBar = {
         Column {
-          MusicPlayerUI(spotifyApiViewModel, mapUsersViewModel)
+          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
           // Bottom navigation bar
           BottomNavigationMenu(
               onTabSelect = { route -> navigationActions.navigateTo(route) },
@@ -90,7 +90,7 @@ fun SearchScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .background(color = lightThemeBackground)) {
+                    .background(color = MaterialTheme.colorScheme.background)) {
               HorizontalDivider(
                   color = Color.LightGray,
                   thickness = 1.dp,

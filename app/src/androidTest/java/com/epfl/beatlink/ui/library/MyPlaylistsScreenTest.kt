@@ -51,20 +51,20 @@ class MyPlaylistsScreenTest {
 
   @Test
   fun displayTextWhenEmpty() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf())
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("emptyPlaylistsPrompt").assertIsDisplayed()
   }
 
   @Test
   fun displayPlaylistsWhenNotEmpty() {
-    `when`(playlistRepository.getPlaylists(any(), any())).then {
+    `when`(playlistRepository.getOwnedPlaylists(any(), any())).then {
       it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
     }
-    playlistViewModel.getPlaylists()
+    playlistViewModel.getOwnedPlaylists()
 
     composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
   }

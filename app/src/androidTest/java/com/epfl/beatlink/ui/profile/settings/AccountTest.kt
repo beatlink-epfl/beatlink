@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
@@ -14,6 +15,7 @@ import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.every
@@ -73,7 +75,8 @@ class AccountScreenTest {
           navigationActions = navigationActions,
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
-          firebaseAuthViewModel = authViewModel)
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Check if title is displayed
@@ -92,7 +95,8 @@ class AccountScreenTest {
           navigationActions = navigationActions,
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
-          firebaseAuthViewModel = authViewModel)
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
 
     // Test "Username" clickable text box

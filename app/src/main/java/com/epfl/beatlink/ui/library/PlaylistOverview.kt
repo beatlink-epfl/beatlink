@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,14 +27,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
-import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
-import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
@@ -45,28 +48,41 @@ import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK_TO_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun PlaylistOverviewScreen(
     navigationActions: NavigationActions,
+    profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
+  // Observe the currently selected playlist
   val selectedPlaylistState =
       playlistViewModel.selectedPlaylist.collectAsState().value
           ?: return Text("No Playlist selected.")
 
-  val sample =
-      SpotifyTrack(
-          name = "This is a song",
-          artist = "john",
-          trackId = "1",
-          cover = "",
-          duration = 1,
-          popularity = 50,
-          state = State.PAUSE)
+  // Determine if the user is the owner or a collaborator
+  val currentUserId = playlistViewModel.getUserId()
+  val isOwner = selectedPlaylistState.userId == currentUserId
+  val isCollab = selectedPlaylistState.playlistCollaborators.contains(currentUserId)
+
+  // Fetch collaborator usernames
+  var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+  val fetchedUsernames = remember { mutableSetOf<String>() }
+
+  // Retrieve collaborator usernames
+  selectedPlaylistState.playlistCollaborators.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null && !fetchedUsernames.contains(username)) {
+        fetchedUsernames.add(username)
+        collabUsernames = fetchedUsernames.toList()
+      }
+    }
+  }
 
   Scaffold(
       modifier = Modifier.testTag("playlistOverviewScreen"),
@@ -75,7 +91,7 @@ fun PlaylistOverviewScreen(
             selectedPlaylistState.playlistName,
             "playlistName",
             navigationActions,
-            listOf { EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
+            listOf { if (isOwner) EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
       },
       bottomBar = {
         BottomNavigationMenu(
@@ -90,18 +106,19 @@ fun PlaylistOverviewScreen(
                     .padding(vertical = 16.dp)
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
+              // Playlist Header Section
               Row(
-                  horizontalArrangement = Arrangement.spacedBy(46.dp),
+                  horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
-                      Modifier.padding(vertical = 16.dp, horizontal = 50.dp).height(122.dp)) {
-                    // Cover image
+                      Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
+                    // Playlist Cover Image
                     Card(
                         modifier = Modifier.testTag("playlistCoverCard"),
                         shape = RoundedCornerShape(10.dp)) {
                           Image(
-                              painter = painterResource(id = R.drawable.cover_test1), // TODO
+                              painter = painterResource(id = R.drawable.cover_test1),
                               contentDescription = "Playlist cover",
-                              modifier = Modifier.size(121.dp))
+                              modifier = Modifier.size(150.dp))
                         }
 
                     // Playlist details
@@ -120,7 +137,7 @@ fun PlaylistOverviewScreen(
                               Icons.Outlined.AccountCircle,
                               TypographyPlaylist.headlineMedium)
                           IconWithText(
-                              selectedPlaylistState.playlistCollaborators.joinToString(", "),
+                              collabUsernames.joinToString(", "),
                               "collaboratorsText",
                               collab,
                               TypographyPlaylist.headlineSmall)
@@ -134,13 +151,23 @@ fun PlaylistOverviewScreen(
                         }
                   }
               Spacer(modifier = Modifier.height(16.dp))
-              FilledButton(
-                  "Add to this playlist",
-                  "addToThisPlaylistButton") { /* Opens a page to add songs */}
-              Spacer(modifier = Modifier.height(16.dp))
-              PrincipalButton(
-                  "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
-              Spacer(modifier = Modifier.height(16.dp))
+
+              // Action Buttons for Playlist Management
+              if (isOwner || isCollab) {
+                FilledButton(
+                    "Add to this playlist",
+                    "addToThisPlaylistButton",
+                    onClick = { navigationActions.navigateTo(ADD_TRACK_TO_PLAYLIST) })
+                Spacer(modifier = Modifier.height(16.dp))
+              }
+
+              if (isOwner) {
+                PrincipalButton(
+                    "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
+                Spacer(modifier = Modifier.height(16.dp))
+              }
+
+              // Display Tracks or Empty State
               if (selectedPlaylistState.nbTracks == 0) {
                 Text(
                     text = "NO SONGS ADDED",
@@ -152,10 +179,23 @@ fun PlaylistOverviewScreen(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                       modifier = Modifier.fillMaxSize()) {
-                        // List of tracks
-                        items(1) { trackId ->
-                          // val track = playlistViewModel.getTrackById(trackId)
-                          TrackVoteCard(sample)
+                        // Sort tracks by likes in descending order before displaying
+                        val sortedTracks =
+                            selectedPlaylistState.playlistTracks.sortedByDescending { it.likes }
+                        items(sortedTracks) { track ->
+                          TrackVoteCard(
+                              playlistTrack = track, // Ensure track is of type PlaylistTrack
+                              onVoteChanged = { trackId, _ ->
+                                playlistViewModel.updateTrackLikes(
+                                    trackId = trackId,
+                                    userId =
+                                        playlistViewModel.getUserId()
+                                            ?: "" // Fallback to empty string if null
+                                    )
+                              },
+                              userId =
+                                  playlistViewModel.getUserId() ?: "" // Pass the current user ID
+                              )
                         }
                       }
                 }

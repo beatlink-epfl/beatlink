@@ -31,11 +31,13 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 
 @Composable
 fun SettingsScreen(
     navigationActions: NavigationActions,
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    mapUsersViewModel: MapUsersViewModel
 ) {
   val context = LocalContext.current
   var showDialog by remember { mutableStateOf(false) }
@@ -95,9 +97,10 @@ fun SettingsScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
+                mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.signOut(
                     onSuccess = {
-                      navigationActions.navigateTo(Screen.WELCOME)
+                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
                       Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
                       showDialog = false
                     },

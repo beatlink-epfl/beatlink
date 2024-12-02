@@ -25,6 +25,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -654,6 +655,66 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
+  fun `buildQueue populates queue with SpotifyTrack objects when API response is successful`() =
+      runTest {
+        // Arrange
+        val mockQueueJson =
+            JSONObject(
+                """
+        {
+            "queue": [
+                {
+                    "id": "track1",
+                    "name": "Track One",
+                    "artists": [{"name": "Artist One"}],
+                    "album": {
+                        "images": [{"url": "http://example.com/cover1.jpg"}]
+                    },
+                    "duration_ms": 200000,
+                    "popularity": 50
+                },
+                {
+                    "id": "track2",
+                    "name": "Track Two",
+                    "artists": [{"name": "Artist Two"}],
+                    "album": {
+                        "images": [{"url": "http://example.com/cover2.jpg"}]
+                    },
+                    "duration_ms": 250000,
+                    "popularity": 60
+                }
+            ]
+        }
+        """)
+
+        val mockResult = Result.success(mockQueueJson)
+        mockApiRepository.stub { onBlocking { get("me/player/queue") } doReturn mockResult }
+
+        // Act
+        viewModel.buildQueue()
+
+        // Advance coroutine until idle
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        assertEquals(2, viewModel.queue.size) // Expecting two tracks
+        assertEquals("Track One", viewModel.queue[0].name)
+        assertEquals("Artist One", viewModel.queue[0].artist)
+        assertEquals("http://example.com/cover1.jpg", viewModel.queue[0].cover)
+        assertEquals(200000, viewModel.queue[0].duration)
+        assertEquals(50, viewModel.queue[0].popularity)
+
+        assertEquals("Track Two", viewModel.queue[1].name)
+        assertEquals("Artist Two", viewModel.queue[1].artist)
+        assertEquals("http://example.com/cover2.jpg", viewModel.queue[1].cover)
+        assertEquals(250000, viewModel.queue[1].duration)
+        assertEquals(60, viewModel.queue[1].popularity)
+
+        // Verify that the repository's get method was called
+        verify(mockApiRepository).get("me/player/queue")
+      }
+
+  @Test
   fun `getPlaybackState calls repository and invokes onSuccess callback when result is success`() =
       runTest {
         // Arrange
@@ -1019,6 +1080,42 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
+  fun testBuildQueue_EmptyQueue() = runTest {
+    val mockResponse =
+        JSONObject().apply {
+          put("queue", JSONArray()) // Empty queue
+        }
+
+    `when`(mockApiRepository.get("me/player/queue")).thenReturn(Result.success(mockResponse))
+
+    // Call buildQueue
+    viewModel.buildQueue()
+
+    // Advance the dispatcher
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Verify that the queue is empty
+    assertNotNull(viewModel.queue)
+    assertEquals(0, viewModel.queue.size)
+  }
+
+  @Test
+  fun testBuildQueue_Failure() = runTest {
+    // Simulate failure response
+    `when`(mockApiRepository.get("me/player/queue"))
+        .thenReturn(Result.failure(Throwable("Failed to fetch queue")))
+
+    // Call buildQueue
+    viewModel.buildQueue()
+
+    // Advance the dispatcher
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Verify that the queue is empty or null (no update occurred)
+    assertTrue(viewModel.queue.isEmpty())
+  }
+
+  @Test
   fun `getCurrentUserPlaylists calls repository and returns success result`() = runTest {
     // Arrange
     val mockResult =
@@ -1074,7 +1171,7 @@ class SpotifyApiViewModelTest {
                 playlistCover = "https://example.com/cover.jpg",
                 playlistName = "Chill Vibes",
                 playlistPublic = true,
-                playlistSongs = emptyList(),
+                playlistTracks = emptyList(),
                 nbTracks = 10))
     verify(observer).onChanged(expectedPlaylists)
     verify(mockApiRepository).get("me/playlists?limit=50")

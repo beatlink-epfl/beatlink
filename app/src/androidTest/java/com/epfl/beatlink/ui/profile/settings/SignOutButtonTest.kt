@@ -8,11 +8,13 @@ import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +43,10 @@ class SignOutButtonTest {
 
     // Set the composable for testing
     composeTestRule.setContent {
-      SettingsScreen(navigationActions = navigationActions, firebaseAuthViewModel = authViewModel)
+      SettingsScreen(
+          navigationActions = navigationActions,
+          firebaseAuthViewModel = authViewModel,
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
   }
 
@@ -99,7 +104,7 @@ class SignOutButtonTest {
     verify(authRepository).signOut(any(), any())
 
     // Verify navigation to the welcome screen
-    io.mockk.verify { navigationActions.navigateTo(Screen.WELCOME) }
+    io.mockk.verify { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
   @Test

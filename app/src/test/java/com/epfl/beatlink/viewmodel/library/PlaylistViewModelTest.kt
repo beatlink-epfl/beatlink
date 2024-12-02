@@ -3,8 +3,13 @@ package com.epfl.beatlink.viewmodel.library
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -18,10 +23,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlaylistViewModelTest {
@@ -30,6 +37,34 @@ class PlaylistViewModelTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private val testDispatcher = StandardTestDispatcher()
+
+  private val track1 =
+      PlaylistTrack(
+          track =
+              SpotifyTrack(
+                  name = "thank god",
+                  artist = "travis",
+                  trackId = "1",
+                  cover = "",
+                  duration = 1,
+                  popularity = 2,
+                  state = State.PAUSE),
+          likes = 1,
+          likedBy = mutableListOf("user1"))
+
+  private val track2 =
+      PlaylistTrack(
+          track =
+              SpotifyTrack(
+                  name = "my eyes",
+                  artist = "travis",
+                  trackId = "2",
+                  cover = "",
+                  duration = 1,
+                  popularity = 3,
+                  state = State.PAUSE),
+          likes = 0,
+          likedBy = mutableListOf())
 
   private val playlist =
       Playlist(
@@ -41,14 +76,14 @@ class PlaylistViewModelTest {
           userId = "testUserId",
           playlistOwner = "luna",
           playlistCollaborators = emptyList(),
-          playlistTracks = emptyList(),
-          nbTracks = 0)
+          playlistTracks = listOf(track1, track2),
+          nbTracks = 2)
   private val playlist1 =
       Playlist(
           playlistID = "1",
           playlistCover = "",
           playlistName = "playlist 1",
-          playlistDescription = "testingggg",
+          playlistDescription = "this is a description",
           playlistPublic = false,
           userId = "testUserId",
           playlistOwner = "luna",
@@ -65,7 +100,7 @@ class PlaylistViewModelTest {
           userId = "testUserId2",
           playlistOwner = "luna2",
           playlistCollaborators = emptyList(),
-          playlistTracks = listOf("thank god"),
+          playlistTracks = listOf(track1),
           nbTracks = 1)
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -90,14 +125,32 @@ class PlaylistViewModelTest {
 
   @Test
   fun getPlaylistsCallsRepository() {
-    playlistViewModel.getPlaylists()
-    verify(playlistRepository).getPlaylists(any(), any())
+    playlistViewModel.getOwnedPlaylists()
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
+  }
+
+  @Test
+  fun getSharedPlaylistsCallsRepository() {
+    playlistViewModel.getSharedPlaylists()
+    verify(playlistRepository).getSharedPlaylists(any(), any())
+  }
+
+  @Test
+  fun getPublicPlaylistsCallRepository() {
+    playlistViewModel.getPublicPlaylists()
+    verify(playlistRepository).getPublicPlaylists(any(), any())
   }
 
   @Test
   fun addPlaylistCallsRepository() {
     playlistViewModel.addPlaylist(playlist)
     verify(playlistRepository).addPlaylist(eq(playlist), any(), any())
+  }
+
+  @Test
+  fun updateCollaboratorsCallsRepository() {
+    playlistViewModel.updateCollaborators(playlist, listOf())
+    verify(playlistRepository).updatePlaylistCollaborators(eq(playlist), any(), any(), any())
   }
 
   @Test
@@ -108,62 +161,93 @@ class PlaylistViewModelTest {
 
   @Test
   fun `selectPlaylist should update selectedPlaylist with the given playlist`() {
-    val selectedPlaylist = playlist2
+    playlistViewModel.selectPlaylist(playlist)
+    Assert.assertEquals(playlist, playlistViewModel.selectedPlaylist.value)
+  }
 
-    playlistViewModel.selectPlaylist(selectedPlaylist)
+  @Test
+  fun updateTrackLikes_shouldAddLike_whenUserHasNotLiked() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    val trackId = track2.track.trackId // Track initially not liked by the user
+    val userId = "newUser"
 
-    Assert.assertEquals(selectedPlaylist, playlistViewModel.selectedPlaylist.value)
+    doAnswer { invocation ->
+          val callback = invocation.arguments[1] as? () -> Unit
+          callback?.invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    // Act
+    playlistViewModel.updateTrackLikes(trackId, userId)
+
+    // Assert
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
+    val updatedTrack =
+        playlistViewModel.selectedPlaylist.value?.playlistTracks?.find {
+          it.track.trackId == trackId
+        }
+    Assert.assertNotNull(updatedTrack)
+    Assert.assertTrue(updatedTrack?.likedBy?.contains(userId) == true)
+    Assert.assertEquals(1, updatedTrack?.likes) // Incremented from 0 to 1
+  }
+
+  @Test
+  fun updateTrackLikes_shouldRemoveLike_whenUserHasAlreadyLiked() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    val trackId = track1.track.trackId // Track initially liked by "user1"
+    val userId = "user1"
+
+    doAnswer { invocation ->
+          val callback = invocation.arguments[1] as? () -> Unit
+          callback?.invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    // Act
+    playlistViewModel.updateTrackLikes(trackId, userId)
+
+    // Assert
+    verify(playlistRepository).updatePlaylist(any(), any(), any())
+    val updatedTrack =
+        playlistViewModel.selectedPlaylist.value?.playlistTracks?.find {
+          it.track.trackId == trackId
+        }
+    Assert.assertNotNull(updatedTrack)
+    Assert.assertFalse(updatedTrack?.likedBy?.contains(userId) == true)
+    Assert.assertEquals(0, updatedTrack?.likes) // Decremented from 1 to 0
+  }
+
+  @Test
+  fun updateTrackLikes_shouldDoNothing_whenNoPlaylistSelected() = runTest {
+    // Arrange
+    val trackId = track1.track.trackId
+    val userId = "newUser"
+
+    // Act
+    playlistViewModel.updateTrackLikes(trackId, userId)
+
+    // Assert
+    verify(playlistRepository, never()).updatePlaylist(any(), any(), any())
   }
 
   @Test
   fun addPlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
     doAnswer { invocation ->
-          // Safely cast and invoke the callback
           (invocation.arguments[1] as? () -> Unit)?.invoke()
-              ?: throw IllegalArgumentException(
-                  "Argument at index 1 is not a valid callback function")
           null
         }
-        .`when`(playlistRepository)
+        .whenever(playlistRepository)
         .addPlaylist(eq(playlist), any(), any())
 
     playlistViewModel.addPlaylist(playlist)
 
-    // Check that getPlaylists() was called after successful addition
-    verify(playlistRepository).getPlaylists(any(), any())
-  }
-
-  @Test
-  fun updatePlaylist_shouldTriggerSuccessCallback_andUpdateSelectedPlaylist() = runTest {
-    doAnswer { invocation ->
-          val callback = invocation.arguments[1] as? () -> Unit
-          callback?.invoke() // Invoke the callback if it was correctly casted
-          null
-        }
-        .`when`(playlistRepository)
-        .updatePlaylist(eq(playlist2), any(), any())
-
-    playlistViewModel.updatePlaylist(playlist2)
-
-    // Check that the selected playlist is updated
-    Assert.assertEquals(playlist2, playlistViewModel.selectedPlaylist.value)
-    // Verify that getPlaylists() was called after update
-    verify(playlistRepository).getPlaylists(any(), any())
-  }
-
-  @Test
-  fun updateTrackCount_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
-    val newTrackCount = 5
-    doAnswer { invocation ->
-          (invocation.arguments[2] as () -> Unit).invoke() // invoke onSuccess callback
-          null
-        }
-        .`when`(playlistRepository)
-        .updatePlaylistTrackCount(eq(playlist), eq(newTrackCount), any(), any())
-
-    playlistViewModel.updateTrackCount(playlist, newTrackCount)
-
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test
@@ -181,6 +265,21 @@ class PlaylistViewModelTest {
   }
 
   @Test
+  fun deletePlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
+    doAnswer { invocation ->
+          (invocation.arguments[1] as () -> Unit).invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .deletePlaylistById(eq(playlist.playlistID), any(), any())
+
+    playlistViewModel.deletePlaylist(playlist.playlistID)
+
+    verify(playlistRepository).deletePlaylistById(eq(playlist.playlistID), any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
+  }
+
+  @Test
   fun updatePlaylist_shouldCallOnFailure_whenUpdateFails() = runTest {
     val exception = Exception("Failed to update playlist")
     doAnswer { invocation ->
@@ -189,9 +288,9 @@ class PlaylistViewModelTest {
           null
         }
         .`when`(playlistRepository)
-        .updatePlaylist(eq(playlist2), any(), any())
+        .updatePlaylist(eq(playlist), any(), any())
 
-    playlistViewModel.updatePlaylist(playlist2)
+    playlistViewModel.updatePlaylist(playlist)
   }
 
   @Test
@@ -210,19 +309,154 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun deletePlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
-    val playlistID = "test"
+  fun updateTrackCount_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
+    val newTrackCount = 5
     doAnswer { invocation ->
-          (invocation.arguments[1] as () -> Unit).invoke() // invoke onSuccess callback
+          (invocation.arguments[2] as () -> Unit).invoke() // invoke onSuccess callback
           null
         }
         .`when`(playlistRepository)
-        .deletePlaylistById(eq(playlistID), any(), any())
+        .updatePlaylistTrackCount(eq(playlist), eq(newTrackCount), any(), any())
 
-    playlistViewModel.deletePlaylist(playlistID)
+    playlistViewModel.updateTrackCount(playlist, newTrackCount)
 
-    // Assert: Verify both delete and refresh actions
-    verify(playlistRepository).deletePlaylistById(eq(playlistID), any(), any())
-    verify(playlistRepository).getPlaylists(any(), any())
+    verify(playlistRepository).getOwnedPlaylists(any(), any())
+  }
+
+  @Test
+  fun addTrack_shouldAddTrackToPlaylist_andTriggerSuccessCallback() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    val newTrack =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "new song",
+                    artist = "artist",
+                    trackId = "3",
+                    cover = "",
+                    duration = 1,
+                    popularity = 2,
+                    state = State.PAUSE),
+            likes = 0,
+            likedBy = mutableListOf())
+
+    doAnswer { invocation ->
+          val onSuccess = invocation.arguments[1] as? () -> Unit
+          onSuccess?.invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .updatePlaylist(any(), any(), any())
+
+    // Act
+    var successCallbackTriggered = false
+    playlistViewModel.addTrack(
+        newTrack, onSuccess = { successCallbackTriggered = true }, onFailure = {})
+
+    // Assert
+    val updatedPlaylist = playlistViewModel.selectedPlaylist.value
+    Assert.assertTrue(successCallbackTriggered)
+    Assert.assertNotNull(updatedPlaylist)
+    Assert.assertEquals(3, updatedPlaylist?.playlistTracks?.size) // 2 original + 1 new
+    Assert.assertTrue(updatedPlaylist?.playlistTracks?.contains(newTrack) == true)
+    verify(playlistRepository).updatePlaylist(eq(updatedPlaylist!!), any(), any())
+  }
+
+  @Test
+  fun addTrack_shouldCallOnFailure_whenNoPlaylistSelected() = runTest {
+    // Arrange
+    val newTrack =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "new track",
+                    artist = "new artist",
+                    trackId = "3",
+                    cover = "",
+                    duration = 180,
+                    popularity = 50,
+                    state = State.PAUSE),
+            likes = 0,
+            likedBy = mutableListOf())
+
+    var failureCallbackCalled = false
+
+    // Act
+    playlistViewModel.addTrack(
+        newTrack, onSuccess = {}, onFailure = { failureCallbackCalled = true })
+
+    // Assert
+    verify(playlistRepository, never()).updatePlaylist(any(), any(), any())
+    Assert.assertTrue(failureCallbackCalled) // Ensure failure callback is triggered
+  }
+
+  @Test
+  fun addTrack_shouldCallOnFailure_whenUpdateFails() = runTest {
+    val exception = Exception("Failed to add playlist")
+    doAnswer { invocation ->
+          (invocation.arguments[2] as (Exception) -> Unit).invoke(
+              exception) // invoke onFailure callback
+          null
+        }
+        .`when`(playlistRepository)
+        .updatePlaylist(eq(playlist), any(), any())
+
+    playlistViewModel.addTrack(track1, onSuccess = {}, onFailure = {})
+  }
+
+  @Test
+  fun `preloadTemporaryState sets correct temporary values when uninitialized`() = runTest {
+    playlistViewModel.preloadTemporaryState(playlist1)
+    // Assert
+    assertEquals("playlist 1", playlistViewModel.tempPlaylistTitle.first())
+    assertEquals("this is a description", playlistViewModel.tempPlaylistDescription.first())
+    assertEquals(false, playlistViewModel.tempPlaylistIsPublic.first())
+    assertEquals(emptyList<String>(), playlistViewModel.tempPlaylistCollaborators.first())
+    assertEquals(true, playlistViewModel.isTempStateInitialized.first())
+  }
+
+  @Test
+  fun `resetTemporaryState clears all temporary values`() = runTest {
+    playlistViewModel.preloadTemporaryState(playlist1)
+    playlistViewModel.resetTemporaryState()
+    // Assert
+    assertEquals("", playlistViewModel.tempPlaylistTitle.first())
+    assertEquals("", playlistViewModel.tempPlaylistDescription.first())
+    assertEquals(false, playlistViewModel.tempPlaylistIsPublic.first())
+    assertEquals(emptyList<String>(), playlistViewModel.tempPlaylistCollaborators.first())
+    assertEquals(false, playlistViewModel.isTempStateInitialized.first())
+  }
+
+  @Test
+  fun `updateTemporallyTitle updates the temporary title`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyTitle("New Title")
+    // Assert
+    assertEquals("New Title", playlistViewModel.tempPlaylistTitle.first())
+  }
+
+  @Test
+  fun `updateTemporallyDescription updates the temporary description`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyDescription("New Description")
+    // Assert
+    assertEquals("New Description", playlistViewModel.tempPlaylistDescription.first())
+  }
+
+  @Test
+  fun `updateTemporallyIsPublic updates the temporary public state`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyIsPublic(true)
+    // Assert
+    assertEquals(true, playlistViewModel.tempPlaylistIsPublic.first())
+  }
+
+  @Test
+  fun `updateTemporallyCollaborators updates the temporary collaborators list`() = runTest {
+    // Act
+    playlistViewModel.updateTemporallyCollaborators(listOf("user1", "user2"))
+    // Assert
+    assertEquals(listOf("user1", "user2"), playlistViewModel.tempPlaylistCollaborators.first())
   }
 }

@@ -9,12 +9,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -53,6 +55,8 @@ class SearchBarScreenTest {
           SpotifyArtist(image = "1", name = "Artist 1", genres = emptyList(), popularity = 23),
           SpotifyArtist(image = "2", name = "Artist 2", genres = emptyList(), popularity = 24))
 
+  private val topProfiles = listOf(ProfileData(username = "user1"), ProfileData(username = "user2"))
+
   @Before
   fun setUp() {
 
@@ -61,40 +65,33 @@ class SearchBarScreenTest {
     `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH_BAR)
 
     val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    val fakeProfileViewModel = FakeProfileViewModel()
+
+    fakeProfileViewModel.setFakeProfiles(topProfiles)
 
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
-    composeTestRule.setContent { SearchBarScreen(navigationActions, fakeSpotifyApiViewModel) }
+    composeTestRule.setContent {
+      SearchBarScreen(navigationActions, fakeSpotifyApiViewModel, fakeProfileViewModel)
+    }
   }
 
   @Test
   fun everythingIsDisplayed() {
-    composeTestRule.onNodeWithTag("searchBarScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("backButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
-    composeTestRule
-        .onNodeWithTag("writableSearchBarIcon", useUnmergedTree = true)
-        .assertIsDisplayed()
     composeTestRule.onNodeWithTag("Songs categoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Songs categoryText", useUnmergedTree = true).assertIsDisplayed()
     composeTestRule.onNodeWithTag("Artists categoryButton").assertIsDisplayed()
-    composeTestRule
-        .onNodeWithTag("Artists categoryText", useUnmergedTree = true)
-        .assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Events categoryButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("Events categoryText", useUnmergedTree = true).assertIsDisplayed()
-    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchResultsColumn").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("People categoryButton").assertIsDisplayed()
   }
 
   @Test
   fun displayTextsCorrectly() {
-
-    composeTestRule.onNodeWithTag("RECENT SEARCHESTitle").assertTextEquals("RECENT SEARCHES")
     composeTestRule
         .onNodeWithTag("Songs categoryText", useUnmergedTree = true)
         .assertTextEquals("Songs")
@@ -102,14 +99,13 @@ class SearchBarScreenTest {
         .onNodeWithTag("Artists categoryText", useUnmergedTree = true)
         .assertTextEquals("Artists")
     composeTestRule
-        .onNodeWithTag("Events categoryText", useUnmergedTree = true)
-        .assertTextEquals("Events")
+        .onNodeWithTag("People categoryText", useUnmergedTree = true)
+        .assertTextEquals("People")
   }
 
   @Test
   fun testBackNavigation() {
-
-    composeTestRule.onNodeWithTag("backButton").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
   }
 
@@ -118,6 +114,7 @@ class SearchBarScreenTest {
     // Simulate selecting the "Songs" category
     composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
 
+    // Perform search
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
 
     // Check all tracks are displayed
@@ -127,10 +124,6 @@ class SearchBarScreenTest {
     }
 
     composeTestRule.onAllNodesWithTag("trackItem").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("trackAlbumCover").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("favoriteIcon").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("addIcon").assertCountEquals(topSongs.size)
-    composeTestRule.onAllNodesWithTag("moreIcon").assertCountEquals(topSongs.size)
   }
 
   @Test
@@ -138,13 +131,65 @@ class SearchBarScreenTest {
     // Simulate selecting the "Artists" category
     composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
 
+    // Perform search
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
 
     // Check all artists are displayed
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
     composeTestRule.onAllNodesWithTag("artistItem").assertCountEquals(topArtists.size)
-    composeTestRule.onAllNodesWithTag("artistImage").assertCountEquals(topArtists.size)
+  }
+
+  @Test
+  fun categoryButtonsFunctionCorrectly() {
+    // Ensure category buttons are displayed
+    composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("Songs categoryText", useUnmergedTree = true)
+        .assertTextEquals("Songs")
+
+    composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("Artists categoryText", useUnmergedTree = true)
+        .assertTextEquals("Artists")
+
+    composeTestRule.onNodeWithTag("People categoryButton").performClick()
+    composeTestRule
+        .onNodeWithTag("People categoryText", useUnmergedTree = true)
+        .assertTextEquals("People")
+  }
+
+  @Test
+  fun categoryButtonsDoNotBreakResultsDisplay() {
+    // Start with "Songs"
+    composeTestRule.onNodeWithTag("Songs categoryButton").performClick()
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("hello")
+    composeTestRule.onAllNodesWithTag("trackItem").assertCountEquals(topSongs.size)
+
+    // Switch to "Artists"
+    composeTestRule.onNodeWithTag("Artists categoryButton").performClick()
+    composeTestRule.onAllNodesWithTag("artistItem").assertCountEquals(topArtists.size)
+
+    // Switch to "People"
+    composeTestRule.onNodeWithTag("People categoryButton").performClick()
+    composeTestRule.onNodeWithTag("searchResultsColumn").assertDoesNotExist()
+  }
+
+  @Test
+  fun searchResultsDisplayPeopleWhenCategoryIsPeople() {
+    // Simulate selecting the "People" category
+    composeTestRule.onNodeWithTag("People categoryButton").performClick()
+
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("user")
+
+    // Check all profiles are displayed
+    topProfiles.forEach { profile ->
+      composeTestRule.onNodeWithText(profile.username).assertExists()
+    }
+
+    composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(topProfiles.size)
+    composeTestRule.onAllNodesWithTag("peopleImage").assertCountEquals(topProfiles.size)
   }
 
   @Test

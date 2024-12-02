@@ -3,6 +3,9 @@ package com.epfl.beatlink.repository.library
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.Playlist
+import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import org.junit.Before
@@ -27,6 +31,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -47,7 +52,37 @@ class PlaylistRepositoryFirestoreTest {
 
   private lateinit var playlistRepositoryFirestore: PlaylistRepositoryFirestore
 
+  private val collectionPath = "playlists"
+
   private lateinit var onSuccess: () -> Unit
+
+  private val track1 =
+      PlaylistTrack(
+          track =
+              SpotifyTrack(
+                  name = "thank god",
+                  artist = "travis",
+                  trackId = "1",
+                  cover = "",
+                  duration = 1,
+                  popularity = 2,
+                  state = State.PAUSE),
+          likes = 0,
+          likedBy = mutableListOf())
+
+  private val track2 =
+      PlaylistTrack(
+          track =
+              SpotifyTrack(
+                  name = "my eyes",
+                  artist = "travis",
+                  trackId = "2",
+                  cover = "",
+                  duration = 1,
+                  popularity = 3,
+                  state = State.PAUSE),
+          likes = 0,
+          likedBy = mutableListOf())
 
   private val playlist1 =
       Playlist(
@@ -61,6 +96,7 @@ class PlaylistRepositoryFirestoreTest {
           playlistCollaborators = emptyList(),
           playlistTracks = emptyList(),
           nbTracks = 0)
+
   private val playlist2 =
       Playlist(
           playlistID = "2",
@@ -71,8 +107,21 @@ class PlaylistRepositoryFirestoreTest {
           userId = "testUserId",
           playlistOwner = "luna2",
           playlistCollaborators = emptyList(),
-          playlistTracks = listOf("thank god"),
+          playlistTracks = listOf(track1),
           nbTracks = 1)
+
+  private val playlist =
+      Playlist(
+          playlistID = "playlist1",
+          playlistCover = "cover.jpg",
+          playlistName = "Test Playlist",
+          playlistDescription = "Test Description",
+          playlistPublic = true,
+          userId = "user123",
+          playlistOwner = "owner123",
+          playlistCollaborators = listOf("collab1", "collab2"),
+          playlistTracks = listOf(track1, track2),
+          nbTracks = 2)
 
   @Before
   fun setUp() {
@@ -102,44 +151,271 @@ class PlaylistRepositoryFirestoreTest {
     `when`(mockCollectionReference.document(any())).thenReturn(mockDocumentReference)
     `when`(mockCollectionReference.document()).thenReturn(mockDocumentReference)
 
-    `when`(mockQuery.whereEqualTo(anyString(), any())).thenReturn(mockQuery)
-
     playlistRepositoryFirestore = PlaylistRepositoryFirestore(mockFirestore, mockAuth)
   }
 
   @Test
-  fun testDocumentToPlaylist_withValidData() {
-    // Arrange: Define mock data that should be returned by the DocumentSnapshot
-    val expectedPlaylist =
-        Playlist(
-            playlistID = "1",
-            playlistCover = "cover.jpg",
-            playlistName = "Test Playlist",
-            playlistDescription = "Test Description",
-            playlistPublic = true,
-            userId = "user123",
-            playlistOwner = "owner123",
-            playlistCollaborators = listOf("collaborator1", "collaborator2"),
-            playlistTracks = listOf("song1", "song2"),
-            nbTracks = 2)
-
-    // Simulate `getString` and `getBoolean` calls on the mocked DocumentSnapshot
-    `when`(mockDocumentSnapshot.getString("playlistID")).thenReturn("1")
-    `when`(mockDocumentSnapshot.getString("playlistCover")).thenReturn("cover.jpg")
+  fun `test documentToPlaylist with valid data`() {
+    // Mock the data returned by the DocumentSnapshot
+    `when`(mockDocumentSnapshot.getString("playlistID")).thenReturn("playlist1")
     `when`(mockDocumentSnapshot.getString("playlistName")).thenReturn("Test Playlist")
     `when`(mockDocumentSnapshot.getString("playlistDescription")).thenReturn("Test Description")
+    `when`(mockDocumentSnapshot.getString("playlistCover")).thenReturn("cover.jpg")
     `when`(mockDocumentSnapshot.getBoolean("playlistPublic")).thenReturn(true)
     `when`(mockDocumentSnapshot.getString("userId")).thenReturn("user123")
     `when`(mockDocumentSnapshot.getString("playlistOwner")).thenReturn("owner123")
     `when`(mockDocumentSnapshot.get("playlistCollaborators"))
-        .thenReturn(listOf("collaborator1", "collaborator2"))
-    `when`(mockDocumentSnapshot.get("playlistSongs")).thenReturn(listOf("song1", "song2"))
+        .thenReturn(listOf("collab1", "collab2"))
+    `when`(mockDocumentSnapshot.get("playlistTracks"))
+        .thenReturn(
+            listOf(
+                mapOf(
+                    "name" to "Track 1",
+                    "artist" to "Artist 1",
+                    "trackId" to "trackId1",
+                    "cover" to "cover1.jpg",
+                    "duration" to 200L,
+                    "popularity" to 80L,
+                    "state" to "PLAY",
+                    "likes" to 10L),
+                mapOf(
+                    "name" to "Track 2",
+                    "artist" to "Artist 2",
+                    "trackId" to "trackId2",
+                    "cover" to "cover2.jpg",
+                    "duration" to 220L,
+                    "popularity" to 90L,
+                    "state" to "PAUSE",
+                    "likes" to 15L)))
 
-    // Act: Call the function to convert the DocumentSnapshot to a Playlist
+    // Act: Call the function to convert DocumentSnapshot to Playlist
     val result = playlistRepositoryFirestore.documentToPlaylist(mockDocumentSnapshot)
 
     // Assert: Verify that the result matches the expected playlist
-    assertEquals(expectedPlaylist, result)
+    assertEquals(playlist.playlistID, result.playlistID)
+    assertEquals(playlist.playlistName, result.playlistName)
+    assertEquals(playlist.playlistDescription, result.playlistDescription)
+    assertEquals(playlist.playlistCover, result.playlistCover)
+    assertTrue(result.playlistPublic)
+    assertEquals(playlist.userId, result.userId)
+    assertEquals(playlist.playlistOwner, result.playlistOwner)
+    assertEquals(playlist.playlistCollaborators, result.playlistCollaborators)
+    assertEquals(playlist.nbTracks, result.nbTracks)
+  }
+
+  @Test
+  fun `documentToPlaylist handles invalid playlistTracks gracefully`() {
+    // Mock document snapshot with invalid playlistTracks
+    val mockData =
+        mapOf(
+            "playlistID" to "playlist123",
+            "playlistName" to "Test Playlist",
+            "playlistPublic" to true,
+            "userId" to "user123",
+            "playlistTracks" to
+                listOf(
+                    mapOf(
+                        "name" to "Song 1",
+                        "artist" to null, // Invalid field
+                        "trackId" to "track123"),
+                    mapOf(
+                        "invalidKey" to "invalidValue" // Completely invalid track data
+                        )))
+    `when`(mockDocumentSnapshot.data).thenReturn(mockData)
+
+    val playlist = playlistRepositoryFirestore.documentToPlaylist(mockDocumentSnapshot)
+
+    // Assertions
+    assertEquals(0, playlist.playlistTracks.size) // Invalid tracks should be filtered out
+    assertEquals(0, playlist.nbTracks)
+  }
+
+  @Test
+  fun `playlistTrackToMap converts PlaylistTrack to Map successfully`() {
+    // Create a PlaylistTrack object
+    val track =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "Test Song",
+                    artist = "Test Artist",
+                    trackId = "track123",
+                    cover = "cover.jpg",
+                    duration = 240,
+                    popularity = 85,
+                    state = State.PLAY),
+            likes = 5,
+            likedBy = mutableListOf("user1", "user2"))
+
+    // Convert PlaylistTrack to Map
+    val resultMap = playlistRepositoryFirestore.playlistTrackToMap(track)
+
+    // Assertions
+    assertEquals("Test Song", resultMap["name"])
+    assertEquals("Test Artist", resultMap["artist"])
+    assertEquals("track123", resultMap["trackId"])
+    assertEquals("cover.jpg", resultMap["cover"])
+    assertEquals(240, resultMap["duration"])
+    assertEquals(85, resultMap["popularity"])
+    assertEquals("PLAY", resultMap["state"]) // Enum is converted to string
+    assertEquals(5, resultMap["likes"])
+    assertEquals(listOf("user1", "user2"), resultMap["likedBy"])
+  }
+
+  @Test
+  fun `playlistTrackToMap handles empty likedBy list`() {
+    // Create a PlaylistTrack object with an empty likedBy list
+    val track =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "Test Song",
+                    artist = "Test Artist",
+                    trackId = "track123",
+                    cover = "cover.jpg",
+                    duration = 240,
+                    popularity = 85,
+                    state = State.PLAY),
+            likes = 0,
+            likedBy = mutableListOf())
+
+    // Convert PlaylistTrack to Map
+    val resultMap = playlistRepositoryFirestore.playlistTrackToMap(track)
+
+    // Assertions
+    assertEquals("Test Song", resultMap["name"])
+    assertEquals("Test Artist", resultMap["artist"])
+    assertEquals("track123", resultMap["trackId"])
+    assertEquals("cover.jpg", resultMap["cover"])
+    assertEquals(240, resultMap["duration"])
+    assertEquals(85, resultMap["popularity"])
+    assertEquals("PLAY", resultMap["state"]) // Enum is converted to string
+    assertEquals(0, resultMap["likes"])
+    assertEquals(emptyList<String>(), resultMap["likedBy"]) // Ensure likedBy is an empty list
+  }
+
+  @Test
+  fun `playlistToMap converts Playlist to Map successfully`() {
+    // Create a Playlist object
+    val track1 =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "Track 1",
+                    artist = "Artist 1",
+                    trackId = "track123",
+                    cover = "cover1.jpg",
+                    duration = 240,
+                    popularity = 85,
+                    state = State.PLAY),
+            likes = 10,
+            likedBy = mutableListOf("user1", "user2"))
+
+    val track2 =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "Track 2",
+                    artist = "Artist 2",
+                    trackId = "track456",
+                    cover = "cover2.jpg",
+                    duration = 200,
+                    popularity = 75,
+                    state = State.PAUSE),
+            likes = 5,
+            likedBy = mutableListOf("user3"))
+
+    val playlist =
+        Playlist(
+            playlistID = "playlist123",
+            playlistCover = "cover.jpg",
+            playlistName = "Test Playlist",
+            playlistDescription = "This is a test playlist.",
+            playlistPublic = true,
+            userId = "user123",
+            playlistOwner = "owner123",
+            playlistCollaborators = listOf("collab1", "collab2"),
+            playlistTracks = listOf(track1, track2),
+            nbTracks = 2)
+
+    // Convert Playlist to Map
+    val resultMap = playlistRepositoryFirestore.playlistToMap(playlist)
+
+    // Assertions
+    assertEquals("playlist123", resultMap["playlistID"])
+    assertEquals("cover.jpg", resultMap["playlistCover"])
+    assertEquals("Test Playlist", resultMap["playlistName"])
+    assertEquals("This is a test playlist.", resultMap["playlistDescription"])
+    assertEquals(true, resultMap["playlistPublic"])
+    assertEquals("user123", resultMap["userId"])
+    assertEquals("owner123", resultMap["playlistOwner"])
+    assertEquals(listOf("collab1", "collab2"), resultMap["playlistCollaborators"])
+    assertEquals(2, resultMap["nbTracks"])
+
+    // Verify playlistTracks conversion
+    val tracks = resultMap["playlistTracks"] as List<Map<String, Any>>
+    assertEquals(2, tracks.size)
+
+    val trackMap1 = tracks[0]
+    assertEquals("Track 1", trackMap1["name"])
+    assertEquals("Artist 1", trackMap1["artist"])
+    assertEquals("track123", trackMap1["trackId"])
+    assertEquals("cover1.jpg", trackMap1["cover"])
+    assertEquals(240, trackMap1["duration"])
+    assertEquals(85, trackMap1["popularity"])
+    assertEquals("PLAY", trackMap1["state"])
+    assertEquals(10, trackMap1["likes"])
+    assertEquals(listOf("user1", "user2"), trackMap1["likedBy"])
+
+    val trackMap2 = tracks[1]
+    assertEquals("Track 2", trackMap2["name"])
+    assertEquals("Artist 2", trackMap2["artist"])
+    assertEquals("track456", trackMap2["trackId"])
+    assertEquals("cover2.jpg", trackMap2["cover"])
+    assertEquals(200, trackMap2["duration"])
+    assertEquals(75, trackMap2["popularity"])
+    assertEquals("PAUSE", trackMap2["state"])
+    assertEquals(5, trackMap2["likes"])
+    assertEquals(listOf("user3"), trackMap2["likedBy"])
+  }
+
+  @Test
+  fun `playlistToMap handles empty playlistTracks`() {
+    // Create a Playlist object with no tracks
+    val playlist =
+        Playlist(
+            playlistID = "playlist123",
+            playlistCover = "cover.jpg",
+            playlistName = "Empty Playlist",
+            playlistDescription = "This is an empty playlist.",
+            playlistPublic = false,
+            userId = "user123",
+            playlistOwner = "owner123",
+            playlistCollaborators = emptyList(),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+
+    // Convert Playlist to Map
+    val resultMap = playlistRepositoryFirestore.playlistToMap(playlist)
+
+    // Assertions
+    assertEquals("playlist123", resultMap["playlistID"])
+    assertEquals("cover.jpg", resultMap["playlistCover"])
+    assertEquals("Empty Playlist", resultMap["playlistName"])
+    assertEquals("This is an empty playlist.", resultMap["playlistDescription"])
+    assertEquals(false, resultMap["playlistPublic"])
+    assertEquals("user123", resultMap["userId"])
+    assertEquals("owner123", resultMap["playlistOwner"])
+    assertEquals(emptyList<String>(), resultMap["playlistCollaborators"])
+    assertEquals(0, resultMap["nbTracks"])
+    assertEquals(emptyList<Map<String, Any>>(), resultMap["playlistTracks"])
+  }
+
+  @Test
+  fun getNewUid_generatesExpectedUid() {
+    `when`(mockDocumentReference.id).thenReturn("1")
+    val uid = playlistRepositoryFirestore.getNewUid()
+    assert(uid == "1")
   }
 
   @Test
@@ -184,101 +460,256 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun getNewUid_generatesExpectedUid() {
-    `when`(mockDocumentReference.id).thenReturn("1")
-    val uid = playlistRepositoryFirestore.getNewUid()
-    assert(uid == "1")
-  }
+  fun `getUserId returns correct userID`() {
+    // Arrange
+    `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
+    `when`(mockFirebaseUser.uid).thenReturn("testUserId")
 
-  /** getPlaylists */
-  @Test
-  fun `getPlaylists should retrieve one playlist owned by the current user`() {
-    val mockDocumentSnapshot1 = mock(DocumentSnapshot::class.java)
-    val mockDocumentSnapshot2 = mock(DocumentSnapshot::class.java)
+    // Act
+    val userId = playlistRepositoryFirestore.getUserId()
 
-    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.whereEqualTo(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
-
-    val documents = listOf(mockDocumentSnapshot1, mockDocumentSnapshot2)
-    `when`(mockQuerySnapshot.documents)
-        .thenReturn(documents) // Firestore returns a QuerySnapshot, which contains the list of
-    // DocumentSnapshots that match the query.
-    `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
-    `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
-
-    playlistRepositoryFirestore.getPlaylists(
-        onSuccess = { playlists ->
-          println("Retrieved playlists: $playlists")
-
-          // Check if playlist2 is retrieved
-          assertEquals(1, playlists.size)
-          assertEquals("2", playlists[0].playlistID)
-          assertEquals("playlist 2", playlists[0].playlistName)
-        },
-        onFailure = { fail("Failure callback should not be called") })
+    // Assert
+    assert(userId == "testUserId")
   }
 
   @Test
-  fun `getPlaylists should retrieve all playlists owned by the current user`() {
-    val playlist1 =
-        Playlist(
-            playlistID = "1",
-            playlistCover = "",
-            playlistName = "playlist 1",
-            playlistDescription = "testing 2",
-            playlistPublic = false,
-            userId = "testUserId",
-            playlistOwner = "luna2",
-            playlistCollaborators = emptyList(),
-            playlistTracks = listOf("thank god"),
-            nbTracks = 1)
+  fun `getOwnedPlaylists should retrieve playlists owned by the current user`() {
+    // Mocking Firestore and DocumentSnapshots
     val mockDocumentSnapshot1 = mock(DocumentSnapshot::class.java)
     val mockDocumentSnapshot2 = mock(DocumentSnapshot::class.java)
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
 
+    // Mock Firestore behavior
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.whereEqualTo(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
     `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
 
+    // Mock documents returned by Firestore
     val documents = listOf(mockDocumentSnapshot1, mockDocumentSnapshot2)
-    `when`(mockQuerySnapshot.documents)
-        .thenReturn(documents) // Firestore returns a QuerySnapshot, which contains the list of
-    // DocumentSnapshots that match the query.
+    `when`(mockQuerySnapshot.documents).thenReturn(documents)
+
+    // Mocking playlist objects
     `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
     `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
 
-    playlistRepositoryFirestore.getPlaylists(
+    // Test function
+    playlistRepositoryFirestore.getOwnedPlaylists(
         onSuccess = { playlists ->
-          println("Retrieved playlists: $playlists")
-
-          // Check if playlist2 is retrieved
+          // Assertions
           assertEquals(2, playlists.size)
           assertEquals("1", playlists[0].playlistID)
           assertEquals("2", playlists[1].playlistID)
-          assertEquals("playlist 1", playlists[0].playlistName)
-          assertEquals("playlist 2", playlists[1].playlistName)
         },
         onFailure = { fail("Failure callback should not be called") })
   }
 
   @Test
-  fun `getPlaylists should call onFailure on error`() {
-    val exception = Exception("Test exception")
-    val mockCollectionReference = mock(CollectionReference::class.java)
-
-    // Mock the collection reference and query behavior
+  fun `getOwnedPlaylists should return an empty list if no playlists are owned`() {
+    // Mocking Firestore behavior with no documents
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.whereEqualTo(anyString(), any())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
 
-    playlistRepositoryFirestore.getPlaylists(
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { error -> assert(error == exception) })
+    // No documents
+    `when`(mockQuerySnapshot.documents).thenReturn(emptyList())
 
-    shadowOf(Looper.getMainLooper()).idle()
+    // Test function
+    playlistRepositoryFirestore.getOwnedPlaylists(
+        onSuccess = { playlists ->
+          // Assertions
+          assertNotNull(playlists)
+          assertEquals(0, playlists.size)
+        },
+        onFailure = { fail("Failure callback should not be called") })
   }
 
-  /** addPlaylist */
+  @Test
+  fun `getOwnedPlaylists should call onFailure when Firestore query fails`() {
+    // Mock Firestore query failure
+    val exception = Exception("Firestore error")
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+
+    // Test function
+    playlistRepositoryFirestore.getOwnedPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { error ->
+          // Assertions
+          assertNotNull(error)
+          assertEquals("Firestore error", error.message)
+        })
+  }
+
+  @Test
+  fun `getSharedPlaylists should retrieve playlists shared with the current user`() {
+    // Mocking Firestore and DocumentSnapshots
+    val mockDocumentSnapshot1 = mock(DocumentSnapshot::class.java)
+    val mockDocumentSnapshot2 = mock(DocumentSnapshot::class.java)
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
+
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereArrayContains(eq("playlistCollaborators"), anyString()))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+
+    // Mock documents returned by Firestore
+    val documents = listOf(mockDocumentSnapshot1, mockDocumentSnapshot2)
+    `when`(mockQuerySnapshot.documents).thenReturn(documents)
+
+    // Mocking playlist objects
+    `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
+    `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
+
+    // Test function
+    playlistRepositoryFirestore.getSharedPlaylists(
+        onSuccess = { playlists ->
+          // Assertions
+          assertEquals(2, playlists.size)
+          assertEquals("1", playlists[0].playlistID)
+          assertEquals("2", playlists[1].playlistID)
+        },
+        onFailure = { fail("Failure callback should not be called") })
+  }
+
+  @Test
+  fun `getSharedPlaylists should return an empty list if no playlists are shared`() {
+    // Mocking Firestore behavior with no documents
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereArrayContains(eq("playlistCollaborators"), anyString()))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+
+    // No documents
+    `when`(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    // Test function
+    playlistRepositoryFirestore.getSharedPlaylists(
+        onSuccess = { playlists ->
+          // Assertions
+          assertNotNull(playlists)
+          assertEquals(0, playlists.size)
+        },
+        onFailure = { fail("Failure callback should not be called") })
+  }
+
+  @Test
+  fun `getSharedPlaylists should call onFailure when Firestore query fails`() {
+    // Mock Firestore query failure
+    val exception = Exception("Firestore error")
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereArrayContains(eq("playlistCollaborators"), anyString()))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+
+    // Test function
+    playlistRepositoryFirestore.getSharedPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { error ->
+          // Assertions
+          assertNotNull(error)
+          assertEquals("Firestore error", error.message)
+        })
+  }
+
+  @Test
+  fun `getPublicPlaylists should retrieve public playlists`() {
+    // Mocking Firestore and DocumentSnapshots
+    val mockDocumentSnapshot1 = mock(DocumentSnapshot::class.java)
+    val mockDocumentSnapshot2 = mock(DocumentSnapshot::class.java)
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
+
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("playlistPublic"), eq(true)))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+
+    // Mock documents returned by Firestore
+    val documents = listOf(mockDocumentSnapshot1, mockDocumentSnapshot2)
+    `when`(mockQuerySnapshot.documents).thenReturn(documents)
+
+    // Mocking playlist objects
+    `when`(mockDocumentSnapshot1.toObject(Playlist::class.java)).thenReturn(playlist1)
+    `when`(mockDocumentSnapshot2.toObject(Playlist::class.java)).thenReturn(playlist2)
+
+    // Test function
+    playlistRepositoryFirestore.getPublicPlaylists(
+        onSuccess = { playlists ->
+          // Assertions
+          assertEquals(2, playlists.size)
+          assertEquals("1", playlists[0].playlistID)
+          assertEquals("2", playlists[1].playlistID)
+        },
+        onFailure = { fail("Failure callback should not be called") })
+  }
+
+  @Test
+  fun `getPublicPlaylists should return an empty list if no public playlists are available`() {
+    // Mocking Firestore behavior with no documents
+    val mockQuerySnapshot = mock(QuerySnapshot::class.java)
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("playlistPublic"), eq(true)))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+
+    // No documents
+    `when`(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    // Test function
+    playlistRepositoryFirestore.getPublicPlaylists(
+        onSuccess = { playlists ->
+          // Assertions
+          assertNotNull(playlists)
+          assertEquals(0, playlists.size)
+        },
+        onFailure = { fail("Failure callback should not be called") })
+  }
+
+  @Test
+  fun `getPublicPlaylists should call onFailure when Firestore query fails`() {
+    // Mock Firestore query failure
+    val exception = Exception("Firestore error")
+    `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("playlistPublic"), eq(true)))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+
+    // Test function
+    playlistRepositoryFirestore.getPublicPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { error ->
+          // Assertions
+          assertNotNull(error)
+          assertEquals("Firestore error", error.message)
+        })
+  }
+
+  @Test
+  fun addPlaylist_isCorrectlyAdded() {
+    // Mock the conversion of the playlist to a Map
+    val playlistMap = playlistRepositoryFirestore.playlistToMap(playlist)
+    // Simulate a successful operation when saving playlist by mocking Firestore's set() method
+    `when`(mockDocumentReference.set(playlistMap)).thenReturn(Tasks.forResult(null))
+
+    playlistRepositoryFirestore.addPlaylist(playlist = playlist, onSuccess = {}, onFailure = {})
+    verify(mockDocumentReference).set(playlistMap)
+    assertTrue(playlistMap.containsKey("playlistID"))
+    assertEquals("playlist1", playlistMap["playlistID"])
+    assertEquals("user123", playlistMap["userId"])
+    assertEquals("cover.jpg", playlistMap["playlistCover"])
+    assertEquals("Test Playlist", playlistMap["playlistName"])
+  }
+
   @Test
   fun addPlaylist_shouldCallFirestoreCollection() {
     `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null)) // Simulate success
@@ -307,46 +738,38 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun addPlaylist_isCorrectlyAdded() {
-    // simulate a successful operation when saving playlist1
-    val newplaylist1 = playlist1.copy(userId = "testUserId")
-    `when`(mockDocumentReference.set(newplaylist1)).thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.addPlaylist(playlist = playlist1, onSuccess = {}, onFailure = {})
-    verify(mockDocumentReference).set(playlist1)
+  fun `addPlaylist should call onFailure on unexpected exception`() {
+    // Mock Firestore behavior to throw an unexpected exception
+    val unexpectedException = RuntimeException("Unexpected error")
+    `when`(mockFirestore.collection(any())).thenThrow(unexpectedException)
+
+    // Test function
+    var failureCalled = false
+    playlistRepositoryFirestore.addPlaylist(
+        playlist = playlist1,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { error ->
+          failureCalled = true
+          assertEquals("Unexpected error", error.message)
+        })
+
+    // Assertions
+    assertTrue(failureCalled)
+    verify(mockFirestore).collection(collectionPath)
   }
 
-  /** updatePlaylist */
   @Test
   fun updatePlaylist_shouldCallFirestoreCollection() {
-    // Mock Firestore behavior
-    `when`(mockFirestore.collection("playlists")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("playlistID")).thenReturn(mockDocumentReference)
+    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null)) // Simulate success
 
-    // Create a mock Playlist object
-    val playlist =
-        Playlist(
-            playlistID = "playlistID",
-            playlistName = "Test Playlist",
-            playlistDescription = "A description",
-            playlistCover = "cover.jpg",
-            playlistPublic = true,
-            userId = "userID",
-            playlistOwner = "owner",
-            playlistCollaborators = emptyList(),
-            playlistTracks = emptyList(),
-            nbTracks = 0)
+    // This test verifies that when we add a new playlist, the Firestore `collection()` method is
+    // called
+    playlistRepositoryFirestore.updatePlaylist(playlist1, onSuccess = {}, onFailure = {})
 
-    // Call the method to update the playlist
-    playlistRepositoryFirestore.updatePlaylist(playlist, onSuccess = {}, onFailure = {})
+    shadowOf(Looper.getMainLooper()).idle()
 
-    // Verify that Firestore's collection method is called with the correct path
-    verify(mockFirestore).collection("playlists")
-
-    // Verify that the correct document is being updated by checking the document reference
-    verify(mockCollectionReference).document("playlistID")
-
-    // Verify that the set method was called on the document reference
-    verify(mockDocumentReference).set(playlist)
+    // Ensure Firestore collection method was called to reference the "playlists" collection
+    verify(mockDocumentReference).set(any())
   }
 
   @Test
@@ -364,11 +787,19 @@ class PlaylistRepositoryFirestoreTest {
 
   @Test
   fun updatePlaylist_correctlyUpdatesPlaylist() {
-    // Mock the successful set operation in Firestore
-    `when`(mockDocumentReference.set(playlist1)).thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.updatePlaylist(playlist = playlist2, onSuccess = {}, onFailure = {})
-    verify(mockDocumentReference).set(playlist2)
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
+    // Mock the conversion of the playlist to a Map
+    val playlistMap = playlistRepositoryFirestore.playlistToMap(playlist)
+    // Simulate a successful operation when saving playlist by mocking Firestore's set() method
+    `when`(mockDocumentReference.set(playlistMap)).thenReturn(Tasks.forResult(null))
+
+    playlistRepositoryFirestore.updatePlaylist(playlist = playlist, onSuccess = {}, onFailure = {})
+    verify(mockDocumentReference).set(playlistMap)
+
+    assertTrue(playlistMap.containsKey("playlistID"))
+    assertEquals("playlist1", playlistMap["playlistID"])
+    assertEquals("user123", playlistMap["userId"])
+    assertEquals("cover.jpg", playlistMap["playlistCover"])
+    assertEquals("Test Playlist", playlistMap["playlistName"])
   }
 
   @Test
@@ -383,7 +814,77 @@ class PlaylistRepositoryFirestoreTest {
     shadowOf(Looper.getMainLooper()).idle()
   }
 
-  /** updatePlaylistTrackCount */
+  @Test
+  fun updatePlaylistCollaborators_shouldCallFirestoreUpdate() {
+    // Create a playlist object to be used in the test
+    val playlist =
+        Playlist(
+            playlistID = "playlistID",
+            playlistName = "Test Playlist",
+            playlistDescription = "A description",
+            playlistCover = "cover.jpg",
+            playlistPublic = true,
+            userId = "userID",
+            playlistOwner = "owner",
+            playlistCollaborators = emptyList(),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+
+    // Simulate the Firestore update response using Tasks.forResult() (success case)
+    `when`(mockFirestore.collection("playlists").document("playlistID"))
+        .thenReturn(mockDocumentReference)
+    `when`(mockDocumentReference.update("playlistCollaborators", listOf("C1")))
+        .thenReturn(Tasks.forResult(null)) // Simulate success
+
+    // Call the method to update the track count
+    playlistRepositoryFirestore.updatePlaylistCollaborators(
+        playlist = playlist,
+        newCollabList = listOf("C1"),
+        onSuccess = {
+          // Verify that the update was successful and the callback was triggered
+          verify(mockDocumentReference).update("playlistCollaborators", listOf("C1"))
+        },
+        onFailure = { _ ->
+          // Fail the test if this callback is called
+          assert(false) { "onFailure should not be called" }
+        })
+  }
+
+  @Test
+  fun updatePlaylistCollaborators_withFirestoreError() {
+    val exception = Exception("Firestore update error")
+    `when`(mockDocumentReference.update("playlistCollaborators", listOf("C1")))
+        .thenReturn(Tasks.forException(exception))
+
+    playlistRepositoryFirestore.updatePlaylistCollaborators(
+        playlist1,
+        listOf("C1"),
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { error -> assert(error == exception) })
+
+    shadowOf(Looper.getMainLooper()).idle()
+  }
+
+  @Test
+  fun updatePlaylistCollaborators_correctlyUpdatesCollaboratorsList() {
+    val newCollabList = listOf("C1", "C2", "C3")
+
+    // Mock the initial document retrieval behavior
+    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
+
+    `when`(mockDocumentReference.update("playlistCollaborators", newCollabList))
+        .thenReturn(Tasks.forResult(null))
+    playlistRepositoryFirestore.updatePlaylistCollaborators(
+        playlist = playlist1,
+        newCollabList = newCollabList,
+        onSuccess = { assertEquals(newCollabList, playlist1.playlistCollaborators) },
+        onFailure = { fail("Update failed") })
+
+    // Verify that the `update()` method was called with the correct field and value
+    verify(mockDocumentReference).update("playlistCollaborators", newCollabList)
+  }
+
   @Test
   fun updatePlaylistTrackCount_shouldCallFirestoreUpdate() {
     // Create a playlist object to be used in the test
@@ -471,111 +972,48 @@ class PlaylistRepositoryFirestoreTest {
         onFailure = { fail("Fail callback should not be called") })
   }
 
-  /** updatePlaylistSongs */
   @Test
-  fun updatePlaylistSongs_correctlyUpdatesSongs() {
-    val newSongs = listOf("song1")
-    // Mock the initial document retrieval behavior
+  fun updatePlaylistTracks_correctlyUpdatesTracks() {
+    val newTrackList = listOf(track1, track2)
+    val trackMapList = newTrackList.map { playlistRepositoryFirestore.playlistTrackToMap(it) }
+
     `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
     `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
-
-    `when`(mockDocumentReference.update("playlistSongs", newSongs))
+    `when`(mockDocumentReference.update("playlistTracks", trackMapList))
         .thenReturn(Tasks.forResult(null))
+
     playlistRepositoryFirestore.updatePlaylistTracks(
         playlist = playlist1,
-        newListSongs = newSongs,
-        onSuccess = { assertEquals(newSongs, playlist1.playlistTracks) },
-        onFailure = { fail("Update failed") })
+        newListTracks = newTrackList,
+        onSuccess = {
+          assertEquals(newTrackList, playlist1.playlistTracks)
+          assert(true)
+        },
+        onFailure = {
+          fail("Update failed")
+          assert(false)
+        })
 
-    // Verify that the `update()` method was called with the correct field and value
-    verify(mockDocumentReference).update("playlistSongs", newSongs)
+    verify(mockDocumentReference).update("playlistTracks", trackMapList)
   }
 
   @Test
   fun updatePlaylistSongs_withFirestoreError() {
-    val newSongs = listOf("hey", "mama")
+    val newTrackList = listOf(track1, track2)
+    val trackMapList = newTrackList.map { playlistRepositoryFirestore.playlistTrackToMap(it) }
     val exception = Exception("Firestore update error")
-    `when`(mockDocumentReference.update("playlistSongs", newSongs))
+    `when`(mockDocumentReference.update("playlistTracks", trackMapList))
         .thenReturn(Tasks.forException(exception))
 
     playlistRepositoryFirestore.updatePlaylistTracks(
         playlist1,
-        newSongs,
+        newTrackList,
         onSuccess = { fail("Success callback should not be called") },
         onFailure = { error -> assert(error == exception) })
 
     shadowOf(Looper.getMainLooper()).idle()
   }
 
-  @Test
-  fun updatePlaylistSongs_shouldCallOnSuccessWhenUpdateIsSuccessful() {
-    // Playlist and new song list
-    val playlist =
-        Playlist(
-            playlistID = "playlistID",
-            playlistCover = "",
-            playlistName = "Test Playlist",
-            userId = "testUserId",
-            playlistOwner = "username",
-            playlistCollaborators = emptyList(),
-            playlistTracks = listOf("song1", "song2"))
-    val newSongsList = listOf("song3", "song4")
-
-    // Simulate Firestore successful update
-    `when`(mockFirestore.collection("playlists").document(playlist.playlistID))
-        .thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.update("playlistSongs", newSongsList))
-        .thenReturn(Tasks.forResult(null)) // Successful update
-
-    // Call the method to update the playlist songs
-    playlistRepositoryFirestore.updatePlaylistTracks(
-        playlist = playlist,
-        newListSongs = newSongsList,
-        onSuccess = {
-          // If onSuccess is called, the test should pass
-          assert(true) { "onSuccess should be called when the update is successful." }
-        },
-        onFailure = { exception ->
-          // Fail the test if onFailure is called
-          assert(false) { "onFailure should not be called: ${exception.message}" }
-        })
-  }
-
-  @Test
-  fun updatePlaylistSongs_shouldCallOnFailureWhenUpdateFails() {
-    // Playlist and new song list
-    val playlist =
-        Playlist(
-            playlistID = "playlistID",
-            playlistCover = "",
-            playlistName = "Test Playlist",
-            userId = "testUserId",
-            playlistOwner = "username",
-            playlistCollaborators = emptyList(),
-            playlistTracks = listOf("song1", "song2"))
-    val newSongsList = listOf("song3", "song4")
-
-    // Simulate Firestore failed update by using Tasks.forException()
-    `when`(mockFirestore.collection("playlists").document(playlist.playlistID))
-        .thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.update("playlistSongs", newSongsList))
-        .thenReturn(Tasks.forException(Exception("Firestore update error"))) // Simulate failure
-
-    // Call the method to update the playlist songs
-    playlistRepositoryFirestore.updatePlaylistTracks(
-        playlist = playlist,
-        newListSongs = newSongsList,
-        onSuccess = {
-          // Fail the test if onSuccess is called
-          assert(false) { "onSuccess should not be called" }
-        },
-        onFailure = { exception ->
-          // Verify that onFailure is called with the correct exception
-          assertTrue(exception.message == "Firestore update error")
-        })
-  }
-
-  /** deletePlaylist */
   @Test
   fun deletePlaylistById_shouldCallDocumentReferenceDelete() {
     `when`(mockDocumentReference.delete()).thenReturn(Tasks.forResult(null))

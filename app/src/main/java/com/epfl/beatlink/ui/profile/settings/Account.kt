@@ -41,6 +41,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
@@ -49,7 +50,8 @@ fun AccountScreen(
     navigationActions: NavigationActions,
     spotifyAuthViewModel: SpotifyAuthViewModel,
     profileViewModel: ProfileViewModel,
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    mapUsersViewModel: MapUsersViewModel
 ) {
   val context = LocalContext.current
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
@@ -90,9 +92,12 @@ fun AccountScreen(
                   Icons.AutoMirrored.Filled.ArrowForward)
               Spacer(modifier = Modifier.height(45.dp))
               SpotifyAuth(spotifyAuthViewModel)
-              Spacer(modifier = Modifier.height(205.dp))
+              Spacer(modifier = Modifier.height(165.dp))
               PrincipalButton(
-                  "Delete account", "deleteAccountButton", true, onClick = { showDialog = true })
+                  "Delete account",
+                  "deleteAccountButton",
+                  isRed = true,
+                  onClick = { showDialog = true })
             }
       })
 
@@ -119,20 +124,24 @@ fun AccountScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
+                val currentProfile = profileData
+
+                profileViewModel.deleteProfile()
+                mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.deleteAccount(
                     currentPassword = password,
                     onSuccess = {
-                      profileViewModel.deleteProfile()
-                      navigationActions.navigateTo(Screen.WELCOME)
+                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
                       Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
                           .show()
                       showDialog = false
                     },
                     onFailure = {
+                      profileViewModel.addProfile(currentProfile!!)
                       Toast.makeText(
                               context, "Account deletion failed: ${it.message}", Toast.LENGTH_SHORT)
                           .show()
-                      showDialog = false // Close the dialog on failure
+                      showDialog = false
                     })
               }) {
                 Text("Confirm")

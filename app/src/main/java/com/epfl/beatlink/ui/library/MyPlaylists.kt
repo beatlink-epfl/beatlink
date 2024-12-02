@@ -30,7 +30,7 @@ import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 @Composable
 fun MyPlaylistsScreen(navigationActions: NavigationActions, playlistViewModel: PlaylistViewModel) {
 
-  val playlistListFlow by playlistViewModel.playlistList.collectAsState()
+  val playlistListFlow by playlistViewModel.ownedPlaylistList.collectAsState()
 
   Scaffold(
       modifier = Modifier.testTag("myPlaylistsScreen"),

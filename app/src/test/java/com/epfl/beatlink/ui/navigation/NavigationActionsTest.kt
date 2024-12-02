@@ -56,6 +56,12 @@ class NavigationActionsTest {
 
     navigationActions.navigateTo(Screen.LIBRARY)
     verify(navHostController).navigate(Screen.LIBRARY)
+
+    navigationActions.navigateTo(Screen.ACCOUNT)
+    verify(navHostController).navigate(Screen.ACCOUNT)
+
+    navigationActions.navigateTo(Screen.SETTINGS)
+    verify(navHostController).navigate(Screen.SETTINGS)
   }
 
   @Test
@@ -119,6 +125,19 @@ class NavigationActionsTest {
 
     // Verify that popBackStack() was not called
     verify(navHostController, times(0)).popBackStack()
+
+    // Verify the navigation to the new screen
+    verify(navHostController).navigate(eq("NewScreen"), any<NavOptionsBuilder.() -> Unit>())
+  }
+
+  @Test
+  fun navigateToAndClearAllBackStackClearsBackStack() {
+    val mockBackStackEntry = mock(NavBackStackEntry::class.java)
+
+    // Simulate previous entries in the back stack
+    `when`(navHostController.previousBackStackEntry).thenReturn(mockBackStackEntry)
+
+    navigationActions.navigateToAndClearAllBackStack("NewScreen")
 
     // Verify the navigation to the new screen
     verify(navHostController).navigate(eq("NewScreen"), any<NavOptionsBuilder.() -> Unit>())

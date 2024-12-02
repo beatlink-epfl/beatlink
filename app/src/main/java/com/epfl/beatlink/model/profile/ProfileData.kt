@@ -41,8 +41,10 @@ enum class MusicGenre(val displayName: String) {
   METAL("Metal");
 
   companion object {
-    fun fromString(genre: String): MusicGenre? {
-      return values().find { it.displayName.equals(genre, ignoreCase = true) }
+    const val MAX_SELECTABLE_GENRES = 4
+
+    fun getAllGenres(): List<String> {
+      return values().map { it.displayName }
     }
   }
 }

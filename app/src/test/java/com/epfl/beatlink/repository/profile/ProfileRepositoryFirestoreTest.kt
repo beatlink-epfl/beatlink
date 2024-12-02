@@ -6,11 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -18,18 +14,22 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Transaction
 import com.google.firebase.storage.UploadTask
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.anyMap
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -51,10 +51,14 @@ class ProfileRepositoryFirestoreTest {
   private lateinit var mockUploadTask: UploadTask
   private lateinit var mockUri: Uri
   private lateinit var mockContext: Context
-
-  // Additional mock objects
-  private lateinit var mockCollectionReference: CollectionReference
-  private lateinit var mockDocumentReference: DocumentReference
+  private lateinit var mockQuery: Query
+  private lateinit var mockTransaction: Transaction
+  private lateinit var mockProfileCollectionReference: CollectionReference
+  private lateinit var mockProfileDocumentReference: DocumentReference
+  private lateinit var mockUsernamesCollectionReference: CollectionReference
+  private lateinit var mockUsernameDocumentReference: DocumentReference
+  private lateinit var mockUsernameQuerySnapshot: QuerySnapshot
+  private lateinit var mockUsernameDocumentSnapshot: DocumentSnapshot
 
   @Before
   fun setUp() {
@@ -63,15 +67,26 @@ class ProfileRepositoryFirestoreTest {
     mockAuth = mock(FirebaseAuth::class.java)
     mockDocumentSnapshot = mock(DocumentSnapshot::class.java)
     mockUser = mock(FirebaseUser::class.java)
-    mockCollectionReference = mock(CollectionReference::class.java)
-    mockDocumentReference = mock(DocumentReference::class.java)
+    mockProfileCollectionReference = mock(CollectionReference::class.java)
+    mockProfileDocumentReference = mock(DocumentReference::class.java)
+    mockUsernamesCollectionReference = mock(CollectionReference::class.java)
+    mockUsernameDocumentReference = mock(DocumentReference::class.java)
+    mockUsernameQuerySnapshot = mock(QuerySnapshot::class.java)
+    mockUsernameDocumentSnapshot = mock(DocumentSnapshot::class.java)
     mockUploadTask = mock(UploadTask::class.java)
     mockUri = mock(Uri::class.java)
     mockContext = mock(Context::class.java)
+    mockQuery = mock(Query::class.java)
+    mockTransaction = mock(Transaction::class.java)
 
     // Setup mock behavior for collection and document references
-    `when`(mockDb.collection("userProfiles")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("testUserId")).thenReturn(mockDocumentReference)
+    `when`(mockDb.collection("userProfiles")).thenReturn(mockProfileCollectionReference)
+    `when`(mockProfileCollectionReference.document("testUserId"))
+        .thenReturn(mockProfileDocumentReference)
+
+    `when`(mockDb.collection("usernames")).thenReturn(mockUsernamesCollectionReference)
+    `when`(mockUsernamesCollectionReference.document("testUsername"))
+        .thenReturn(mockUsernameDocumentReference)
 
     repository = ProfileRepositoryFirestore(mockDb, mockAuth)
   }
@@ -112,15 +127,17 @@ class ProfileRepositoryFirestoreTest {
             name = "John Doe",
             profilePicture = null,
             username = "johndoe",
+            email = "example@gmail.com",
             favoriteMusicGenres = listOf("Rock", "Pop"))
 
     // Simulate the behavior of the document get() call
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
+    `when`(mockProfileDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
     `when`(mockDocumentSnapshot.getString("bio")).thenReturn(profileData.bio)
     `when`(mockDocumentSnapshot.getLong("links")).thenReturn(profileData.links.toLong())
     `when`(mockDocumentSnapshot.getString("name")).thenReturn(profileData.name)
     `when`(mockDocumentSnapshot.getString("profilePicture")).thenReturn(null)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn(profileData.username)
+    `when`(mockDocumentSnapshot.getString("email")).thenReturn(profileData.email)
     `when`(mockDocumentSnapshot.get("favoriteMusicGenres"))
         .thenReturn(profileData.favoriteMusicGenres)
 
@@ -132,121 +149,267 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `test addProfile returns true when profile is added successfully`() = runBlocking {
+  fun `test fetchProfile fails`() = runBlocking {
     // Arrange
     val userId = "testUserId"
-    val profileData =
-        ProfileData(
-            bio = "Sample bio",
-            links = 5,
-            name = "John Doe",
-            profilePicture = null,
-            username = "johndoe",
-            favoriteMusicGenres = listOf("Rock", "Pop"))
 
-    `when`(mockDocumentReference.set(profileData)).thenReturn(Tasks.forResult(null))
+    `when`(mockProfileDocumentReference.get())
+        .thenReturn(Tasks.forException(Exception("Fetch profile failed")))
 
     // Act
-    val result = repository.addProfile(userId, profileData)
+    val result = repository.fetchProfile(userId)
 
     // Assert
-    assert(result)
+    assert(result == null)
   }
 
   @Test
-  fun `test addProfile returns false when profile addition fails`() = runBlocking {
+  fun `getUsername returns username on success`(): Unit = runBlocking {
     // Arrange
     val userId = "testUserId"
-    val profileData =
-        ProfileData(
-            bio = "Sample bio",
-            links = 5,
-            name = "John Doe",
-            profilePicture = null,
-            username = "johndoe",
-            favoriteMusicGenres = listOf("Rock", "Pop"))
+    val expectedUsername = "TestUsername"
 
-    `when`(mockDocumentReference.set(profileData))
-        .thenReturn(Tasks.forException(Exception("Add failed")))
+    // Mocking behavior for Firestore document reference and snapshot
+    `when`(mockAuth.currentUser).thenReturn(mockUser)
+    `when`(mockUser.uid).thenReturn("testUserId")
+    `when`(mockProfileDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn(expectedUsername)
 
     // Act
-    val result = repository.addProfile(userId, profileData)
+    val result = repository.getUsername(userId)
 
     // Assert
-    assert(!result)
+    assertEquals(expectedUsername, result)
+    verify(mockProfileDocumentReference).get()
+    verify(mockDocumentSnapshot).getString("username")
   }
 
   @Test
-  fun `test updateProfile returns true when update is successful`() = runBlocking {
-    // Arrange
-    val userId = "testUserId"
-    val profileData =
-        ProfileData(
-            bio = "Updated bio",
-            links = 5,
-            name = "Jane Doe",
-            profilePicture = null,
-            username = "janedoe")
+  fun `getUsername should return null and log an error when an exception occurs`(): Unit =
+      runBlocking {
+        // Arrange
+        val userId = "testUserId"
+        val exception = RuntimeException("Firestore error")
 
-    `when`(mockDocumentReference.set(profileData)).thenReturn(Tasks.forResult(null))
+        // Mock Firestore behavior to throw an exception
+        `when`(mockProfileDocumentReference.get()).thenThrow(exception)
+        `when`(mockDb.collection("userProfiles")).thenReturn(mockProfileCollectionReference)
+        `when`(mockProfileCollectionReference.document(userId))
+            .thenReturn(mockProfileDocumentReference)
+
+        // Act
+        val result = repository.getUsername(userId)
+
+        // Assert
+        assertNull(result)
+        verify(mockProfileDocumentReference).get()
+      }
+
+  @Test
+  fun `getUserIdByUsername returns userId on success`(): Unit = runBlocking {
+    // Arrange
+    val username = "TestUsername"
+    val userId = "testUserId"
+    val mockQuerySnapshot: QuerySnapshot = mock(QuerySnapshot::class.java)
+
+    // Mocking behavior for Firestore query
+    `when`(mockProfileCollectionReference.whereEqualTo("username", username))
+        .thenReturn(mockProfileCollectionReference)
+    `when`(mockProfileCollectionReference.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.id).thenReturn(userId)
 
     // Act
-    val result = repository.updateProfile(userId, profileData)
+    val result = repository.getUserIdByUsername(username)
 
     // Assert
-    assert(result)
+    assertEquals(userId, result)
+    verify(mockProfileCollectionReference).whereEqualTo("username", username)
+    verify(mockProfileCollectionReference).get()
+    verify(mockQuerySnapshot).documents
+    verify(mockDocumentSnapshot).id
   }
 
   @Test
-  fun `test updateProfile returns false when update fails`() = runBlocking {
+  fun `getUserIdByUsername fails`(): Unit = runBlocking {
     // Arrange
-    val userId = "testUserId"
-    val profileData =
-        ProfileData(
-            bio = "Updated bio",
-            links = 5,
-            name = "Jane Doe",
-            profilePicture = null,
-            username = "janedoe")
+    val username = "testUsername"
 
-    `when`(mockDocumentReference.set(profileData))
-        .thenReturn(Tasks.forException(Exception("Update failed")))
+    // Mocking behavior for Firestore query
+    `when`(mockProfileCollectionReference.whereEqualTo("username", username))
+        .thenReturn(mockProfileCollectionReference)
+    `when`(mockProfileCollectionReference.get())
+        .thenReturn(Tasks.forException(Exception("getUserIdByUsername failed")))
 
     // Act
-    val result = repository.updateProfile(userId, profileData)
+    val result = repository.getUserIdByUsername(username)
 
     // Assert
-    assert(!result)
+    assertEquals(null, result)
+    verify(mockProfileCollectionReference).whereEqualTo("username", username)
+    verify(mockProfileCollectionReference).get()
   }
 
   @Test
-  fun `test deleteProfile returns true when profile is deleted successfully`() = runBlocking {
+  fun `addProfile succeeds and adds username in usernames collection`(): Unit = runBlocking {
     // Arrange
+    val profileData = ProfileData(username = "testUsername")
     val userId = "testUserId"
 
-    `when`(mockDocumentReference.delete())
-        .thenReturn(Tasks.forResult(null)) // Simulate successful deletion
+    // Mock transaction behavior
+    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
+        .thenReturn(mockTransaction)
+    `when`(mockTransaction.set(mockUsernameDocumentReference, mapOf<String, Any>()))
+        .thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
 
     // Act
-    val result = repository.deleteProfile(userId)
+    val success = repository.addProfile(userId, profileData)
 
     // Assert
-    assert(result)
+    assertTrue(success)
+
+    // Verify that the `set` method was called with the correct arguments
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockTransaction).set(mockUsernameDocumentReference, mapOf<String, Any>())
   }
 
   @Test
-  fun `test deleteProfile returns false when profile deletion fails`() = runBlocking {
+  fun `addProfile fails`() = runBlocking {
     // Arrange
-    val userId = "testUserId"
-
-    `when`(mockDocumentReference.delete())
-        .thenReturn(Tasks.forException(Exception("Delete failed")))
+    val profileData = ProfileData(username = "testUsername")
+    `when`(mockDb.runTransaction<Transaction>(any()))
+        .thenReturn(Tasks.forException(Exception("Add profile failed")))
 
     // Act
-    val result = repository.deleteProfile(userId)
+    val success = repository.addProfile("testUserId", profileData)
 
     // Assert
-    assert(!result)
+    assertFalse(success)
+  }
+
+  @Test
+  fun `updateProfile succeeds and doesn't update usernames collection`(): Unit = runBlocking {
+    // Arrange
+    val profileData = ProfileData(username = "testUsername")
+
+    `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
+    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
+        .thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.updateProfile("testUserId", profileData)
+
+    // Assert
+    assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+  }
+
+  @Test
+  fun `updateProfile succeeds and updates usernames collection`(): Unit = runBlocking {
+    // Arrange
+    val profileData = ProfileData(username = "testUsername")
+
+    `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
+        .thenReturn(mockTransaction)
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn("testOtherUsername")
+    `when`(mockTransaction.delete(mockUsernamesCollectionReference.document("testOtherUsername")))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.set(
+                mockUsernamesCollectionReference.document(profileData.username),
+                mapOf<String, Any>()))
+        .thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.updateProfile("testUserId", profileData)
+
+    // Assert
+    assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).delete(mockUsernamesCollectionReference.document("testOtherUsername"))
+    verify(mockTransaction)
+        .set(mockUsernamesCollectionReference.document(profileData.username), mapOf<String, Any>())
+  }
+
+  @Test
+  fun `updateProfile fails`() = runBlocking {
+    // Arrange
+    val profileData = ProfileData(username = "testUsername")
+
+    `when`(mockDb.runTransaction<Transaction>(any()))
+        .thenReturn(Tasks.forException(Exception("Update profile failed")))
+
+    // Act
+    val success = repository.updateProfile("testUserId", profileData)
+
+    // Assert
+    assertFalse(success)
+  }
+
+  @Test
+  fun `deleteProfile succeeds and deletes username in usernames collection`(): Unit = runBlocking {
+    // Arrange
+    `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
+    `when`(mockTransaction.delete(mockProfileDocumentReference)).thenReturn(mockTransaction)
+    `when`(mockTransaction.delete(mockUsernameDocumentReference)).thenReturn(mockTransaction)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.deleteProfile("testUserId")
+
+    // Assert
+    assertTrue(success)
+    verify(mockTransaction).get(mockProfileDocumentReference)
+    verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).delete(mockProfileDocumentReference)
+    verify(mockTransaction).delete(mockUsernameDocumentReference)
+  }
+
+  @Test
+  fun `deleteProfile fails`() = runBlocking {
+    // Arrange
+    `when`(mockDb.runTransaction<Transaction>(any()))
+        .thenReturn(Tasks.forException(Exception("Delete profile failed")))
+
+    // Act
+    val success = repository.deleteProfile("testUserId")
+
+    // Assert
+    assertFalse(success)
   }
 
   @Test
@@ -313,7 +476,7 @@ class ProfileRepositoryFirestoreTest {
 
     // Assert
     // No save operation should occur since Base64 conversion failed
-    verify(mockCollectionReference, never()).document(anyString())
+    verify(mockProfileCollectionReference, never()).document(anyString())
   }
 
   @Test
@@ -322,7 +485,7 @@ class ProfileRepositoryFirestoreTest {
     val userId = "testUserId"
     val mockDocumentReference = mock(DocumentReference::class.java)
     val mockSnapshot = mock(DocumentSnapshot::class.java)
-    `when`(mockCollectionReference.document(userId)).thenReturn(mockDocumentReference)
+    `when`(mockProfileCollectionReference.document(userId)).thenReturn(mockDocumentReference)
     `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockSnapshot))
     `when`(mockSnapshot.getString("profilePicture")).thenReturn(null)
 
@@ -334,104 +497,17 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `saveProfilePictureBase64 saves base64 image successfully`() {
+  fun `saveProfilePictureBase64 calls Firestore set() with correct data`() {
     // Arrange
-    val mockDb = mock(FirebaseFirestore::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockDocumentReference = mock(DocumentReference::class.java)
-    val mockTask = mock(Task::class.java) as Task<Void>
-    val mockSuccessListener =
-        ArgumentCaptor.forClass(OnSuccessListener::class.java)
-            as ArgumentCaptor<OnSuccessListener<Void>>
-
-    // Mock Firestore behavior
-    `when`(mockDb.collection("your_collection_name")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("user_id")).thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.set(anyMap<String, String>(), eq(SetOptions.merge())))
-        .thenReturn(mockTask)
-
-    // Ensure that addOnSuccessListener and addOnFailureListener return mockTask for chaining
-    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
-    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
-
-    val testClass =
-        object {
-          val db: FirebaseFirestore = mockDb
-
-          fun saveProfilePictureBase64(userId: String, base64Image: String) {
-            val userDoc = db.collection("your_collection_name").document(userId)
-            val profileData = mapOf("profilePicture" to base64Image)
-
-            userDoc
-                .set(profileData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("FIRESTORE", "Base64 image saved successfully!") }
-                .addOnFailureListener { e ->
-                  Log.e("FIRESTORE", "Error saving Base64 image: ${e.message}")
-                }
-          }
-        }
+    val userId = "testUserId"
+    val base64Image = "base64_image_data"
+    val profileData = mapOf("profilePicture" to base64Image)
 
     // Act
-    testClass.saveProfilePictureBase64("user_id", "base64_image_data")
-
-    // Simulate success
-    verify(mockTask).addOnSuccessListener(mockSuccessListener.capture())
-    mockSuccessListener.value.onSuccess(null)
+    repository.saveProfilePictureBase64(userId, base64Image)
 
     // Assert
-    verify(mockDocumentReference)
-        .set(mapOf("profilePicture" to "base64_image_data"), SetOptions.merge())
-    verify(mockTask).addOnSuccessListener(any())
-  }
-
-  @Test
-  fun `saveProfilePictureBase64 handles failure`() {
-    // Arrange
-    val mockDb = mock(FirebaseFirestore::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockDocumentReference = mock(DocumentReference::class.java)
-    val mockTask = mock(Task::class.java) as Task<Void>
-    val mockFailureListener =
-        ArgumentCaptor.forClass(OnFailureListener::class.java) as ArgumentCaptor<OnFailureListener>
-
-    // Mock Firestore behavior
-    `when`(mockDb.collection("your_collection_name")).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document("user_id")).thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.set(anyMap<String, String>(), eq(SetOptions.merge())))
-        .thenReturn(mockTask)
-
-    // Ensure that addOnSuccessListener and addOnFailureListener return mockTask for chaining
-    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
-    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
-
-    val testClass =
-        object {
-          val db: FirebaseFirestore = mockDb
-
-          fun saveProfilePictureBase64(userId: String, base64Image: String) {
-            val userDoc = db.collection("your_collection_name").document(userId)
-            val profileData = mapOf("profilePicture" to base64Image)
-
-            userDoc
-                .set(profileData, SetOptions.merge())
-                .addOnSuccessListener { Log.d("FIRESTORE", "Base64 image saved successfully!") }
-                .addOnFailureListener { e ->
-                  Log.e("FIRESTORE", "Error saving Base64 image: ${e.message}")
-                }
-          }
-        }
-
-    // Act
-    testClass.saveProfilePictureBase64("user_id", "base64_image_data")
-
-    // Simulate failure
-    verify(mockTask).addOnFailureListener(mockFailureListener.capture())
-    mockFailureListener.value.onFailure(Exception("Test error"))
-
-    // Assert
-    verify(mockDocumentReference)
-        .set(mapOf("profilePicture" to "base64_image_data"), SetOptions.merge())
-    verify(mockTask).addOnFailureListener(any())
+    verify(mockProfileDocumentReference).set(profileData, SetOptions.merge())
   }
 
   @Test
@@ -510,5 +586,157 @@ class ProfileRepositoryFirestoreTest {
 
     // Assert
     assertNull(result)
+  }
+
+  @Test
+  fun `isUsernameAvailable returns true when username does not exist`() = runBlocking {
+    // Arrange
+    val username = "testUsername"
+    val mockQuery: Query = mock(Query::class.java)
+    `when`(mockUsernamesCollectionReference.limit(1)).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockUsernameQuerySnapshot))
+    `when`(mockUsernameQuerySnapshot.isEmpty).thenReturn(false)
+    `when`(mockUsernameDocumentReference.get())
+        .thenReturn(Tasks.forResult(mockUsernameDocumentSnapshot))
+    `when`(mockUsernameDocumentSnapshot.exists()).thenReturn(false)
+
+    // Act
+    val result = repository.isUsernameAvailable(username)
+
+    // Assert
+    assertTrue(result)
+  }
+
+  @Test
+  fun `isUsernameAvailable returns true when usernames collection does not exist`() = runBlocking {
+    // Arrange
+    val username = "testUsername"
+    val mockQuery: Query = mock(Query::class.java)
+    `when`(mockUsernamesCollectionReference.limit(1)).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockUsernameQuerySnapshot))
+    `when`(mockUsernameQuerySnapshot.isEmpty).thenReturn(true)
+
+    // Act
+    val result = repository.isUsernameAvailable(username)
+
+    // Assert
+    assertTrue(result)
+  }
+
+  @Test
+  fun `isUsernameAvailable returns false when username exists`() = runBlocking {
+    // Arrange
+    val username = "testUsername"
+    val mockQuery: Query = mock(Query::class.java)
+    `when`(mockUsernamesCollectionReference.limit(1)).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockUsernameQuerySnapshot))
+    `when`(mockUsernameQuerySnapshot.isEmpty).thenReturn(false)
+    `when`(mockUsernameDocumentReference.get())
+        .thenReturn(Tasks.forResult(mockUsernameDocumentSnapshot))
+    `when`(mockUsernameDocumentSnapshot.exists()).thenReturn(true)
+
+    // Act
+    val result = repository.isUsernameAvailable(username)
+
+    // Assert
+    assertFalse(result)
+  }
+
+  @Test
+  fun `isUsernameAvailable returns false when error occurs`() = runBlocking {
+    // Arrange
+    val username = "testUsername"
+    val mockQuery: Query = mock(Query::class.java)
+    `when`(mockUsernamesCollectionReference.limit(1)).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockUsernameQuerySnapshot))
+    `when`(mockUsernameQuerySnapshot.isEmpty).thenReturn(false)
+    `when`(mockUsernameDocumentReference.get())
+        .thenReturn(Tasks.forException(Exception("Get document failed")))
+
+    // Act
+    val result = repository.isUsernameAvailable(username)
+
+    // Assert
+    assertFalse(result)
+  }
+
+  @Test
+  fun `test searchUsers returns list of matching users`() = runBlocking {
+    // Arrange
+    val query = "john"
+    val mockSnapshot = mock(QuerySnapshot::class.java)
+    val mockDocument1 = mock(DocumentSnapshot::class.java)
+    val mockDocument2 = mock(DocumentSnapshot::class.java)
+
+    val user1 =
+        ProfileData(
+            bio = "Bio 1",
+            links = 2,
+            name = "John Doe",
+            profilePicture = null,
+            username = "john_doe",
+            favoriteMusicGenres = listOf("Rock"))
+    val user2 =
+        ProfileData(
+            bio = "Bio 2",
+            links = 3,
+            name = "John Smith",
+            profilePicture = null,
+            username = "john_smith",
+            favoriteMusicGenres = listOf("Pop"))
+
+    `when`(mockDocument1.toObject(ProfileData::class.java)).thenReturn(user1)
+    `when`(mockDocument2.toObject(ProfileData::class.java)).thenReturn(user2)
+    `when`(mockSnapshot.documents).thenReturn(listOf(mockDocument1, mockDocument2))
+    `when`(mockProfileCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockSnapshot))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assertEquals(2, result.size)
+    assert(result.contains(user1))
+    assert(result.contains(user2))
+  }
+
+  @Test
+  fun `test searchUsers returns empty list when no matches found`() = runBlocking {
+    // Arrange
+    val query = "nonexistent"
+    val mockSnapshot = mock(QuerySnapshot::class.java)
+
+    `when`(mockSnapshot.documents).thenReturn(emptyList())
+    `when`(mockProfileCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockSnapshot))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assert(result.isEmpty())
+  }
+
+  @Test
+  fun `test searchUsers returns empty list on error`() = runBlocking {
+    // Arrange
+    val query = "john"
+    `when`(mockProfileCollectionReference.whereGreaterThanOrEqualTo("username", query))
+        .thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThanOrEqualTo("username", "$query\uf8ff")).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(Exception("Firestore error")))
+
+    // Act
+    val result = repository.searchUsers(query)
+
+    // Assert
+    assertNotNull(result)
+    assert(result.isEmpty())
   }
 }

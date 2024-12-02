@@ -15,6 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 
 class PublicPlaylistsScreenTest {
@@ -53,6 +54,26 @@ class PublicPlaylistsScreenTest {
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("publicPlaylistsTitle").assertIsDisplayed()
+  }
+
+  @Test
+  fun displayTextWhenEmpty() {
+    `when`(playlistRepository.getPublicPlaylists(any(), any())).then {
+      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf())
+    }
+    playlistViewModel.getPublicPlaylists()
+
+    composeTestRule.onNodeWithTag("emptyPlaylistsPrompt").assertIsDisplayed()
+  }
+
+  @Test
+  fun displayPlaylistsWhenNotEmpty() {
+    `when`(playlistRepository.getPublicPlaylists(any(), any())).then {
+      it.getArgument<(List<Playlist>) -> Unit>(0)(listOf(playlist))
+    }
+    playlistViewModel.getPublicPlaylists()
+
+    composeTestRule.onNodeWithTag("playlistItem").assertIsDisplayed()
   }
 
   @Test

@@ -13,9 +13,11 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
+import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -29,6 +31,7 @@ import org.mockito.kotlin.verify
 class EditPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
+  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
   private val playlist =
@@ -50,6 +53,7 @@ class EditPlaylistScreenTest {
   fun setUp() {
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
+    profileViewModel = mockk(relaxed = true)
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.EDIT_PLAYLIST)
@@ -152,30 +156,32 @@ class EditPlaylistScreenTest {
   @Test
   fun updatePlaylistButtonWorks() {
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
-
     verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    // Perform click on the "Invite Collaborators" button
+    composeTestRule.onNodeWithTag("collabButton").performClick()
+    // Verify the overlay is visible after the click
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+  }
+
+  @Test
+  fun testNavigationAfterPlaylistUpdate() {
+    composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
+    verify(navigationActions).navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
+  }
+
+  @Test
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }

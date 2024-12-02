@@ -9,11 +9,13 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import io.mockk.invoke
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +27,16 @@ import org.mockito.kotlin.verify
 class CreateNewPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
+  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
+
+  val profile =
+      ProfileData(
+          bio = "Existing bio",
+          links = 3,
+          name = "John Doe",
+          profilePicture = null,
+          username = "TestUser")
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -78,7 +89,6 @@ class CreateNewPlaylistScreenTest {
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
-    composeTestRule.onNodeWithTag("collabButton").performScrollTo().performClick()
     composeTestRule.onNodeWithTag("gradientSwitch").performScrollTo().performClick()
   }
 
@@ -100,25 +110,22 @@ class CreateNewPlaylistScreenTest {
   }
 
   @Test
-  fun testNavigationToHome() {
+  fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    // Perform click on the "Invite Collaborators" button
+    composeTestRule.onNodeWithTag("collabButton").performClick()
+    // Verify the overlay is visible after the click
+    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+  }
+
+  @Test
+  fun testNavigation() {
     composeTestRule.onNodeWithTag("Home").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
     composeTestRule.onNodeWithTag("Search").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
     composeTestRule.onNodeWithTag("Library").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
     composeTestRule.onNodeWithTag("Profile").performClick()
     verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }
