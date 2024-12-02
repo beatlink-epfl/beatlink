@@ -17,7 +17,7 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
 
   val permissionAsked: MutableState<Boolean> = mutableStateOf(false)
   val locationPermitted: MutableState<Boolean> = mutableStateOf(false)
-  val currentPosition: MutableState<LatLng> = mutableStateOf(defaultLocation)
+  val currentPosition: MutableState<LatLng?> = mutableStateOf(null)
   val isMapLoaded: MutableState<Boolean> = mutableStateOf(false)
   val moveToCurrentLocation: MutableState<CameraAction> = mutableStateOf(CameraAction.NO_ACTION)
   val permissionRequired: MutableState<Boolean> = mutableStateOf(true)
@@ -48,8 +48,8 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
         mapLocationRepository.startLocationUpdates()
 
         mapLocationRepository.locationUpdates.collect { latLng ->
-          latLng?.let {
-            currentPosition.value = it
+          if (latLng != null) {
+            currentPosition.value = latLng
             isMapLoaded.value = true
             if (isInitialLoad) {
               moveToCurrentLocation.value = CameraAction.MOVE // Move only initially
@@ -57,11 +57,10 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
             } else {
               moveToCurrentLocation.value = CameraAction.NO_ACTION // No move on subsequent updates
             }
+          } else {
+            currentPosition.value = null
+            isMapLoaded.value = true
           }
-              ?: run {
-                currentPosition.value = defaultLocation
-                isMapLoaded.value = true
-              }
         }
       }
     }

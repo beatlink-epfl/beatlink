@@ -27,19 +27,19 @@ fun MapUserTrackingView(
 
   LaunchedEffect(currentPosition, locationPermitted) {
     profileViewModel.fetchProfile()
-    if (locationPermitted && playbackState != null) {
+    if (locationPermitted && currentPosition != null && playbackState != null) {
       mapUsersViewModel.fetchMapUsers(
-          currentLocation = Location(currentPosition.latitude, currentPosition.longitude),
+          currentLocation = Location(currentPosition!!.latitude, currentPosition!!.longitude),
           radiusInMeters = radius)
     }
   }
 
   LaunchedEffect(currentPosition, locationPermitted, playbackState) {
     profileViewModel.fetchProfile()
-    if (locationPermitted && playbackState != null) {
+    if (locationPermitted && currentPosition != null && playbackState != null) {
       mapUserHandling(
           mapUser = mapUser,
-          currentPosition = currentPosition,
+          currentPosition = currentPosition!!,
           profile = profile,
           mapUsersViewModel = mapUsersViewModel)
     }

@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.map
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -46,7 +47,7 @@ class GoogleMapViewTest {
   // Test to verify the map is displayed with location permitted
   @Test
   fun googleMapView_locationPermitted_displaysMapAndMarker() {
-    val currentPosition =
+    val currentPosition: MutableState<LatLng?> =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val mapUsers = listOf(testUser)
@@ -73,7 +74,7 @@ class GoogleMapViewTest {
   // Test to verify the map is displayed with location not permitted
   @Test
   fun googleMapView_locationNotPermitted_displaysMapWithoutMarker() {
-    val currentPosition =
+    val currentPosition: MutableState<LatLng?> =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val mapUsers = listOf(testUser)
@@ -100,7 +101,7 @@ class GoogleMapViewTest {
   // Test to verify the map camera moves when instructed
   @Test
   fun googleMapView_cameraMovesOnAction() {
-    val currentPosition =
+    val currentPosition: MutableState<LatLng?> =
         mutableStateOf(LatLng(37.7749, -122.4194)) // Sample lat/lng for San Francisco
     val moveToCurrentLocation = mutableStateOf(CameraAction.MOVE)
     val mapUsers = listOf(testUser)
@@ -126,7 +127,7 @@ class GoogleMapViewTest {
 
   @Test
   fun googleMapView_clickOnUserMarker_displaysSongPreviewMapUsers() {
-    val currentPosition = mutableStateOf(LatLng(37.7749, -122.4194))
+    val currentPosition: MutableState<LatLng?> = mutableStateOf(LatLng(37.7749, -122.4194))
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val selectedUser = mutableStateOf<MapUser?>(null) // Controlled state for test
     val mapUsers = listOf(testUser)
@@ -156,7 +157,7 @@ class GoogleMapViewTest {
   // Test to verify that clicking outside SongPreviewMapUsers dismisses it
   @Test
   fun googleMapView_clickOutsideSongPreviewMapUsers_dismissesIt() {
-    val currentPosition = mutableStateOf(LatLng(37.7749, -122.4194))
+    val currentPosition: MutableState<LatLng?> = mutableStateOf(LatLng(37.7749, -122.4194))
     val moveToCurrentLocation = mutableStateOf(CameraAction.NO_ACTION)
     val selectedUser = mutableStateOf<MapUser?>(null) // Controlled state for test
     val mapUsers = listOf(testUser)
