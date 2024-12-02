@@ -98,6 +98,10 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     _authState.value = AuthState.Idle
   }
 
+  fun isSignedIn(): Boolean {
+    return authRepository.isUserSignedIn()
+  }
+
   // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
