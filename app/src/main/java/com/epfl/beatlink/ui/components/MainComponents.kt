@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -153,6 +155,40 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
         modifier = Modifier.align(Alignment.CenterStart).testTag(mainTitleTag),
     )
   }
+}
+
+@Composable
+fun ReusableOverlay(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    overlayContent: @Composable () -> Unit
+) {
+  // Semi-transparent background overlay
+  Box(
+      modifier =
+          Modifier.testTag("overlay")
+              .fillMaxSize()
+              .background(Color.Black.copy(alpha = 0.4f))
+              .pointerInput(Unit) { detectTapGestures(onTap = { onDismissRequest() }) },
+      contentAlignment = Alignment.BottomCenter) {
+        // Inner box to hold the overlay content
+        Box(
+            modifier =
+                modifier
+                    .width(384.dp)
+                    .padding(bottom = 11.dp)
+                    .border(
+                        width = 2.dp,
+                        brush = PrimaryGradientBrush,
+                        shape = RoundedCornerShape(10.dp))
+                    .pointerInput(Unit) {
+                      detectTapGestures(onTap = { /* Block tap propagation */})
+                    },
+            contentAlignment = Alignment.Center,
+        ) {
+          overlayContent()
+        }
+      }
 }
 
 @Composable
@@ -324,7 +360,10 @@ fun CornerIcons(
     iconSize: Dp = 28.dp,
     gradientBrush: Brush = IconsGradientBrush
 ) {
-  IconButton(onClick = onClick, modifier = modifier) {
+  IconButton(
+      onClick = onClick,
+      modifier = modifier,
+  ) {
     Icon(
         imageVector = icon,
         contentDescription = contentDescription,

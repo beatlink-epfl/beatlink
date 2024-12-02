@@ -111,11 +111,11 @@ class CreateNewPlaylistScreenTest {
 
   @Test
   fun invite_collaborators_button_opens_overlay() {
-    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("collabButton").performClick()
     // Verify the overlay is visible after the click
-    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
   }
 
   @Test
