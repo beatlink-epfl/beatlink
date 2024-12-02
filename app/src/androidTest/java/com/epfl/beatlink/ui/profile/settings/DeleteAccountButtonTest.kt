@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.profile.settings
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -27,6 +28,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
@@ -238,7 +240,13 @@ class DeleteAccountButtonTest {
     verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
-  fun deleteAccount_handle_empty_password() = runTest {
+  @Test
+  fun deleteAccountDialog_handleEmptyPassword_showsToastAndDoesNotDeleteAccount() = runTest {
+    // Mock Toast
+    mockkStatic(Toast::class)
+    val mockToast = mockk<Toast>(relaxed = true) // Relaxed mock to handle all methods
+    every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
+
     // Perform click on the delete button
     composeTestRule
         .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
@@ -246,20 +254,20 @@ class DeleteAccountButtonTest {
         .performClick()
 
     composeTestRule.waitForIdle()
+
+    // Ensure dialog is displayed
     composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
 
-    // Click confirm
+    // Click confirm without entering a password
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
-    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+    // Verify Toast is displayed with the correct message
+    verify { Toast.makeText(any(), "Please enter your password", Toast.LENGTH_SHORT) }
+    verify { mockToast.show() } // Verify that the show method was called
 
-    // Verify that deleteAccount is NOT called
+    // Ensure no further actions are taken
     coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
-
-    // Verify that deleteProfile is NOT called
     coVerify(exactly = 0) { profileRepository.deleteProfile(any()) }
-
-    // Verify no navigation to the login screen
     verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 }
