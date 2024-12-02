@@ -70,5 +70,12 @@ class ProfileE2ETest {
         .onNodeWithTag("editProfileDescriptionInput")
         .performTextInput("This is a test bio.")
     composeTestRule.onNodeWithTag("saveProfileButton").performClick()
+
+    // Step 7: Click the settings button and sign out of the app
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").isDisplayed()
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
+    composeTestRule.onNodeWithTag("signOutButton").isDisplayed()
+    composeTestRule.onNodeWithTag("signOutButton").performClick()
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
   }
 }

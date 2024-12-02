@@ -63,9 +63,11 @@ class M1e2eTest {
     composeTestRule.onNodeWithTag("Profile").performClick()
     composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
 
-    // Step 8: Click the home button and verify navigation to Home Screen
-    composeTestRule.onNodeWithTag("Home").isDisplayed()
-    composeTestRule.onNodeWithTag("Home").performClick()
-    composeTestRule.onNodeWithTag("MapScreen").assertIsDisplayed()
+    // Step 8: Click the settings button and sign out of the app
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").isDisplayed()
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
+    composeTestRule.onNodeWithTag("signOutButton").isDisplayed()
+    composeTestRule.onNodeWithTag("signOutButton").performClick()
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
   }
 }
