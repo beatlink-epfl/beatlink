@@ -237,4 +237,29 @@ class DeleteAccountButtonTest {
     // Verify that no navigation occurs
     verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
+
+  fun deleteAccount_handle_empty_password() = runTest {
+    // Perform click on the delete button
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
+
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+
+    // Click confirm
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+
+    // Verify that deleteAccount is NOT called
+    coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
+
+    // Verify that deleteProfile is NOT called
+    coVerify(exactly = 0) { profileRepository.deleteProfile(any()) }
+
+    // Verify no navigation to the login screen
+    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
+  }
 }
