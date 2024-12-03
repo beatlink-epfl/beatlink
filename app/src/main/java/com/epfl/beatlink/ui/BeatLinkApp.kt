@@ -159,8 +159,8 @@ fun BeatLinkApp(
           composable(Screen.SETTINGS) {
             SettingsScreen(navigationActions, firebaseAuthViewModel, mapUsersViewModel)
           }
-            // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
-            // friendRequestViewModel) }
+          // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
+          // friendRequestViewModel) }
           composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
           composable(Screen.ACCOUNT) {
             AccountScreen(
