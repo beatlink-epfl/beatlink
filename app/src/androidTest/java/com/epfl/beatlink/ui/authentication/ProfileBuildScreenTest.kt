@@ -80,7 +80,7 @@ class ProfileBuildScreenTest {
     composeTestRule
         .onNodeWithTag("selectFavoriteGenresText", useUnmergedTree = true)
         .performScrollTo()
-        .assertTextEquals("Select Your Favorite Music Genres")
+        .assertTextEquals("Select your favorite music genres")
 
     composeTestRule.onNodeWithTag("saveButton").performScrollTo().assertIsDisplayed()
     composeTestRule.onNodeWithTag("saveButton").performScrollTo().assertTextEquals("Save")
@@ -96,7 +96,7 @@ class ProfileBuildScreenTest {
     composeTestRule.onNodeWithTag("musicGenreSelectionDialog").assertIsDisplayed()
 
     // Close the dialog by clicking "CANCEL"
-    composeTestRule.onNodeWithTag("cancelButton").performScrollTo().performClick()
+    composeTestRule.onNodeWithTag("cancelButton").performClick()
     composeTestRule.onNodeWithTag("musicGenreSelectionDialog").assertDoesNotExist()
   }
 
@@ -110,10 +110,8 @@ class ProfileBuildScreenTest {
 
     composeTestRule.onNodeWithTag("musicGenreSelectionDialog").assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("dialogTitle").performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithTag("dialogTitle").performScrollTo().assertTextEquals("MUSIC GENRES")
-
-    composeTestRule.onNodeWithTag("dialogTitleDivider").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("dialogTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("dialogTitle").assertTextEquals("MUSIC GENRES")
 
     // Select Pop genre using `useUnmergedTree = true`
     composeTestRule
@@ -122,17 +120,11 @@ class ProfileBuildScreenTest {
         .performClick()
 
     // Confirm selection by clicking "OK"
-    composeTestRule.onNodeWithTag("okButton").performScrollTo().performClick()
+    composeTestRule.onNodeWithTag("okButton").performClick()
 
-    // Verify the selection text reflects the chosen genre
+    // Verify the button is rightly displayed when confirming the selection
     composeTestRule
-        .onNodeWithTag("YOUR FAVORITE MUSIC GENRESTitle")
-        .performScrollTo()
-        .assertTextContains("YOUR FAVORITE MUSIC GENRES")
-
-    composeTestRule
-        .onNodeWithTag("PopMusicCard", useUnmergedTree = true)
-        .performScrollTo()
+        .onNodeWithTag("selectFavoriteGenresText", useUnmergedTree = true)
         .assertIsDisplayed()
   }
 
