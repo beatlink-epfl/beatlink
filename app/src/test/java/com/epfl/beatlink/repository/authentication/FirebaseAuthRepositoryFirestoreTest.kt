@@ -93,6 +93,7 @@ class FirebaseAuthRepositoryFirestoreTest {
 
     // Verify signInWithEmailAndPassword is called
     verify(mockAuth).signInWithEmailAndPassword("test@example.com", "password123")
+    assertTrue(firebaseAuthRepositoryFirestore.isUserSignedIn())
   }
 
   @Test
@@ -228,7 +229,6 @@ class FirebaseAuthRepositoryFirestoreTest {
   @Test
   fun deleteAccount_shouldFailWhenReauthenticationFails() {
     val testPassword = "wrongPassword"
-    val credential = EmailAuthProvider.getCredential("test@example.com", testPassword)
 
     // Mock reauthentication failure
     val reauthTask: Task<Void> = Tasks.forException(Exception("Reauthentication failed"))

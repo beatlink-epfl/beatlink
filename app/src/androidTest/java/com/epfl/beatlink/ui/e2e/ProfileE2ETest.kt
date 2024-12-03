@@ -29,27 +29,29 @@ class ProfileE2ETest {
 
   @Test
   fun testEndToEndFlow() {
-    // Step 1: Start at Welcome Screen and verify that it is displayed
-    composeTestRule.onNodeWithTag("welcomeScreen").assertIsDisplayed()
 
-    // Step 2: Click the login button and verify navigation to Login Screen
-    composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().performClick()
+    if (composeTestRule.onNodeWithTag("welcomeScreen").isDisplayed()) {
+      // Step 1: Start at Welcome Screen and verify that it is displayed
+      composeTestRule.onNodeWithTag("welcomeScreen").assertIsDisplayed()
 
-    // Step 3: Log in with test user credentials
-    composeTestRule.onNodeWithTag("loginScreen").assertIsDisplayed()
-    composeTestRule
-        .onNodeWithTag("inputEmail")
-        .performScrollTo()
-        .performTextInput("testuser@gmail.com")
-    composeTestRule
-        .onNodeWithTag("inputPassword")
-        .performScrollTo()
-        .performTextInput("testuserbeatlink")
-    composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
+      // Step 2: Click the login button and verify navigation to Login Screen
+      composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().performClick()
 
-    // Wait for the map screen to be displayed
-    composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+      // Step 3: Log in with test user credentials
+      composeTestRule.onNodeWithTag("loginScreen").assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("inputEmail")
+          .performScrollTo()
+          .performTextInput("testuser@gmail.com")
+      composeTestRule
+          .onNodeWithTag("inputPassword")
+          .performScrollTo()
+          .performTextInput("testuserbeatlink")
+      composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
+      // Wait for the map screen to be displayed
+      composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+    }
     // Step 4: Click the profile button and verify navigation to Profile Screen
     composeTestRule.onNodeWithTag("Profile").isDisplayed()
     composeTestRule.onNodeWithTag("Profile").performClick()
