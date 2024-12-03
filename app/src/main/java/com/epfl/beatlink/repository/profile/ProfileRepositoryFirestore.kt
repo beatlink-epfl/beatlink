@@ -9,6 +9,7 @@ import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.io.ByteArrayOutputStream
@@ -154,6 +155,26 @@ open class ProfileRepositoryFirestore(
             if (username != null) {
               val usernameDocRef = db.collection("usernames").document(username)
               transaction.delete(usernameDocRef)
+            }
+
+            // Delete the friendRequests document for the user
+            val friendRequestDocRef = db.collection("friendRequests").document(userId)
+            transaction.delete(friendRequestDocRef)
+            // Clean up references to this user ID in other users' friendRequests
+            val friendRequestsCollection = db.collection("friendRequests")
+            val allFriendRequestsSnapshot = friendRequestsCollection.get().result
+            for (doc in allFriendRequestsSnapshot.documents) {
+              val docRef = doc.reference
+              val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
+              val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
+
+              // Remove userId from ownRequests and friendRequests
+              if (updatedOwnRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "ownRequests.$userId", FieldValue.delete())
+              }
+              if (updatedFriendRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "friendRequests.$userId", FieldValue.delete())
+              }
             }
           }
           .await()
