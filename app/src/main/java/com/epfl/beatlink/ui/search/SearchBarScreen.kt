@@ -50,7 +50,7 @@ fun SearchBarScreen(
   val results = remember {
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
-  val peopleResult = remember { mutableStateOf(emptyList<ProfileData>()) }
+  val peopleResult = remember { mutableStateOf(emptyList<ProfileData?>()) }
 
   if (selectedCategory.value == "People") {
     DatabaseSearchQuery(

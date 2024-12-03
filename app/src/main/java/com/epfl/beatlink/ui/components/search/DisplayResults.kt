@@ -25,7 +25,7 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 fun DisplayResults(
     tracks: List<SpotifyTrack>? = null,
     artists: List<SpotifyArtist>? = null,
-    people: List<ProfileData>? = null,
+    people: List<ProfileData?>? = null,
     playlistViewModel: PlaylistViewModel? = null,
     profileViewModel: ProfileViewModel? = null,
     onClearQuery: (() -> Unit)? = null

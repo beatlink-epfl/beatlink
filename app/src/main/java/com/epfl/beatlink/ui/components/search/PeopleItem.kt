@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.components.search
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,24 +24,32 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun PeopleItem(people: ProfileData, profileViewModel: ProfileViewModel) {
+fun PeopleItem(people: ProfileData?, profileViewModel: ProfileViewModel) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-  profileViewModel.getUserIdByUsername(people.username) { uid ->
-    if (uid == null) {
-      return@getUserIdByUsername
-    } else {
-      profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
+  if (people != null) {
+    profileViewModel.getUserIdByUsername(people.username) { uid ->
+      if (uid == null) {
+        return@getUserIdByUsername
+      } else {
+        profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
+      }
     }
+  } else {
+    Log.d("PeopleItem", "profile data null")
   }
   Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.testTag("peopleItem")) {
     Box(modifier = Modifier.padding(16.dp).size(60.dp).clip(CircleShape).testTag("peopleImage")) {
       ProfilePicture(profilePicture)
     }
     Spacer(modifier = Modifier.size(10.dp))
-    Text(
-        text = people.username,
-        style = TypographySongs.titleLarge,
-        modifier = Modifier.testTag("peopleUsername"))
+    if (people != null) {
+      Text(
+          text = people.username,
+          style = TypographySongs.titleLarge,
+          modifier = Modifier.testTag("peopleUsername"))
+    } else {
+      Log.d("PeopleItem", "profile data null")
+    }
     Spacer(modifier = Modifier.weight(1f))
     PrincipalButton("Link", "peopleLink", width = 88.dp, height = 35.dp) {}
   }
