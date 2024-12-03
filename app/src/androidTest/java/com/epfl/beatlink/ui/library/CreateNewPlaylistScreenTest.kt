@@ -15,7 +15,6 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import io.mockk.invoke
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
