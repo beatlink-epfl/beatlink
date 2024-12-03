@@ -63,11 +63,8 @@ fun DisplayResults(
       }
       people?.let {
         items(it) { person ->
-          if (profileViewModel != null && friendRequestViewModel != null) {
-            PeopleItem(
-                person,
-                profileViewModel = profileViewModel,
-                friendRequestViewModel = friendRequestViewModel)
+          if (profileViewModel != null) {
+            PeopleItem(person, profileViewModel = profileViewModel)
           }
         }
       }

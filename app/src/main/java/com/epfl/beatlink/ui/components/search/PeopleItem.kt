@@ -21,15 +21,10 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.theme.TypographySongs
-import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun PeopleItem(
-    people: ProfileData,
-    profileViewModel: ProfileViewModel,
-    friendRequestViewModel: FriendRequestViewModel
-) {
+fun PeopleItem(people: ProfileData, profileViewModel: ProfileViewModel) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
   profileViewModel.getUserIdByUsername(people.username) { uid ->
     if (uid == null) {
