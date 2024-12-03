@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.profile.settings
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -27,6 +28,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
@@ -235,6 +237,37 @@ class DeleteAccountButtonTest {
     composeTestRule.onNodeWithTag("passwordField").assertDoesNotExist()
 
     // Verify that no navigation occurs
+    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
+  }
+
+  @Test
+  fun deleteAccountDialog_handleEmptyPassword_showsToastAndDoesNotDeleteAccount() = runTest {
+    // Mock Toast
+    mockkStatic(Toast::class)
+    val mockToast = mockk<Toast>(relaxed = true) // Relaxed mock to handle all methods
+    every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
+
+    // Perform click on the delete button
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
+
+    composeTestRule.waitForIdle()
+
+    // Ensure dialog is displayed
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+
+    // Click confirm without entering a password
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    // Verify Toast is displayed with the correct message
+    verify { Toast.makeText(any(), "Please enter your password", Toast.LENGTH_SHORT) }
+    verify { mockToast.show() } // Verify that the show method was called
+
+    // Ensure no further actions are taken
+    coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
+    coVerify(exactly = 0) { profileRepository.deleteProfile(any()) }
     verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 }

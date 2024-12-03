@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.viewmodel.map.defaultLocation
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GoogleMapView(
-    currentPosition: MutableState<LatLng>,
+    currentPosition: MutableState<LatLng?>,
     moveToCurrentLocation: MutableState<CameraAction>,
     modifier: Modifier,
     locationPermitted: Boolean,
@@ -52,7 +53,7 @@ fun GoogleMapView(
 
   // Remember the camera position state and set the initial position
   val cameraPositionState = rememberCameraPositionState {
-    position = CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)
+    position = CameraPosition.fromLatLngZoom(currentPosition.value ?: defaultLocation, defaultZoom)
   }
 
   // Get the current context
@@ -66,12 +67,12 @@ fun GoogleMapView(
 
   // Launch an effect to move the camera to the current location when requested
   LaunchedEffect(moveToCurrentLocation.value, Unit) {
-    if (moveToCurrentLocation.value == CameraAction.MOVE) {
+    if (moveToCurrentLocation.value == CameraAction.MOVE && currentPosition.value != null) {
       coroutineScope.launch {
         cameraPositionState.move(
             update =
                 CameraUpdateFactory.newCameraPosition(
-                    CameraPosition.fromLatLngZoom(currentPosition.value, defaultZoom)))
+                    CameraPosition.fromLatLngZoom(currentPosition.value!!, defaultZoom)))
         moveToCurrentLocation.value = CameraAction.NO_ACTION
       }
     }
@@ -106,10 +107,10 @@ fun GoogleMapView(
         cameraPositionState = cameraPositionState,
         properties = mapProperties) {
           // Add a marker and circle for the current location if location is permitted
-          if (locationPermitted) {
+          if (locationPermitted && currentPosition.value != null) {
             currentPosition.value.let { location ->
               Marker(
-                  state = MarkerState(position = location),
+                  state = MarkerState(position = location!!),
                   title = "You are here",
                   icon =
                       getBitmapDescriptorFromDrawableResource(
