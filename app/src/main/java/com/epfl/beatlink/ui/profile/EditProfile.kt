@@ -144,11 +144,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     trailingIcon = Icons.Filled.Clear,
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
-              Spacer(modifier = Modifier.height(60.dp))
+              Spacer(modifier = Modifier.height(10.dp))
               SelectFavoriteMusicGenres(
-                  profileData?.favoriteMusicGenres ?: emptyList(),
                   onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
-              Spacer(modifier = Modifier.height(60.dp))
+              Spacer(modifier = Modifier.height(100.dp))
               PrincipalButton(
                   "Save",
                   "saveProfileButton",
