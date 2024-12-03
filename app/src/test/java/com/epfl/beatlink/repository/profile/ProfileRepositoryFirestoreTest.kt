@@ -301,7 +301,17 @@ class ProfileRepositoryFirestoreTest {
 
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
-    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
+    `when`(
+            mockTransaction.set(
+                eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>())))
         .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
@@ -318,7 +328,15 @@ class ProfileRepositoryFirestoreTest {
     assertTrue(success)
     verify(mockTransaction).get(mockProfileDocumentReference)
     verify(mockDocumentSnapshot).getString("username")
-    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockTransaction)
+        .set(eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>()))
+    verify(mockTransaction, never()).delete(any())
+    verify(mockTransaction, never())
+        .set(eq(mockUsernamesCollectionReference.document("testUsername")), any())
   }
 
   @Test
@@ -327,15 +345,27 @@ class ProfileRepositoryFirestoreTest {
     val profileData = ProfileData(username = "testUsername")
 
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
-    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
-        .thenReturn(mockTransaction)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testOtherUsername")
-    `when`(mockTransaction.delete(mockUsernamesCollectionReference.document("testOtherUsername")))
+    `when`(
+            mockTransaction.set(
+                eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.delete(
+                eq(mockUsernamesCollectionReference.document("testOtherUsername"))))
         .thenReturn(mockTransaction)
     `when`(
             mockTransaction.set(
-                mockUsernamesCollectionReference.document(profileData.username),
-                mapOf<String, Any>()))
+                eq(mockUsernamesCollectionReference.document("testUsername")),
+                eq(mapOf<String, Any>())))
         .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
@@ -351,11 +381,18 @@ class ProfileRepositoryFirestoreTest {
     // Assert
     assertTrue(success)
     verify(mockTransaction).get(mockProfileDocumentReference)
-    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
     verify(mockDocumentSnapshot).getString("username")
-    verify(mockTransaction).delete(mockUsernamesCollectionReference.document("testOtherUsername"))
     verify(mockTransaction)
-        .set(mockUsernamesCollectionReference.document(profileData.username), mapOf<String, Any>())
+        .set(eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .delete(eq(mockUsernamesCollectionReference.document("testOtherUsername")))
+    verify(mockTransaction)
+        .set(
+            eq(mockUsernamesCollectionReference.document("testUsername")), eq(mapOf<String, Any>()))
   }
 
   @Test

@@ -1,5 +1,8 @@
 package com.epfl.beatlink.model.profile
 
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+
 /**
  * A data class representing the user's profile.
  *
@@ -20,7 +23,9 @@ data class ProfileData(
     val profilePicture: String? = null,
     val username: String = "",
     val email: String = "",
-    val favoriteMusicGenres: List<String> = emptyList()
+    val favoriteMusicGenres: List<String> = emptyList(),
+    val topSongs: List<SpotifyTrack> = emptyList(),
+    val topArtists: List<SpotifyArtist> = emptyList()
 ) {
   companion object {
     const val MAX_USERNAME_LENGTH = 20

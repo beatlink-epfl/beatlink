@@ -8,6 +8,9 @@ import android.util.Base64
 import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -59,6 +62,28 @@ open class ProfileRepositoryFirestore(
   override suspend fun fetchProfile(userId: String): ProfileData? {
     return try {
       val snapshot = db.collection(collection).document(userId).get().await()
+
+      val topSongs =
+          (snapshot.get("topSongs") as? List<Map<String, Any>>)?.map {
+            SpotifyTrack(
+                name = it["name"] as String,
+                artist = it["artist"] as String,
+                trackId = it["trackId"] as String,
+                cover = it["cover"] as String,
+                duration = (it["duration"] as Long).toInt(),
+                popularity = (it["popularity"] as Long).toInt(),
+                state = State.valueOf(it["state"] as String))
+          } ?: emptyList()
+
+      val topArtists =
+          (snapshot.get("topArtists") as? List<Map<String, Any>>)?.map {
+            SpotifyArtist(
+                image = it["image"] as String,
+                name = it["name"] as String,
+                genres = it["genres"] as List<String>,
+                popularity = (it["popularity"] as Long).toInt())
+          } ?: emptyList()
+
       val profileData =
           ProfileData(
               bio = snapshot.getString("bio"),
@@ -68,7 +93,9 @@ open class ProfileRepositoryFirestore(
               username = snapshot.getString("username") ?: "",
               email = snapshot.getString("email") ?: "",
               favoriteMusicGenres =
-                  snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList())
+                  snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList(),
+              topSongs = topSongs,
+              topArtists = topArtists)
       Log.d("PROFILE_FETCH", "Fetched profile data")
       profileData
     } catch (e: Exception) {
@@ -80,8 +107,39 @@ open class ProfileRepositoryFirestore(
   override suspend fun addProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
+
+            // Serialize topSongs and topArtists to Firestore-compatible format
+            val topSongs =
+                profileData.topSongs.map {
+                  mapOf(
+                      "name" to it.name,
+                      "artist" to it.artist,
+                      "trackId" to it.trackId,
+                      "cover" to it.cover,
+                      "duration" to it.duration,
+                      "popularity" to it.popularity,
+                      "state" to it.state.name)
+                }
+
+            val topArtists =
+                profileData.topArtists.map {
+                  mapOf(
+                      "image" to it.image,
+                      "name" to it.name,
+                      "genres" to it.genres,
+                      "popularity" to it.popularity)
+                }
+
             // Add profile to `userProfiles` collection
-            transaction.set(db.collection(collection).document(userId), profileData)
+            val profileDoc = db.collection(collection).document(userId)
+            transaction.set(
+                profileDoc,
+                profileData.copy(
+                    topSongs = emptyList(),
+                    topArtists = emptyList()) // Prevent issues with incompatible objects
+                )
+            transaction.update(profileDoc, "topSongs", topSongs)
+            transaction.update(profileDoc, "topArtists", topArtists)
 
             // Add the username to the `usernames` collection
             val usernameDocRef = db.collection("usernames").document(profileData.username)
@@ -99,6 +157,29 @@ open class ProfileRepositoryFirestore(
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
+
+            // Serialize topSongs and topArtists to Firestore-compatible format
+            val topSongs =
+                profileData.topSongs.map {
+                  mapOf(
+                      "name" to it.name,
+                      "artist" to it.artist,
+                      "trackId" to it.trackId,
+                      "cover" to it.cover,
+                      "duration" to it.duration,
+                      "popularity" to it.popularity,
+                      "state" to it.state.name)
+                }
+
+            val topArtists =
+                profileData.topArtists.map {
+                  mapOf(
+                      "image" to it.image,
+                      "name" to it.name,
+                      "genres" to it.genres,
+                      "popularity" to it.popularity)
+                }
+
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
 
@@ -106,8 +187,17 @@ open class ProfileRepositoryFirestore(
             val userSnapshot = transaction.get(profileDocRef)
             val currentUsername = userSnapshot.getString("username")
 
-            // Update user profile
-            transaction.set(profileDocRef, profileData)
+            // Update user profile (excluding incompatible objects for Firestore)
+            transaction.set(
+                profileDocRef,
+                profileData.copy(
+                    topSongs = emptyList(),
+                    topArtists = emptyList()), // Prevent issues with incompatible objects
+                SetOptions.merge())
+
+            // Update topSongs and topArtists as separate fields
+            transaction.update(profileDocRef, "topSongs", topSongs)
+            transaction.update(profileDocRef, "topArtists", topArtists)
 
             // Check if the username has changed
             if (currentUsername != null && currentUsername != profileData.username) {
