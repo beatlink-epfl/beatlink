@@ -11,8 +11,8 @@ import com.epfl.beatlink.model.profile.ProfileRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 
 @Suppress("UNCHECKED_CAST")
 /**
