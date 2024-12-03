@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.map
 
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -13,9 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
@@ -41,6 +46,43 @@ fun MapScreen(
     profileViewModel: ProfileViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
+
+  val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
+  val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
+  val profileData by profileViewModel.profile.collectAsState()
+
+  // Fetch the profile when the screen loads
+  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+
+  // Fetch the user's top songs and artists
+  LaunchedEffect(Unit) {
+    spotifyApiViewModel.getCurrentUserTopTracks(
+        onSuccess = { tracks ->
+          topSongsState.value = tracks
+          Log.d("MapScreen", "Fetched ${tracks.size} top songs.")
+        },
+        onFailure = { Log.e("MapScreen", "Failed to fetch top songs.") })
+
+    spotifyApiViewModel.getCurrentUserTopArtists(
+        onSuccess = { artists ->
+          topArtistsState.value = artists
+          Log.d("MapScreen", "Fetched ${artists.size} top artists.")
+        },
+        onFailure = { Log.e("MapScreen", "Failed to fetch top artists.") })
+  }
+
+  // Update the profile once top songs, top artists, and the profile are available
+  LaunchedEffect(topSongsState.value, topArtistsState.value, profileData) {
+    if (topSongsState.value.isNotEmpty() &&
+        topArtistsState.value.isNotEmpty() &&
+        profileData != null) {
+      val updatedProfile =
+          profileData!!.copy(topSongs = topSongsState.value, topArtists = topArtistsState.value)
+      profileViewModel.updateProfile(updatedProfile)
+      Log.d("MapScreen", "Profile updated successfully.")
+    }
+  }
+
   // Permission launcher to handle permission request
   val permissionLauncher =
       rememberLauncherForActivityResult(
