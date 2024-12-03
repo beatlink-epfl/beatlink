@@ -29,32 +29,30 @@ class M1e2eTest {
   @Test
   fun testEndToEndFlow() {
 
-      if(composeTestRule.onNodeWithTag("welcomeScreen").isDisplayed()) {
+    if (composeTestRule.onNodeWithTag("welcomeScreen").isDisplayed()) {
 
-          // Step 1: Start at Welcome Screen and verify that it is displayed
-          composeTestRule.onNodeWithTag("welcomeScreen").assertIsDisplayed()
+      // Step 1: Start at Welcome Screen and verify that it is displayed
+      composeTestRule.onNodeWithTag("welcomeScreen").assertIsDisplayed()
 
-          // Step 2: Click the login button and verify navigation to Login Screen
-          composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().performClick()
+      // Step 2: Click the login button and verify navigation to Login Screen
+      composeTestRule.onNodeWithTag("welcomeLoginButton").performScrollTo().performClick()
 
-          // Step 3: Log in with test user credentials
-          composeTestRule.onNodeWithTag("loginScreen").assertIsDisplayed()
-          composeTestRule
-              .onNodeWithTag("inputEmail")
-              .performScrollTo()
-              .performTextInput("testuser@gmail.com")
-          composeTestRule
-              .onNodeWithTag("inputPassword")
-              .performScrollTo()
-              .performTextInput("testuserbeatlink")
-          composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
+      // Step 3: Log in with test user credentials
+      composeTestRule.onNodeWithTag("loginScreen").assertIsDisplayed()
+      composeTestRule
+          .onNodeWithTag("inputEmail")
+          .performScrollTo()
+          .performTextInput("testuser@gmail.com")
+      composeTestRule
+          .onNodeWithTag("inputPassword")
+          .performScrollTo()
+          .performTextInput("testuserbeatlink")
+      composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
-          // Step 5: Click the search button and verify navigation to Search Screen
-          composeTestRule.waitForIdle()
-          composeTestRule.waitUntil(5000) {
-              composeTestRule.onNodeWithTag("MapScreen").isDisplayed()
-          }
-      }
+      // Step 5: Click the search button and verify navigation to Search Screen
+      composeTestRule.waitForIdle()
+      composeTestRule.waitUntil(5000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+    }
     composeTestRule.onNodeWithTag("Search").isDisplayed()
     composeTestRule.onNodeWithTag("Search").performClick()
     composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
