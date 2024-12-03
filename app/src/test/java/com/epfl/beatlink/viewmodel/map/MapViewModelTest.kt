@@ -8,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -108,9 +109,9 @@ class MapViewModelTest {
 
     advanceUntilIdle()
 
-    // Verify that currentPosition remains at default and isMapLoaded is set to true due to
+    // Verify that currentPosition remains null and isMapLoaded is set to true due to
     // permission denial
-    assertThat(mapViewModel.currentPosition.value, `is`(defaultLocation))
+    assertThat(mapViewModel.currentPosition.value, `is`(nullValue()))
     assertThat(mapViewModel.isMapLoaded.value, `is`(true))
   }
 
