@@ -76,94 +76,101 @@ fun BeatLinkApp(
 
   val mapUsersViewModel: MapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory)
 
-  NavHost(navController = navController, startDestination = Route.WELCOME) {
-    navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
-      composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
-      composable(Screen.LOGIN) { LoginScreen(navigationActions, firebaseAuthViewModel) }
-      composable(Screen.REGISTER) {
-        SignUpScreen(
-            navigationActions, firebaseAuthViewModel, spotifyAuthViewModel, profileViewModel)
-      }
-      composable(Screen.PROFILE_BUILD) { ProfileBuildScreen(navigationActions, profileViewModel) }
-    }
+  NavHost(
+      navController = navController,
+      startDestination = if (firebaseAuthViewModel.isSignedIn()) Route.HOME else Route.WELCOME) {
+        navigation(startDestination = Screen.WELCOME, route = Route.WELCOME) {
+          composable(Screen.WELCOME) { WelcomeScreen(navigationActions) }
+          composable(Screen.LOGIN) { LoginScreen(navigationActions, firebaseAuthViewModel) }
+          composable(Screen.REGISTER) {
+            SignUpScreen(
+                navigationActions, firebaseAuthViewModel, spotifyAuthViewModel, profileViewModel)
+          }
+          composable(Screen.PROFILE_BUILD) {
+            ProfileBuildScreen(navigationActions, profileViewModel)
+          }
+        }
 
-    navigation(startDestination = Screen.HOME, route = Route.HOME) {
-      composable(Screen.HOME) {
-        MapScreen(
-            navigationActions,
-            mapViewModel,
-            spotifyApiViewModel,
-            profileViewModel,
-            mapUsersViewModel)
-      }
-      composable(Screen.PLAY_SCREEN) {
-        PlayScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-      }
-    }
+        navigation(startDestination = Screen.HOME, route = Route.HOME) {
+          composable(Screen.HOME) {
+            MapScreen(
+                navigationActions,
+                mapViewModel,
+                spotifyApiViewModel,
+                profileViewModel,
+                mapUsersViewModel)
+          }
+          composable(Screen.PLAY_SCREEN) {
+            PlayScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+          }
+        }
 
-    navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
-      composable(Screen.SEARCH) {
-        SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-      }
-      composable(Screen.SEARCH_BAR) {
-        SearchBarScreen(
-            navigationActions, spotifyApiViewModel, profileViewModel)
-      }
-      composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
-      composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
-      composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
-      composable(Screen.DISCOVER_PEOPLE) { DiscoverPeopleScreen(navigationActions) }
-    }
+        navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
+          composable(Screen.SEARCH) {
+            SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+          }
+          composable(Screen.SEARCH_BAR) {
+            SearchBarScreen(navigationActions, spotifyApiViewModel, profileViewModel)
+          }
+          composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
+          composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
+          composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
+          composable(Screen.DISCOVER_PEOPLE) { DiscoverPeopleScreen(navigationActions) }
+        }
 
-    navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
-      composable(Screen.LIBRARY) {
-        LibraryScreen(navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
-      }
-      composable(Screen.CREATE_NEW_PLAYLIST) {
-        CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
-      }
-      composable(Screen.EDIT_PLAYLIST) {
-        EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
-      }
-      composable(Screen.MY_PLAYLISTS) { MyPlaylistsScreen(navigationActions, playlistViewModel) }
-      composable(Screen.SHARED_WITH_ME_PLAYLISTS) {
-        SharedWithMeScreen(navigationActions, playlistViewModel)
-      }
-      composable(Screen.PUBLIC_PLAYLISTS) {
-        PublicPlaylistsScreen(navigationActions, playlistViewModel)
-      }
-      composable(Screen.PLAYLIST_OVERVIEW) {
-        PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
-      }
-      composable(Screen.ADD_TRACK_TO_PLAYLIST) {
-        SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
-      }
-      composable(Screen.INVITE_COLLABORATORS) {
-        InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel)
-      }
-    }
+        navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
+          composable(Screen.LIBRARY) {
+            LibraryScreen(
+                navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
+          }
+          composable(Screen.CREATE_NEW_PLAYLIST) {
+            CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+          }
+          composable(Screen.EDIT_PLAYLIST) {
+            EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+          }
+          composable(Screen.MY_PLAYLISTS) {
+            MyPlaylistsScreen(navigationActions, playlistViewModel)
+          }
+          composable(Screen.SHARED_WITH_ME_PLAYLISTS) {
+            SharedWithMeScreen(navigationActions, playlistViewModel)
+          }
+          composable(Screen.PUBLIC_PLAYLISTS) {
+            PublicPlaylistsScreen(navigationActions, playlistViewModel)
+          }
+          composable(Screen.PLAYLIST_OVERVIEW) {
+            PlaylistOverviewScreen(navigationActions, profileViewModel, playlistViewModel)
+          }
+          composable(Screen.ADD_TRACK_TO_PLAYLIST) {
+            SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
+          }
+          composable(Screen.INVITE_COLLABORATORS) {
+            InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel)
+          }
+        }
 
-    navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
-      composable(Screen.PROFILE) {
-        ProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
+        navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
+          composable(Screen.PROFILE) {
+            ProfileScreen(
+                profileViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
+          }
+          composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
+          composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
+          composable(Screen.SETTINGS) {
+            SettingsScreen(navigationActions, firebaseAuthViewModel, mapUsersViewModel)
+          }
+            // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
+            // friendRequestViewModel) }
+          composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
+          composable(Screen.ACCOUNT) {
+            AccountScreen(
+                navigationActions,
+                spotifyAuthViewModel,
+                profileViewModel,
+                firebaseAuthViewModel,
+                mapUsersViewModel)
+          }
+          composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
+        }
       }
-      composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
-      composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
-      composable(Screen.SETTINGS) {
-        SettingsScreen(navigationActions, firebaseAuthViewModel, mapUsersViewModel)
-      }
-      // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
-      // friendRequestViewModel) }
-      composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
-      composable(Screen.ACCOUNT) {
-        AccountScreen(
-            navigationActions,
-            spotifyAuthViewModel,
-            profileViewModel,
-            firebaseAuthViewModel,
-            mapUsersViewModel)
-      }
-      composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
-    }
-  }
 }
