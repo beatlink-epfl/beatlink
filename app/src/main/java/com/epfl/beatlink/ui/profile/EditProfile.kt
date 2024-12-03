@@ -153,7 +153,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                               name = name,
                               profilePicture = profileData?.profilePicture,
                               username = profileData?.username ?: "",
-                              favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList())
+                              email = profileData?.email ?: "",
+                              favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList(),
+                              topSongs = profileData?.topSongs ?: emptyList(),
+                              topArtists = profileData?.topArtists ?: emptyList())
                       profileViewModel.updateProfile(newData)
                       if (imageUri != null) {
                         profileViewModel.uploadProfilePicture(context, imageUri)
