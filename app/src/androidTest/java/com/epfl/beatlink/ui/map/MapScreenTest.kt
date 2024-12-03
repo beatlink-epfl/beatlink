@@ -38,7 +38,38 @@ class MapScreenTest {
   fun setUp() {
     MockitoAnnotations.openMocks(this)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
-    mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
+    mockApiRepository.stub {
+      onBlocking { get("me/player") } doReturn Result.success(JSONObject())
+      onBlocking { get("me/top/tracks?time_range=short_term") } doReturn
+          Result.success(
+              JSONObject(
+                  """{
+            "items": [
+                {
+                    "name": "Top Track 1",
+                    "id": "456",
+                    "artists": [{"name": "Artist 1"}],
+                    "album": {"images": [{"url": "https://example.com/track1.jpg"}]},
+                    "duration_ms": 200000,
+                    "popularity": 75
+                }
+            ]
+        }"""))
+      onBlocking { get("me/top/artists?time_range=short_term") } doReturn
+          Result.success(
+              JSONObject(
+                  """{
+            "items": [
+                {
+                    "name": "Top Artist 1",
+                    "id": "789",
+                    "images": [{"url": "https://example.com/artist1.jpg"}],
+                    "genres": ["pop", "rock"],
+                    "popularity": 85
+                }
+            ]
+        }"""))
+    }
   }
 
   @Test
