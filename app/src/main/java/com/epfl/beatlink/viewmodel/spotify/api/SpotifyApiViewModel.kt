@@ -41,7 +41,7 @@ open class SpotifyApiViewModel(
   var queue = mutableStateListOf<SpotifyTrack>()
 
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
-  fun createBeatLinkPlaylist(
+  open fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
       tracks: List<SpotifyTrack>

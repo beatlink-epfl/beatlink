@@ -77,4 +77,12 @@ open class FakeSpotifyApiViewModel(
       onFailure(emptyList(), emptyList())
     }
   }
+
+  override fun createBeatLinkPlaylist(
+    playlistName: String,
+    playlistDescription: String,
+    tracks: List<SpotifyTrack>
+  ) {
+    // Do nothing
+  }
 }

@@ -14,6 +14,7 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Before
@@ -29,6 +30,7 @@ class PlaylistOverviewScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
+    private lateinit var fakeSpotifyApiViewModel: FakeSpotifyApiViewModel
 
   private val sampleTrack =
       PlaylistTrack(
@@ -79,6 +81,7 @@ class PlaylistOverviewScreenTest {
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
+      fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
   }
 
@@ -90,7 +93,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
     // Check playlist details are displayed
@@ -111,7 +115,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
     // Check track is displayed in TrackVoteCard
@@ -126,7 +131,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
     // Check empty playlist prompt is displayed
@@ -141,7 +147,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
     // Perform click on the vote button
@@ -158,7 +165,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
     composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
@@ -173,7 +181,8 @@ class PlaylistOverviewScreenTest {
       PlaylistOverviewScreen(
           navigationActions = navigationActions,
           profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
     // Navigate to Home

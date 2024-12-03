@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
@@ -53,12 +54,14 @@ import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun PlaylistOverviewScreen(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    spotifyViewModel: SpotifyApiViewModel
 ) {
   // Observe the currently selected playlist
   val selectedPlaylistState =
@@ -166,7 +169,18 @@ fun PlaylistOverviewScreen(
 
               if (isOwner) {
                 PrincipalButton(
-                    "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
+                    "Export this playlist", "exportButton") {
+                    val spotifyTracksListToExport : MutableList<SpotifyTrack> = mutableListOf()
+                    if (selectedPlaylistState.nbTracks < 50) {
+                        for (track in selectedPlaylistState.playlistTracks) {
+                            spotifyTracksListToExport.add(track.track)
+                        }
+                    } else {
+
+                    }
+
+
+                    spotifyViewModel.createBeatLinkPlaylist(playlistName = selectedPlaylistState.playlistName, playlistDescription = selectedPlaylistState.playlistDescription, tracks = spotifyTracksListToExport) }
                 Spacer(modifier = Modifier.height(16.dp))
               }
 
