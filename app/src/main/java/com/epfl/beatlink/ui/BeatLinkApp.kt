@@ -33,7 +33,7 @@ import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
-import com.epfl.beatlink.ui.profile.settings.NotificationScreen
+import com.epfl.beatlink.ui.profile.settings.NotificationSettingsScreen
 import com.epfl.beatlink.ui.profile.settings.SettingsScreen
 import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
 import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
@@ -45,6 +45,7 @@ import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
@@ -63,6 +64,8 @@ fun BeatLinkApp(
       viewModel(factory = FirebaseAuthViewModel.Factory)
   val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModel.Factory)
   val playlistViewModel: PlaylistViewModel = viewModel(factory = PlaylistViewModel.Factory)
+  val friendRequestViewModel: FriendRequestViewModel =
+      viewModel(factory = FriendRequestViewModel.Factory)
 
   val locationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
   val mapLocationRepository =
@@ -103,7 +106,8 @@ fun BeatLinkApp(
         SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
       }
       composable(Screen.SEARCH_BAR) {
-        SearchBarScreen(navigationActions, spotifyApiViewModel, profileViewModel)
+        SearchBarScreen(
+            navigationActions, spotifyApiViewModel, profileViewModel)
       }
       composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
       composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
@@ -148,7 +152,9 @@ fun BeatLinkApp(
       composable(Screen.SETTINGS) {
         SettingsScreen(navigationActions, firebaseAuthViewModel, mapUsersViewModel)
       }
-      composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
+      // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
+      // friendRequestViewModel) }
+      composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
       composable(Screen.ACCOUNT) {
         AccountScreen(
             navigationActions,

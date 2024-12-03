@@ -86,6 +86,15 @@ open class ProfileRepositoryFirestore(
             // Add the username to the `usernames` collection
             val usernameDocRef = db.collection("usernames").document(profileData.username)
             transaction.set(usernameDocRef, mapOf<String, Any>())
+
+            // Add an empty document in the `friendRequests` collection for the user
+            val requestsDocRef = db.collection("friendRequests").document(userId)
+            transaction.set(
+                requestsDocRef,
+                mapOf(
+                    "ownRequests" to mapOf<String, Boolean>(),
+                    "friendRequests" to mapOf<String, Boolean>(),
+                    "allFriends" to mapOf<String, String>()))
           }
           .await()
       Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")

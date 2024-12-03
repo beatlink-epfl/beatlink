@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,10 +21,15 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.theme.TypographySongs
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun PeopleItem(people: ProfileData, profileViewModel: ProfileViewModel) {
+fun PeopleItem(
+    people: ProfileData,
+    profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel
+) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
   profileViewModel.getUserIdByUsername(people.username) { uid ->
     if (uid == null) {
@@ -42,6 +48,6 @@ fun PeopleItem(people: ProfileData, profileViewModel: ProfileViewModel) {
         style = TypographySongs.titleLarge,
         modifier = Modifier.testTag("peopleUsername"))
     Spacer(modifier = Modifier.weight(1f))
-    PrincipalButton("Link", "peopleLink", width = 88.dp, height = 35.dp) {}
+    PrincipalButton(buttonText = "Link", buttonTag = "peopleLink", width = 88.dp, height = 35.dp) {}
   }
 }
