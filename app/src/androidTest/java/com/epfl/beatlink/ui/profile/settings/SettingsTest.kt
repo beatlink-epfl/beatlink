@@ -69,7 +69,7 @@ class SettingsScreenTest {
 
     // Test "Notification Settings" button
     composeTestRule.onNodeWithTag("notificationSettingsButton").performClick()
-    verify { navigationActions.navigateTo(Screen.NOTIFICATIONS) }
+    verify { navigationActions.navigateTo(Screen.NOTIFICATION_SETTINGS) }
 
     // Test "Invite Friends" button
     composeTestRule.onNodeWithTag("inviteFriendsButton").performClick()

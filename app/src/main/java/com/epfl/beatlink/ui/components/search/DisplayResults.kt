@@ -19,6 +19,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.library.TrackPlaylistItem
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
@@ -28,6 +29,7 @@ fun DisplayResults(
     people: List<ProfileData>? = null,
     playlistViewModel: PlaylistViewModel? = null,
     profileViewModel: ProfileViewModel? = null,
+    friendRequestViewModel: FriendRequestViewModel? = null,
     onClearQuery: (() -> Unit)? = null
 ) {
   if (tracks.isNullOrEmpty() && artists.isNullOrEmpty() && people.isNullOrEmpty()) {

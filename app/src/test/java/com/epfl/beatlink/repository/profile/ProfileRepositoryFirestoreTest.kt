@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
@@ -60,8 +61,14 @@ class ProfileRepositoryFirestoreTest {
   private lateinit var mockProfileDocumentReference: DocumentReference
   private lateinit var mockUsernamesCollectionReference: CollectionReference
   private lateinit var mockUsernameDocumentReference: DocumentReference
+  private lateinit var mockFriendRequestsCollectionReference: CollectionReference
+  private lateinit var mockFriendRequestsDocumentReference: DocumentReference
+
   private lateinit var mockUsernameQuerySnapshot: QuerySnapshot
   private lateinit var mockUsernameDocumentSnapshot: DocumentSnapshot
+
+  private lateinit var mockFriendRequestsSnapshot: QuerySnapshot
+  private lateinit var mockFriendRequestDocumentSnapshot: DocumentSnapshot
 
   @Before
   fun setUp() {
@@ -70,12 +77,22 @@ class ProfileRepositoryFirestoreTest {
     mockAuth = mock(FirebaseAuth::class.java)
     mockDocumentSnapshot = mock(DocumentSnapshot::class.java)
     mockUser = mock(FirebaseUser::class.java)
+
     mockProfileCollectionReference = mock(CollectionReference::class.java)
     mockProfileDocumentReference = mock(DocumentReference::class.java)
+
     mockUsernamesCollectionReference = mock(CollectionReference::class.java)
     mockUsernameDocumentReference = mock(DocumentReference::class.java)
+
+    mockFriendRequestsCollectionReference = mock(CollectionReference::class.java)
+    mockFriendRequestsDocumentReference = mock(DocumentReference::class.java)
+
     mockUsernameQuerySnapshot = mock(QuerySnapshot::class.java)
     mockUsernameDocumentSnapshot = mock(DocumentSnapshot::class.java)
+
+    mockFriendRequestsSnapshot = mock(QuerySnapshot::class.java)
+    mockFriendRequestDocumentSnapshot = mock(DocumentSnapshot::class.java)
+
     mockUploadTask = mock(UploadTask::class.java)
     mockUri = mock(Uri::class.java)
     mockContext = mock(Context::class.java)
@@ -90,6 +107,10 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockDb.collection("usernames")).thenReturn(mockUsernamesCollectionReference)
     `when`(mockUsernamesCollectionReference.document("testUsername"))
         .thenReturn(mockUsernameDocumentReference)
+
+    `when`(mockDb.collection("friendRequests")).thenReturn(mockFriendRequestsCollectionReference)
+    `when`(mockFriendRequestsCollectionReference.document("testUserId"))
+        .thenReturn(mockFriendRequestsDocumentReference)
 
     repository = ProfileRepositoryFirestore(mockDb, mockAuth)
   }
@@ -254,7 +275,8 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `addProfile succeeds and adds username in usernames collection`(): Unit = runBlocking {
+  fun `addProfile succeeds and adds username in usernames collection and adds uid in friendRequests collection`():
+      Unit = runBlocking {
     // Arrange
     val profileData = ProfileData(username = "testUsername")
     val userId = "testUserId"
@@ -264,10 +286,18 @@ class ProfileRepositoryFirestoreTest {
         .thenReturn(mockTransaction)
     `when`(mockTransaction.set(mockUsernameDocumentReference, mapOf<String, Any>()))
         .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.set(
+                mockFriendRequestsDocumentReference,
+                mapOf(
+                    "ownRequests" to mapOf<String, Boolean>(),
+                    "friendRequests" to mapOf<String, Boolean>(),
+                    "allFriends" to mapOf<String, String>())))
+        .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
     `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
-      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
       Tasks.forResult(null)
     }
@@ -281,6 +311,13 @@ class ProfileRepositoryFirestoreTest {
     // Verify that the `set` method was called with the correct arguments
     verify(mockTransaction).set(mockProfileDocumentReference, profileData)
     verify(mockTransaction).set(mockUsernameDocumentReference, mapOf<String, Any>())
+    verify(mockTransaction)
+        .set(
+            mockFriendRequestsDocumentReference,
+            mapOf(
+                "ownRequests" to mapOf<String, Boolean>(),
+                "friendRequests" to mapOf<String, Boolean>(),
+                "allFriends" to mapOf<String, String>()))
   }
 
   @Test
@@ -309,7 +346,7 @@ class ProfileRepositoryFirestoreTest {
 
     // Mock runTransaction to execute the transaction block
     `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
-      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
       Tasks.forResult(null)
     }
@@ -343,7 +380,7 @@ class ProfileRepositoryFirestoreTest {
 
     // Mock runTransaction to execute the transaction block
     `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
-      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
       Tasks.forResult(null)
     }
@@ -384,9 +421,22 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockTransaction.delete(mockProfileDocumentReference)).thenReturn(mockTransaction)
     `when`(mockTransaction.delete(mockUsernameDocumentReference)).thenReturn(mockTransaction)
 
+    `when`(mockTransaction.delete(mockFriendRequestsDocumentReference)).thenReturn(mockTransaction)
+    `when`(mockDb.collection("friendRequests").get())
+        .thenReturn(Tasks.forResult(mockFriendRequestsSnapshot))
+    `when`(mockFriendRequestsSnapshot.documents)
+        .thenReturn(listOf(mockFriendRequestDocumentSnapshot))
+    `when`(mockFriendRequestDocumentSnapshot.reference)
+        .thenReturn(mockFriendRequestsDocumentReference)
+
+    val ownRequests = mapOf("testUserId" to true)
+    val friendRequests = mapOf("testUserId" to true)
+    `when`(mockFriendRequestDocumentSnapshot.get("ownRequests")).thenReturn(ownRequests)
+    `when`(mockFriendRequestDocumentSnapshot.get("friendRequests")).thenReturn(friendRequests)
+
     // Mock runTransaction to execute the transaction block
     `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
-      val transactionFunction = invocation.arguments[0] as Transaction.Function<Unit>
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
       Tasks.forResult(null)
     }
@@ -400,6 +450,13 @@ class ProfileRepositoryFirestoreTest {
     verify(mockDocumentSnapshot).getString("username")
     verify(mockTransaction).delete(mockProfileDocumentReference)
     verify(mockTransaction).delete(mockUsernameDocumentReference)
+    verify(mockTransaction).delete(mockFriendRequestsDocumentReference)
+
+    verify(mockTransaction)
+        .update(mockFriendRequestsDocumentReference, "ownRequests.testUserId", FieldValue.delete())
+    verify(mockTransaction)
+        .update(
+            mockFriendRequestsDocumentReference, "friendRequests.testUserId", FieldValue.delete())
   }
 
   @Test
