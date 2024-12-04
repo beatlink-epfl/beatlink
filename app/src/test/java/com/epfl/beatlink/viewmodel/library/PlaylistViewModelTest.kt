@@ -21,6 +21,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +44,8 @@ class PlaylistViewModelTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private val testDispatcher = StandardTestDispatcher()
+  private val mockContext: Context = mock()
+  private val mockUri: Uri = mock()
 
   private val track1 =
       PlaylistTrack(
@@ -108,6 +111,19 @@ class PlaylistViewModelTest {
           playlistCollaborators = emptyList(),
           playlistTracks = listOf(track1),
           nbTracks = 1)
+
+  private val playlistEmpty =
+      Playlist(
+          playlistID = "",
+          playlistCover = "",
+          playlistName = "",
+          playlistDescription = "",
+          playlistPublic = false,
+          userId = "",
+          playlistOwner = "",
+          playlistCollaborators = emptyList(),
+          playlistTracks = emptyList(),
+          nbTracks = 0)
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
@@ -468,11 +484,8 @@ class PlaylistViewModelTest {
 
   @Test
   fun `uploadPlaylistCover should log error if playlist ID is empty`() {
-    val mockUri: Uri = mock()
-    val mockContext: Context = mock()
-
     // Call the method
-    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlist)
+    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlistEmpty)
 
     // Verify that the repository is never called
     verify(playlistRepository, never()).uploadPlaylistCover(any(), any(), any())
@@ -480,8 +493,6 @@ class PlaylistViewModelTest {
 
   @Test
   fun `uploadPlaylistCover should invoke repository if playlist ID is valid`() {
-    val mockUri: Uri = mock()
-    val mockContext: Context = mock()
     val testDispatcher = StandardTestDispatcher()
 
     // Inject the test dispatcher into the ViewModel
@@ -522,5 +533,18 @@ class PlaylistViewModelTest {
     verify(playlistRepository).loadPlaylistCover(eq(playlist2), any())
     // Verify the callback is invoked with the correct bitmap
     assertEquals(mockBitmap, resultBitmap)
+  }
+
+  @Test
+  fun `loadPlaylistCover should log error if playlist ID is empty`() {
+    var resultBitmap: Bitmap? = null
+
+    // Call the method
+    playlistViewModel.loadPlaylistCover(playlistEmpty) { resultBitmap = it }
+
+    // Verify that the repository is never called
+    verify(playlistRepository, never()).loadPlaylistCover(any(), any())
+    // Verify the callback is not invoked
+    assertNull(resultBitmap)
   }
 }
