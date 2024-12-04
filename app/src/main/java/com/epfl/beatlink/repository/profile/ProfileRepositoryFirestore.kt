@@ -110,26 +110,9 @@ open class ProfileRepositoryFirestore(
       db.runTransaction { transaction ->
 
             // Serialize topSongs and topArtists to Firestore-compatible format
-            val topSongs =
-                profileData.topSongs.map {
-                  mapOf(
-                      "name" to it.name,
-                      "artist" to it.artist,
-                      "trackId" to it.trackId,
-                      "cover" to it.cover,
-                      "duration" to it.duration,
-                      "popularity" to it.popularity,
-                      "state" to it.state.name)
-                }
+            val topSongs = spotifyTrackToMap(profileData)
 
-            val topArtists =
-                profileData.topArtists.map {
-                  mapOf(
-                      "image" to it.image,
-                      "name" to it.name,
-                      "genres" to it.genres,
-                      "popularity" to it.popularity)
-                }
+            val topArtists = spotifyArtistToMap(profileData)
 
             // Add profile to `userProfiles` collection
             val profileDoc = db.collection(collection).document(userId)
@@ -169,26 +152,9 @@ open class ProfileRepositoryFirestore(
       db.runTransaction { transaction ->
 
             // Serialize topSongs and topArtists to Firestore-compatible format
-            val topSongs =
-                profileData.topSongs.map {
-                  mapOf(
-                      "name" to it.name,
-                      "artist" to it.artist,
-                      "trackId" to it.trackId,
-                      "cover" to it.cover,
-                      "duration" to it.duration,
-                      "popularity" to it.popularity,
-                      "state" to it.state.name)
-                }
+            val topSongs = spotifyTrackToMap(profileData)
 
-            val topArtists =
-                profileData.topArtists.map {
-                  mapOf(
-                      "image" to it.image,
-                      "name" to it.name,
-                      "genres" to it.genres,
-                      "popularity" to it.popularity)
-                }
+            val topArtists = spotifyArtistToMap(profileData)
 
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
@@ -412,5 +378,32 @@ open class ProfileRepositoryFirestore(
       Log.e("BASE64", "Error decoding Base64 to Bitmap: ${e.message}")
       null
     }
+  }
+
+  fun spotifyTrackToMap(profileData: ProfileData): List<Map<String, Any>> {
+    val topSongs =
+        profileData.topSongs.map {
+          mapOf(
+              "name" to it.name,
+              "artist" to it.artist,
+              "trackId" to it.trackId,
+              "cover" to it.cover,
+              "duration" to it.duration,
+              "popularity" to it.popularity,
+              "state" to it.state.name)
+        }
+    return topSongs
+  }
+
+  fun spotifyArtistToMap(profileData: ProfileData): List<Map<String, Any>> {
+    val topArtists =
+        profileData.topArtists.map {
+          mapOf(
+              "image" to it.image,
+              "name" to it.name,
+              "genres" to it.genres,
+              "popularity" to it.popularity)
+        }
+    return topArtists
   }
 }
