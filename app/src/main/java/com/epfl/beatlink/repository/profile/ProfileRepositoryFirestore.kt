@@ -380,7 +380,7 @@ open class ProfileRepositoryFirestore(
     }
   }
 
-  fun spotifyTrackToMap(profileData: ProfileData): List<Map<String, Any>> {
+  private fun spotifyTrackToMap(profileData: ProfileData): List<Map<String, Any>> {
     val topSongs =
         profileData.topSongs.map {
           mapOf(
@@ -395,7 +395,7 @@ open class ProfileRepositoryFirestore(
     return topSongs
   }
 
-  fun spotifyArtistToMap(profileData: ProfileData): List<Map<String, Any>> {
+  private fun spotifyArtistToMap(profileData: ProfileData): List<Map<String, Any>> {
     val topArtists =
         profileData.topArtists.map {
           mapOf(
