@@ -306,7 +306,6 @@ open class SpotifyApiViewModel(
           Log.d("SpotifyApiViewModel", "There's no playback state")
           playbackActive = false
         })
-    buildQueue()
   }
 
   /**
