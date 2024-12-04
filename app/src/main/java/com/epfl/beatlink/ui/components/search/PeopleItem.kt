@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +52,6 @@ fun PeopleItem(people: ProfileData?, profileViewModel: ProfileViewModel) {
       Log.d("PeopleItem", "profile data null")
     }
     Spacer(modifier = Modifier.weight(1f))
-    PrincipalButton("Link", "peopleLink", width = 88.dp, height = 35.dp) {}
+    PrincipalButton(buttonText = "Link", buttonTag = "peopleLink", width = 88.dp, height = 35.dp) {}
   }
 }
