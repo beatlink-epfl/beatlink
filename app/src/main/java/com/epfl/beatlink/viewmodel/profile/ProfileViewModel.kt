@@ -58,6 +58,19 @@ open class ProfileViewModel(
   val searchResult: LiveData<List<ProfileData>>
     get() = _searchResult
 
+  private val _isProfileUpdated = MutableStateFlow(false)
+  val isProfileUpdated: StateFlow<Boolean>
+    get() = _isProfileUpdated
+
+  /** Function that updates the profileUpdate flag to true */
+  fun markProfileAsUpdated() {
+    _isProfileUpdated.value = true
+  }
+
+  fun markProfileAsNotUpdated() {
+    _isProfileUpdated.value = false
+  }
+
   fun getUsername(userId: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {

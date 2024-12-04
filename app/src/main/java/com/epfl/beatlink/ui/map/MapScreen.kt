@@ -50,25 +50,38 @@ fun MapScreen(
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
   val profileData by profileViewModel.profile.collectAsState()
+  val isProfileUpdated by profileViewModel.isProfileUpdated.collectAsState()
 
   // Fetch the profile when the screen loads
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
   // Fetch the user's top songs and artists
-  LaunchedEffect(Unit) {
-    spotifyApiViewModel.getCurrentUserTopTracks(
-        onSuccess = { tracks ->
-          topSongsState.value = tracks
-          Log.d("MapScreen", "Fetched ${tracks.size} top songs.")
-        },
-        onFailure = { Log.e("MapScreen", "Failed to fetch top songs.") })
+  LaunchedEffect(isProfileUpdated) {
+    if (!isProfileUpdated) {
+      var tracksGotten = false
+      var artistsGotten = false
+      spotifyApiViewModel.getCurrentUserTopTracks(
+          onSuccess = { tracks ->
+            topSongsState.value = tracks
+            tracksGotten = true
+            if (artistsGotten) {
+              profileViewModel.markProfileAsUpdated()
+            }
+            Log.d("MapScreen", "Fetched ${tracks.size} top songs.")
+          },
+          onFailure = { Log.e("MapScreen", "Failed to fetch top songs.") })
 
-    spotifyApiViewModel.getCurrentUserTopArtists(
-        onSuccess = { artists ->
-          topArtistsState.value = artists
-          Log.d("MapScreen", "Fetched ${artists.size} top artists.")
-        },
-        onFailure = { Log.e("MapScreen", "Failed to fetch top artists.") })
+      spotifyApiViewModel.getCurrentUserTopArtists(
+          onSuccess = { artists ->
+            topArtistsState.value = artists
+            artistsGotten = true
+            if (tracksGotten) {
+              profileViewModel.markProfileAsUpdated()
+            }
+            Log.d("MapScreen", "Fetched ${artists.size} top artists.")
+          },
+          onFailure = { Log.e("MapScreen", "Failed to fetch top artists.") })
+    }
   }
 
   // Update the profile once top songs, top artists, and the profile are available
