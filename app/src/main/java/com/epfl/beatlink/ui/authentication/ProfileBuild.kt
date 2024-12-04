@@ -63,6 +63,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.SecondaryGray
+import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @SuppressLint("MutableCollectionMutableState")
@@ -82,7 +83,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   // Load profile picture
   LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
   val permissionLauncher =
-      profileViewModel.permissionLauncher(context) { uri: Uri? ->
+      permissionLauncher(context) { uri: Uri? ->
         imageUri = uri
         if (imageUri == null) {
           profilePicture.value = null

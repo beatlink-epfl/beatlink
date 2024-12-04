@@ -1,15 +1,26 @@
 package com.epfl.beatlink.ui.library
 
+import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,9 +54,12 @@ import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.ui.theme.SecondaryGray
+import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun EditPlaylistScreen(
@@ -65,7 +79,25 @@ fun EditPlaylistScreen(
   val playlistDescription by playlistViewModel.tempPlaylistDescription.collectAsState()
   val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
-  val coverImage by remember { mutableStateOf(selectedPlaylistState.playlistCover) }
+
+  // Load Playlist Cover
+  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  val coverImage = remember { mutableStateOf<Bitmap?>(null) }
+  LaunchedEffect(Unit) {
+    playlistViewModel.loadPlaylistCover(selectedPlaylistState) { coverImage.value = it }
+  }
+
+  // Permission Launcher
+  val permissionLauncher =
+      permissionLauncher(context) { uri: Uri? ->
+        imageUri = uri
+        if (imageUri == null) {
+          coverImage.value = null
+        } else {
+          profileViewModel.uploadProfilePicture(context, imageUri)
+          profileViewModel.loadProfilePicture { coverImage.value = it }
+        }
+      }
 
   var titleError by remember { mutableStateOf(false) }
   var descriptionError by remember { mutableStateOf(false) }
@@ -122,7 +154,17 @@ fun EditPlaylistScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Cover
-              PlaylistCover(coverImage)
+              Box(
+                  modifier =
+                      Modifier.background(
+                              color = SecondaryGray, shape = RoundedCornerShape(size = 10.dp))
+                          .clickable(onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
+                          .width(100.dp)
+                          .height(100.dp)
+                          .testTag("playlistCover"),
+                  contentAlignment = Alignment.Center) {
+                    PlaylistCover(coverImage, Modifier.size(55.dp))
+                  }
 
               // TITLE
               CustomInputField(
@@ -182,7 +224,7 @@ fun EditPlaylistScreen(
                   val updatedPlaylist =
                       Playlist(
                           playlistID = selectedPlaylistState.playlistID,
-                          playlistCover = coverImage,
+                          playlistCover = selectedPlaylistState.playlistCover,
                           playlistName = playlistTitle,
                           playlistDescription = playlistDescription,
                           playlistPublic = playlistIsPublic,
@@ -193,6 +235,9 @@ fun EditPlaylistScreen(
                           nbTracks = selectedPlaylistState.nbTracks)
                   playlistViewModel.updatePlaylist(updatedPlaylist)
                   playlistViewModel.selectPlaylist(updatedPlaylist)
+                  if (imageUri != Uri.EMPTY) {
+                    playlistViewModel.uploadPlaylistCover(imageUri, context, updatedPlaylist)
+                  }
                   navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
                 }
               }

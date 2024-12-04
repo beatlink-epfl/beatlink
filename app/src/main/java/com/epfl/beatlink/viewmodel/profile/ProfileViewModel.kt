@@ -4,11 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -147,48 +142,6 @@ open class ProfileViewModel(
         _searchResult.value = emptyList()
       }
     }
-  }
-
-  /**
-   * Handle the result of a permission request.
-   *
-   * @param isGranted `true` if the permission was granted, `false` otherwise.
-   * @param galleryLauncher The launcher to open the gallery if permission is granted.
-   * @param context The application context.
-   */
-  fun handlePermissionResult(
-      isGranted: Boolean,
-      galleryLauncher: ManagedActivityResultLauncher<String, Uri?>,
-      context: Context
-  ) {
-    if (isGranted) {
-      galleryLauncher.launch("image/*")
-    } else {
-      Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
-    }
-  }
-
-  @Composable
-  /**
-   * Create a permission launcher for requesting storage permissions and opening the gallery.
-   *
-   * @param context The application context.
-   * @param onResult A callback function that is called with the URI of the selected image.
-   * @return A [ManagedActivityResultLauncher] for requesting permissions.
-   */
-  fun permissionLauncher(
-      context: Context,
-      onResult: (Uri?) -> Unit
-  ): ManagedActivityResultLauncher<String, Boolean> {
-    val galleryLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent(), onResult = onResult)
-    val permissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
-            isGranted: Boolean ->
-          handlePermissionResult(isGranted, galleryLauncher, context)
-        }
-    return permissionLauncher
   }
 
   /**
