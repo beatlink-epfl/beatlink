@@ -29,7 +29,7 @@ class NotificationScreenTest {
 
   @Test
   fun notificationScreen_rendersCorrectly() {
-    composeTestRule.setContent { NotificationScreen(navigationActions = navigationActions) }
+    composeTestRule.setContent { NotificationSettingsScreen(navigationActions = navigationActions) }
 
     // Check if the title is displayed
     composeTestRule.onNodeWithTag("notificationScreenTitle").assertIsDisplayed()
