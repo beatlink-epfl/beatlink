@@ -67,6 +67,7 @@ open class ProfileViewModel(
     _isProfileUpdated.value = true
   }
 
+  /** Function that resets the profileUpdate flag to false */
   fun markProfileAsNotUpdated() {
     _isProfileUpdated.value = false
   }
