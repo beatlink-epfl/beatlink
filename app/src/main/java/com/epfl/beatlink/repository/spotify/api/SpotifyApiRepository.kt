@@ -43,14 +43,14 @@ open class SpotifyApiRepository(
       Log.d("SpotifyApiRepository", "API call to $endpoint returned code ${response.code}")
       if (response.isSuccessful) {
         if (response.body == null) {
-          Log.e("SpotifyApiRepository", "Empty response body")
+          Log.d("SpotifyApiRepository", "Empty response body")
           return Result.success(JSONObject())
         } else {
           val contentLength = response.body!!.contentLength()
           if (contentLength > 0 || contentLength == -1L) {
             Result.success(JSONObject(response.body!!.string()))
           } else {
-            Log.e("SpotifyApiRepository", "Empty response body")
+            Log.d("SpotifyApiRepository", "Empty response body")
             return Result.success(JSONObject())
           }
         }

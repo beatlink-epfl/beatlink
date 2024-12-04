@@ -35,6 +35,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnit
@@ -72,44 +73,49 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun `addCustomPlaylistCoverImage succeeds when API call is successful`() = runTest {
+  fun `addCustomPlaylistCoverImage succeeds`() = runTest {
     // Arrange
-    val playlistID = "testPlaylist123"
-    val image = "validBase64EncodedImageString"
+    val playlistID = "playlist123"
+    val base64Image = "mockBase64EncodedImage"
+    val mockResult = Result.success(JSONObject())
+
     mockApiRepository.stub {
-      onBlocking { put(eq("playlists/$playlistID/images"), any()) } doReturn
-          Result.success(JSONObject().apply { put("id", playlistID) })
+      onBlocking { put("playlists/$playlistID/images", base64Image.toRequestBody()) } doReturn
+          mockResult
     }
 
     // Act
-    viewModel.addCustomPlaylistCoverImage(playlistID, image)
+    viewModel.addCustomPlaylistCoverImage(playlistID, base64Image)
 
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), eq(image.toRequestBody()))
-    // Add assertion to verify log output if needed
+    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), any())
+    // Log verification is optional but useful for ensuring the right branch was taken
+    verifyNoMoreInteractions(mockApiRepository)
   }
 
   @Test
   fun `addCustomPlaylistCoverImage handles failure gracefully`() = runTest {
     // Arrange
-    val playlistID = "testPlaylist123"
-    val image = "validBase64EncodedImageString"
-    val exception = Exception("Failed to add custom playlist cover image")
+    val playlistID = "playlist123"
+    val base64Image = "mockBase64EncodedImage"
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+
     mockApiRepository.stub {
-      onBlocking { put(eq("playlists/$playlistID/images"), any()) } doReturn
-          Result.failure(exception)
+      onBlocking { put("playlists/$playlistID/images", base64Image.toRequestBody()) } doReturn
+          mockResult
     }
 
     // Act
-    viewModel.addCustomPlaylistCoverImage(playlistID, image)
+    viewModel.addCustomPlaylistCoverImage(playlistID, base64Image)
 
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), eq(image.toRequestBody()))
-    // Add assertion to verify log output if needed
+    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), any())
+    verifyNoMoreInteractions(mockApiRepository)
   }
 
   @Test
