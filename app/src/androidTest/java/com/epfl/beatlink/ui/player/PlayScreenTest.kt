@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -81,8 +82,8 @@ class PlayScreenTest {
     }
 
     // Assert the tracks in the queue are displayed
-    composeTestRule.onNodeWithTag("trackItem 0").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("trackItem 1").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackItem 0").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackItem 1").performScrollTo().assertIsDisplayed()
   }
 
   @Test
