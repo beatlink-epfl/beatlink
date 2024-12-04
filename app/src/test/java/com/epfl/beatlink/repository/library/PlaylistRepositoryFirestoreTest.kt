@@ -1,11 +1,17 @@
 package com.epfl.beatlink.repository.library
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -16,10 +22,12 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SetOptions
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,9 +41,11 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
+@Suppress("UNCHECKED_CAST")
 @RunWith(RobolectricTestRunner::class)
 class PlaylistRepositoryFirestoreTest {
 
@@ -51,6 +61,10 @@ class PlaylistRepositoryFirestoreTest {
   @Mock private lateinit var mockDocumentSnapshot: DocumentSnapshot
 
   private lateinit var playlistRepositoryFirestore: PlaylistRepositoryFirestore
+  private lateinit var imageUri: Uri
+  private lateinit var context: Context
+  private lateinit var mockTask: Task<DocumentSnapshot>
+  private lateinit var mockBitmap: Bitmap
 
   private val collectionPath = "playlists"
 
@@ -139,6 +153,10 @@ class PlaylistRepositoryFirestoreTest {
     mockQuery = mock(Query::class.java)
     mockQuerySnapshot = mock(QuerySnapshot::class.java)
     mockDocumentSnapshot = mock(DocumentSnapshot::class.java)
+    imageUri = mock(Uri::class.java)
+    context = mock(Context::class.java)
+    mockTask = mock(Task::class.java) as Task<DocumentSnapshot>
+    mockBitmap = mock(Bitmap::class.java)
 
     mockFirestore = mock(FirebaseFirestore::class.java)
     mockCollectionReference = mock(CollectionReference::class.java)
@@ -1068,5 +1086,60 @@ class PlaylistRepositoryFirestoreTest {
           // Verify that onFailure is called with the correct exception
           assertTrue(exception.message == "Firestore delete error")
         })
+  }
+
+  @Test
+  fun `uploadPlaylistCover should log error when image processing fails`() {
+    // Mock the resizeAndCompressImageFromUri to return null (image processing failure)
+    whenever(resizeAndCompressImageFromUri(imageUri, context)).thenReturn(null)
+
+    // Call the function under test
+    playlistRepositoryFirestore.uploadPlaylistCover(imageUri, context, playlist)
+
+    // Verify that savePlaylistCoverBase64 was NOT called
+    verify(mockCollectionReference, never()).document(anyString())
+
+    // Check that the error was logged
+    // Assuming there's a logger in place that can be verified
+  }
+
+  @Test
+  fun `savePlaylistCoverBase64 should save Base64 string to Firestore`() {
+    val base64Image = "mockBase64Image"
+
+    whenever(mockFirestore.collection("playlists")).thenReturn(mockCollectionReference)
+    whenever(mockCollectionReference.document(playlist.playlistID))
+        .thenReturn(mockDocumentReference)
+
+    // Call the function under test
+    playlistRepositoryFirestore.savePlaylistCoverBase64(playlist, base64Image)
+
+    // Verify that Firestore's set method was called with correct arguments
+    val expectedData = mapOf("playlistCover" to base64Image)
+    verify(mockDocumentReference).set(expectedData, SetOptions.merge())
+  }
+
+  @Test
+  fun `loadPlaylistCover should handle failure gracefully`() {
+    // Mock Firestore components
+    whenever(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    whenever(mockCollectionReference.document(playlist.playlistID))
+        .thenReturn(mockDocumentReference)
+    whenever(mockDocumentReference.get()).thenReturn(mockTask)
+
+    // Mock behavior for addOnSuccessListener and addOnFailureListener
+    whenever(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
+    whenever(mockTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val callback = invocation.getArgument<OnFailureListener>(0)
+      callback.onFailure(Exception("Firestore error"))
+      mockTask // Return mockTask for chainability
+    }
+
+    // Set up the callback to verify
+    var resultBitmap: Bitmap? = null
+    playlistRepositoryFirestore.loadPlaylistCover(playlist) { bitmap -> resultBitmap = bitmap }
+
+    // Assert the callback was invoked with null
+    assertNull(resultBitmap)
   }
 }
