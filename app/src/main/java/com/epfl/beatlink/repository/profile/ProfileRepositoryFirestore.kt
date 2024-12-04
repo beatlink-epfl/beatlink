@@ -2,16 +2,16 @@ package com.epfl.beatlink.repository.profile
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.tasks.await
 
 @Suppress("UNCHECKED_CAST")
@@ -86,6 +86,15 @@ open class ProfileRepositoryFirestore(
             // Add the username to the `usernames` collection
             val usernameDocRef = db.collection("usernames").document(profileData.username)
             transaction.set(usernameDocRef, mapOf<String, Any>())
+
+            // Add an empty document in the `friendRequests` collection for the user
+            val requestsDocRef = db.collection("friendRequests").document(userId)
+            transaction.set(
+                requestsDocRef,
+                mapOf(
+                    "ownRequests" to mapOf<String, Boolean>(),
+                    "friendRequests" to mapOf<String, Boolean>(),
+                    "allFriends" to mapOf<String, String>()))
           }
           .await()
       Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")
@@ -145,6 +154,26 @@ open class ProfileRepositoryFirestore(
             if (username != null) {
               val usernameDocRef = db.collection("usernames").document(username)
               transaction.delete(usernameDocRef)
+            }
+
+            // Delete the friendRequests document for the user
+            val friendRequestDocRef = db.collection("friendRequests").document(userId)
+            transaction.delete(friendRequestDocRef)
+            // Clean up references to this user ID in other users' friendRequests
+            val friendRequestsCollection = db.collection("friendRequests")
+            val allFriendRequestsSnapshot = friendRequestsCollection.get().result
+            for (doc in allFriendRequestsSnapshot.documents) {
+              val docRef = doc.reference
+              val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
+              val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
+
+              // Remove userId from ownRequests and friendRequests
+              if (updatedOwnRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "ownRequests.$userId", FieldValue.delete())
+              }
+              if (updatedFriendRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "friendRequests.$userId", FieldValue.delete())
+              }
             }
           }
           .await()
@@ -215,57 +244,6 @@ open class ProfileRepositoryFirestore(
   }
 
   /**
-   * Resize and compress an image from a URI and convert it to a Base64-encoded string.
-   *
-   * @param uri The URI of the image.
-   * @param context The application context.
-   * @param maxWidth The maximum width for resizing the image (default is 512 pixels).
-   * @param maxHeight The maximum height for resizing the image (default is 512 pixels).
-   * @param quality The quality level for JPEG compression, ranging from 0 to 100 (default is 80,
-   *   where 100 is maximum quality).
-   * @return A Base64-encoded string representing the resized and compressed image, or `null` if the
-   *   operation fails.
-   */
-  fun resizeAndCompressImageFromUri(
-      uri: Uri,
-      context: Context,
-      maxWidth: Int = 512,
-      maxHeight: Int = 512,
-      quality: Int = 80
-  ): String? {
-    return try {
-      val contentResolver = context.contentResolver
-      val inputStream = contentResolver.openInputStream(uri)
-      val originalBitmap = BitmapFactory.decodeStream(inputStream)
-      inputStream?.close()
-
-      // Resize the bitmap
-      val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
-      val resizedBitmap =
-          if (aspectRatio > 1) {
-            // Landscape image
-            Bitmap.createScaledBitmap(
-                originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
-          } else {
-            // Portrait image
-            Bitmap.createScaledBitmap(
-                originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
-          }
-
-      // Compress the resized bitmap
-      val outputStream = ByteArrayOutputStream()
-      resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-      val compressedBytes = outputStream.toByteArray()
-
-      // Convert to Base64
-      Base64.encodeToString(compressedBytes, Base64.DEFAULT)
-    } catch (e: Exception) {
-      Log.e("COMPRESS", "Error resizing and compressing image: ${e.message}")
-      null
-    }
-  }
-
-  /**
    * Save a Base64-encoded profile picture to the `userProfiles` collection in Firestore.
    *
    * @param userId The unique identifier of the user.
@@ -276,21 +254,5 @@ open class ProfileRepositoryFirestore(
     val profileData = mapOf("profilePicture" to base64Image)
 
     userDoc.set(profileData, SetOptions.merge())
-  }
-
-  /**
-   * Convert a Base64-encoded string to a Bitmap.
-   *
-   * @param base64 The Base64-encoded string representation of the image.
-   * @return A Bitmap object if the conversion is successful, or `null` if an error occurs.
-   */
-  fun base64ToBitmap(base64: String): Bitmap? {
-    return try {
-      val bytes = Base64.decode(base64, Base64.DEFAULT)
-      BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-    } catch (e: Exception) {
-      Log.e("BASE64", "Error decoding Base64 to Bitmap: ${e.message}")
-      null
-    }
   }
 }

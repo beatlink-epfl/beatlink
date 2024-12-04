@@ -43,7 +43,7 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 fun SearchBarScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
 ) {
   val selectedCategory = remember { mutableStateOf("Songs") }
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }

@@ -18,7 +18,7 @@ package com.epfl.beatlink.model.library
  */
 data class Playlist(
     val playlistID: String,
-    val playlistCover: String,
+    val playlistCover: String?,
     val playlistName: String,
     val playlistDescription: String = "",
     val playlistPublic: Boolean = false,
