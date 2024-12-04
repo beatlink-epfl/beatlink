@@ -81,7 +81,8 @@ class PlayScreenTest {
     }
 
     // Assert the tracks in the queue are displayed
-    composeTestRule.onNodeWithTag("trackItem")
+    composeTestRule.onNodeWithTag("trackItem 0").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("trackItem 1").assertIsDisplayed()
   }
 
   @Test

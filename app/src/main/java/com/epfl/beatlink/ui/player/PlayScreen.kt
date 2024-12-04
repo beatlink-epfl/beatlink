@@ -209,19 +209,19 @@ fun TrackList(spotifyApiViewModel: SpotifyApiViewModel) {
                       .padding(top = 25.dp)
                       .testTag("emptyQueue"))
         } else {
-          spotifyApiViewModel.queue.forEach { track -> TrackItem(track = track) }
+          spotifyApiViewModel.queue.forEachIndexed() { index, track -> TrackItem(track, index) }
         }
       }
 }
 
 @Composable
-fun TrackItem(track: SpotifyTrack) {
+fun TrackItem(track: SpotifyTrack, index: Int) {
   Box(
       modifier =
           Modifier.padding(5.dp)
               .clip(RoundedCornerShape(5.dp))
               .fillMaxWidth(0.92f)
-              .testTag("trackItem")) {
+              .testTag("trackItem $index")) {
         Row(
             modifier = Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),
             verticalAlignment = Alignment.CenterVertically) {
