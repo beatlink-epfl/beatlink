@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -42,6 +44,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 
+@Suppress("UNCHECKED_CAST")
 class ProfileRepositoryFirestoreTest {
 
   private lateinit var repository: ProfileRepositoryFirestore
@@ -524,7 +527,7 @@ class ProfileRepositoryFirestoreTest {
             .thenReturn(mockBitmap)
 
         // Act
-        val result = repository.base64ToBitmap(validBase64)
+        val result = base64ToBitmap(validBase64)
 
         // Assert
         assertNotNull(result)
@@ -539,7 +542,7 @@ class ProfileRepositoryFirestoreTest {
     val invalidBase64 = "InvalidString"
 
     // Act
-    val bitmap = repository.base64ToBitmap(invalidBase64)
+    val bitmap = base64ToBitmap(invalidBase64)
 
     // Assert
     assertNull(bitmap)
@@ -553,7 +556,7 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockContentResolver.openInputStream(mockUri)).thenThrow(RuntimeException("File error"))
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     assertNull(result)
@@ -563,7 +566,7 @@ class ProfileRepositoryFirestoreTest {
   fun `test uploadProfilePicture logs error on failure`() {
     // Arrange
     val userId = "testUserId"
-    `when`(repository.resizeAndCompressImageFromUri(mockUri, mockContext)).thenReturn(null)
+    `when`(resizeAndCompressImageFromUri(mockUri, mockContext)).thenReturn(null)
 
     // Act
     repository.uploadProfilePicture(mockUri, mockContext, userId)
@@ -646,7 +649,7 @@ class ProfileRepositoryFirestoreTest {
         }
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     val expectedBase64 = Base64.encodeToString(sampleCompressedBytes, Base64.DEFAULT)
@@ -676,7 +679,7 @@ class ProfileRepositoryFirestoreTest {
         .thenThrow(RuntimeException("Test Exception"))
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     assertNull(result)

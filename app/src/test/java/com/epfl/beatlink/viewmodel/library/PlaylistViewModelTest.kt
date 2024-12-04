@@ -1,5 +1,8 @@
 package com.epfl.beatlink.viewmodel.library
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
@@ -18,6 +21,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,17 +30,22 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("UNCHECKED_CAST")
 class PlaylistViewModelTest {
   @get:Rule val instantExecutorRule = InstantTaskExecutorRule()
 
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private val testDispatcher = StandardTestDispatcher()
+  private val mockContext: Context = mock()
+  private val mockUri: Uri = mock()
 
   private val track1 =
       PlaylistTrack(
@@ -93,7 +102,7 @@ class PlaylistViewModelTest {
   private val playlist2 =
       Playlist(
           playlistID = "2",
-          playlistCover = "",
+          playlistCover = "iVBORw0KGgoAAAANSUhEUgAAAAUA",
           playlistName = "playlist 2",
           playlistDescription = "testingggg 2",
           playlistPublic = false,
@@ -102,6 +111,19 @@ class PlaylistViewModelTest {
           playlistCollaborators = emptyList(),
           playlistTracks = listOf(track1),
           nbTracks = 1)
+
+  private val playlistEmpty =
+      Playlist(
+          playlistID = "",
+          playlistCover = "",
+          playlistName = "",
+          playlistDescription = "",
+          playlistPublic = false,
+          userId = "",
+          playlistOwner = "",
+          playlistCollaborators = emptyList(),
+          playlistTracks = emptyList(),
+          nbTracks = 0)
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
@@ -458,5 +480,71 @@ class PlaylistViewModelTest {
     playlistViewModel.updateTemporallyCollaborators(listOf("user1", "user2"))
     // Assert
     assertEquals(listOf("user1", "user2"), playlistViewModel.tempPlaylistCollaborators.first())
+  }
+
+  @Test
+  fun `uploadPlaylistCover should log error if playlist ID is empty`() {
+    // Call the method
+    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlistEmpty)
+
+    // Verify that the repository is never called
+    verify(playlistRepository, never()).uploadPlaylistCover(any(), any(), any())
+  }
+
+  @Test
+  fun `uploadPlaylistCover should invoke repository if playlist ID is valid`() {
+    val testDispatcher = StandardTestDispatcher()
+
+    // Inject the test dispatcher into the ViewModel
+    playlistViewModel = PlaylistViewModel(playlistRepository, testDispatcher)
+
+    // Mock the repository method
+    doNothing().`when`(playlistRepository).uploadPlaylistCover(any(), any(), any())
+
+    // Call the method
+    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlist2)
+
+    // Advance the dispatcher to execute the coroutine
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Verify that the repository method is invoked
+    verify(playlistRepository).uploadPlaylistCover(mockUri, mockContext, playlist2)
+  }
+
+  @Test
+  fun `loadPlaylistCover should invoke repository and callback if playlist ID is valid`() {
+    val mockBitmap: Bitmap = mock()
+    val callbackSlot = argumentCaptor<(Bitmap?) -> Unit>()
+
+    // Stub the repository to invoke the callback with a mock bitmap
+    doAnswer {
+          val callback = it.getArgument<(Bitmap?) -> Unit>(1)
+          callback(mockBitmap)
+        }
+        .whenever(playlistRepository)
+        .loadPlaylistCover(eq(playlist2), callbackSlot.capture())
+
+    var resultBitmap: Bitmap? = null
+
+    // Call the method
+    playlistViewModel.loadPlaylistCover(playlist2) { resultBitmap = it }
+
+    // Verify that the repository method is invoked
+    verify(playlistRepository).loadPlaylistCover(eq(playlist2), any())
+    // Verify the callback is invoked with the correct bitmap
+    assertEquals(mockBitmap, resultBitmap)
+  }
+
+  @Test
+  fun `loadPlaylistCover should log error if playlist ID is empty`() {
+    var resultBitmap: Bitmap? = null
+
+    // Call the method
+    playlistViewModel.loadPlaylistCover(playlistEmpty) { resultBitmap = it }
+
+    // Verify that the repository is never called
+    verify(playlistRepository, never()).loadPlaylistCover(any(), any())
+    // Verify the callback is not invoked
+    assertNull(resultBitmap)
   }
 }

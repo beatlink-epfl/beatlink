@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
+import com.epfl.beatlink.utils.ImageUtils.handlePermissionResult
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -315,7 +316,7 @@ class ProfileViewModelTest {
     val mockContext = mock(Context::class.java)
 
     // Act
-    profileViewModel.handlePermissionResult(true, mockGalleryLauncher, mockContext)
+    handlePermissionResult(true, mockGalleryLauncher, mockContext)
 
     // Assert
     verify(mockGalleryLauncher).launch("image/*") // Verify galleryLauncher was called
@@ -337,7 +338,7 @@ class ProfileViewModelTest {
           .thenReturn(toastMock)
 
       // Act
-      profileViewModel.handlePermissionResult(false, mockGalleryLauncher, mockContext)
+      handlePermissionResult(false, mockGalleryLauncher, mockContext)
 
       // Assert
       verify(mockGalleryLauncher, never()).launch(any()) // Ensure galleryLauncher is NOT called

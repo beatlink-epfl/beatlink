@@ -1,15 +1,21 @@
 package com.epfl.beatlink.repository.library
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 @Suppress("UNCHECKED_CAST")
 class PlaylistRepositoryFirestore(
@@ -82,7 +88,7 @@ class PlaylistRepositoryFirestore(
   }
 
   /** Helper function: Convert Playlist to a Map for Firestore */
-  fun playlistToMap(playlist: Playlist): Map<String, Any> {
+  fun playlistToMap(playlist: Playlist): Map<String, Any?> {
     return mapOf(
         "playlistID" to playlist.playlistID,
         "playlistCover" to playlist.playlistCover,
@@ -305,5 +311,40 @@ class PlaylistRepositoryFirestore(
       Log.e(TAG, "Unexpected error in deletePlaylist", e)
       onFailure(e)
     }
+  }
+
+  /** Uploads the playlist cover image to Firestore */
+  override fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist) {
+    val base64Image = resizeAndCompressImageFromUri(imageUri, context)
+    if (base64Image != null) {
+      savePlaylistCoverBase64(playlist, base64Image)
+    } else {
+      Log.e("UPLOAD_PLAYLIST_COVER_ERROR", "Failed to convert image to Base64")
+    }
+  }
+
+  /** Saves the playlist cover image as a Base64 string in Firestore */
+  fun savePlaylistCoverBase64(playlist: Playlist, base64Image: String) {
+    val playlistDoc = db.collection(collectionPath).document(playlist.playlistID)
+    val playlistData = mapOf("playlistCover" to base64Image)
+
+    playlistDoc.set(playlistData, SetOptions.merge())
+  }
+
+  /** Loads the playlist cover image from Firestore */
+  override fun loadPlaylistCover(playlist: Playlist, onBitmapLoaded: (Bitmap?) -> Unit) {
+    val playlistDoc = db.collection(collectionPath).document(playlist.playlistID)
+
+    playlistDoc
+        .get()
+        .addOnSuccessListener { document ->
+          val cover = document.getString("playlistCover")
+          val bitmap = cover?.let { base64ToBitmap(it) }
+          onBitmapLoaded(bitmap)
+        }
+        .addOnFailureListener { e ->
+          Log.e("LOAD_PLAYLIST_COVER_ERROR", "Error loading playlist cover", e)
+          onBitmapLoaded(null)
+        }
   }
 }

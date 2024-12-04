@@ -1,5 +1,9 @@
 package com.epfl.beatlink.model.library
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+
 interface PlaylistRepository {
   /** Generates and returns a new unique ID for a playlist item */
   fun getNewUid(): String
@@ -50,4 +54,10 @@ interface PlaylistRepository {
 
   /** Deletes a playlist by its ID from Firestore */
   fun deletePlaylistById(id: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  /** Uploads a playlist cover image to Firestore */
+  fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist)
+
+  /** Loads a playlist cover image from Firestore */
+  fun loadPlaylistCover(playlist: Playlist, onBitmapLoaded: (Bitmap?) -> Unit)
 }

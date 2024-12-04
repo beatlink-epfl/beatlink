@@ -24,13 +24,9 @@ open class SpotifyApiViewModel(
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
-  var deviceId: String? = null
-
   var playbackActive by mutableStateOf(false)
 
   var isPlaying by mutableStateOf(false)
-
-  var triggerChange by mutableStateOf(true)
 
   var currentTrack by mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE))
 
@@ -252,7 +248,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Fetches the current playback state. */
-  fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
+  private fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
@@ -290,6 +286,7 @@ open class SpotifyApiViewModel(
     }
   }
 
+  /** Updates the player state. */
   fun updatePlayer() {
     getPlaybackState(
         onSuccess = {
@@ -304,14 +301,11 @@ open class SpotifyApiViewModel(
               isPlaying = currentTrack.state == State.PLAY
             }
           }
-          triggerChange = !triggerChange
         },
         onFailure = {
           Log.d("SpotifyApiViewModel", "There's no playback state")
           playbackActive = false
-          triggerChange = !triggerChange
         })
-    buildQueue()
   }
 
   /**
