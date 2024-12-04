@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.player
 
 import android.annotation.SuppressLint
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,10 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,12 +40,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.R
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryPurple
@@ -57,53 +54,22 @@ import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayScreen(
     navigationActions: NavigationActions,
-    api: SpotifyApiViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-  SharedPlayerEffect(api, mapUsersViewModel)
+  SharedPlayerEffect(spotifyApiViewModel, mapUsersViewModel)
 
-  LaunchedEffect(api.playbackActive) {
-    if (!api.playbackActive) {
-      navigationActions.goBack()
-    }
+  LaunchedEffect(spotifyApiViewModel.playbackActive) {
+    if (!spotifyApiViewModel.playbackActive) navigationActions.goBack()
   }
 
   Scaffold(
       modifier = Modifier.testTag("playScreen"),
-      topBar = {
-        CenterAlignedTopAppBar(
-            modifier = Modifier.testTag("topAppBar"),
-            colors = TopAppBarDefaults.topAppBarColors(titleContentColor = PrimaryPurple),
-            title = {
-              Text(
-                  text = "Now Playing",
-                  fontSize = 20.sp,
-                  modifier = Modifier.testTag("topBarTitle"),
-                  style = TypographySongs.headlineLarge)
-            },
-            navigationIcon = {
-              IconButton(
-                  modifier = Modifier.testTag("backButton"),
-                  onClick = { navigationActions.goBack() }) {
-                    Icon(
-                        modifier = Modifier.size(30.dp),
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Go back",
-                        tint = PrimaryPurple)
-                  }
-            })
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      },
+      topBar = { PlayScreenTopBar(navigationActions) },
       content = { pd ->
         Column(
             modifier =
@@ -112,109 +78,168 @@ fun PlayScreen(
                     .background(
                         Brush.verticalGradient(colors = listOf(Color.White, SecondaryPurple)))
                     .testTag("playScreenContent")) {
-              PlayScreenUpperBox(api)
-              PlayScreenLowerBox(api)
+              PlayScreenUpperBox(spotifyApiViewModel)
+              Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                PlayScreenLowerBox(spotifyApiViewModel)
+              }
+            }
+      })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PlayScreenTopBar(navigationActions: NavigationActions) {
+  CenterAlignedTopAppBar(
+      modifier = Modifier.testTag("topAppBar"),
+      colors = TopAppBarDefaults.topAppBarColors(titleContentColor = PrimaryPurple),
+      title = {
+        Text(
+            text = "Now Playing",
+            fontSize = 20.sp,
+            style = TypographySongs.headlineLarge,
+            modifier = Modifier.testTag("topBarTitle"))
+      },
+      navigationIcon = {
+        IconButton(
+            onClick = { navigationActions.goBack() }, modifier = Modifier.testTag("backButton")) {
+              Icon(
+                  imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                  contentDescription = "Go back",
+                  tint = PrimaryPurple,
+                  modifier = Modifier.size(30.dp))
             }
       })
 }
 
 @Composable
-fun PlayScreenUpperBox(api: SpotifyApiViewModel) {
-  Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.65F)) {
-    Card(
-        modifier =
-            Modifier.align(Alignment.CenterHorizontally)
-                .size(250.dp)
-                .padding(15.dp)
-                .testTag("albumCover"),
-        shape = RoundedCornerShape(5.dp),
-    ) {
-      AsyncImage(
-          model = api.currentTrack.cover,
-          contentDescription = "Album cover",
-          modifier = Modifier.fillMaxSize())
+fun TrackCard(imageUrl: String, size: Dp, contentDescription: String) {
+  Card(
+      modifier = Modifier.size(size).testTag("albumCover"),
+      shape = RoundedCornerShape(5.dp),
+  ) {
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = contentDescription,
+        modifier = Modifier.fillMaxSize())
+  }
+}
+
+@Composable
+fun PlayerButton(onClick: () -> Unit, @DrawableRes iconRes: Int, description: String) {
+  IconButton(onClick = onClick) {
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = description,
+        modifier = Modifier.size(50.dp),
+        tint = Color.Unspecified)
+  }
+}
+
+@Composable
+fun PlaybackControls(spotifyApiViewModel: SpotifyApiViewModel) {
+  Row(
+      horizontalArrangement = Arrangement.spacedBy(35.dp, Alignment.CenterHorizontally),
+      modifier = Modifier.padding(30.dp)) {
+        PlayerButton(
+            onClick = {
+              spotifyApiViewModel.previousSong()
+              spotifyApiViewModel.updatePlayer()
+            },
+            iconRes = R.drawable.skip_backward,
+            description = "Go back to previous song")
+        PlayerButton(
+            onClick = {
+              if (spotifyApiViewModel.isPlaying) spotifyApiViewModel.pausePlayback()
+              else spotifyApiViewModel.playPlayback()
+            },
+            iconRes = if (spotifyApiViewModel.isPlaying) R.drawable.pause else R.drawable.play,
+            description = if (spotifyApiViewModel.isPlaying) "Pause" else "Play")
+        PlayerButton(
+            onClick = {
+              spotifyApiViewModel.skipSong()
+              spotifyApiViewModel.updatePlayer()
+            },
+            iconRes = R.drawable.skip_forward,
+            description = "Skip to next song")
+      }
+}
+
+@Composable
+fun PlayScreenUpperBox(spotifyApiViewModel: SpotifyApiViewModel) {
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding(15.dp)) {
+      TrackCard(spotifyApiViewModel.currentAlbum.cover, 250.dp, "Album cover")
     }
     Text(
-        text = api.currentTrack.name,
+        text = spotifyApiViewModel.currentTrack.name,
         modifier =
             Modifier.testTag("trackName")
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 15.dp),
         style = TypographySongs.headlineLarge)
     Text(
-        text = api.currentAlbum.artist,
+        text = spotifyApiViewModel.currentAlbum.artist,
         modifier = Modifier.testTag("artistName").align(Alignment.CenterHorizontally),
         style = TypographySongs.headlineMedium)
     Text(
-        text = "${api.currentAlbum.name} - ${api.currentAlbum.year}",
+        text =
+            "${spotifyApiViewModel.currentAlbum.name} - ${spotifyApiViewModel.currentAlbum.year}",
         modifier = Modifier.testTag("albumNameYear").align(Alignment.CenterHorizontally),
         style = TypographySongs.headlineSmall)
-    Box(modifier = Modifier.align(Alignment.CenterHorizontally).padding(30.dp)) {
-      Row(horizontalArrangement = Arrangement.spacedBy(35.dp, Alignment.CenterHorizontally)) {
-        IconButton(
-            modifier = Modifier.testTag("previousSongButton"),
-            onClick = {
-              api.previousSong()
-              api.updatePlayer()
-            }) {
-              Icon(
-                  modifier = Modifier.size(50.dp),
-                  painter = painterResource(R.drawable.skip_backward),
-                  contentDescription = "Go back to previous song",
-                  tint = Color.Unspecified)
-            }
-        IconButton(
-            modifier = Modifier.testTag("playSongButton"),
-            onClick = {
-              if (api.isPlaying) {
-                api.pausePlayback()
-              } else {
-                api.playPlayback()
-              }
-            }) {
-              if (api.isPlaying) {
-                Icon(
-                    painter = painterResource(R.drawable.pause),
-                    contentDescription = "Pause",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(50.dp))
-              } else {
-                Icon(
-                    painter = painterResource(R.drawable.play),
-                    contentDescription = "Play",
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(50.dp))
-              }
-            }
-        IconButton(
-            modifier = Modifier.testTag("skipSongButton"),
-            onClick = {
-              api.skipSong()
-              api.updatePlayer()
-            }) {
-              Icon(
-                  modifier = Modifier.size(50.dp),
-                  painter = painterResource(R.drawable.skip_forward),
-                  contentDescription = "Skip to next song",
-                  tint = Color.Unspecified)
-            }
-      }
+    Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+      PlaybackControls(spotifyApiViewModel)
     }
   }
 }
 
+@Composable
+fun TrackList(spotifyApiViewModel: SpotifyApiViewModel) {
+  Column(
+      modifier =
+          Modifier.padding(top = 35.dp)
+              .verticalScroll(rememberScrollState())
+              .fillMaxHeight()
+              .fillMaxWidth(),
+      horizontalAlignment = Alignment.CenterHorizontally) {
+        if (spotifyApiViewModel.queue.isEmpty()) {
+          Text(
+              text = "The track list is empty",
+              modifier =
+                  Modifier.align(Alignment.CenterHorizontally)
+                      .padding(top = 25.dp)
+                      .testTag("emptyQueue"))
+        } else {
+          spotifyApiViewModel.queue.forEach { track -> TrackItem(track = track) }
+        }
+      }
+}
+
+@Composable
+fun TrackItem(track: SpotifyTrack) {
+  Box(
+      modifier =
+          Modifier.padding(5.dp)
+              .clip(RoundedCornerShape(5.dp))
+              .fillMaxWidth(0.92f)
+              .testTag("trackItem")) {
+        Row(
+            modifier = Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+              Box(modifier = Modifier.padding(3.dp)) {
+                TrackCard(imageUrl = track.cover, size = 55.dp, contentDescription = "Album cover")
+              }
+              Column(modifier = Modifier.padding(start = 10.dp)) {
+                Text(text = track.name, style = TypographySongs.titleLarge)
+                Text(text = track.artist, style = TypographySongs.titleMedium)
+              }
+            }
+      }
+}
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
-fun PlayScreenLowerBox(api: SpotifyApiViewModel) {
-
-  var queue by remember { mutableStateOf(api.queue) }
-
-  api.buildQueue()
-
-  LaunchedEffect(api.queue) { queue = api.queue }
-
+fun PlayScreenLowerBox(spotifyApiViewModel: SpotifyApiViewModel) {
   Scaffold(
-      modifier = Modifier.fillMaxWidth(),
       containerColor = Color.Transparent,
       topBar = {
         Row(
@@ -233,63 +258,5 @@ fun PlayScreenLowerBox(api: SpotifyApiViewModel) {
               Spacer(modifier = Modifier.weight(1f))
             }
       },
-      content = { _ ->
-        Column(
-            modifier =
-                Modifier.padding(top = 35.dp)
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxHeight()
-                    .fillMaxWidth()) {
-              if (queue.isEmpty()) {
-                Text(
-                    text = "The track list is empty",
-                    modifier =
-                        Modifier.testTag("emptyQueue")
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 25.dp))
-              } else {
-                for (i in 0 until queue.size) {
-                  Box(
-                      modifier =
-                          Modifier.padding(vertical = 10.dp)
-                              .clip(RoundedCornerShape(5.dp))
-                              .fillMaxWidth(0.92F)
-                              .align(Alignment.CenterHorizontally)
-                              .testTag("trackBox${i}")) {
-                        Row(
-                            modifier =
-                                Modifier.background(Color(0x59FFFFFF)).fillMaxWidth().height(60.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                              Card(
-                                  modifier =
-                                      Modifier.size(55.dp)
-                                          .padding(start = 5.dp)
-                                          .testTag("albumCover"),
-                                  shape = RoundedCornerShape(5.dp),
-                              ) {
-                                AsyncImage(
-                                    model = queue[i].cover,
-                                    contentDescription = "Album cover",
-                                    modifier = Modifier.fillMaxSize())
-                              }
-                              Column(
-                                  modifier =
-                                      Modifier.align(Alignment.CenterVertically)
-                                          .padding(start = 10.dp)) {
-                                    Text(
-                                        text = queue[i].name,
-                                        modifier = Modifier.testTag("trackName"),
-                                        style = TypographySongs.titleLarge)
-                                    Text(
-                                        text = "${queue[i].artist} - ${queue[i].name}",
-                                        modifier = Modifier.testTag("albumArtistNameIn"),
-                                        style = TypographySongs.titleMedium)
-                                  }
-                              Spacer(modifier = Modifier.weight(1f))
-                            }
-                      }
-                }
-              }
-            }
-      })
+      content = { TrackList(spotifyApiViewModel) })
 }
