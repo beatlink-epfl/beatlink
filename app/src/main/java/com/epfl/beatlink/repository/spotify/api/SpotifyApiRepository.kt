@@ -29,6 +29,10 @@ open class SpotifyApiRepository(
             .url("https://api.spotify.com/v1/$endpoint")
             .addHeader("Authorization", "Bearer $token")
 
+    if (endpoint.contains("playlists") && endpoint.contains("images")) {
+      requestBuilder.addHeader("Content-Type", "image/jpeg")
+    }
+
     // Apply the specific HTTP method configuration (GET, POST, etc.)
     requestConfig(requestBuilder)
 
@@ -36,9 +40,20 @@ open class SpotifyApiRepository(
 
     return try {
       val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+      Log.d("SpotifyApiRepository", "API call to $endpoint returned code ${response.code}")
       if (response.isSuccessful) {
-        response.body?.let { Result.success(JSONObject(it.string())) }
-            ?: Result.failure(Exception("Empty response body"))
+        if (response.body == null) {
+          Log.e("SpotifyApiRepository", "Empty response body")
+          return Result.success(JSONObject())
+        } else {
+          val contentLength = response.body!!.contentLength()
+          if (contentLength > 0) {
+            Result.success(JSONObject(response.body!!.string()))
+          } else {
+            Log.e("SpotifyApiRepository", "Empty response body")
+            return Result.success(JSONObject())
+          }
+        }
       } else {
         Log.e("SpotifyApiRepository", "API call failed with code ${response.code}")
         Log.e("SpotifyApiRepository", "Response: ${response.body?.string()}")

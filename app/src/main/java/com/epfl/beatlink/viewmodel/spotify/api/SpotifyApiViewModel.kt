@@ -40,7 +40,7 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
-  /** Add custom playlist cover image which is a Base64-encoded JPEG string*/
+  /** Add custom playlist cover image which is a Base64-encoded JPEG string */
   fun addCustomPlaylistCoverImage(playlistID: String, image: String) {
     viewModelScope.launch {
       val result = apiRepository.put("playlists/$playlistID/images", image.toRequestBody())
@@ -57,7 +57,7 @@ open class SpotifyApiViewModel(
       playlistName: String,
       playlistDescription: String = "",
       tracks: List<SpotifyTrack>
-  ) : String? {
+  ): String? {
     var playlistId: String? = null
     createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
       playlistId = id
@@ -271,7 +271,11 @@ open class SpotifyApiViewModel(
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
-        onSuccess(result.getOrNull()!!)
+        if (result.getOrNull()!!.has("is_playing")) {
+          onSuccess(result.getOrNull()!!)
+        } else {
+          onFailure()
+        }
       } else {
         onFailure()
       }
@@ -320,13 +324,13 @@ open class SpotifyApiViewModel(
             }
           }
           triggerChange = !triggerChange
+          buildQueue()
         },
         onFailure = {
           Log.d("SpotifyApiViewModel", "There's no playback state")
           playbackActive = false
           triggerChange = !triggerChange
         })
-    buildQueue()
   }
 
   /**
