@@ -26,7 +26,6 @@ import org.mockito.kotlin.verify
 class CreateNewPlaylistScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
-  private lateinit var profileViewModel: ProfileViewModel
   private lateinit var navigationActions: NavigationActions
 
   val profile =
@@ -88,7 +87,6 @@ class CreateNewPlaylistScreenTest {
   @Test
   fun buttonsWorkCorrectly() {
     composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
-    composeTestRule.onNodeWithTag("gradientSwitch").performScrollTo().performClick()
   }
 
   @Test
