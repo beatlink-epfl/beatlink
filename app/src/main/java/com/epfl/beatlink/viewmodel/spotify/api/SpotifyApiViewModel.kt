@@ -394,7 +394,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
-  fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
+  private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
     val album = track.getJSONObject("album")
 

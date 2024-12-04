@@ -23,7 +23,7 @@ data class ProfileData(
     val profilePicture: String? = null,
     val username: String = "",
     val email: String = "",
-    val favoriteMusicGenres: List<String> = emptyList(),
+    var favoriteMusicGenres: List<String> = emptyList(),
     val topSongs: List<SpotifyTrack> = emptyList(),
     val topArtists: List<SpotifyArtist> = emptyList()
 ) {
@@ -36,14 +36,25 @@ data class ProfileData(
 enum class MusicGenre(val displayName: String) {
   POP("Pop"),
   RAP("Rap"),
+  RANDB("R&B"),
   ROCK("Rock"),
+  COUNTRY("Country"),
+  SOUL("Soul"),
+  PUNK("Punk"),
   JAZZ("Jazz"),
   ELECTRO("Electro"),
   CLASSICAL("Classical"),
   HIP_HOP("Hip Hop"),
   EDM("EDM"),
   REGGAE("Reggae"),
-  METAL("Metal");
+  REGGAETON("Reggaeton"),
+  METAL("Metal"),
+  KPOP("K-Pop"),
+  JPOP("J-Pop"),
+  HOUSE("House"),
+  TECHNO("Techno"),
+  DNB("Drum and Bass"),
+  LOFI("Lo-Fi");
 
   companion object {
     const val MAX_SELECTABLE_GENRES = 4
