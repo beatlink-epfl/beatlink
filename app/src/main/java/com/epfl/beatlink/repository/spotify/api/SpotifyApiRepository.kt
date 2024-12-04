@@ -47,7 +47,7 @@ open class SpotifyApiRepository(
           return Result.success(JSONObject())
         } else {
           val contentLength = response.body!!.contentLength()
-          if (contentLength > 0) {
+          if (contentLength > 0 || contentLength == -1L) {
             Result.success(JSONObject(response.body!!.string()))
           } else {
             Log.e("SpotifyApiRepository", "Empty response body")
