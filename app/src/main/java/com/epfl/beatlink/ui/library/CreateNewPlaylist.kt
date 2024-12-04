@@ -189,7 +189,7 @@ fun CreateNewPlaylistScreen(
                           playlistTracks = emptyList(),
                           nbTracks = 0)
                   playlistViewModel.addPlaylist(newPlaylist)
-                  if (imageUri != null) {
+                  if (imageUri != Uri.EMPTY) {
                     playlistViewModel.uploadPlaylistCover(imageUri, context, newPlaylist)
                   }
                   playlistViewModel.resetTemporaryState()

@@ -313,7 +313,7 @@ class PlaylistRepositoryFirestore(
     }
   }
 
-  /** Adds a track to a playlist in Firestore */
+  /** Uploads the playlist cover image to Firestore */
   override fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist) {
     val base64Image = resizeAndCompressImageFromUri(imageUri, context)
     if (base64Image != null) {
