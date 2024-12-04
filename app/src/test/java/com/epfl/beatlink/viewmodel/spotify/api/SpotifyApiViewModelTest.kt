@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -70,7 +71,47 @@ class SpotifyApiViewModelTest {
     Dispatchers.resetMain() // Reset the Main dispatcher after tests
   }
 
-  @Test
+    @Test
+    fun `addCustomPlaylistCoverImage succeeds when API call is successful`() = runTest {
+        // Arrange
+        val playlistID = "testPlaylist123"
+        val image = "validBase64EncodedImageString"
+        mockApiRepository.stub {
+            onBlocking { put(eq("playlists/$playlistID/images"), any()) } doReturn Result.success(JSONObject().apply { put("id", playlistID) })
+        }
+
+        // Act
+        viewModel.addCustomPlaylistCoverImage(playlistID, image)
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(mockApiRepository).put(eq("playlists/$playlistID/images"), eq(image.toRequestBody()))
+        // Add assertion to verify log output if needed
+    }
+
+    @Test
+    fun `addCustomPlaylistCoverImage handles failure gracefully`() = runTest {
+        // Arrange
+        val playlistID = "testPlaylist123"
+        val image = "validBase64EncodedImageString"
+        val exception = Exception("Failed to add custom playlist cover image")
+        mockApiRepository.stub {
+            onBlocking { put(eq("playlists/$playlistID/images"), any()) } doReturn Result.failure(exception)
+        }
+
+        // Act
+        viewModel.addCustomPlaylistCoverImage(playlistID, image)
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Assert
+        verify(mockApiRepository).put(eq("playlists/$playlistID/images"), eq(image.toRequestBody()))
+        // Add assertion to verify log output if needed
+    }
+
+
+    @Test
   fun `createBeatLinkPlaylist creates playlist and adds tracks successfully`() = runTest {
     // Arrange: Mock responses for getCurrentUserId, createEmptySpotifyPlaylist, and
     // addTracksToPlaylist

@@ -40,15 +40,30 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  /** Add custom playlist cover image which is a Base64-encoded JPEG string*/
+  fun addCustomPlaylistCoverImage(playlistID: String, image: String) {
+    viewModelScope.launch {
+      val result = apiRepository.put("playlists/$playlistID/images", image.toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Custom playlist cover image added successfully")
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to add custom playlist cover image")
+      }
+    }
+  }
+
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
   fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
       tracks: List<SpotifyTrack>
-  ) {
-    createEmptySpotifyPlaylist(playlistName, playlistDescription) { playlistId ->
-      addTracksToPlaylist(playlistId, tracks)
+  ) : String? {
+    var playlistId: String? = null
+    createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
+      playlistId = id
+      addTracksToPlaylist(id, tracks)
     }
+    return playlistId
   }
 
   /** Adds tracks to a Spotify playlist. */
