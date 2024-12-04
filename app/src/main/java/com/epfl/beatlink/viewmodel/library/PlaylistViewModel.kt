@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -172,6 +173,14 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
       // Update the playlist in the repository
       updatePlaylist(updatedPlaylist)
     } ?: run { Log.e("PlaylistViewModel", "No playlist selected to update track likes") }
+  }
+
+  fun getFinalListTracks(): List<SpotifyTrack> {
+    return selectedPlaylist_.value?.playlistTracks
+      ?.sortedByDescending { it.likes } // Sort by likes in descending order
+      ?.take(50) // Take at most 50 tracks
+      ?.map { it.track } // Map to SpotifyTrack
+      ?: emptyList() // Return an empty list if no playlist is selected
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
