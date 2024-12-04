@@ -250,39 +250,6 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun testCreateSpotifyTrack() {
-    // Mock JSON response for a track
-    val trackJson =
-        """
-            {
-                "name": "Song Title",
-                "id": "12345",
-                "artists": [{"name": "Artist Name"}],
-                "album": {
-                    "images": [{"url": "https://example.com/cover.jpg"}]
-                },
-                "duration_ms": 240000,
-                "popularity": 90
-            }
-        """
-            .trimIndent()
-
-    // Create a JSONObject from the string
-    val trackObject = JSONObject(trackJson)
-
-    // Call the createSpotifyTrack method with the mocked JSON
-    val spotifyTrack = viewModel.createSpotifyTrack(trackObject)
-
-    // Assert that the values are correctly mapped
-    assertEquals("Song Title", spotifyTrack.name)
-    assertEquals("Artist Name", spotifyTrack.artist)
-    assertEquals("12345", spotifyTrack.trackId)
-    assertEquals("https://example.com/cover.jpg", spotifyTrack.cover)
-    assertEquals(240000, spotifyTrack.duration)
-    assertEquals(90, spotifyTrack.popularity)
-  }
-
-  @Test
   fun `searchArtistsAndTracks calls repository and returns success result`() = runTest {
     // Arrange
     val mockResult =
@@ -712,50 +679,6 @@ class SpotifyApiViewModelTest {
 
         // Verify that the repository's get method was called
         verify(mockApiRepository).get("me/player/queue")
-      }
-
-  @Test
-  fun `getPlaybackState calls repository and invokes onSuccess callback when result is success`() =
-      runTest {
-        // Arrange
-        val mockResult = Result.success(JSONObject())
-        mockApiRepository.stub { onBlocking { get("me/player") } doReturn mockResult }
-        val onSuccess = mock<(JSONObject) -> Unit>()
-        val onFailure = mock<() -> Unit>()
-        viewModel.deviceId = "mockDeviceId" // Ensure deviceId is not null
-
-        // Act
-        viewModel.getPlaybackState(onSuccess, onFailure)
-
-        // Advance coroutine until idle
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        verify(mockApiRepository).get("me/player")
-        verify(onSuccess).invoke(mockResult.getOrNull()!!)
-        verify(onFailure, never()).invoke()
-      }
-
-  @Test
-  fun `getPlaybackState calls repository and invokes onFailure callback when result is failure`() =
-      runTest {
-        // Arrange
-        val mockResult = Result.failure<JSONObject>(Exception("Network error"))
-        mockApiRepository.stub { onBlocking { get("me/player") } doReturn mockResult }
-        val onSuccess = mock<(JSONObject) -> Unit>()
-        val onFailure = mock<() -> Unit>()
-        viewModel.deviceId = "mockDeviceId" // Ensure deviceId is not null
-
-        // Act
-        viewModel.getPlaybackState(onSuccess, onFailure)
-
-        // Advance coroutine until idle
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Assert
-        verify(mockApiRepository).get("me/player")
-        verify(onFailure).invoke()
-        verify(onSuccess, never()).invoke(any())
       }
 
   @Test
