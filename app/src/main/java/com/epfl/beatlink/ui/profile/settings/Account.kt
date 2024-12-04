@@ -129,7 +129,7 @@ fun AccountScreen(
                   return@TextButton
                 }
                 val currentProfile = profileData
-
+                profileViewModel.markProfileAsNotUpdated()
                 profileViewModel.deleteProfile()
                 mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.deleteAccount(
