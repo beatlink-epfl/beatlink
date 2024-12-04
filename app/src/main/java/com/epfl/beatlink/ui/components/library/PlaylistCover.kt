@@ -25,7 +25,7 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
 fun PlaylistCover(
     coverImage: MutableState<Bitmap?>,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit = {}
 ) {
   // Playlist Cover
   Box(
