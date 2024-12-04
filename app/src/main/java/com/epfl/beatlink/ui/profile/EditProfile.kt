@@ -36,9 +36,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.profile.MusicGenre
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
+import com.epfl.beatlink.ui.authentication.MusicGenreSelectionDialog
+import com.epfl.beatlink.ui.authentication.SelectFavoriteMusicGenres
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -70,6 +73,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
   }
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+  var isGenreSelectionVisible by remember { mutableStateOf(false) }
   // Load profile picture
   LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
 
@@ -140,7 +144,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     trailingIcon = Icons.Filled.Clear,
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
-              Spacer(modifier = Modifier.height(120.dp))
+              Spacer(modifier = Modifier.height(10.dp))
+              SelectFavoriteMusicGenres(
+                  onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
+              Spacer(modifier = Modifier.height(100.dp))
               PrincipalButton(
                   "Save",
                   "saveProfileButton",
@@ -164,6 +171,17 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                       e.printStackTrace()
                     }
                   })
+
+              if (isGenreSelectionVisible) {
+                MusicGenreSelectionDialog(
+                    musicGenres = MusicGenre.getAllGenres(),
+                    selectedGenres = profileData?.favoriteMusicGenres!!.toMutableList(),
+                    onDismissRequest = { isGenreSelectionVisible = false },
+                    onGenresSelected = { selectedGenres ->
+                      profileData?.favoriteMusicGenres = selectedGenres
+                      isGenreSelectionVisible = false
+                    })
+              }
             }
       })
 }

@@ -59,4 +59,11 @@ interface FirebaseAuthRepository {
    * @param onFailure Callback that is invoked if an error occurs.
    */
   fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  /**
+   * Get the signing state of the currently authenticated user.
+   *
+   * @return A boolean indicating whether the user is signed in.
+   */
+  fun isUserSignedIn(): Boolean
 }
