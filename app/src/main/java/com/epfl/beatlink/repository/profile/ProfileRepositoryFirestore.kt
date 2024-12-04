@@ -12,6 +12,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.io.ByteArrayOutputStream
@@ -144,6 +145,15 @@ open class ProfileRepositoryFirestore(
             // Add the username to the `usernames` collection
             val usernameDocRef = db.collection("usernames").document(profileData.username)
             transaction.set(usernameDocRef, mapOf<String, Any>())
+
+            // Add an empty document in the `friendRequests` collection for the user
+            val requestsDocRef = db.collection("friendRequests").document(userId)
+            transaction.set(
+                requestsDocRef,
+                mapOf(
+                    "ownRequests" to mapOf<String, Boolean>(),
+                    "friendRequests" to mapOf<String, Boolean>(),
+                    "allFriends" to mapOf<String, String>()))
           }
           .await()
       Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")
@@ -235,6 +245,26 @@ open class ProfileRepositoryFirestore(
             if (username != null) {
               val usernameDocRef = db.collection("usernames").document(username)
               transaction.delete(usernameDocRef)
+            }
+
+            // Delete the friendRequests document for the user
+            val friendRequestDocRef = db.collection("friendRequests").document(userId)
+            transaction.delete(friendRequestDocRef)
+            // Clean up references to this user ID in other users' friendRequests
+            val friendRequestsCollection = db.collection("friendRequests")
+            val allFriendRequestsSnapshot = friendRequestsCollection.get().result
+            for (doc in allFriendRequestsSnapshot.documents) {
+              val docRef = doc.reference
+              val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
+              val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
+
+              // Remove userId from ownRequests and friendRequests
+              if (updatedOwnRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "ownRequests.$userId", FieldValue.delete())
+              }
+              if (updatedFriendRequests?.containsKey(userId) == true) {
+                transaction.update(docRef, "friendRequests.$userId", FieldValue.delete())
+              }
             }
           }
           .await()

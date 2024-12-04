@@ -68,7 +68,7 @@ fun SettingsScreen(
               }
               Spacer(modifier = Modifier.height(24.dp))
               PrincipalButton("Notification Settings", "notificationSettingsButton") {
-                navigationActions.navigateTo(Screen.NOTIFICATIONS)
+                navigationActions.navigateTo(Screen.NOTIFICATION_SETTINGS)
               }
               Spacer(modifier = Modifier.height(24.dp))
               PrincipalButton("Invite Friends", "inviteFriendsButton") {
