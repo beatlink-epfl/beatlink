@@ -154,7 +154,8 @@ fun BeatLinkApp(
           composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
           composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
           composable(Screen.SETTINGS) {
-            SettingsScreen(navigationActions, firebaseAuthViewModel, mapUsersViewModel)
+            SettingsScreen(
+                navigationActions, firebaseAuthViewModel, mapUsersViewModel, profileViewModel)
           }
           composable(Screen.NOTIFICATIONS) { NotificationScreen(navigationActions) }
           composable(Screen.ACCOUNT) {
