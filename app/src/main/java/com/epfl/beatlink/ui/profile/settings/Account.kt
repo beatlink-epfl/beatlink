@@ -124,6 +124,10 @@ fun AccountScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
+                if (password.isEmpty()) {
+                  Toast.makeText(context, "Please enter your password", Toast.LENGTH_SHORT).show()
+                  return@TextButton
+                }
                 val currentProfile = profileData
 
                 profileViewModel.deleteProfile()
@@ -134,6 +138,7 @@ fun AccountScreen(
                       navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
                       Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
                           .show()
+                      password = ""
                       showDialog = false
                     },
                     onFailure = {
@@ -141,6 +146,7 @@ fun AccountScreen(
                       Toast.makeText(
                               context, "Account deletion failed: ${it.message}", Toast.LENGTH_SHORT)
                           .show()
+                      password = ""
                       showDialog = false
                     })
               }) {

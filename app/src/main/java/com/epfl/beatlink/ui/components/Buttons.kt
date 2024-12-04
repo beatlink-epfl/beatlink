@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
+import com.epfl.beatlink.ui.theme.primaryRed
+import com.epfl.beatlink.ui.theme.primaryWhite
 
 /** Principal Button filled with Gradient color */
 @Composable
@@ -59,15 +61,15 @@ fun FilledButton(buttonText: String, buttonTag: String, onClick: () -> Unit) {
 @Composable
 fun ViewDescriptionButton(onClick: () -> Unit) {
   Row(
-      horizontalArrangement = Arrangement.SpaceBetween,
+      horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.border(
                   width = 1.dp,
                   color = MaterialTheme.colorScheme.primary,
                   shape = RoundedCornerShape(size = 20.dp))
-              .width(140.dp)
-              .height(24.dp)
+              .width(150.dp)
+              .height(30.dp)
               .clickable { onClick() }
               .semantics { contentDescription = "View Description" }
               .background(
@@ -118,8 +120,8 @@ fun VoteButton(
               Text(
                   text = playlistTrack.likes.toString(),
                   color =
-                      if (isVoted) MaterialTheme.colorScheme.primary
-                      else MaterialTheme.colorScheme.secondary,
+                      if (isVoted) MaterialTheme.colorScheme.primaryWhite
+                      else MaterialTheme.colorScheme.primaryRed,
                   modifier = Modifier.testTag("nbVote"))
             }
       }

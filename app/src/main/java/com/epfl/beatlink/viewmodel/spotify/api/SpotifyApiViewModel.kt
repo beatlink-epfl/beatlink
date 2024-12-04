@@ -394,7 +394,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Creates a SpotifyTrack object from a JSON object. */
-  fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
+  private fun createSpotifyTrack(track: JSONObject): SpotifyTrack {
     val artist = track.getJSONArray("artists").getJSONObject(0)
     val album = track.getJSONObject("album")
 
@@ -430,6 +430,42 @@ open class SpotifyApiViewModel(
         popularity = artist.getInt("popularity"))
   }
 
+  /**
+   * Creates a UserPlaylist object from a JSON object.
+   *
+   * @param playlist The JSON object representing the playlist.
+   * @return The constructed UserPlaylist object.
+   */
+  private fun createUserPlaylist(playlist: JSONObject): UserPlaylist {
+    val name = playlist.getString("name")
+    val id = playlist.getString("id")
+    val owner = playlist.getJSONObject("owner").getString("id")
+    val public = playlist.getBoolean("public")
+    val imagesArray = playlist.optJSONArray("images")
+    val coverUrl =
+        if (imagesArray != null && imagesArray.length() > 0)
+            imagesArray.getJSONObject(0).getString("url")
+        else ""
+    val nbTracks = playlist.getJSONObject("tracks").getInt("total")
+    val tracks = mutableListOf<SpotifyTrack>()
+
+    return UserPlaylist(
+        playlistID = id,
+        ownerID = owner,
+        playlistCover = coverUrl,
+        playlistName = name,
+        playlistPublic = public,
+        playlistTracks = tracks,
+        nbTracks = nbTracks)
+  }
+
+  /**
+   * Fetches the current user's Spotify playlists.
+   *
+   * @param onSuccess Callback function to be invoked with the list of user playlists if the fetch
+   *   is successful.
+   * @param onFailure Callback function to be invoked with an empty list if the fetch fails.
+   */
   open fun getCurrentUserPlaylists(
       onSuccess: (List<UserPlaylist>) -> Unit,
       onFailure: (List<UserPlaylist>) -> Unit
@@ -441,27 +477,15 @@ open class SpotifyApiViewModel(
         val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
         val playlists = mutableListOf<UserPlaylist>()
         for (i in 0 until items.length()) {
-          val playlist = items.getJSONObject(i)
-          val name = playlist.getString("name")
-          Log.d("SpotifyApiViewModel", "Playlist: $name")
-          val id = playlist.getString("id")
-          val owner = playlist.getJSONObject("owner").getString("id")
-          val public = playlist.getBoolean("public")
-          val coverUrl = playlist.getJSONArray("images").getJSONObject(0).getString("url")
-          val nbTracks = playlist.getJSONObject("tracks").getInt("total")
-          val tracks = mutableListOf<SpotifyTrack>()
-
-          val userPlaylist =
-              UserPlaylist(
-                  playlistID = id,
-                  ownerID = owner,
-                  playlistCover = coverUrl,
-                  playlistName = name,
-                  playlistPublic = public,
-                  playlistTracks = tracks,
-                  nbTracks = nbTracks)
-          if (public) {
-            playlists.add(userPlaylist)
+          val playlist = items.optJSONObject(i)
+          if (playlist != null) {
+            val userPlaylist = createUserPlaylist(playlist)
+            // Only add the playlist if it's public
+            if (userPlaylist.playlistPublic) {
+              playlists.add(userPlaylist)
+            }
+          } else {
+            Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
           }
         }
         onSuccess(playlists)

@@ -15,7 +15,6 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import io.mockk.invoke
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -111,11 +110,11 @@ class CreateNewPlaylistScreenTest {
 
   @Test
   fun invite_collaborators_button_opens_overlay() {
-    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertDoesNotExist()
+    composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("collabButton").performClick()
     // Verify the overlay is visible after the click
-    composeTestRule.onNodeWithTag("inviteCollaboratorsOverlay").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
   }
 
   @Test

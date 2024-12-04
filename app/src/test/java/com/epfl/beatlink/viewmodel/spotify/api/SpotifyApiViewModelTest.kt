@@ -250,39 +250,6 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
-  fun testCreateSpotifyTrack() {
-    // Mock JSON response for a track
-    val trackJson =
-        """
-            {
-                "name": "Song Title",
-                "id": "12345",
-                "artists": [{"name": "Artist Name"}],
-                "album": {
-                    "images": [{"url": "https://example.com/cover.jpg"}]
-                },
-                "duration_ms": 240000,
-                "popularity": 90
-            }
-        """
-            .trimIndent()
-
-    // Create a JSONObject from the string
-    val trackObject = JSONObject(trackJson)
-
-    // Call the createSpotifyTrack method with the mocked JSON
-    val spotifyTrack = viewModel.createSpotifyTrack(trackObject)
-
-    // Assert that the values are correctly mapped
-    assertEquals("Song Title", spotifyTrack.name)
-    assertEquals("Artist Name", spotifyTrack.artist)
-    assertEquals("12345", spotifyTrack.trackId)
-    assertEquals("https://example.com/cover.jpg", spotifyTrack.cover)
-    assertEquals(240000, spotifyTrack.duration)
-    assertEquals(90, spotifyTrack.popularity)
-  }
-
-  @Test
   fun `searchArtistsAndTracks calls repository and returns success result`() = runTest {
     // Arrange
     val mockResult =
@@ -1233,6 +1200,148 @@ class SpotifyApiViewModelTest {
 
     // Assert
     verify(observer).onChanged(emptyList())
+    verify(mockApiRepository).get("me/playlists?limit=50")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists skips null playlist item and retrieves valid playlist`() = runTest {
+    // Arrange: Playlist contains one null item at index 0 and one valid item at index 1
+    val mockResult =
+        Result.success(
+            JSONObject().apply {
+              put(
+                  "items",
+                  JSONArray().apply {
+                    // First item: null
+                    put(JSONObject.NULL)
+                    // Second item: valid playlist
+                    put(
+                        JSONObject().apply {
+                          put("name", "Chill Vibes")
+                          put("id", "playlist_123")
+                          put("public", true)
+                          put("owner", JSONObject().put("id", "owner_123"))
+                          put("tracks", JSONObject().put("total", 10))
+                          put(
+                              "images",
+                              JSONArray().apply {
+                                put(JSONObject().put("url", "https://example.com/cover.jpg"))
+                              })
+                        })
+                  })
+            })
+
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { observer.onChanged(it) },
+        onFailure = { fail("Expected success but got failure") })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert : Only the valid playlist should be returned
+    val expectedPlaylists =
+        listOf(
+            UserPlaylist(
+                playlistID = "playlist_123",
+                ownerID = "owner_123",
+                playlistCover = "https://example.com/cover.jpg",
+                playlistName = "Chill Vibes",
+                playlistPublic = true,
+                playlistTracks = emptyList(),
+                nbTracks = 10))
+
+    verify(observer).onChanged(expectedPlaylists)
+    verify(mockApiRepository).get("me/playlists?limit=50")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists assigns empty coverUrl when images array is null`() = runTest {
+    // Arrange: Playlist contains a null image array
+    val mockResult =
+        Result.success(
+            JSONObject().apply {
+              put(
+                  "items",
+                  JSONArray().apply {
+                    put(
+                        JSONObject().apply {
+                          put("name", "Playlist with No Image")
+                          put("id", "playlist_789")
+                          put("public", true)
+                          put("owner", JSONObject().put("id", "owner_789"))
+                          put("tracks", JSONObject().put("total", 15))
+                          put("images", JSONObject.NULL) // Null image array
+                        })
+                  })
+            })
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { observer.onChanged(it) },
+        onFailure = { fail("Expected success but got failure") })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert: coverUrl should be an empty string
+    val expectedPlaylist =
+        UserPlaylist(
+            playlistID = "playlist_789",
+            ownerID = "owner_789",
+            playlistCover = "",
+            playlistName = "Playlist with No Image",
+            playlistPublic = true,
+            playlistTracks = emptyList(),
+            nbTracks = 15)
+    verify(observer).onChanged(listOf(expectedPlaylist))
+    verify(mockApiRepository).get("me/playlists?limit=50")
+  }
+
+  @Test
+  fun `getCurrentUserPlaylists assigns empty coverUrl when images array is empty`() = runTest {
+    // Arrange: Playlist contains an empty image array
+    val mockResult =
+        Result.success(
+            JSONObject().apply {
+              put(
+                  "items",
+                  JSONArray().apply {
+                    put(
+                        JSONObject().apply {
+                          put("name", "Playlist with Empty Image Array")
+                          put("id", "playlist_012")
+                          put("public", true)
+                          put("owner", JSONObject().put("id", "owner_012"))
+                          put("tracks", JSONObject().put("total", 20))
+                          put("images", JSONArray()) // Empty image array
+                        })
+                  })
+            })
+    mockApiRepository.stub { onBlocking { get("me/playlists?limit=50") } doReturn mockResult }
+    val observer = mock<Observer<List<UserPlaylist>>>()
+
+    // Act
+    viewModel.getCurrentUserPlaylists(
+        onSuccess = { observer.onChanged(it) },
+        onFailure = { fail("Expected success but got failure") })
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert: coverUrl should be an empty string
+    val expectedPlaylist =
+        UserPlaylist(
+            playlistID = "playlist_012",
+            ownerID = "owner_012",
+            playlistCover = "",
+            playlistName = "Playlist with Empty Image Array",
+            playlistPublic = true,
+            playlistTracks = emptyList(),
+            nbTracks = 20)
+    verify(observer).onChanged(listOf(expectedPlaylist))
     verify(mockApiRepository).get("me/playlists?limit=50")
   }
 }

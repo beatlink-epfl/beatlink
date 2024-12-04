@@ -20,6 +20,8 @@ import androidx.core.view.WindowCompat
 
 val ColorScheme.primaryWhite: Color
   get() = lightThemeBackground
+val ColorScheme.primaryRed: Color
+  get() = PrimaryRed
 val ColorScheme.primaryGray: Color
   get() = PrimaryGray
 val ColorScheme.secondaryGray: Color
@@ -33,7 +35,7 @@ private val DarkColorScheme =
     darkColorScheme(
         primary = darkThemeWhite, // text
         onPrimary = darkThemeLightPurple,
-        primaryContainer = darkThemeGray1, // text user
+        primaryContainer = LightGray, // text user
         secondary = darkThemeLightPurple,
         onSecondary = darkThemeLightPurple,
         tertiary = darkThemePurple, // music listening box
@@ -44,6 +46,7 @@ private val DarkColorScheme =
         onSurface = CircleStrokeColorDark, // radius circle stroke
         surfaceVariant = darkThemeGray1,
         onSurfaceVariant = darkThemeGray2,
+        surfaceContainer = darkThemeGray1, // search bar
         error = PrimaryRed,
         outline = ShadowColor) // shadow of the box
 
@@ -62,6 +65,7 @@ private val LightColorScheme =
         onSurface = CircleStrokeColor, // radius circle stroke
         surfaceVariant = lightThemeBackground,
         onSurfaceVariant = lightThemeBackground,
+        surfaceContainer = LightGray, // search bar
         error = PrimaryRed,
         outline = ShadowColor) // shadow of the box
 
