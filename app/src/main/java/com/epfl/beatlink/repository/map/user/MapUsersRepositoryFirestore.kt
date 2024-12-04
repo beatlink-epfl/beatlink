@@ -5,17 +5,25 @@ import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.model.map.user.MapUserRepository
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlinx.coroutines.tasks.await
 
 // Approximate value for meters per degree of latitude/longitude at the equator
 private const val APPROX_METERS_PER_DEGREE = 111000
+
+// Constants for Time-To-Live (TTL) duration
+private const val TTL_DURATION_MINUTES = 30
+private const val MINUTE_IN_MILLIS = 60 * 1000L
+private const val TTL_MILLIS = TTL_DURATION_MINUTES * MINUTE_IN_MILLIS
 
 class MapUsersRepositoryFirestore(
     private val db: FirebaseFirestore,
@@ -66,8 +74,10 @@ class MapUsersRepositoryFirestore(
                     ?.mapNotNull { document -> documentToMapUser(document) }
                     ?.filter { mapUser ->
                       val userLocation = mapUser.location
-                      // Precise filtering using Haversine formula
-                      haversineDistance(currentUserLocation, userLocation) <= radiusInMeters
+                      // Exclude the user at the current location
+                      userLocation != currentUserLocation &&
+                          // Precise filtering using Haversine formula
+                          haversineDistance(currentUserLocation, userLocation) <= radiusInMeters
                     } ?: emptyList()
 
             onSuccess(mapUsers)
@@ -128,6 +138,30 @@ class MapUsersRepositoryFirestore(
     }
   }
 
+  override suspend fun deleteExpiredUsers(): Boolean {
+    return try {
+      val expirationTime = Timestamp(Date(System.currentTimeMillis() - TTL_MILLIS))
+      val querySnapshot =
+          db.collection(collectionPath).whereLessThan("lastUpdated", expirationTime).get().await()
+
+      // Check if there are no documents to delete
+      if (querySnapshot.documents.isEmpty()) {
+        Log.d("MapUsersRepository", "No expired MapUser found.")
+        return false
+      }
+      // Delete all expired MapUsers
+      querySnapshot.documents.map { document ->
+        db.collection(collectionPath).document(document.id).delete().await()
+      }
+
+      Log.d("MapUsersRepository", "All expired MapUsers have been deleted.")
+      true
+    } catch (e: Exception) {
+      Log.e("MapUsersRepository", "Error deleting expired MapUsers", e)
+      false
+    }
+  }
+
   /**
    * Converts a Firestore DocumentSnapshot into a MapUser object.
    *
@@ -137,30 +171,31 @@ class MapUsersRepositoryFirestore(
    */
   fun documentToMapUser(document: DocumentSnapshot): MapUser? {
     return try {
+
+      // Get `currentPlayingTrack` data
+      val currentPlayingTrackData = document.get("currentPlayingTrack") as Map<String, Any>
+
+      val currentPlayingTrack =
+          CurrentPlayingTrack(
+              trackId = currentPlayingTrackData["trackId"] as String,
+              songName = currentPlayingTrackData["songName"] as String,
+              artistName = currentPlayingTrackData["artistName"] as String,
+              albumName = currentPlayingTrackData["albumName"] as String,
+              albumCover = currentPlayingTrackData["albumCover"] as String)
+
+      // Get `location` data
       val locationData = document.get("location") as Map<String, Any>
       val location =
           Location(
               latitude = locationData["latitude"] as Double,
               longitude = locationData["longitude"] as Double)
 
-      // Retrieve and validate `currentPlayingTrack` data, making sure it's non-nullable.
-      val currentPlayingTrackData =
-          document.get("currentPlayingTrack") as? Map<String, Any>
-              ?: throw IllegalArgumentException("currentPlayingTrack data is missing")
-
-      // Create a non-null `CurrentPlayingTrack` instance
-      val currentPlayingTrack =
-          CurrentPlayingTrack(
-              songName = currentPlayingTrackData["songName"] as String,
-              artistName = currentPlayingTrackData["artistName"] as String,
-              albumName = currentPlayingTrackData["albumName"] as String,
-              albumCover = currentPlayingTrackData["albumCover"] as String)
-
-      // Return a new instance of `MapUser` with non-null `currentPlayingTrack`
+      // Return a new instance of `MapUser`
       MapUser(
           username = document.getString("username") ?: "",
           currentPlayingTrack = currentPlayingTrack,
-          location = location)
+          location = location,
+          lastUpdated = document.get("lastUpdated") as Timestamp)
     } catch (e: Exception) {
       Log.e("MapUsersRepository", "Error converting document to MapUser", e)
       null
@@ -178,13 +213,15 @@ class MapUsersRepositoryFirestore(
         "username" to mapUser.username,
         "currentPlayingTrack" to
             mapOf(
+                "trackId" to mapUser.currentPlayingTrack.trackId,
                 "songName" to mapUser.currentPlayingTrack.songName,
                 "artistName" to mapUser.currentPlayingTrack.artistName,
                 "albumName" to mapUser.currentPlayingTrack.albumName,
                 "albumCover" to mapUser.currentPlayingTrack.albumCover),
         "location" to
             mapOf(
-                "latitude" to mapUser.location.latitude, "longitude" to mapUser.location.longitude))
+                "latitude" to mapUser.location.latitude, "longitude" to mapUser.location.longitude),
+        "lastUpdated" to mapUser.lastUpdated)
   }
 
   /**

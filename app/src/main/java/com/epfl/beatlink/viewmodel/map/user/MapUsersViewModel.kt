@@ -12,6 +12,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.map.user.MapUsersRepositoryFirestore
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,7 +55,11 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
     viewModelScope.launch {
       _mapUser.value =
           _playbackState.value?.let {
-            MapUser(username = username, currentPlayingTrack = it, location = location)
+            MapUser(
+                username = username,
+                currentPlayingTrack = it,
+                location = location,
+                lastUpdated = Timestamp.now())
           }
       _mapUser.value?.let { Log.d("info", it.username) }
       _mapUser.value?.let {
@@ -73,7 +78,10 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
           _mapUser.value?.let {
             _playbackState.value?.let { playBackState ->
               MapUser(
-                  username = it.username, currentPlayingTrack = playBackState, location = location)
+                  username = it.username,
+                  currentPlayingTrack = playBackState,
+                  location = location,
+                  lastUpdated = Timestamp.now())
             }
           }
       _mapUser.value?.let {
@@ -100,6 +108,7 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
     if (_authState.value) {
       _playbackState.value =
           CurrentPlayingTrack(
+              trackId = track.trackId,
               songName = track.name,
               artistName = artist.name,
               albumName = album.name,

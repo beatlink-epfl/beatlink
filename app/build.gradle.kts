@@ -185,6 +185,7 @@ dependencies {
     globalTestImplementation(libs.androidx.junit)
     globalTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
 
     // ------------- Firebase ------------------
     implementation(platform(libs.firebase.bom))
