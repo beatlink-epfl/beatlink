@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import java.io.ByteArrayOutputStream
 
@@ -19,8 +20,7 @@ object ImageUtils {
    *
    * @param uri The URI of the image.
    * @param context The application context.
-   * @param maxWidth The maximum width for resizing the image (default is 512 pixels).
-   * @param maxHeight The maximum height for resizing the image (default is 512 pixels).
+   * @param sideLength The desired side length of the square image (default is 1000).
    * @param quality The quality level for JPEG compression, ranging from 0 to 100 (default is 80,
    *   where 100 is maximum quality).
    * @return A Base64-encoded string representing the resized and compressed image, or `null` if the
@@ -29,9 +29,8 @@ object ImageUtils {
   fun resizeAndCompressImageFromUri(
       uri: Uri,
       context: Context,
-      maxWidth: Int = 512,
-      maxHeight: Int = 512,
-      quality: Int = 80
+      sideLength: Int = 600, // The desired square size
+      quality: Int = 10 // Compression quality
   ): String? {
     return try {
       val contentResolver = context.contentResolver
@@ -39,18 +38,15 @@ object ImageUtils {
       val originalBitmap = BitmapFactory.decodeStream(inputStream)
       inputStream?.close()
 
-      // Resize the bitmap
-      val aspectRatio = originalBitmap.width.toFloat() / originalBitmap.height
-      val resizedBitmap =
-          if (aspectRatio > 1) {
-            // Landscape image
-            Bitmap.createScaledBitmap(
-                originalBitmap, maxWidth, (maxWidth / aspectRatio).toInt(), true)
-          } else {
-            // Portrait image
-            Bitmap.createScaledBitmap(
-                originalBitmap, (maxHeight * aspectRatio).toInt(), maxHeight, true)
-          }
+      // Crop the bitmap to a square shape
+      val cropSize = minOf(originalBitmap.width, originalBitmap.height)
+      val cropX = (originalBitmap.width - cropSize) / 2
+      val cropY = (originalBitmap.height - cropSize) / 2
+
+      val croppedBitmap = Bitmap.createBitmap(originalBitmap, cropX, cropY, cropSize, cropSize)
+
+      // Resize the cropped bitmap to the desired size
+      val resizedBitmap = Bitmap.createScaledBitmap(croppedBitmap, sideLength, sideLength, true)
 
       // Compress the resized bitmap
       val outputStream = ByteArrayOutputStream()

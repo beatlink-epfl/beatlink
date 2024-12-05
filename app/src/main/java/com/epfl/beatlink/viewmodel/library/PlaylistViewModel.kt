@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -59,6 +60,8 @@ class PlaylistViewModel(
   private val tempPlaylistCollaborators_ = MutableStateFlow<List<String>>(emptyList())
   val tempPlaylistCollaborators: StateFlow<List<String>>
     get() = tempPlaylistCollaborators_
+
+  val coverImage = mutableStateOf<Bitmap?>(null)
 
   // create factory
   companion object {

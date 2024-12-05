@@ -2,7 +2,6 @@ package com.epfl.beatlink.ui.profile
 
 import android.Manifest.permission.READ_MEDIA_IMAGES
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -50,7 +49,9 @@ import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -73,19 +74,20 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
             ?: "This is a description. It can be up to $MAX_DESCRIPTION_LENGTH characters long.")
   }
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
   // Load profile picture
-  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
+  LaunchedEffect(Unit) {
+    profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+  }
 
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
         imageUri = uri
         if (imageUri == null) {
-          profilePicture.value = null
+          // Do nothing
         } else {
-          profileViewModel.uploadProfilePicture(context, imageUri)
-          profileViewModel.loadProfilePicture { profilePicture.value = it }
+          profileViewModel.profilePicture.value =
+              base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
         }
       }
   Scaffold(
@@ -111,7 +113,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                   modifier =
                       Modifier.clickable(
                           onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })) {
-                    ProfilePicture(profilePicture)
+                    ProfilePicture(profileViewModel.profilePicture)
                     Box(modifier = Modifier.align(Alignment.BottomEnd)) {
                       CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
                     }
