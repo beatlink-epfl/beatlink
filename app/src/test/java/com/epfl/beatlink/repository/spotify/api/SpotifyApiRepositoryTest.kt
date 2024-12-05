@@ -7,7 +7,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -24,7 +23,6 @@ import org.mockito.kotlin.whenever
 class SpotifyApiRepositoryTest {
 
   @Mock private lateinit var mockClient: OkHttpClient
-
   @Mock private lateinit var mockSharedPreferences: SharedPreferences
 
   private lateinit var repository: SpotifyApiRepository
@@ -35,18 +33,17 @@ class SpotifyApiRepositoryTest {
     repository = SpotifyApiRepository(mockClient, mockSharedPreferences)
   }
 
+  // === GET ===
   @Test
-  fun `get performs GET request and returns success when response is successful`() = runBlocking {
+  fun `GET request success`() = runBlocking {
     whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
 
     val mockCall = mock(Call::class.java)
     val mockResponse = mock(Response::class.java)
-    val mockResponseBody = mock(ResponseBody::class.java)
-    val jsonResponse = JSONObject().apply { put("key", "value") }.toString()
+    val mockResponseBody = "{\"key\":\"value\"}".toResponseBody(null)
 
     whenever(mockResponse.isSuccessful).thenReturn(true)
     whenever(mockResponse.body).thenReturn(mockResponseBody)
-    whenever(mockResponseBody.string()).thenReturn(jsonResponse)
     whenever(mockCall.execute()).thenReturn(mockResponse)
 
     doAnswer { mockCall }.whenever(mockClient).newCall(any())
@@ -58,18 +55,37 @@ class SpotifyApiRepositoryTest {
   }
 
   @Test
-  fun `post performs POST request and returns success when response is successful`() = runBlocking {
+  fun `GET request failure`() = runBlocking {
     whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
 
     val mockCall = mock(Call::class.java)
     val mockResponse = mock(Response::class.java)
-    val mockResponseBody = mock(ResponseBody::class.java)
-    val jsonResponse = JSONObject().apply { put("key", "value") }.toString()
+
+    whenever(mockResponse.isSuccessful).thenReturn(false)
+    whenever(mockResponse.code).thenReturn(400)
+    whenever(mockResponse.body).thenReturn("Error".toResponseBody(null))
+    whenever(mockCall.execute()).thenReturn(mockResponse)
+
+    doAnswer { mockCall }.whenever(mockClient).newCall(any())
+
+    val result = repository.get("test_endpoint")
+
+    assertTrue(result.isFailure)
+    assertEquals("API call failed with code 400", result.exceptionOrNull()?.message)
+  }
+
+  // === POST ===
+  @Test
+  fun `POST request success`() = runBlocking {
+    whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
+
+    val mockCall = mock(Call::class.java)
+    val mockResponse = mock(Response::class.java)
+    val mockResponseBody = "{\"key\":\"value\"}".toResponseBody(null)
     val requestBody = "{}".toRequestBody("application/json".toMediaTypeOrNull())
 
     whenever(mockResponse.isSuccessful).thenReturn(true)
     whenever(mockResponse.body).thenReturn(mockResponseBody)
-    whenever(mockResponseBody.string()).thenReturn(jsonResponse)
     whenever(mockCall.execute()).thenReturn(mockResponse)
 
     doAnswer { mockCall }.whenever(mockClient).newCall(any())
@@ -81,53 +97,7 @@ class SpotifyApiRepositoryTest {
   }
 
   @Test
-  fun `put performs PUT request and returns success when response is successful`() = runBlocking {
-    whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
-
-    val mockCall = mock(Call::class.java)
-    val mockResponse = mock(Response::class.java)
-    val mockResponseBody = mock(ResponseBody::class.java)
-    val jsonResponse = JSONObject().apply { put("key", "value") }.toString()
-    val requestBody = "{}".toRequestBody("application/json".toMediaTypeOrNull())
-
-    whenever(mockResponse.isSuccessful).thenReturn(true)
-    whenever(mockResponse.body).thenReturn(mockResponseBody)
-    whenever(mockResponseBody.string()).thenReturn(jsonResponse)
-    whenever(mockCall.execute()).thenReturn(mockResponse)
-
-    doAnswer { mockCall }.whenever(mockClient).newCall(any())
-
-    val result = repository.put("test_endpoint", requestBody)
-
-    assertTrue(result.isSuccess)
-    assertEquals("value", result.getOrNull()?.getString("key"))
-  }
-
-  @Test
-  fun `delete performs DELETE request and returns success when response is successful`() =
-      runBlocking {
-        whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
-
-        val mockCall = mock(Call::class.java)
-        val mockResponse = mock(Response::class.java)
-        val mockResponseBody = mock(ResponseBody::class.java)
-        val jsonResponse = JSONObject().apply { put("key", "value") }.toString()
-
-        whenever(mockResponse.isSuccessful).thenReturn(true)
-        whenever(mockResponse.body).thenReturn(mockResponseBody)
-        whenever(mockResponseBody.string()).thenReturn(jsonResponse)
-        whenever(mockCall.execute()).thenReturn(mockResponse)
-
-        doAnswer { mockCall }.whenever(mockClient).newCall(any())
-
-        val result = repository.delete("test_endpoint", null)
-
-        assertTrue(result.isSuccess)
-        assertEquals("value", result.getOrNull()?.getString("key"))
-      }
-
-  @Test
-  fun `post returns failure when response is unsuccessful`() = runBlocking {
+  fun `POST request failure`() = runBlocking {
     whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
 
     val mockCall = mock(Call::class.java)
@@ -147,8 +117,30 @@ class SpotifyApiRepositoryTest {
     assertEquals("API call failed with code 400", result.exceptionOrNull()?.message)
   }
 
+  // === PUT ===
   @Test
-  fun `put returns failure when response is unsuccessful`() = runBlocking {
+  fun `PUT request success`() = runBlocking {
+    whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
+
+    val mockCall = mock(Call::class.java)
+    val mockResponse = mock(Response::class.java)
+    val mockResponseBody = "{\"key\":\"value\"}".toResponseBody(null)
+    val requestBody = "{}".toRequestBody("application/json".toMediaTypeOrNull())
+
+    whenever(mockResponse.isSuccessful).thenReturn(true)
+    whenever(mockResponse.body).thenReturn(mockResponseBody)
+    whenever(mockCall.execute()).thenReturn(mockResponse)
+
+    doAnswer { mockCall }.whenever(mockClient).newCall(any())
+
+    val result = repository.put("test_endpoint", requestBody)
+
+    assertTrue(result.isSuccess)
+    assertEquals("value", result.getOrNull()?.getString("key"))
+  }
+
+  @Test
+  fun `PUT request failure`() = runBlocking {
     whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
 
     val mockCall = mock(Call::class.java)
@@ -168,8 +160,29 @@ class SpotifyApiRepositoryTest {
     assertEquals("API call failed with code 400", result.exceptionOrNull()?.message)
   }
 
+  // === DELETE ===
   @Test
-  fun `delete returns failure when response is unsuccessful`() = runBlocking {
+  fun `DELETE request success`() = runBlocking {
+    whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
+
+    val mockCall = mock(Call::class.java)
+    val mockResponse = mock(Response::class.java)
+    val mockResponseBody = "{\"key\":\"value\"}".toResponseBody(null)
+
+    whenever(mockResponse.isSuccessful).thenReturn(true)
+    whenever(mockResponse.body).thenReturn(mockResponseBody)
+    whenever(mockCall.execute()).thenReturn(mockResponse)
+
+    doAnswer { mockCall }.whenever(mockClient).newCall(any())
+
+    val result = repository.delete("test_endpoint", null)
+
+    assertTrue(result.isSuccess)
+    assertEquals("value", result.getOrNull()?.getString("key"))
+  }
+
+  @Test
+  fun `DELETE request failure`() = runBlocking {
     whenever(mockSharedPreferences.getString("access_token", null)).thenReturn("test_token")
 
     val mockCall = mock(Call::class.java)
