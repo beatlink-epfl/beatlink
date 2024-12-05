@@ -21,7 +21,7 @@ val spotifyClientId: String? = localProperties.getProperty("SPOTIFY_CLIENT_ID")
 
 android {
     namespace = "com.epfl.beatlink"
-    compileSdk = 34
+    compileSdk = 35
 
     // Load the API key from local.properties
     val localProperties = Properties()
@@ -180,6 +180,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.volley)
     implementation(libs.core.ktx)
+    implementation(libs.androidx.work.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.core.testing)
     globalTestImplementation(libs.androidx.junit)

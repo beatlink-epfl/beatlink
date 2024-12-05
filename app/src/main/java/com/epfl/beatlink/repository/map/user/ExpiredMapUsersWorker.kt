@@ -3,39 +3,63 @@ package com.epfl.beatlink.repository.map.user
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
+import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.google.firebase.firestore.FirebaseFirestore
+import javax.inject.Inject
 
 /**
  * A worker class responsible for removing expired MapUsers from Firestore.
  *
- * This worker utilizes the WorkManager library and is implemented as a CoroutineWorker, allowing
- * for asynchronous operations. It periodically deletes MapUsers whose `lastUpdated` field has
- * exceeded a specified time-to-live (TTL) duration.
+ * This CoroutineWorker runs in the background and deletes MapUsers whose `lastUpdated` timestamp
+ * exceeds the configured TTL. The worker will retry if no expired MapUsers are found or if an error
+ * occurs.
  *
  * @param context The application context provided by WorkManager.
- * @param workerParams The parameters for this worker, provided by WorkManager.
- * @constructor Creates an instance of the ExpiredMapUsersWorker.
+ * @param workerParams Parameters for the worker provided by WorkManager.
+ * @param mapUsersRepository The repository handling Firestore operations for MapUsers.
  */
-class ExpiredMapUsersWorker(context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
-
-  private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-  private val mapUsersRepository = MapUsersRepositoryFirestore(db)
+class ExpiredMapUsersWorker(
+    context: Context,
+    workerParams: WorkerParameters,
+    private val mapUsersRepository: MapUsersRepositoryFirestore
+) : CoroutineWorker(context, workerParams) {
 
   override suspend fun doWork(): Result {
-    return try {
-      val success = mapUsersRepository.deleteExpiredUsers()
-      if (success) {
-        Log.d("ExpiredMapUsersWorker", "Successfully deleted expired MapUsers.")
-        Result.success()
-      } else {
-        Log.w("ExpiredMapUsersWorker", "No expired MapUsers to delete or an error has occurred.")
-        Result.retry()
-      }
-    } catch (e: Exception) {
-      Log.e("ExpiredMapUsersWorker", "Error deleting expired MapUsers: ${e.message}", e)
+    val success = mapUsersRepository.deleteExpiredUsers()
+
+    return if (success) {
+      Log.d("ExpiredMapUsersWorker", "Successfully deleted expired MapUsers.")
+      Result.success()
+    } else {
+      Log.w("ExpiredMapUsersWorker", "No expired MapUsers to delete or an error has occurred.")
       Result.retry()
+    }
+  }
+}
+
+/**
+ * A custom WorkerFactory that injects the MapUsersRepositoryFirestore dependency into the
+ * ExpiredMapUsersWorker.
+ *
+ * This factory is invoked every time the worker runs, overriding the default implementation to
+ * allow for custom worker-creation logic.
+ *
+ * @param mapUsersRepository The repository handling Firestore operations for MapUsers.
+ */
+class WorkerFactory
+@Inject
+constructor(private val mapUsersRepository: MapUsersRepositoryFirestore) : WorkerFactory() {
+
+  override fun createWorker(
+      appContext: Context,
+      workerClassName: String,
+      workerParameters: WorkerParameters
+  ): ListenableWorker? {
+    return if (workerClassName == ExpiredMapUsersWorker::class.java.name) {
+      ExpiredMapUsersWorker(appContext, workerParameters, mapUsersRepository)
+    } else {
+      null
     }
   }
 }

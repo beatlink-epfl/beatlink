@@ -26,6 +26,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BeatLink"
         tools:targetApi="31">
+
+        <!-- Prevent WorkManager from being initialized by AndroidX Startup -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+
+            <!-- Remove WorkManager auto-initialization -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"

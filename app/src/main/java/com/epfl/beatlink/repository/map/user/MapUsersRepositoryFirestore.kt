@@ -144,7 +144,7 @@ class MapUsersRepositoryFirestore(
       val querySnapshot =
           db.collection(collectionPath).whereLessThan("lastUpdated", expirationTime).get().await()
 
-      // Check if there are no documents to delete
+      // Check for expired MapUsers
       if (querySnapshot.documents.isEmpty()) {
         Log.d("MapUsersRepository", "No expired MapUser found.")
         return false
