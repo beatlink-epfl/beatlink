@@ -81,8 +81,7 @@ class MainActivity : ComponentActivity() {
    * `WORK_INTERVAL_MINUTES`.
    */
   private fun initializeWorkManager() {
-    // Skip initialization during tests
-    if (!isRunningInTest()) {
+    if (!WorkManager.isInitialized()) {
       val mapUsersRepository = MapUsersRepositoryFirestore(FirebaseFirestore.getInstance())
       val workerFactory = WorkerFactory(mapUsersRepository)
       val config = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -99,15 +98,6 @@ class MainActivity : ComponentActivity() {
       WorkManager.getInstance(this)
           .enqueueUniquePeriodicWork(
               "Delete expired MapUsers", ExistingPeriodicWorkPolicy.KEEP, periodicWork)
-    }
-  }
-
-  // Helper function to check if the app is running in a test environment
-  private fun isRunningInTest(): Boolean {
-    return try {
-      Class.forName("androidx.test.core.app.ApplicationProvider") != null
-    } catch (e: ClassNotFoundException) {
-      false
     }
   }
 }
