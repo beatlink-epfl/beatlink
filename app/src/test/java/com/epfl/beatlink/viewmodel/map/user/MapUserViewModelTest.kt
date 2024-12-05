@@ -9,6 +9,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.map.user.MapUsersRepositoryFirestore
+import com.google.firebase.Timestamp
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -57,8 +58,9 @@ class MapUserViewModelTest {
   @Test
   fun `fetchMapUsers updates mapUsers on success`() = runTest {
     val fakeLocation = mockk<Location>()
-    val currentTrack = CurrentPlayingTrack("Song", "Artist", "Album", "URL")
-    val fakeUsers = listOf(MapUser("user1", currentTrack, fakeLocation))
+    val currentTrack = CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL")
+    val fakeUsers =
+        listOf(MapUser("user1", currentTrack, fakeLocation, lastUpdated = Timestamp.now()))
     coEvery { repository.getMapUsers(any(), any(), any(), any()) } answers
         {
           thirdArg<(List<MapUser>) -> Unit>().invoke(fakeUsers)
@@ -102,7 +104,7 @@ class MapUserViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Verify playback state is updated
-    val expectedTrack = CurrentPlayingTrack("Song", "Artist", "Album", "URL")
+    val expectedTrack = CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL")
     assertEquals(expectedTrack, viewModel.playbackState.first())
   }
 
@@ -110,7 +112,7 @@ class MapUserViewModelTest {
   fun `updatePlayback with null track sets playbackState to null and deletes user`() = runTest {
     // Set _mapUser to a non-null user initially
     val fakeLocation = mockk<Location>()
-    val currentTrack = CurrentPlayingTrack("Song", "Artist", "Album", "URL")
+    val currentTrack = CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL")
 
     val album =
         SpotifyAlbum(
@@ -182,7 +184,7 @@ class MapUserViewModelTest {
   @Test
   fun `addMapUser calls repository and updates mapUser`() = runTest {
     val fakeLocation = mockk<Location>()
-    val currentTrack = CurrentPlayingTrack("Song", "Artist", "Album", "URL")
+    val currentTrack = CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL")
     val album =
         SpotifyAlbum(
             name = "Album",

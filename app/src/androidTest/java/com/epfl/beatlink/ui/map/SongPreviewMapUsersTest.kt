@@ -8,6 +8,7 @@ import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
+import com.google.firebase.Timestamp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,11 +26,13 @@ class SongPreviewMapUsersTest {
             username = "leilahammmm",
             currentPlayingTrack =
                 CurrentPlayingTrack(
+                    trackId = "testTrackId",
                     songName = "Die With A Smile",
                     artistName = "Lady Gaga & Bruno Mars",
                     albumName = "Die With A Smile",
                     albumCover = R.drawable.cover_test1.toString()),
-            location = Location(0.0, 0.0))
+            location = Location(0.0, 0.0),
+            lastUpdated = Timestamp.now())
   }
 
   @Test

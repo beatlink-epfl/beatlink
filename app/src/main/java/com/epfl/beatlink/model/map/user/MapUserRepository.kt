@@ -48,4 +48,14 @@ interface MapUserRepository {
    * @param onFailure Callback that is invoked if an error occurs.
    */
   fun deleteMapUser(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  /**
+   * Delete expired MapUsers from Firestore.
+   *
+   * This function identifies MapUsers whose `lastUpdated` timestamp is older than the defined TTL
+   * (Time-To-Live) duration and deletes their records from the Firestore database.
+   *
+   * @return A Boolean indicating whether the deletion was successful.
+   */
+  suspend fun deleteExpiredUsers(): Boolean
 }
