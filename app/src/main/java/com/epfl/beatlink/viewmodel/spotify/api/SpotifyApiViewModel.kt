@@ -36,14 +36,32 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  /** Add custom playlist cover image which is a Base64-encoded JPEG string */
+  fun addCustomPlaylistCoverImage(playlistID: String, image: String) {
+    viewModelScope.launch {
+      val result = apiRepository.put("playlists/$playlistID/images", image.toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Custom playlist cover image added successfully")
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to add custom playlist cover image")
+      }
+    }
+  }
+
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
-  fun createBeatLinkPlaylist(
+  open fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
-      tracks: List<SpotifyTrack>
+      tracks: List<SpotifyTrack>,
+      onResult: (String?) -> Unit
   ) {
-    createEmptySpotifyPlaylist(playlistName, playlistDescription) { playlistId ->
-      addTracksToPlaylist(playlistId, tracks)
+    viewModelScope.launch {
+      var playlistId: String?
+      createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
+        playlistId = id
+        addTracksToPlaylist(id, tracks)
+        onResult(playlistId)
+      }
     }
   }
 
@@ -252,7 +270,11 @@ open class SpotifyApiViewModel(
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
-        onSuccess(result.getOrNull()!!)
+        if (result.getOrNull()!!.has("is_playing")) {
+          onSuccess(result.getOrNull()!!)
+        } else {
+          onFailure()
+        }
       } else {
         onFailure()
       }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -56,6 +57,8 @@ open class ProfileViewModel(
   private val _isProfileUpdated = MutableStateFlow(false)
   val isProfileUpdated: StateFlow<Boolean>
     get() = _isProfileUpdated
+
+  val profilePicture = mutableStateOf<Bitmap?>(null)
 
   private val _profileReady = MutableStateFlow(false)
   val profileReady: StateFlow<Boolean>

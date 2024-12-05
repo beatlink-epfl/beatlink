@@ -60,7 +60,9 @@ import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @SuppressLint("MutableCollectionMutableState")
@@ -75,18 +77,19 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   val currentProfile = profileViewModel.profile.collectAsState()
   val context = LocalContext.current
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
   // Load profile picture
-  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
+  LaunchedEffect(Unit) {
+    profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+  }
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
         imageUri = uri
         if (imageUri == null) {
-          profilePicture.value = null
+          profileViewModel.profilePicture.value = null
         } else {
-          profileViewModel.uploadProfilePicture(context, imageUri)
-          profileViewModel.loadProfilePicture { profilePicture.value = it }
+          profileViewModel.profilePicture.value =
+              base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
         }
       }
 
@@ -107,7 +110,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
               ProfileBuildTitle()
 
               // Add Profile Picture
-              AddProfilePicture(permissionLauncher, profilePicture)
+              AddProfilePicture(permissionLauncher, profileViewModel.profilePicture)
 
               // Name input field
               CustomInputField(

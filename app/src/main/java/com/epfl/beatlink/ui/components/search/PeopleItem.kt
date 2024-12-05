@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,36 +21,58 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.ui.components.PrincipalButton
+import com.epfl.beatlink.ui.components.LinkButton
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.theme.TypographySongs
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun PeopleItem(people: ProfileData?, profileViewModel: ProfileViewModel) {
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-  val userUid = remember { mutableStateOf("") }
+fun PeopleItem(
+    people: ProfileData?,
+    profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel
+) {
 
+  val displayedUserId = remember { mutableStateOf<String?>(null) }
+
+  val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
+  val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
+  val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+  val userId = remember { mutableStateOf("") }
   if (people != null) {
     profileViewModel.getUserIdByUsername(people.username) { uid ->
       if (uid == null) {
         return@getUserIdByUsername
       } else {
-        userUid.value = uid
+        displayedUserId.value = uid
+        userId.value = uid
         profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
       }
     }
   } else {
     Log.d("PeopleItem", "profile data null")
   }
+
+  var requestStatus =
+      when (displayedUserId.value) {
+        in ownRequests -> "Requested"
+        in friendRequests -> "Accept"
+        in allFriends -> "Linked"
+        else -> "Link"
+      }
+
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.clickable {
                 // selects user and fetches it's userProfile
-                profileViewModel.selectSelectedUser(userUid.value)
+                profileViewModel.selectSelectedUser(userId.value)
                 profileViewModel.fetchUserProfile()
               }
+              .padding(end = 16.dp)
               .testTag("peopleItem")) {
         Box(
             modifier =
@@ -65,7 +89,45 @@ fun PeopleItem(people: ProfileData?, profileViewModel: ProfileViewModel) {
           Log.d("PeopleItem", "profile data null")
         }
         Spacer(modifier = Modifier.weight(1f))
-        PrincipalButton(
-            buttonText = "Link", buttonTag = "peopleLink", width = 88.dp, height = 35.dp) {}
+        LinkButton(
+            buttonText = requestStatus,
+            onClickLink = {
+              val receiverId = displayedUserId.value
+              if (receiverId != null) {
+                friendRequestViewModel.sendFriendRequestTo(receiverId)
+                requestStatus = "Requested"
+              } else {
+                Log.e("PeopleItem", "Unable to send friend request: Missing sender or receiver ID")
+              }
+            },
+            onClickRequested = {
+              val receiverId = displayedUserId.value
+              if (receiverId != null) {
+                friendRequestViewModel.cancelFriendRequestTo(receiverId)
+                requestStatus = "Link"
+              } else {
+                Log.e(
+                    "PeopleItem", "Unable to cancel friend request: Missing sender or receiver ID")
+              }
+            },
+            onClickAccept = {
+              val receiverId = displayedUserId.value
+              if (receiverId != null) {
+                friendRequestViewModel.acceptFriendRequestFrom(receiverId)
+                requestStatus = "Linked"
+              } else {
+                Log.e(
+                    "PeopleItem", "Unable to accept friend request: Missing sender or receiver ID")
+              }
+            },
+            onClickLinked = {
+              val receiverId = displayedUserId.value
+              if (receiverId != null) {
+                friendRequestViewModel.removeFriend(receiverId)
+                requestStatus = "Link"
+              } else {
+                Log.e("PeopleItem", "Unable to remove friend: Missing sender or receiver ID")
+              }
+            })
       }
 }

@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
@@ -17,9 +18,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlin.math.abs
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,18 +51,20 @@ class MapUserRepositoryFirestoreTest {
 
   private lateinit var mapUsersRepositoryFirestore: MapUsersRepositoryFirestore
 
-  private val radiusInMeters = 1000.0
   private val sampleLocation = Location(latitude = 46.5196535, longitude = 6.6322734)
+  private val timestamp = Timestamp.now()
   private val mapUser =
       MapUser(
           username = "testUser",
           currentPlayingTrack =
               CurrentPlayingTrack(
+                  trackId = "trackId",
                   songName = "Song",
                   artistName = "Artist",
                   albumName = "Album",
                   albumCover = "CoverURL"),
-          location = sampleLocation)
+          location = sampleLocation,
+          lastUpdated = timestamp)
 
   @Before
   fun setUp() {
@@ -111,6 +116,45 @@ class MapUserRepositoryFirestoreTest {
   }
 
   @Test
+  fun getMapUsers_excludesCurrentUserLocation() {
+    // Mock the Firestore query chain
+    `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+
+    // Create another MapUser in the radius but not at the current user's location
+    val nearbyMapUserLocation = Location(latitude = 46.520, longitude = 6.635)
+    val nearbyMapUser =
+        MapUser(
+            username = "nearbyUser",
+            currentPlayingTrack =
+                CurrentPlayingTrack(
+                    trackId = "trackId2",
+                    songName = "Another Song",
+                    artistName = "Another Artist",
+                    albumName = "Another Album",
+                    albumCover = "AnotherCoverURL"),
+            location = nearbyMapUserLocation,
+            lastUpdated = Timestamp.now())
+
+    // Mock the query snapshot to return both users
+    `when`(mockQuerySnapshot.documents)
+        .thenReturn(listOf(mockDocumentSnapshot, mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.toObject(MapUser::class.java)).thenReturn(mapUser, nearbyMapUser)
+
+    mapUsersRepositoryFirestore.getMapUsers(
+        currentUserLocation = sampleLocation,
+        radiusInMeters = 1000.0,
+        onSuccess = { mapUsers ->
+          // Assert that only the nearby user is included
+          assertEquals(1, mapUsers.size)
+          assertEquals(nearbyMapUser, mapUsers[0])
+        },
+        onFailure = { fail("Failure callback should not be called") })
+  }
+
+  @Test
   fun getMapUsers_failure() {
     // Mock the Firestore query chain
     `when`(mockCollectionReference.whereGreaterThan(anyString(), any())).thenReturn(mockQuery)
@@ -126,7 +170,7 @@ class MapUserRepositoryFirestoreTest {
     `when`(querySnapshotTask.isSuccessful).thenReturn(false)
     `when`(querySnapshotTask.exception).thenReturn(exception)
 
-    // Simulate adding the OnCompleteListener to mockTask
+    // Invoke onCompleteListener for the mock task to simulate async completion
     `when`(querySnapshotTask.addOnCompleteListener(any())).thenAnswer { invocation ->
       val listener = invocation.getArgument<OnCompleteListener<QuerySnapshot>>(0)
       listener.onComplete(querySnapshotTask) // Simulate task completion
@@ -265,11 +309,90 @@ class MapUserRepositoryFirestoreTest {
   }
 
   @Test
+  fun deleteExpiredUsers_noDocuments_shouldReturnFalse() = runTest {
+    // Arrange: Mock Firestore query to return no expired documents
+    `when`(mockCollectionReference.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+    `when`(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    // Act
+    val result = mapUsersRepositoryFirestore.deleteExpiredUsers()
+
+    // Assert
+    assertFalse(result)
+    verify(mockQuery).get()
+  }
+
+  @Test
+  fun deleteExpiredUsers_documentsExist_shouldDeleteAndReturnTrue() = runTest {
+    // Arrange: Mock Firestore query to return expired documents
+    `when`(mockCollectionReference.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+
+    // Mock successful document deletion
+    val documentId = "testUserUid"
+    `when`(mockDocumentSnapshot.id).thenReturn(documentId)
+    `when`(mockCollectionReference.document(documentId)).thenReturn(mockDocumentReference)
+    `when`(mockDocumentReference.delete()).thenReturn(Tasks.forResult(null))
+
+    // Act
+    val result = mapUsersRepositoryFirestore.deleteExpiredUsers()
+
+    // Assert
+    assertTrue(result)
+    verify(mockCollectionReference).whereLessThan(anyString(), any())
+    verify(mockQuery).get()
+    verify(mockCollectionReference).document(documentId)
+    verify(mockDocumentReference).delete()
+  }
+
+  @Test
+  fun deleteExpiredUsers_deleteFails_shouldReturnFalse() = runTest {
+    // Arrange: Mock Firestore query to return expired documents
+    `when`(mockCollectionReference.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+
+    // Mock failed document deletion
+    val documentId = "testUserUid"
+    `when`(mockDocumentSnapshot.id).thenReturn(documentId)
+    `when`(mockCollectionReference.document(documentId)).thenReturn(mockDocumentReference)
+    `when`(mockDocumentReference.delete())
+        .thenReturn(Tasks.forException(Exception("Deletion failed")))
+
+    // Act
+    val result = mapUsersRepositoryFirestore.deleteExpiredUsers()
+
+    // Assert
+    assertFalse(result)
+    verify(mockQuery).get()
+    verify(mockCollectionReference).document(documentId)
+    verify(mockDocumentReference).delete()
+  }
+
+  @Test
+  fun deleteExpiredUsers_queryFails_shouldReturnFalse() = runTest {
+    // Arrange: Mock Firestore query to fail
+    val exception = Exception("Query failed")
+    `when`(mockCollectionReference.whereLessThan(anyString(), any())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+
+    // Act
+    val result = mapUsersRepositoryFirestore.deleteExpiredUsers()
+
+    // Assert
+    assertFalse("Result should be false when query fails", result)
+    verify(mockQuery).get()
+  }
+
+  @Test
   fun documentToMapUser_convertsDocumentSnapshotToMapUserCorrectly() {
     // Set up a mock DocumentSnapshot with valid data
     val location = mapOf("latitude" to 46.5191, "longitude" to 6.5668)
     val currentPlayingTrack =
         mapOf(
+            "trackId" to "trackId",
             "songName" to "Imagine",
             "artistName" to "John Lennon",
             "albumName" to "Imagine",
@@ -278,6 +401,7 @@ class MapUserRepositoryFirestoreTest {
     `when`(mockDocumentSnapshot.get("location")).thenReturn(location)
     `when`(mockDocumentSnapshot.get("currentPlayingTrack")).thenReturn(currentPlayingTrack)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUser")
+    `when`(mockDocumentSnapshot.get("lastUpdated")).thenReturn(mapUser.lastUpdated)
 
     // Call documentToMapUser
     val result = mapUsersRepositoryFirestore.documentToMapUser(mockDocumentSnapshot)
@@ -286,28 +410,23 @@ class MapUserRepositoryFirestoreTest {
     val expectedLocation = Location(latitude = 46.5191, longitude = 6.5668)
     val expectedTrack =
         CurrentPlayingTrack(
+            trackId = "trackId",
             songName = "Imagine",
             artistName = "John Lennon",
             albumName = "Imagine",
             albumCover = "some_url")
     val expectedMapUser =
         MapUser(
-            username = "testUser", currentPlayingTrack = expectedTrack, location = expectedLocation)
+            username = "testUser",
+            currentPlayingTrack = expectedTrack,
+            location = expectedLocation,
+            lastUpdated = timestamp)
+
     assertEquals(expectedMapUser, result)
   }
 
   @Test
   fun mapUserToMap_convertsMapUserToMapCorrectly() {
-    // Set up a MapUser object
-    val location = Location(latitude = 46.5191, longitude = 6.5668) // Example coordinates
-    val track =
-        CurrentPlayingTrack(
-            songName = "Imagine",
-            artistName = "John Lennon",
-            albumName = "Imagine",
-            albumCover = "some_url")
-    val mapUser = MapUser(username = "testUser", currentPlayingTrack = track, location = location)
-
     // Call mapUserToMap function
     val result = mapUsersRepositoryFirestore.mapUserToMap(mapUser)
 
@@ -317,11 +436,14 @@ class MapUserRepositoryFirestoreTest {
             "username" to "testUser",
             "currentPlayingTrack" to
                 mapOf(
-                    "songName" to "Imagine",
-                    "artistName" to "John Lennon",
-                    "albumName" to "Imagine",
-                    "albumCover" to "some_url"),
-            "location" to mapOf("latitude" to 46.5191, "longitude" to 6.5668))
+                    "trackId" to "trackId",
+                    "songName" to "Song",
+                    "artistName" to "Artist",
+                    "albumName" to "Album",
+                    "albumCover" to "CoverURL"),
+            "location" to mapOf("latitude" to 46.5196535, "longitude" to 6.6322734),
+            "lastUpdated" to timestamp)
+
     assertEquals(expectedMap, result)
   }
 
@@ -337,6 +459,7 @@ class MapUserRepositoryFirestoreTest {
     // Assert: Check if the distance is within an acceptable range of the known distance
     val expectedDistance = 47800.0 // Approximate distance in meters
     val tolerance = 50.0 // Allowable tolerance in meters
+
     assertTrue(
         "Distance was off by more than $tolerance meters",
         abs(distance - expectedDistance) <= tolerance)

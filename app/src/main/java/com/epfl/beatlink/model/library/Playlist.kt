@@ -1,5 +1,7 @@
 package com.epfl.beatlink.model.library
 
+const val DEFAULT_TRACK_LIMIT = 50
+
 /**
  * Represents a beatlink playlist that exists within the application to then export on Spotify.
  *

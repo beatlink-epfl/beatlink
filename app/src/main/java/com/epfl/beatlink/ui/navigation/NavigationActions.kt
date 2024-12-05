@@ -187,4 +187,17 @@ open class NavigationActions(private val navController: NavHostController) {
       launchSingleTop = true
     }
   }
+
+  /**
+   * Navigate to a specified screen and pop a other specified screen
+   *
+   * @param screenToGo The screen to navigate to
+   * @param screenToPop The screen to pop out
+   */
+  open fun navigateToAndPop(screenToGo: String, screenToPop: String) {
+    navController.popBackStack(screenToPop, inclusive = true)
+
+    // Navigate to the desired screen
+    navController.navigate(screenToGo)
+  }
 }

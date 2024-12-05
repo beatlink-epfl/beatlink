@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.graphics.Bitmap
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Scaffold
@@ -29,11 +28,10 @@ fun OtherProfileScreen(
   val selectedUser by profileViewModel.selectedUserUserId.collectAsState()
 
   val profileData by profileViewModel.selectedUserProfile.collectAsState()
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
   LaunchedEffect(selectedUser) {
     if (selectedUser.isNotEmpty()) {
-      profileViewModel.loadSelectedUserProfilePicture { profilePicture.value = it }
+      profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
     }
   }
 
@@ -73,7 +71,7 @@ fun OtherProfileScreen(
             topArtistsState = profileData?.topArtists ?: emptyList(),
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValues,
-            profilePicture = profilePicture,
+            profilePicture = profileViewModel.profilePicture,
             ownProfile = false,
             buttonTestTag = "linkProfileButton")
       })

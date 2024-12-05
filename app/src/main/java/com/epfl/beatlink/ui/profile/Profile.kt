@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -39,10 +38,11 @@ fun ProfileScreen(
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
 
   val profileData by profileViewModel.profile.collectAsState()
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
   // Load profile picture
-  LaunchedEffect(Unit) { profileViewModel.loadProfilePicture { profilePicture.value = it } }
+  LaunchedEffect(Unit) {
+    profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+  }
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
   val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
@@ -96,7 +96,7 @@ fun ProfileScreen(
             topArtistsState = topArtistsState.value,
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValue,
-            profilePicture = profilePicture,
+            profilePicture = profileViewModel.profilePicture,
             ownProfile = true,
             buttonTestTag = "editProfileButton")
       })

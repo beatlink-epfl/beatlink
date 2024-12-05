@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.library
 
 import android.Manifest.permission.READ_MEDIA_IMAGES
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -45,7 +44,9 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.CREATE_NEW_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
@@ -63,7 +64,6 @@ fun CreateNewPlaylistScreen(
   val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
-  val coverImage = remember { mutableStateOf<Bitmap?>(null) }
 
   val context = LocalContext.current
   val titleError = playlistTitle.length !in 1..MAX_PLAYLIST_TITLE_LENGTH
@@ -74,13 +74,9 @@ fun CreateNewPlaylistScreen(
   // Permission launcher for reading images
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri
-        if (imageUri == null) {
-          coverImage.value = null
-        } else {
-          profileViewModel.uploadProfilePicture(context, imageUri)
-          profileViewModel.loadProfilePicture { coverImage.value = it }
-        }
+        imageUri = uri ?: Uri.EMPTY
+        playlistViewModel.coverImage.value =
+            base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
       }
 
   val fetchedUsernames = mutableListOf<String>()
@@ -124,8 +120,9 @@ fun CreateNewPlaylistScreen(
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Cover
               PlaylistCover(
-                  coverImage,
+                  playlistViewModel.coverImage,
                   Modifier.size(55.dp),
+                  isClickable = true,
                   onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
 
               // TITLE

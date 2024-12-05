@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -34,6 +35,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnit
@@ -71,6 +73,52 @@ class SpotifyApiViewModelTest {
   }
 
   @Test
+  fun `addCustomPlaylistCoverImage succeeds`() = runTest {
+    // Arrange
+    val playlistID = "playlist123"
+    val base64Image = "mockBase64EncodedImage"
+    val mockResult = Result.success(JSONObject())
+
+    mockApiRepository.stub {
+      onBlocking { put("playlists/$playlistID/images", base64Image.toRequestBody()) } doReturn
+          mockResult
+    }
+
+    // Act
+    viewModel.addCustomPlaylistCoverImage(playlistID, base64Image)
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), any())
+    // Log verification is optional but useful for ensuring the right branch was taken
+    verifyNoMoreInteractions(mockApiRepository)
+  }
+
+  @Test
+  fun `addCustomPlaylistCoverImage handles failure gracefully`() = runTest {
+    // Arrange
+    val playlistID = "playlist123"
+    val base64Image = "mockBase64EncodedImage"
+    val exception = Exception("Network error")
+    val mockResult = Result.failure<JSONObject>(exception)
+
+    mockApiRepository.stub {
+      onBlocking { put("playlists/$playlistID/images", base64Image.toRequestBody()) } doReturn
+          mockResult
+    }
+
+    // Act
+    viewModel.addCustomPlaylistCoverImage(playlistID, base64Image)
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert
+    verify(mockApiRepository).put(eq("playlists/$playlistID/images"), any())
+    verifyNoMoreInteractions(mockApiRepository)
+  }
+
+  @Test
   fun `createBeatLinkPlaylist creates playlist and adds tracks successfully`() = runTest {
     // Arrange: Mock responses for getCurrentUserId, createEmptySpotifyPlaylist, and
     // addTracksToPlaylist
@@ -96,7 +144,7 @@ class SpotifyApiViewModelTest {
     }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
@@ -119,7 +167,7 @@ class SpotifyApiViewModelTest {
     mockApiRepository.stub { onBlocking { get("me") } doReturn Result.failure(exception) }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
@@ -148,7 +196,7 @@ class SpotifyApiViewModelTest {
     }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
