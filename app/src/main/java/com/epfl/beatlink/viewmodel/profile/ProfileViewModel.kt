@@ -57,6 +57,30 @@ open class ProfileViewModel(
   val isProfileUpdated: StateFlow<Boolean>
     get() = _isProfileUpdated
 
+  private val _profileReady = MutableStateFlow(false)
+  val profileReady: StateFlow<Boolean>
+    get() = _profileReady
+
+  private val _selectedUserUserId = MutableStateFlow("")
+  val selectedUserUserId: StateFlow<String>
+    get() = _selectedUserUserId
+
+  private val _selectedUserProfile = MutableStateFlow(initialProfile)
+  val selectedUserProfile: StateFlow<ProfileData?>
+    get() = _selectedUserProfile
+
+  fun selectSelectedUser(userId: String) {
+    _selectedUserUserId.value = userId
+  }
+
+  fun unselectSelectedUser() {
+    _selectedUserUserId.value = ""
+  }
+
+  fun unreadyProfile() {
+    _profileReady.value = false
+  }
+
   /** Function that updates the profileUpdate flag to true */
   fun markProfileAsUpdated() {
     _isProfileUpdated.value = true
@@ -99,6 +123,15 @@ open class ProfileViewModel(
     }
   }
 
+  open fun fetchUserProfile() {
+    _profileReady.value = false
+    viewModelScope.launch {
+      val userProfile = repository.fetchProfile(_selectedUserUserId.value)
+      _selectedUserProfile.value = userProfile
+      _profileReady.value = true
+    }
+  }
+
   open fun addProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
@@ -137,6 +170,16 @@ open class ProfileViewModel(
 
   open fun loadProfilePicture(
       userId: String? = repository.getUserId(),
+      onBitmapLoaded: (Bitmap?) -> Unit
+  ) {
+    if (userId == null) {
+      return
+    }
+    return repository.loadProfilePicture(userId, onBitmapLoaded)
+  }
+
+  open fun loadSelectedUserProfilePicture(
+      userId: String? = _selectedUserUserId.value,
       onBitmapLoaded: (Bitmap?) -> Unit
   ) {
     if (userId == null) {
