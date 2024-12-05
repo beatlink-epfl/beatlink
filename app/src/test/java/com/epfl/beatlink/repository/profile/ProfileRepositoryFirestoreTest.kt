@@ -25,8 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.Transaction
 import com.google.firebase.storage.UploadTask
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -46,6 +44,8 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 @Suppress("UNCHECKED_CAST")
 class ProfileRepositoryFirestoreTest {
@@ -285,6 +285,8 @@ class ProfileRepositoryFirestoreTest {
     val userId = "testUserId"
 
     // Mock transaction behavior
+    `when`(mockTransaction.get(mockUsernameDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.exists()).thenReturn(false)
     `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
         .thenReturn(mockTransaction)
     `when`(mockTransaction.set(mockUsernameDocumentReference, mapOf<String, Any>()))
@@ -312,6 +314,8 @@ class ProfileRepositoryFirestoreTest {
     assertTrue(success)
 
     // Verify that the `set` method was called with the correct arguments
+    verify(mockTransaction).get(mockUsernameDocumentReference)
+    verify(mockDocumentSnapshot).exists()
     verify(mockTransaction).set(mockProfileDocumentReference, profileData)
     verify(mockTransaction).set(mockUsernameDocumentReference, mapOf<String, Any>())
     verify(mockTransaction)
@@ -321,6 +325,29 @@ class ProfileRepositoryFirestoreTest {
                 "ownRequests" to mapOf<String, Boolean>(),
                 "friendRequests" to mapOf<String, Boolean>(),
                 "allFriends" to mapOf<String, String>()))
+  }
+
+  @Test
+  fun `addProfile fails because username is taken`() = runBlocking {
+    // Arrange
+    val profileData = ProfileData(username = "testUsername")
+
+    // Mock transaction behavior
+    `when`(mockTransaction.get(mockUsernameDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.exists()).thenReturn(true)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.addProfile("testUserId", profileData)
+
+    // Assert
+    assertFalse(success)
   }
 
   @Test
@@ -386,9 +413,22 @@ class ProfileRepositoryFirestoreTest {
   fun `updateProfile succeeds and updates usernames collection`(): Unit = runBlocking {
     // Arrange
     val profileData = ProfileData(username = "testUsername")
+    val mockUsernameSnapshot = mock(DocumentSnapshot::class.java)
 
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testOtherUsername")
+    `when`(mockTransaction.get(mockUsernameDocumentReference)).thenReturn(mockUsernameSnapshot)
+    `when`(mockUsernameSnapshot.exists()).thenReturn(false)
+    `when`(
+            mockTransaction.delete(
+                eq(mockUsernamesCollectionReference.document("testOtherUsername"))))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.set(
+                eq(mockUsernamesCollectionReference.document("testUsername")),
+                eq(mapOf<String, Any>())))
+        .thenReturn(mockTransaction)
+
     `when`(
             mockTransaction.set(
                 eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge())))
@@ -400,15 +440,6 @@ class ProfileRepositoryFirestoreTest {
     `when`(
             mockTransaction.update(
                 eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>())))
-        .thenReturn(mockTransaction)
-    `when`(
-            mockTransaction.delete(
-                eq(mockUsernamesCollectionReference.document("testOtherUsername"))))
-        .thenReturn(mockTransaction)
-    `when`(
-            mockTransaction.set(
-                eq(mockUsernamesCollectionReference.document("testUsername")),
-                eq(mapOf<String, Any>())))
         .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
@@ -425,6 +456,8 @@ class ProfileRepositoryFirestoreTest {
     assertTrue(success)
     verify(mockTransaction).get(mockProfileDocumentReference)
     verify(mockDocumentSnapshot).getString("username")
+    verify(mockTransaction).get(mockUsernameDocumentReference)
+    verify(mockUsernameSnapshot).exists()
     verify(mockTransaction)
         .set(eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge()))
     verify(mockTransaction)
@@ -436,6 +469,31 @@ class ProfileRepositoryFirestoreTest {
     verify(mockTransaction)
         .set(
             eq(mockUsernamesCollectionReference.document("testUsername")), eq(mapOf<String, Any>()))
+  }
+
+  @Test
+  fun `updateProfile fails because username is taken`() = runBlocking {
+    // Arrange
+    val profileData = ProfileData(username = "testUsername")
+    val mockUsernameSnapshot = mock(DocumentSnapshot::class.java)
+
+    `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.getString("username")).thenReturn("testOtherUsername")
+    `when`(mockTransaction.get(mockUsernameDocumentReference)).thenReturn(mockUsernameSnapshot)
+    `when`(mockUsernameSnapshot.exists()).thenReturn(true)
+
+    // Mock runTransaction to execute the transaction block
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.updateProfile("testUserId", profileData)
+
+    // Assert
+    assertFalse(success)
   }
 
   @Test
