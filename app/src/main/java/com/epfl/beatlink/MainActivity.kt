@@ -81,21 +81,33 @@ class MainActivity : ComponentActivity() {
    * `WORK_INTERVAL_MINUTES`.
    */
   private fun initializeWorkManager() {
-    val mapUsersRepository = MapUsersRepositoryFirestore(FirebaseFirestore.getInstance())
-    val workerFactory = WorkerFactory(mapUsersRepository)
-    val config = Configuration.Builder().setWorkerFactory(workerFactory).build()
+    // Skip initialization during tests
+    if (!isRunningInTest()) {
+      val mapUsersRepository = MapUsersRepositoryFirestore(FirebaseFirestore.getInstance())
+      val workerFactory = WorkerFactory(mapUsersRepository)
+      val config = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
-    WorkManager.initialize(this, config)
+      WorkManager.initialize(this, config)
 
-    // Build the periodic work request
-    val periodicWork =
-        PeriodicWorkRequest.Builder(
-                ExpiredMapUsersWorker::class.java, WORK_INTERVAL_MINUTES, TimeUnit.MINUTES)
-            .build()
+      // Build the periodic work request
+      val periodicWork =
+          PeriodicWorkRequest.Builder(
+                  ExpiredMapUsersWorker::class.java, WORK_INTERVAL_MINUTES, TimeUnit.MINUTES)
+              .build()
 
-    // Enqueue the periodic work request
-    WorkManager.getInstance(this)
-        .enqueueUniquePeriodicWork(
-            "Delete expired MapUsers", ExistingPeriodicWorkPolicy.KEEP, periodicWork)
+      // Enqueue the periodic work request
+      WorkManager.getInstance(this)
+          .enqueueUniquePeriodicWork(
+              "Delete expired MapUsers", ExistingPeriodicWorkPolicy.KEEP, periodicWork)
+    }
+  }
+
+  // Helper function to check if the app is running in a test environment
+  private fun isRunningInTest(): Boolean {
+    return try {
+      Class.forName("androidx.test.core.app.ApplicationProvider") != null
+    } catch (e: ClassNotFoundException) {
+      false
+    }
   }
 }
