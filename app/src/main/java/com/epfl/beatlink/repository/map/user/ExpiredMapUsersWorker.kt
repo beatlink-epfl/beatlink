@@ -32,7 +32,7 @@ class ExpiredMapUsersWorker(
       Log.d("ExpiredMapUsersWorker", "Successfully deleted expired MapUsers.")
       Result.success()
     } else {
-      Log.w("ExpiredMapUsersWorker", "No expired MapUsers to delete or an error has occurred.")
+      Log.w("ExpiredMapUsersWorker", "Worker did not delete any expired MapUsers.")
       Result.retry()
     }
   }

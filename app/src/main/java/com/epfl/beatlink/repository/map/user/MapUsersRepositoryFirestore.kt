@@ -83,7 +83,7 @@ class MapUsersRepositoryFirestore(
             onSuccess(mapUsers)
           } else {
             task.exception?.let { e ->
-              Log.e("MapUsersRepository", "Error getting users", e)
+              Log.e("MapUsersRepository", "Error getting MapUsers", e)
               onFailure(e)
             }
           }
@@ -98,7 +98,7 @@ class MapUsersRepositoryFirestore(
         onSuccess()
       } else {
         task.exception?.let { e ->
-          Log.e("MapUsersRepository", "Error adding map user", e)
+          Log.e("MapUsersRepository", "Error adding MapUser", e)
           onFailure(e)
         }
       }
@@ -117,7 +117,7 @@ class MapUsersRepositoryFirestore(
         onSuccess()
       } else {
         task.exception?.let { e ->
-          Log.e("MapUsersRepository", "Error updating map user", e)
+          Log.e("MapUsersRepository", "Error updating MapUser", e)
           onFailure(e)
         }
       }
@@ -131,7 +131,7 @@ class MapUsersRepositoryFirestore(
         onSuccess()
       } else {
         task.exception?.let { e ->
-          Log.e("MapUsersRepository", "Error deleting map user", e)
+          Log.e("MapUsersRepository", "Error deleting MapUser", e)
           onFailure(e)
         }
       }
@@ -141,6 +141,13 @@ class MapUsersRepositoryFirestore(
   override suspend fun deleteExpiredUsers(): Boolean {
     return try {
       val expirationTime = Timestamp(Date(System.currentTimeMillis() - TTL_MILLIS))
+
+      // Check if the user is logged in
+      if (auth.currentUser == null) {
+        Log.d("MapUsersRepository", "User is not logged in, cannot delete expired MapUsers.")
+        return false
+      }
+
       val querySnapshot =
           db.collection(collectionPath).whereLessThan("lastUpdated", expirationTime).get().await()
 
@@ -171,7 +178,6 @@ class MapUsersRepositoryFirestore(
    */
   fun documentToMapUser(document: DocumentSnapshot): MapUser? {
     return try {
-
       // Get `currentPlayingTrack` data
       val currentPlayingTrackData = document.get("currentPlayingTrack") as Map<String, Any>
 
