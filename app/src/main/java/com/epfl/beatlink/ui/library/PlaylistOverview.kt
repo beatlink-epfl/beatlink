@@ -256,25 +256,27 @@ fun PlaylistOverviewScreen(
                 coroutineScope.launch {
                   val finalList = playlistViewModel.getFinalListTracks()
                   if (finalList.isNotEmpty()) {
-                    val idSpotify =
-                        spotifyViewModel.createBeatLinkPlaylist(
-                            playlistName = selectedPlaylistState.playlistName,
-                            playlistDescription = selectedPlaylistState.playlistDescription,
-                            tracks = finalList)
-                    Log.d("Spotify", idSpotify.toString())
-                    if (idSpotify != null) {
-                      // Delete playlist only if creation was successful
-                      playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
-                      showDialogExport = false
-                      Toast.makeText(context, "Playlist exported successfully", Toast.LENGTH_SHORT)
-                          .show()
-                      navigationActions.navigateTo(Screen.LIBRARY)
-                    } else {
-                      // Show failure message
-                      Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)
-                          .show()
-                      showDialogExport = false
-                    }
+                    spotifyViewModel.createBeatLinkPlaylist(
+                        playlistName = selectedPlaylistState.playlistName,
+                        playlistDescription = selectedPlaylistState.playlistDescription,
+                        tracks = finalList,
+                        onResult = { idSpotify ->
+                          Log.d("Spotify", idSpotify.toString())
+                          if (idSpotify != null) {
+                            // Delete playlist only if creation was successful
+                            playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
+                            showDialogExport = false
+                            Toast.makeText(
+                                    context, "Playlist exported successfully", Toast.LENGTH_SHORT)
+                                .show()
+                            navigationActions.navigateTo(Screen.LIBRARY)
+                          } else {
+                            // Show failure message
+                            Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)
+                                .show()
+                            showDialogExport = false
+                          }
+                        })
                   } else {
                     // Handle empty list case
                     Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()

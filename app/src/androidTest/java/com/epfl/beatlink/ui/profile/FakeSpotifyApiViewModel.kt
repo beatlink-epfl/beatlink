@@ -78,11 +78,12 @@ open class FakeSpotifyApiViewModel(
     }
   }
 
-  override suspend fun createBeatLinkPlaylist(
+  override fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String,
-      tracks: List<SpotifyTrack>
-  ): String? {
-    return "playlistId"
+      tracks: List<SpotifyTrack>,
+      onResult: (String?) -> Unit
+  ) {
+    onResult("playlistId")
   }
 }
