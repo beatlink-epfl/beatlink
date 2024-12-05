@@ -29,15 +29,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
-import com.epfl.beatlink.ui.theme.PrimaryRed
-import com.epfl.beatlink.ui.theme.RedGradientBrush
 import com.epfl.beatlink.ui.theme.primaryRed
 import com.epfl.beatlink.ui.theme.primaryWhite
 
@@ -134,123 +129,105 @@ fun VoteButton(
 }
 
 @Composable
-fun LinkButton(buttonText: String,
-               onClickLink: () -> Unit = {},
-               onClickRequested: () -> Unit = {},
-               onClickAccept: () -> Unit = {},
-               onClickLinked: () -> Unit = {}) {
-    when (buttonText) {
-        "Link" -> {
-            // "Link" Button
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = PrimaryGradientBrush,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-                    .width(100.dp)
-                    .height(41.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = onClickLink,
-                    modifier = Modifier.fillMaxSize().testTag("linkedButton"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(30.dp),
-                    elevation = null
-                ) {
-                    Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
+fun LinkButton(
+    buttonText: String,
+    onClickLink: () -> Unit = {},
+    onClickRequested: () -> Unit = {},
+    onClickAccept: () -> Unit = {},
+    onClickLinked: () -> Unit = {}
+) {
+  when (buttonText) {
+    "Link" -> {
+      // "Link" Button
+      Box(
+          modifier =
+              Modifier.border(
+                      width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .width(100.dp)
+                  .height(41.dp),
+          contentAlignment = Alignment.Center) {
+            Button(
+                onClick = onClickLink,
+                modifier = Modifier.fillMaxSize().testTag("linkedButton"),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent, contentColor = Color.White),
+                shape = RoundedCornerShape(30.dp),
+                elevation = null) {
+                  Text(text = buttonText, style = MaterialTheme.typography.labelLarge)
                 }
-            }
-        }
-        "Requested" -> {
-            // "Requested" Button
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = PrimaryGradientBrush,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-                    .width(120.dp)
-                    .height(41.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = onClickRequested,
-                    modifier = Modifier.fillMaxSize().testTag("linkedButton"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White.copy(alpha = 0.75f), // Transparent background with alpha
-                    ),
-                    shape = RoundedCornerShape(30.dp),
-                    elevation = null
-                ) {
-                    GradientText(text = buttonText,
-                        style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
-        "Accept" -> {
-            // "Accept" Button
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = PrimaryGradientBrush,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-                    .width(120.dp)
-                    .height(41.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = onClickAccept,
-                    modifier = Modifier.fillMaxSize().testTag("linkedButton"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White.copy(alpha = 0.75f), // Transparent background with alpha
-                    ),
-                    shape = RoundedCornerShape(30.dp),
-                    elevation = null
-                ) {
-                    GradientText(text = buttonText,
-                        style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
-        "Linked" -> {
-            // "Linked" Button with border
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 2.dp,
-                        brush = PrimaryGradientBrush,
-                        shape = RoundedCornerShape(30.dp)
-                    )
-                    .width(100.dp)
-                    .height(41.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(
-                    onClick = onClickLinked,
-                    modifier = Modifier.fillMaxSize().testTag("linkedButton"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(30.dp),
-                    elevation = null
-                ) {
-                    GradientText(text = buttonText, style = MaterialTheme.typography.labelLarge)
-                }
-            }
-        }
+          }
     }
+    "Requested" -> {
+      // "Requested" Button
+      Box(
+          modifier =
+              Modifier.border(
+                      width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .width(120.dp)
+                  .height(41.dp),
+          contentAlignment = Alignment.Center) {
+            Button(
+                onClick = onClickRequested,
+                modifier = Modifier.fillMaxSize().testTag("linkedButton"),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor =
+                            Color.White.copy(alpha = 0.75f), // Transparent background with alpha
+                    ),
+                shape = RoundedCornerShape(30.dp),
+                elevation = null) {
+                  GradientText(text = buttonText, style = MaterialTheme.typography.labelLarge)
+                }
+          }
+    }
+    "Accept" -> {
+      // "Accept" Button
+      Box(
+          modifier =
+              Modifier.border(
+                      width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .width(120.dp)
+                  .height(41.dp),
+          contentAlignment = Alignment.Center) {
+            Button(
+                onClick = onClickAccept,
+                modifier = Modifier.fillMaxSize().testTag("linkedButton"),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor =
+                            Color.White.copy(alpha = 0.75f), // Transparent background with alpha
+                    ),
+                shape = RoundedCornerShape(30.dp),
+                elevation = null) {
+                  GradientText(text = buttonText, style = MaterialTheme.typography.labelLarge)
+                }
+          }
+    }
+    "Linked" -> {
+      // "Linked" Button with border
+      Box(
+          modifier =
+              Modifier.border(
+                      width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+                  .width(100.dp)
+                  .height(41.dp),
+          contentAlignment = Alignment.Center) {
+            Button(
+                onClick = onClickLinked,
+                modifier = Modifier.fillMaxSize().testTag("linkedButton"),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(30.dp),
+                elevation = null) {
+                  GradientText(text = buttonText, style = MaterialTheme.typography.labelLarge)
+                }
+          }
+    }
+  }
 }
-

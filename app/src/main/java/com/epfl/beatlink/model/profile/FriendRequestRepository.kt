@@ -2,7 +2,6 @@ package com.epfl.beatlink.model.profile
 
 interface FriendRequestRepository {
 
-
   fun init(onSuccess: () -> Unit)
 
   /**

@@ -322,14 +322,12 @@ fun GradientText(
     text: String,
     style: TextStyle = MaterialTheme.typography.bodyLarge
 ) {
-    Text(
-        modifier = modifier,
-        text = buildAnnotatedString {
-            withStyle(style.toSpanStyle().copy(brush = PrimaryGradientBrush)) {
-                append(text)
-            }
-        }
-    )
+  Text(
+      modifier = modifier,
+      text =
+          buildAnnotatedString {
+            withStyle(style.toSpanStyle().copy(brush = PrimaryGradientBrush)) { append(text) }
+          })
 }
 
 @Composable

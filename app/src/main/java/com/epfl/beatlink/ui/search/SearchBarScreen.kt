@@ -86,10 +86,10 @@ fun SearchBarScreen(
               DisplayResults(artists = results.value.second)
             }
             "People" -> {
-                DisplayResults(
-                    people = peopleResult.value,
-                    profileViewModel = profileViewModel,
-                    friendRequestViewModel = friendRequestViewModel)
+              DisplayResults(
+                  people = peopleResult.value,
+                  profileViewModel = profileViewModel,
+                  friendRequestViewModel = friendRequestViewModel)
             }
           }
         }

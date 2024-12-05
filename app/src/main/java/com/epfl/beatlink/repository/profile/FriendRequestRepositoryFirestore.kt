@@ -14,18 +14,17 @@ open class FriendRequestRepositoryFirestore(
 ) : FriendRequestRepository {
   private val collectionPath = "friendRequests"
 
-
-    override fun init(onSuccess: () -> Unit) {
-        auth.addAuthStateListener { firebaseAuth ->
-            val currentUser = firebaseAuth.currentUser
-            if (currentUser != null) {
-                // User is authenticated, proceed with onSuccess
-                onSuccess()
-            } else {
-                Log.d(TAG, "User not authenticated")
-            }
-        }
+  override fun init(onSuccess: () -> Unit) {
+    auth.addAuthStateListener { firebaseAuth ->
+      val currentUser = firebaseAuth.currentUser
+      if (currentUser != null) {
+        // User is authenticated, proceed with onSuccess
+        onSuccess()
+      } else {
+        Log.d(TAG, "User not authenticated")
+      }
     }
+  }
 
   override fun getUserId(): String? {
     val userId = auth.currentUser?.uid

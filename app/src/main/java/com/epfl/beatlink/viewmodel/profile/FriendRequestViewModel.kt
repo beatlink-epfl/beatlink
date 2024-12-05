@@ -20,128 +20,142 @@ open class FriendRequestViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
-    private val _ownRequests = MutableLiveData<List<String>>()
-    val ownRequests: LiveData<List<String>> get() = _ownRequests
+  private val _ownRequests = MutableLiveData<List<String>>(emptyList())
+  val ownRequests: LiveData<List<String>>
+    get() = _ownRequests
 
-    private val _friendRequests = MutableLiveData<List<String>>()
-    val friendRequests: LiveData<List<String>> get() = _friendRequests
+  private val _friendRequests = MutableLiveData<List<String>>(emptyList())
+  val friendRequests: LiveData<List<String>>
+    get() = _friendRequests
 
-    private val _allFriends = MutableLiveData<List<String>>()
-    val allFriends: LiveData<List<String>> get() = _allFriends
+  private val _allFriends = MutableLiveData<List<String>>(emptyList())
+  val allFriends: LiveData<List<String>>
+    get() = _allFriends
 
-    // Create factory
-    companion object {
-        val Factory: ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    return FriendRequestViewModel(FriendRequestRepositoryFirestore(Firebase.firestore, firebaseAuth))
-                            as T
-                }
-            }
-    }
-
-    init {
-        repository.init(onSuccess = { fetchInitialData() })
-    }
-
-    private fun fetchInitialData() {
-        getOwnRequests()
-        getFriendRequests()
-        getAllFriends()
-    }
-
-    open fun sendFriendRequestTo(receiverId: String) {
-        val senderId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            repository.sendFriendRequest(senderId, receiverId)
-            _ownRequests.postValue(_ownRequests.value.orEmpty() + receiverId)
+  // Create factory
+  companion object {
+    val Factory: ViewModelProvider.Factory =
+        object : ViewModelProvider.Factory {
+          @Suppress("UNCHECKED_CAST")
+          override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val firebaseAuth = FirebaseAuth.getInstance()
+            return FriendRequestViewModel(
+                FriendRequestRepositoryFirestore(Firebase.firestore, firebaseAuth))
+                as T
+          }
         }
+  }
+
+  init {
+    repository.init(onSuccess = { fetchInitialData() })
+  }
+
+  private fun fetchInitialData() {
+    getOwnRequests()
+    getFriendRequests()
+    getAllFriends()
+  }
+
+  open fun sendFriendRequestTo(receiverId: String) {
+    val senderId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        repository.sendFriendRequest(senderId, receiverId)
+        _ownRequests.postValue(_ownRequests.value.orEmpty() + receiverId)
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error sending friend request: ${e.message}")
+      }
     }
+  }
 
-    open fun acceptFriendRequestFrom(senderId: String) {
-        val receiverId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            repository.acceptFriendRequest(receiverId, senderId)
-            _ownRequests.postValue(_ownRequests.value.orEmpty().filter { it != receiverId })
-            _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
-            _allFriends.postValue(_allFriends.value.orEmpty() + senderId)
-        }
+  open fun acceptFriendRequestFrom(senderId: String) {
+    val receiverId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        repository.acceptFriendRequest(receiverId, senderId)
+        _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
+        _allFriends.postValue(_allFriends.value.orEmpty() + senderId)
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error accepting friend request: ${e.message}")
+      }
     }
+  }
 
-    open fun rejectFriendRequestTo(receiverId: String) {
-        val senderId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            repository.rejectFriendRequest(receiverId, senderId)
-            _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != receiverId })
-
-        }
+  open fun rejectFriendRequestFrom(senderId: String) {
+    val receiverId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        repository.rejectFriendRequest(receiverId, senderId)
+        _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error rejecting friend request: ${e.message}")
+      }
     }
+  }
 
-    open fun cancelFriendRequestTo(receiverId: String) {
-        val senderId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            repository.cancelFriendRequest(senderId, receiverId)
-            _ownRequests.postValue(_ownRequests.value.orEmpty().filter { it != receiverId })
-            _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
-        }
+  open fun cancelFriendRequestTo(receiverId: String) {
+    val senderId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        repository.cancelFriendRequest(senderId, receiverId)
+        _ownRequests.postValue(_ownRequests.value.orEmpty().filter { it != receiverId })
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error canceling friend request: ${e.message}")
+      }
     }
+  }
 
-    open fun removeFriend(friendToRemove: String) {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            repository.removeFriend(userId, friendToRemove)
-            _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
-        }
+  open fun removeFriend(friendToRemove: String) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        repository.removeFriend(userId, friendToRemove)
+        _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error removing friend: ${e.message}")
+      }
     }
+  }
 
-
-    /**
-     * Fetch the list of sent friend requests (ownRequests) for the current user.
-     */
-    fun getOwnRequests() {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            try {
-                val requests = repository.getOwnRequests(userId)
-                _ownRequests.postValue(requests)
-            } catch (e: Exception) {
-                Log.e("FriendRequestViewModel", "Error fetching own requests: ${e.message}")
-                _ownRequests.postValue(emptyList())
-            }
-        }
+  /** Fetch the list of sent friend requests (ownRequests) for the current user. */
+  fun getOwnRequests() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        val requests = repository.getOwnRequests(userId)
+        _ownRequests.postValue(requests)
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error fetching own requests: ${e.message}")
+        _ownRequests.postValue(emptyList())
+      }
     }
+  }
 
-    /**
-     * Fetch the list of received friend requests (friendRequests) for the current user.
-     */
-    fun getFriendRequests() {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            try {
-                val requests = repository.getFriendRequests(userId)
-                _friendRequests.postValue(requests)
-            } catch (e: Exception) {
-                Log.e("FriendRequestViewModel", "Error fetching friend requests: ${e.message}")
-                _friendRequests.postValue(emptyList())
-            }
-        }
+  /** Fetch the list of received friend requests (friendRequests) for the current user. */
+  fun getFriendRequests() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        val requests = repository.getFriendRequests(userId)
+        _friendRequests.postValue(requests)
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error fetching friend requests: ${e.message}")
+        _friendRequests.postValue(emptyList())
+      }
     }
+  }
 
-    /**
-     * Fetch the list of all friends for the current user.
-     */
-    fun getAllFriends() {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch(dispatcher) {
-            try {
-                val friends = repository.getAllFriends(userId)
-                _allFriends.postValue(friends)
-            } catch (e: Exception) {
-                Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
-                _allFriends.postValue(emptyList())
-            }
-        }
+  /** Fetch the list of all friends for the current user. */
+  fun getAllFriends() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        val friends = repository.getAllFriends(userId)
+        _allFriends.postValue(friends)
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
+        _allFriends.postValue(emptyList())
+      }
     }
+  }
 }
