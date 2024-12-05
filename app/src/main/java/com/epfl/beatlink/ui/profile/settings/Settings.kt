@@ -32,12 +32,14 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun SettingsScreen(
     navigationActions: NavigationActions,
     firebaseAuthViewModel: FirebaseAuthViewModel,
-    mapUsersViewModel: MapUsersViewModel
+    mapUsersViewModel: MapUsersViewModel,
+    profileViewModel: ProfileViewModel
 ) {
   val context = LocalContext.current
   var showDialog by remember { mutableStateOf(false) }
@@ -97,6 +99,7 @@ fun SettingsScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
+                profileViewModel.markProfileAsNotUpdated()
                 mapUsersViewModel.deleteMapUser()
                 firebaseAuthViewModel.signOut(
                     onSuccess = {
