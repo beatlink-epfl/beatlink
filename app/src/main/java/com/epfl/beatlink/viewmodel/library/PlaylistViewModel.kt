@@ -4,12 +4,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.epfl.beatlink.model.library.DEFAULT_TRACK_LIMIT
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -59,6 +62,8 @@ class PlaylistViewModel(
   private val tempPlaylistCollaborators_ = MutableStateFlow<List<String>>(emptyList())
   val tempPlaylistCollaborators: StateFlow<List<String>>
     get() = tempPlaylistCollaborators_
+
+  val coverImage = mutableStateOf<Bitmap?>(null)
 
   // create factory
   companion object {
@@ -182,6 +187,19 @@ class PlaylistViewModel(
       // Update the playlist in the repository
       updatePlaylist(updatedPlaylist)
     } ?: run { Log.e("PlaylistViewModel", "No playlist selected to update track likes") }
+  }
+
+  /**
+   * Create the final list of track to export the playlist that contain the 50 most liked songs in
+   * descending order
+   */
+  fun getFinalListTracks(): List<SpotifyTrack> {
+    return selectedPlaylist_.value
+        ?.playlistTracks
+        ?.sortedByDescending { it.likes } // Sort by likes in descending order
+        ?.take(DEFAULT_TRACK_LIMIT) // Take at most 50 tracks
+        ?.map { it.track } // Map to SpotifyTrack
+    ?: emptyList() // Return an empty list if no playlist is selected
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
