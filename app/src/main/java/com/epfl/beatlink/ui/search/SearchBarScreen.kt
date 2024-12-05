@@ -36,6 +36,7 @@ import com.epfl.beatlink.ui.theme.PrimaryOrange
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.PrimaryRed
 import com.epfl.beatlink.ui.theme.primaryWhite
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -44,6 +45,7 @@ fun SearchBarScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
     profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel
 ) {
   val selectedCategory = remember { mutableStateOf("Songs") }
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
@@ -84,7 +86,10 @@ fun SearchBarScreen(
               DisplayResults(artists = results.value.second)
             }
             "People" -> {
-              DisplayResults(people = peopleResult.value, profileViewModel = profileViewModel)
+                DisplayResults(
+                    people = peopleResult.value,
+                    profileViewModel = profileViewModel,
+                    friendRequestViewModel = friendRequestViewModel)
             }
           }
         }

@@ -1,6 +1,10 @@
 package com.epfl.beatlink.model.profile
 
 interface FriendRequestRepository {
+
+
+  fun init(onSuccess: () -> Unit)
+
   /**
    * Retrieves the user ID of the currently logged-in user.
    *
