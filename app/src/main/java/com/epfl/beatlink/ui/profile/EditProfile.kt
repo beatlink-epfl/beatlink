@@ -164,7 +164,8 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                               email = profileData?.email ?: "",
                               favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList(),
                               topSongs = profileData?.topSongs ?: emptyList(),
-                              topArtists = profileData?.topArtists ?: emptyList())
+                              topArtists = profileData?.topArtists ?: emptyList(),
+                              spotifyId = profileData?.spotifyId ?: "")
                       profileViewModel.updateProfile(newData)
                       if (imageUri != null) {
                         profileViewModel.uploadProfilePicture(context, imageUri)
