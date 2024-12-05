@@ -15,6 +15,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +52,11 @@ fun SearchBarScreen(
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
   val peopleResult = remember { mutableStateOf(emptyList<ProfileData?>()) }
+  LaunchedEffect(Unit) {
+    // Resets selected users in people searching
+    profileViewModel.unselectSelectedUser()
+    profileViewModel.unreadyProfile()
+  }
 
   if (selectedCategory.value == "People") {
     DatabaseSearchQuery(
@@ -84,7 +90,10 @@ fun SearchBarScreen(
               DisplayResults(artists = results.value.second)
             }
             "People" -> {
-              DisplayResults(people = peopleResult.value, profileViewModel = profileViewModel)
+              DisplayResults(
+                  people = peopleResult.value,
+                  profileViewModel = profileViewModel,
+                  navigationActions = navigationActions)
             }
           }
         }

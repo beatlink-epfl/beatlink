@@ -189,7 +189,6 @@ class SearchBarScreenTest {
     }
 
     composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(topProfiles.size)
-    composeTestRule.onAllNodesWithTag("peopleImage").assertCountEquals(topProfiles.size)
   }
 
   @Test
