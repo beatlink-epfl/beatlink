@@ -186,11 +186,12 @@ class PlaylistViewModel(
   }
 
   fun getFinalListTracks(): List<SpotifyTrack> {
-    return selectedPlaylist_.value?.playlistTracks
-      ?.sortedByDescending { it.likes } // Sort by likes in descending order
-      ?.take(50) // Take at most 50 tracks
-      ?.map { it.track } // Map to SpotifyTrack
-      ?: emptyList() // Return an empty list if no playlist is selected
+    return selectedPlaylist_.value
+        ?.playlistTracks
+        ?.sortedByDescending { it.likes } // Sort by likes in descending order
+        ?.take(50) // Take at most 50 tracks
+        ?.map { it.track } // Map to SpotifyTrack
+    ?: emptyList() // Return an empty list if no playlist is selected
   }
 
   fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {

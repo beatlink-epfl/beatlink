@@ -14,6 +14,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
+import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -49,17 +50,19 @@ open class SpotifyApiViewModel(
   }
 
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
-  open fun createBeatLinkPlaylist(
+  open suspend fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
       tracks: List<SpotifyTrack>
-  ): String? {
-    var playlistId: String? = null
+  ): String? = suspendCoroutine { continuation ->
     createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
-      playlistId = id
-      addTracksToPlaylist(id, tracks)
+      if (id != null) {
+        addTracksToPlaylist(id, tracks)
+        continuation.resumeWith(Result.success(id)) // Return the playlist ID when done
+      } else {
+        continuation.resumeWith(Result.success(null)) // Return null if creation failed
+      }
     }
-    return playlistId
   }
 
   /** Adds tracks to a Spotify playlist. */
@@ -82,7 +85,7 @@ open class SpotifyApiViewModel(
   private fun createEmptySpotifyPlaylist(
       playlistName: String,
       playlistDescription: String = "",
-      onSuccess: (String) -> Unit
+      onSuccess: (String?) -> Unit
   ) {
     getCurrentUserId(
         onSuccess = { userId ->
@@ -94,16 +97,19 @@ open class SpotifyApiViewModel(
             val result =
                 apiRepository.post("users/$userId/playlists", body.toString().toRequestBody())
             if (result.isSuccess) {
-              Log.d("SpotifyApiViewModel", "Empty playlist created successfully")
-              val playlistId = result.getOrNull()!!.getString("id")
+              val playlistId = result.getOrNull()?.getString("id")
+              Log.d(
+                  "SpotifyApiViewModel", "Empty playlist created successfully with ID: $playlistId")
               onSuccess(playlistId)
             } else {
               Log.e("SpotifyApiViewModel", "Failed to create empty playlist")
+              onSuccess(null)
             }
           }
         },
         onFailure = {
           Log.e("SpotifyApiViewModel", "Failed to create empty playlist: could not fetch user ID")
+          onSuccess(null)
         })
   }
 

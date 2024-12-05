@@ -10,8 +10,6 @@ import androidx.compose.ui.test.performScrollTo
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
-import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -20,7 +18,6 @@ import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -41,7 +38,7 @@ class PlaylistOverviewScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
-    private lateinit var fakeSpotifyApiViewModel: FakeSpotifyApiViewModel
+  private lateinit var fakeSpotifyApiViewModel: FakeSpotifyApiViewModel
 
   private val sampleTrack =
       PlaylistTrack(
@@ -87,19 +84,19 @@ class PlaylistOverviewScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-    private lateinit var mockToast: Toast
+  private lateinit var mockToast: Toast
 
   @Before
   fun setUp() {
     playlistRepository = mock(PlaylistRepository::class.java)
-      `when`(playlistRepository.getUserId()).thenReturn("testUserId")
+    `when`(playlistRepository.getUserId()).thenReturn("testUserId")
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
-      fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     `when`(navigationActions.currentRoute()).thenReturn(Screen.PLAYLIST_OVERVIEW)
-      mockkStatic(Toast::class)
-      mockToast = mockk<Toast>(relaxed = true) // Relaxed mock to handle all methods
-      every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
+    mockkStatic(Toast::class)
+    mockToast = mockk<Toast>(relaxed = true) // Relaxed mock to handle all methods
+    every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
   }
 
   @Test
@@ -216,130 +213,125 @@ class PlaylistOverviewScreenTest {
     verify(navigationActions).navigateTo(TopLevelDestinations.PROFILE)
   }
 
-    @Test
-    fun exportButton_showsExportDialog_whenTracksExistAndUserIsOwner() {
-        val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
-        playlistViewModel.selectPlaylist(ownedPlaylist)
+  @Test
+  fun exportButton_showsExportDialog_whenTracksExistAndUserIsOwner() {
+    val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
+    playlistViewModel.selectPlaylist(ownedPlaylist)
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel,
-                spotifyViewModel = fakeSpotifyApiViewModel
-            )
-        }
-
-        // Perform click on the export button
-        composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
-
-        // Check that the export dialog is displayed
-        composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("cancelButton").assertIsDisplayed()
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
-    @Test
-    fun exportButton_doesNotAppearForNonOwner() {
-        val notOwnedPlaylist = playlistWithTracks.copy(userId = "otherUserId") // Not owned by current user
-        playlistViewModel.selectPlaylist(notOwnedPlaylist)
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel,
-                spotifyViewModel = fakeSpotifyApiViewModel
-            )
-        }
+    // Check that the export dialog is displayed
+    composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("cancelButton").assertIsDisplayed()
+  }
 
-        // Verify export button is not displayed
-        composeTestRule.onNodeWithTag("exportButton").assertDoesNotExist()
+  @Test
+  fun exportButton_doesNotAppearForNonOwner() {
+    val notOwnedPlaylist =
+        playlistWithTracks.copy(userId = "otherUserId") // Not owned by current user
+    playlistViewModel.selectPlaylist(notOwnedPlaylist)
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
-    @Test
-    fun exportButton_showsToast_whenNoTracksExistAndUserIsOwner() {
-        val ownedEmptyPlaylist = emptyPlaylist.copy(userId = "testUserId") // Owned by current user
-        playlistViewModel.selectPlaylist(ownedEmptyPlaylist)
+    // Verify export button is not displayed
+    composeTestRule.onNodeWithTag("exportButton").assertDoesNotExist()
+  }
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel,
-                spotifyViewModel = fakeSpotifyApiViewModel
-            )
-        }
+  @Test
+  fun exportButton_showsToast_whenNoTracksExistAndUserIsOwner() {
+    val ownedEmptyPlaylist = emptyPlaylist.copy(userId = "testUserId") // Owned by current user
+    playlistViewModel.selectPlaylist(ownedEmptyPlaylist)
 
-        // Perform click on the export button
-        composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
-
-        // Verify Toast is displayed with the correct message
-        io.mockk.verify { Toast.makeText(any(), "No songs added to playlist", Toast.LENGTH_SHORT) }
-        io.mockk.verify { mockToast.show() }
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
-    @Test
-    fun confirmExport_deletesOwnedPlaylistAndNavigatesToLibrary() {
-        val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
-        playlistViewModel.selectPlaylist(ownedPlaylist)
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel,
-                spotifyViewModel = fakeSpotifyApiViewModel
-            )
-        }
+    // Verify Toast is displayed with the correct message
+    io.mockk.verify { Toast.makeText(any(), "No songs added to playlist", Toast.LENGTH_SHORT) }
+    io.mockk.verify { mockToast.show() }
+  }
 
-        // Perform click on the export button
-        composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+  @Test
+  fun confirmExport_deletesOwnedPlaylistAndNavigatesToLibrary() {
+    val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
+    playlistViewModel.selectPlaylist(ownedPlaylist)
 
-        // Perform click on the confirm button
-        composeTestRule.onNodeWithTag("confirmButton").performClick()
-
-        // Verify the playlist is deleted from the app
-        verify(playlistRepository).deletePlaylistById(eq(ownedPlaylist.playlistID), any(), any())
-
-        // Verify navigation to Library screen
-        verify(navigationActions).navigateTo(Screen.LIBRARY)
-
-        // Verify success Toast is displayed
-        io.mockk.verify { Toast.makeText(any(), "Playlist exported successfully", Toast.LENGTH_SHORT) }
-        io.mockk.verify { mockToast.show() }
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
-    @Test
-    fun cancelExport_closesDialogWithoutExportingForOwnedPlaylist() {
-        val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
-        playlistViewModel.selectPlaylist(ownedPlaylist)
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
-        composeTestRule.setContent {
-            PlaylistOverviewScreen(
-                navigationActions = navigationActions,
-                profileViewModel = mock(ProfileViewModel::class.java),
-                playlistViewModel = playlistViewModel,
-                spotifyViewModel = fakeSpotifyApiViewModel
-            )
-        }
+    // Perform click on the confirm button
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
 
-        // Perform click on the export button
-        composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+    // Verify the playlist is deleted from the app
+    verify(playlistRepository).deletePlaylistById(eq(ownedPlaylist.playlistID), any(), any())
 
-        // Perform click on the cancel button
-        composeTestRule.onNodeWithTag("cancelButton").performClick()
+    // Verify navigation to Library screen
+    verify(navigationActions).navigateTo(Screen.LIBRARY)
 
-        // Verify the export dialog is closed
-        composeTestRule.onNodeWithTag("confirmButton").assertDoesNotExist()
-        composeTestRule.onNodeWithTag("cancelButton").assertDoesNotExist()
+    // Verify success Toast is displayed
+    io.mockk.verify { Toast.makeText(any(), "Playlist exported successfully", Toast.LENGTH_SHORT) }
+    io.mockk.verify { mockToast.show() }
+  }
 
-        // Verify the playlist is NOT deleted
-        verify(playlistRepository, never()).deletePlaylistById(any(), any(), any())
+  @Test
+  fun cancelExport_closesDialogWithoutExportingForOwnedPlaylist() {
+    val ownedPlaylist = playlistWithTracks.copy(userId = "testUserId") // Owned by current user
+    playlistViewModel.selectPlaylist(ownedPlaylist)
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
     }
 
-    @After
-    fun tearDown() {
-        unmockkStatic(Toast::class)
-    }
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Perform click on the cancel button
+    composeTestRule.onNodeWithTag("cancelButton").performClick()
+
+    // Verify the export dialog is closed
+    composeTestRule.onNodeWithTag("confirmButton").assertDoesNotExist()
+    composeTestRule.onNodeWithTag("cancelButton").assertDoesNotExist()
+
+    // Verify the playlist is NOT deleted
+    verify(playlistRepository, never()).deletePlaylistById(any(), any(), any())
+  }
+
+  @After
+  fun tearDown() {
+    unmockkStatic(Toast::class)
+  }
 }
