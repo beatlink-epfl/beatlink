@@ -1,7 +1,5 @@
 package com.epfl.beatlink.model.profile
 
-import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
-import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 
