@@ -49,17 +49,20 @@ open class SpotifyApiViewModel(
   }
 
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
-  fun createBeatLinkPlaylist(
+  open fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
-      tracks: List<SpotifyTrack>
-  ): String? {
-    var playlistId: String? = null
-    createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
-      playlistId = id
-      addTracksToPlaylist(id, tracks)
+      tracks: List<SpotifyTrack>,
+      onResult: (String?) -> Unit
+  ) {
+    viewModelScope.launch {
+      var playlistId: String?
+      createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
+        playlistId = id
+        addTracksToPlaylist(id, tracks)
+        onResult(playlistId)
+      }
     }
-    return playlistId
   }
 
   /** Adds tracks to a Spotify playlist. */

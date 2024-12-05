@@ -1,6 +1,8 @@
 package com.epfl.beatlink.ui.library
 
 import android.graphics.Bitmap
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,19 +23,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.EditButton
@@ -49,25 +55,34 @@ import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK_TO_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaylistOverviewScreen(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    spotifyViewModel: SpotifyApiViewModel
 ) {
+  val context = LocalContext.current
+  val coroutineScope = rememberCoroutineScope()
   // Observe the currently selected playlist
   val selectedPlaylistState =
       playlistViewModel.selectedPlaylist.collectAsState().value
           ?: return Text("No Playlist selected.")
 
   // Description Overlay Display
-  var showDialog by remember { mutableStateOf(false) }
+  var showDialogOverlay by remember { mutableStateOf(false) }
+
+  // Export Playlist Dialog
+  var showDialogExport by remember { mutableStateOf(false) }
 
   // Determine if the user is the owner or a collaborator
   val currentUserId = playlistViewModel.getUserId()
@@ -154,7 +169,7 @@ fun PlaylistOverviewScreen(
                               Icons.Outlined.Lock,
                               TypographyPlaylist.headlineSmall)
                           Spacer(modifier = Modifier.height(10.dp))
-                          ViewDescriptionButton { showDialog = true }
+                          ViewDescriptionButton { showDialogOverlay = true }
                         }
                   }
               Spacer(modifier = Modifier.height(16.dp))
@@ -169,8 +184,13 @@ fun PlaylistOverviewScreen(
               }
 
               if (isOwner) {
-                PrincipalButton(
-                    "Export this playlist", "exportButton") { /* Exports the playlist to Spotify */}
+                PrincipalButton("Export this playlist", "exportButton") {
+                  if (selectedPlaylistState.nbTracks > 0) {
+                    showDialogExport = true
+                  } else {
+                    Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
+                  }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
               }
 
@@ -210,9 +230,71 @@ fun PlaylistOverviewScreen(
             }
       })
   // Show the description overlay if visible
-  if (showDialog) {
+  if (showDialogOverlay) {
     ViewDescriptionOverlay(
-        onDismissRequest = { showDialog = false },
+        onDismissRequest = { showDialogOverlay = false },
         description = selectedPlaylistState.playlistDescription)
+  }
+  /** Show the alert dialog for confirmation of the export of the playlist */
+  if (showDialogExport) {
+    AlertDialog(
+        onDismissRequest = { showDialogExport = false },
+        title = {
+          Text(text = "Export Playlist to Spotify", style = MaterialTheme.typography.titleLarge)
+        },
+        text = {
+          Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text =
+                    "Are you sure you want to export this playlist to Spotify? Once exported, the playlist will be removed from the app and cannot be recovered.",
+                style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+          }
+        },
+        confirmButton = {
+          TextButton(
+              modifier = Modifier.testTag("confirmButton"),
+              onClick = {
+                coroutineScope.launch {
+                  val finalList = playlistViewModel.getFinalListTracks()
+                  if (finalList.isNotEmpty()) {
+                    spotifyViewModel.createBeatLinkPlaylist(
+                        playlistName = selectedPlaylistState.playlistName,
+                        playlistDescription = selectedPlaylistState.playlistDescription,
+                        tracks = finalList,
+                        onResult = { idSpotify ->
+                          Log.d("Spotify", idSpotify.toString())
+                          if (idSpotify != null) {
+                            // Delete playlist only if creation was successful
+                            playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
+                            showDialogExport = false
+                            Toast.makeText(
+                                    context, "Playlist exported successfully", Toast.LENGTH_SHORT)
+                                .show()
+                            navigationActions.navigateToAndPop(
+                                Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
+                          } else {
+                            // Show failure message
+                            Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)
+                                .show()
+                            showDialogExport = false
+                          }
+                        })
+                  } else {
+                    // Handle empty list case
+                    Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
+                    showDialogExport = false
+                  }
+                }
+              }) {
+                Text("Confirm")
+              }
+        },
+        dismissButton = {
+          TextButton(
+              modifier = Modifier.testTag("cancelButton"), onClick = { showDialogExport = false }) {
+                Text("Cancel")
+              }
+        })
   }
 }

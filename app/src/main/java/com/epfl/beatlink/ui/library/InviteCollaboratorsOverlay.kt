@@ -35,7 +35,7 @@ import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 @Composable
 fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRequest: () -> Unit) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-  val list = listOf("Alice", "Morgane")
+  val list: List<String> = listOf()
 
   ReusableOverlay(
       onDismissRequest = onDismissRequest,

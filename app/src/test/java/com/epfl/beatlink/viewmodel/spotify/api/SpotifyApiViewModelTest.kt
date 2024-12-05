@@ -144,7 +144,7 @@ class SpotifyApiViewModelTest {
     }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
@@ -167,7 +167,7 @@ class SpotifyApiViewModelTest {
     mockApiRepository.stub { onBlocking { get("me") } doReturn Result.failure(exception) }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
@@ -196,7 +196,7 @@ class SpotifyApiViewModelTest {
     }
 
     // Act
-    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks)
+    viewModel.createBeatLinkPlaylist(playlistName, playlistDescription, tracks, onResult = {})
 
     testDispatcher.scheduler.advanceUntilIdle()
 
