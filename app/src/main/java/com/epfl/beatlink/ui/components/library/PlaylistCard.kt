@@ -42,7 +42,8 @@ fun PlaylistCard(
   LaunchedEffect(Unit) { playlistViewModel.loadPlaylistCover(playlist) { coverImage.value = it } }
   Card(
       modifier =
-          Modifier.fillMaxWidth()
+          Modifier
+              .fillMaxWidth()
               .clickable {
                 playlistViewModel.selectPlaylist(playlist)
                 navigationActions.navigateTo(PLAYLIST_OVERVIEW)
@@ -50,9 +51,15 @@ fun PlaylistCard(
               .testTag("playlistItem"),
       shape = RoundedCornerShape(size = 5.dp),
       colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
-        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically) {
           // Cover image
-          PlaylistCover(coverImage, Modifier.size(90.dp).padding(horizontal = 12.dp))
+            if (coverImage.value == null) {
+                GrayBox()
+            } else {
+                PlaylistCover(coverImage)
+            }
+            Spacer(modifier = Modifier.width(8.dp))
 
           // Playlist details
           Column(modifier = Modifier.weight(1f)) {

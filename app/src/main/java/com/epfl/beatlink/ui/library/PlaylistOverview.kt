@@ -42,6 +42,7 @@ import com.epfl.beatlink.ui.components.IconWithText
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.ViewDescriptionButton
+import com.epfl.beatlink.ui.components.library.GrayBox
 import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.TrackVoteCard
 import com.epfl.beatlink.ui.navigation.AppIcons.collab
@@ -121,11 +122,11 @@ fun PlaylistOverviewScreen(
                   modifier =
                       Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
-                    Card(
-                        modifier = Modifier.testTag("playlistCoverCard"),
-                        shape = RoundedCornerShape(10.dp)) {
-                          PlaylistCover(coverImage, Modifier.size(150.dp))
-                        }
+                  if (coverImage.value == null) {
+                      GrayBox(size = 135.dp)
+                  } else {
+                      PlaylistCover(coverImage, 135.dp)
+                  }
 
                     // Playlist details
                     Column(

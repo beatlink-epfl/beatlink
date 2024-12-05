@@ -121,7 +121,7 @@ fun CreateNewPlaylistScreen(
               // Playlist Cover
               PlaylistCover(
                   playlistViewModel.coverImage,
-                  Modifier.size(55.dp),
+                  100.dp,
                   isClickable = true,
                   onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
 
