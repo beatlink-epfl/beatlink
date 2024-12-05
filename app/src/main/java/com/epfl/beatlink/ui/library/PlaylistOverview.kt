@@ -234,6 +234,7 @@ fun PlaylistOverviewScreen(
         onDismissRequest = { showDialogOverlay = false },
         description = selectedPlaylistState.playlistDescription)
   }
+  /** Show the alert dialog for confirmation of the export of the playlist */
   if (showDialogExport) {
     AlertDialog(
         onDismissRequest = { showDialogExport = false },

@@ -185,6 +185,10 @@ class PlaylistViewModel(
     } ?: run { Log.e("PlaylistViewModel", "No playlist selected to update track likes") }
   }
 
+  /**
+   * Create the final list of track to export the playlist that contain the 50 most liked songs in
+   * descending order
+   */
   fun getFinalListTracks(): List<SpotifyTrack> {
     return selectedPlaylist_.value
         ?.playlistTracks
