@@ -610,77 +610,79 @@ class ProfileRepositoryFirestoreTest {
     verify(mockProfileDocumentReference).set(profileData, SetOptions.merge())
   }
 
-    @Test
-    fun `resizeAndCompressImageFromUri returns base64 string on success`() {
-        // Arrange
-        val mockContext = mock(Context::class.java)
-        val mockContentResolver = mock(ContentResolver::class.java)
-        val mockInputStream = mock(InputStream::class.java)
-        val mockUri = mock(Uri::class.java)
+  @Test
+  fun `resizeAndCompressImageFromUri returns base64 string on success`() {
+    // Arrange
+    val mockContext = mock(Context::class.java)
+    val mockContentResolver = mock(ContentResolver::class.java)
+    val mockInputStream = mock(InputStream::class.java)
+    val mockUri = mock(Uri::class.java)
 
-        val originalBitmap = mock(Bitmap::class.java)
-        val croppedBitmap = mock(Bitmap::class.java)
-        val resizedBitmap = mock(Bitmap::class.java)
+    val originalBitmap = mock(Bitmap::class.java)
+    val croppedBitmap = mock(Bitmap::class.java)
+    val resizedBitmap = mock(Bitmap::class.java)
 
-        val sampleCompressedBytes = "compressed_image".toByteArray()
-        val sideLength = 600
-        val quality = 10
+    val sampleCompressedBytes = "compressed_image".toByteArray()
+    val sideLength = 600
+    val quality = 10
 
-        // Mock ContentResolver behavior
-        `when`(mockContext.contentResolver).thenReturn(mockContentResolver)
-        `when`(mockContentResolver.openInputStream(mockUri)).thenReturn(mockInputStream)
+    // Mock ContentResolver behavior
+    `when`(mockContext.contentResolver).thenReturn(mockContentResolver)
+    `when`(mockContentResolver.openInputStream(mockUri)).thenReturn(mockInputStream)
 
-        // Mock BitmapFactory.decodeStream() as a static method
-        val mockBitmapFactory = mockStatic(BitmapFactory::class.java)
-        mockBitmapFactory
-            .`when`<Bitmap?> { BitmapFactory.decodeStream(mockInputStream) }
-            .thenReturn(originalBitmap)
+    // Mock BitmapFactory.decodeStream() as a static method
+    val mockBitmapFactory = mockStatic(BitmapFactory::class.java)
+    mockBitmapFactory
+        .`when`<Bitmap?> { BitmapFactory.decodeStream(mockInputStream) }
+        .thenReturn(originalBitmap)
 
-        // Mock properties of original Bitmap
-        `when`(originalBitmap.width).thenReturn(1024)
-        `when`(originalBitmap.height).thenReturn(512)
+    // Mock properties of original Bitmap
+    `when`(originalBitmap.width).thenReturn(1024)
+    `when`(originalBitmap.height).thenReturn(512)
 
-        // Mock Bitmap.createBitmap() for cropping
-        val cropSize = 512 // Min of width and height
-        val cropX = (1024 - cropSize) / 2
-        val cropY = (512 - cropSize) / 2
-        val mockBitmapClass = mockStatic(Bitmap::class.java)
-        mockBitmapClass
-            .`when`<Bitmap> { Bitmap.createBitmap(originalBitmap, cropX, cropY, cropSize, cropSize) }
-            .thenReturn(croppedBitmap)
+    // Mock Bitmap.createBitmap() for cropping
+    val cropSize = 512 // Min of width and height
+    val cropX = (1024 - cropSize) / 2
+    val cropY = (512 - cropSize) / 2
+    val mockBitmapClass = mockStatic(Bitmap::class.java)
+    mockBitmapClass
+        .`when`<Bitmap> { Bitmap.createBitmap(originalBitmap, cropX, cropY, cropSize, cropSize) }
+        .thenReturn(croppedBitmap)
 
-        // Mock Bitmap.createScaledBitmap() for resizing
-        mockBitmapClass
-            .`when`<Bitmap> { Bitmap.createScaledBitmap(croppedBitmap, sideLength, sideLength, true) }
-            .thenReturn(resizedBitmap)
+    // Mock Bitmap.createScaledBitmap() for resizing
+    mockBitmapClass
+        .`when`<Bitmap> { Bitmap.createScaledBitmap(croppedBitmap, sideLength, sideLength, true) }
+        .thenReturn(resizedBitmap)
 
-        // Mock Bitmap.compress() behavior using ArgumentCaptor
-        val captor = ArgumentCaptor.forClass(ByteArrayOutputStream::class.java)
-        `when`(resizedBitmap.compress(eq(Bitmap.CompressFormat.JPEG), eq(quality), captor.capture()))
-            .thenAnswer {
-                captor.value.write(sampleCompressedBytes)
-                true
-            }
+    // Mock Bitmap.compress() behavior using ArgumentCaptor
+    val captor = ArgumentCaptor.forClass(ByteArrayOutputStream::class.java)
+    `when`(resizedBitmap.compress(eq(Bitmap.CompressFormat.JPEG), eq(quality), captor.capture()))
+        .thenAnswer {
+          captor.value.write(sampleCompressedBytes)
+          true
+        }
 
-        // Act
-        val result = resizeAndCompressImageFromUri(mockUri, mockContext, sideLength, quality)
+    // Act
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext, sideLength, quality)
 
-        // Assert
-        val expectedBase64 = Base64.encodeToString(sampleCompressedBytes, Base64.DEFAULT)
-        assertEquals(expectedBase64, result)
+    // Assert
+    val expectedBase64 = Base64.encodeToString(sampleCompressedBytes, Base64.DEFAULT)
+    assertEquals(expectedBase64, result)
 
-        // Verify interactions
-        verify(mockInputStream).close()
-        verify(resizedBitmap)
-            .compress(eq(Bitmap.CompressFormat.JPEG), eq(quality), Mockito.any(ByteArrayOutputStream::class.java))
+    // Verify interactions
+    verify(mockInputStream).close()
+    verify(resizedBitmap)
+        .compress(
+            eq(Bitmap.CompressFormat.JPEG),
+            eq(quality),
+            Mockito.any(ByteArrayOutputStream::class.java))
 
-        // Cleanup
-        mockBitmapFactory.close()
-        mockBitmapClass.close()
-    }
+    // Cleanup
+    mockBitmapFactory.close()
+    mockBitmapClass.close()
+  }
 
-
-    @Test
+  @Test
   fun `resizeAndCompressImageFromUri returns null on failure`() {
     // Arrange
     val mockContext = mock(Context::class.java)
