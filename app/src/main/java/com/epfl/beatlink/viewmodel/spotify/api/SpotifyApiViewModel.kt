@@ -24,13 +24,9 @@ open class SpotifyApiViewModel(
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
-  var deviceId: String? = null
-
   var playbackActive by mutableStateOf(false)
 
   var isPlaying by mutableStateOf(false)
-
-  var triggerChange by mutableStateOf(true)
 
   var currentTrack by mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE))
 
@@ -40,15 +36,30 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  /** Add custom playlist cover image which is a Base64-encoded JPEG string */
+  fun addCustomPlaylistCoverImage(playlistID: String, image: String) {
+    viewModelScope.launch {
+      val result = apiRepository.put("playlists/$playlistID/images", image.toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Custom playlist cover image added successfully")
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to add custom playlist cover image")
+      }
+    }
+  }
+
   /** Creates a playlist with the given name and description and adds the given tracks to it. */
   open fun createBeatLinkPlaylist(
       playlistName: String,
       playlistDescription: String = "",
       tracks: List<SpotifyTrack>
-  ) {
-    createEmptySpotifyPlaylist(playlistName, playlistDescription) { playlistId ->
-      addTracksToPlaylist(playlistId, tracks)
+  ): String? {
+    var playlistId: String? = null
+    createEmptySpotifyPlaylist(playlistName, playlistDescription) { id ->
+      playlistId = id
+      addTracksToPlaylist(id, tracks)
     }
+    return playlistId
   }
 
   /** Adds tracks to a Spotify playlist. */
@@ -252,11 +263,15 @@ open class SpotifyApiViewModel(
   }
 
   /** Fetches the current playback state. */
-  fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
+  private fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.get("me/player")
       if (result.isSuccess) {
-        onSuccess(result.getOrNull()!!)
+        if (result.getOrNull()!!.has("is_playing")) {
+          onSuccess(result.getOrNull()!!)
+        } else {
+          onFailure()
+        }
       } else {
         onFailure()
       }
@@ -290,6 +305,7 @@ open class SpotifyApiViewModel(
     }
   }
 
+  /** Updates the player state. */
   fun updatePlayer() {
     getPlaybackState(
         onSuccess = {
@@ -304,14 +320,11 @@ open class SpotifyApiViewModel(
               isPlaying = currentTrack.state == State.PLAY
             }
           }
-          triggerChange = !triggerChange
         },
         onFailure = {
           Log.d("SpotifyApiViewModel", "There's no playback state")
           playbackActive = false
-          triggerChange = !triggerChange
         })
-    buildQueue()
   }
 
   /**

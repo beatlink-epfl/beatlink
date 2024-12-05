@@ -11,10 +11,12 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
@@ -34,19 +36,24 @@ class SignOutButtonTest {
   private lateinit var navigationActions: NavigationActions
   private lateinit var authViewModel: FirebaseAuthViewModel
   private lateinit var authRepository: FirebaseAuthRepository
+  private lateinit var profileRepository: ProfileRepository
+  private lateinit var profileViewModel: ProfileViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
+    profileRepository = mock(ProfileRepository::class.java)
+    profileViewModel = ProfileViewModel(profileRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
       SettingsScreen(
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          profileViewModel)
     }
   }
 

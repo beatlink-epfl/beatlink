@@ -1,13 +1,19 @@
 package com.epfl.beatlink.ui.library
 
+import android.Manifest.permission.READ_MEDIA_IMAGES
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -39,9 +45,11 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.CREATE_NEW_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun CreateNewPlaylistScreen(
     navigationActions: NavigationActions,
@@ -54,13 +62,26 @@ fun CreateNewPlaylistScreen(
   val playlistDescription by playlistViewModel.tempPlaylistDescription.collectAsState()
   val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
-  val coverImage by remember { mutableStateOf("") }
+  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  val coverImage = remember { mutableStateOf<Bitmap?>(null) }
 
   val context = LocalContext.current
   val titleError = playlistTitle.length !in 1..MAX_PLAYLIST_TITLE_LENGTH
   val descriptionError = playlistDescription.length > MAX_PLAYLIST_DESCRIPTION_LENGTH
 
   var showDialog by remember { mutableStateOf(false) }
+
+  // Permission launcher for reading images
+  val permissionLauncher =
+      permissionLauncher(context) { uri: Uri? ->
+        imageUri = uri
+        if (imageUri == null) {
+          coverImage.value = null
+        } else {
+          profileViewModel.uploadProfilePicture(context, imageUri)
+          profileViewModel.loadProfilePicture { coverImage.value = it }
+        }
+      }
 
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -102,7 +123,10 @@ fun CreateNewPlaylistScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Cover
-              PlaylistCover(coverImage)
+              PlaylistCover(
+                  coverImage,
+                  Modifier.size(55.dp),
+                  onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
 
               // TITLE
               CustomInputField(
@@ -155,7 +179,7 @@ fun CreateNewPlaylistScreen(
                   val newPlaylist =
                       Playlist(
                           playlistID = playlistViewModel.getNewUid(),
-                          playlistCover = coverImage,
+                          playlistCover = "",
                           playlistName = playlistTitle,
                           playlistDescription = playlistDescription,
                           playlistPublic = playlistIsPublic,
@@ -165,6 +189,9 @@ fun CreateNewPlaylistScreen(
                           playlistTracks = emptyList(),
                           nbTracks = 0)
                   playlistViewModel.addPlaylist(newPlaylist)
+                  if (imageUri != Uri.EMPTY) {
+                    playlistViewModel.uploadPlaylistCover(imageUri, context, newPlaylist)
+                  }
                   playlistViewModel.resetTemporaryState()
                   playlistViewModel.selectPlaylist(newPlaylist)
                   navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)

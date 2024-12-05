@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.library
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,15 +40,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.epfl.beatlink.R
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.ViewDescriptionButton
+import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.TrackVoteCard
 import com.epfl.beatlink.ui.navigation.AppIcons.collab
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -98,6 +99,12 @@ fun PlaylistOverviewScreen(
     }
   }
 
+  // Load the playlist cover image
+  val coverImage = remember { mutableStateOf<Bitmap?>(null) }
+  LaunchedEffect(Unit) {
+    playlistViewModel.loadPlaylistCover(selectedPlaylistState) { coverImage.value = it }
+  }
+
   Scaffold(
       modifier = Modifier.testTag("playlistOverviewScreen"),
       topBar = {
@@ -129,10 +136,7 @@ fun PlaylistOverviewScreen(
                     Card(
                         modifier = Modifier.testTag("playlistCoverCard"),
                         shape = RoundedCornerShape(10.dp)) {
-                          Image(
-                              painter = painterResource(id = R.drawable.cover_test1),
-                              contentDescription = "Playlist cover",
-                              modifier = Modifier.size(150.dp))
+                          PlaylistCover(coverImage, Modifier.size(150.dp))
                         }
 
                     // Playlist details

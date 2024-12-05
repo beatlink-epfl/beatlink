@@ -22,7 +22,7 @@ import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 
 @Composable
-fun NotificationScreen(navigationActions: NavigationActions) {
+fun NotificationSettingsScreen(navigationActions: NavigationActions) {
   var allowNotification by remember { mutableStateOf(true) }
   Scaffold(
       topBar = { ScreenTopAppBar("Notification", "notificationScreenTitle", navigationActions) },

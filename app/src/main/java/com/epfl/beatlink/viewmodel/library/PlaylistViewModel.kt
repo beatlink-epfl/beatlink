@@ -1,8 +1,12 @@
 package com.epfl.beatlink.viewmodel.library
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
@@ -10,10 +14,16 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
+class PlaylistViewModel(
+    private val repository: PlaylistRepository,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+) : ViewModel() {
   private val ownedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
   val ownedPlaylistList: StateFlow<List<Playlist>>
     get() = ownedPlaylistList_
@@ -232,5 +242,25 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
       tempPlaylistCollaborators_.value = selectedPlaylist.playlistCollaborators
       isTempStateInitialized_.value = true
     }
+  }
+
+  // Playlist cover image
+  fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist) {
+    if (playlist.playlistID.isEmpty()) {
+      Log.e("PlaylistViewModel", "Playlist ID is empty, upload failed")
+      return
+    }
+    viewModelScope.launch(dispatcher) {
+      repository.uploadPlaylistCover(imageUri, context, playlist)
+    }
+  }
+
+  // Playlist cover image
+  fun loadPlaylistCover(playlist: Playlist, onBitmapLoaded: (Bitmap?) -> Unit) {
+    if (playlist.playlistID.isEmpty()) {
+      Log.e("PlaylistViewModel", "Playlist ID is empty, load failed")
+      return
+    }
+    repository.loadPlaylistCover(playlist, onBitmapLoaded)
   }
 }

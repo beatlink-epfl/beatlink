@@ -7,10 +7,12 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,6 +30,8 @@ class SettingsScreenTest {
   private lateinit var navigationActions: NavigationActions
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var authViewModel: FirebaseAuthViewModel
+  private lateinit var profileRepository: ProfileRepository
+  private lateinit var profileViewModel: ProfileViewModel
 
   @Before
   fun setUp() {
@@ -36,6 +40,9 @@ class SettingsScreenTest {
 
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
+
+    profileRepository = mock(ProfileRepository::class.java)
+    profileViewModel = ProfileViewModel(profileRepository)
   }
 
   @Test
@@ -44,7 +51,8 @@ class SettingsScreenTest {
       SettingsScreen(
           navigationActions = navigationActions,
           authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          profileViewModel)
     }
 
     // Check if the title is displayed
@@ -60,7 +68,8 @@ class SettingsScreenTest {
       SettingsScreen(
           navigationActions = navigationActions,
           authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          profileViewModel)
     }
 
     // Test "Account Settings" button
@@ -69,7 +78,7 @@ class SettingsScreenTest {
 
     // Test "Notification Settings" button
     composeTestRule.onNodeWithTag("notificationSettingsButton").performClick()
-    verify { navigationActions.navigateTo(Screen.NOTIFICATIONS) }
+    verify { navigationActions.navigateTo(Screen.NOTIFICATION_SETTINGS) }
 
     // Test "Invite Friends" button
     composeTestRule.onNodeWithTag("inviteFriendsButton").performClick()
