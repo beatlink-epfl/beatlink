@@ -150,7 +150,7 @@ class PlaylistOverviewScreenTest {
     }
 
     // Check empty playlist prompt is displayed
-    composeTestRule.onNodeWithTag("emptyPlaylistPrompt").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("emptyPlaylistPrompt").performScrollTo().assertIsDisplayed()
   }
 
   @Test
