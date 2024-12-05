@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.epfl.beatlink.model.library.DEFAULT_TRACK_LIMIT
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
@@ -193,7 +194,7 @@ class PlaylistViewModel(
     return selectedPlaylist_.value
         ?.playlistTracks
         ?.sortedByDescending { it.likes } // Sort by likes in descending order
-        ?.take(50) // Take at most 50 tracks
+        ?.take(DEFAULT_TRACK_LIMIT) // Take at most 50 tracks
         ?.map { it.track } // Map to SpotifyTrack
     ?: emptyList() // Return an empty list if no playlist is selected
   }

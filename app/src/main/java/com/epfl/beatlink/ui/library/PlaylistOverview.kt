@@ -270,7 +270,8 @@ fun PlaylistOverviewScreen(
                             Toast.makeText(
                                     context, "Playlist exported successfully", Toast.LENGTH_SHORT)
                                 .show()
-                            navigationActions.navigateTo(Screen.LIBRARY)
+                            navigationActions.navigateToAndPop(
+                                Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
                           } else {
                             // Show failure message
                             Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)

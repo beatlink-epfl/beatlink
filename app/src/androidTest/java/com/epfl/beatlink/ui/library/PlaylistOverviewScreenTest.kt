@@ -296,7 +296,7 @@ class PlaylistOverviewScreenTest {
     verify(playlistRepository).deletePlaylistById(eq(ownedPlaylist.playlistID), any(), any())
 
     // Verify navigation to Library screen
-    verify(navigationActions).navigateTo(Screen.LIBRARY)
+    verify(navigationActions).navigateToAndPop(Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
 
     // Verify success Toast is displayed
     io.mockk.verify { Toast.makeText(any(), "Playlist exported successfully", Toast.LENGTH_SHORT) }
