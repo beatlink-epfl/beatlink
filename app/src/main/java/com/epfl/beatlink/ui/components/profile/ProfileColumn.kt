@@ -1,6 +1,7 @@
 package com.epfl.beatlink.ui.components.profile
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,10 @@ import com.epfl.beatlink.ui.theme.lightThemeBackground
  * @param userPlaylists A list of [UserPlaylist] objects representing the user's playlists.
  * @param paddingValue Padding values to be applied to the column layout.
  * @param profilePicture A mutable state containing the user's profile picture as a [Bitmap].
+ * @param ownProfile A boolean variable that determines wich type of Profile screen needs to be
+ *   displayed.
+ * @param buttonTestTag A test tag for a button that changes depending on the Profile screen
+ *   displayed
  */
 @Composable
 fun ProfileColumn(
@@ -66,7 +71,9 @@ fun ProfileColumn(
     topArtistsState: List<SpotifyArtist>,
     userPlaylists: List<UserPlaylist>,
     paddingValue: PaddingValues,
-    profilePicture: MutableState<Bitmap?>
+    profilePicture: MutableState<Bitmap?>,
+    ownProfile: Boolean,
+    buttonTestTag: String
 ) {
   Column(
       modifier =
@@ -91,23 +98,47 @@ fun ProfileColumn(
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(18.dp)
                         .testTag("linksCount"))
+
             Box(
                 modifier =
                     Modifier.border(1.dp, PrimaryGradientBrush, RoundedCornerShape(30.dp))
-                        .testTag("editProfileButtonContainer")
+                        .testTag(buttonTestTag + "Container")
                         .width(233.dp)
                         .height(32.dp)) {
                   Button(
-                      onClick = { navigationAction.navigateTo(Screen.EDIT_PROFILE) },
-                      modifier = Modifier.fillMaxWidth().testTag("editProfileButton"),
-                      colors = ButtonDefaults.buttonColors(containerColor = lightThemeBackground),
-                  ) {
-                    Text(
-                        text = "Edit Profile",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary)
-                  }
+                      onClick = {
+                        if (ownProfile) {
+                          navigationAction.navigateTo(Screen.EDIT_PROFILE)
+                        } else {
+                          /*Link action*/
+                        }
+                      },
+                      modifier =
+                          Modifier.fillMaxWidth()
+                              .testTag(buttonTestTag)
+                              .then(
+                                  if (ownProfile) {
+                                    Modifier.background(
+                                        color = lightThemeBackground,
+                                        shape = RoundedCornerShape(30.dp))
+                                  } else {
+                                    Modifier.background(
+                                        brush = PrimaryGradientBrush,
+                                        shape = RoundedCornerShape(30.dp))
+                                  })
+                              .padding(vertical = 2.dp),
+                      colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)) {
+                        Text(
+                            text = if (ownProfile) "Edit Profile" else "Link",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelSmall,
+                            color =
+                                if (ownProfile) {
+                                  MaterialTheme.colorScheme.primary
+                                } else {
+                                  Color.White
+                                })
+                      }
                 }
           }
         }
