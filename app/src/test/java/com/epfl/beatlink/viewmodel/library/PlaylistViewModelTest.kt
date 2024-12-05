@@ -10,6 +10,7 @@ import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -546,5 +547,87 @@ class PlaylistViewModelTest {
     verify(playlistRepository, never()).loadPlaylistCover(any(), any())
     // Verify the callback is not invoked
     assertNull(resultBitmap)
+  }
+
+  @Test
+  fun `getFinalListTracks should return tracks sorted by likes in descending order`() = runTest {
+    // Arrange
+    val track3 =
+        PlaylistTrack(
+            track =
+                SpotifyTrack(
+                    name = "new hit",
+                    artist = "artist",
+                    trackId = "3",
+                    cover = "",
+                    duration = 1,
+                    popularity = 10,
+                    state = State.PAUSE),
+            likes = 5,
+            likedBy = mutableListOf("user1", "user2"))
+
+    val playlistWithTracks =
+        playlist.copy(playlistTracks = listOf(track1, track2, track3), nbTracks = 3)
+
+    playlistViewModel.selectPlaylist(playlistWithTracks)
+
+    // Act
+    val finalTracks = playlistViewModel.getFinalListTracks()
+
+    // Assert
+    assertEquals(3, finalTracks.size)
+    assertEquals(listOf("3", "1", "2"), finalTracks.map { it.trackId }) // Most liked first
+  }
+
+  @Test
+  fun `getFinalListTracks should limit the list to 50 tracks`() = runTest {
+    // Arrange
+    val manyTracks =
+        (1..100).map { index ->
+          PlaylistTrack(
+              track =
+                  SpotifyTrack(
+                      name = "Track $index",
+                      artist = "Artist $index",
+                      trackId = "$index",
+                      cover = "",
+                      duration = index,
+                      popularity = index,
+                      state = State.PAUSE),
+              likes = index,
+              likedBy = mutableListOf("user${index}"))
+        }
+
+    val largePlaylist = playlist.copy(playlistTracks = manyTracks, nbTracks = manyTracks.size)
+
+    playlistViewModel.selectPlaylist(largePlaylist)
+
+    // Act
+    val finalTracks = playlistViewModel.getFinalListTracks()
+
+    // Assert
+    assertEquals(50, finalTracks.size) // Limited to 50
+    assertEquals((100 downTo 51).map { it.toString() }, finalTracks.map { it.trackId })
+  }
+
+  @Test
+  fun `getFinalListTracks should return an empty list when no playlist is selected`() = runTest {
+    // Act
+    val finalTracks = playlistViewModel.getFinalListTracks()
+
+    // Assert
+    assertTrue(finalTracks.isEmpty())
+  }
+
+  @Test
+  fun `getFinalListTracks should return an empty list for a playlist with no tracks`() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist1) // Empty playlist
+
+    // Act
+    val finalTracks = playlistViewModel.getFinalListTracks()
+
+    // Assert
+    assertTrue(finalTracks.isEmpty())
   }
 }
