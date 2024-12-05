@@ -619,9 +619,12 @@ class ProfileRepositoryFirestoreTest {
     val mockUri = mock(Uri::class.java)
 
     val originalBitmap = mock(Bitmap::class.java)
+    val croppedBitmap = mock(Bitmap::class.java)
     val resizedBitmap = mock(Bitmap::class.java)
 
     val sampleCompressedBytes = "compressed_image".toByteArray()
+    val sideLength = 600
+    val quality = 10
 
     // Mock ContentResolver behavior
     `when`(mockContext.contentResolver).thenReturn(mockContentResolver)
@@ -637,22 +640,30 @@ class ProfileRepositoryFirestoreTest {
     `when`(originalBitmap.width).thenReturn(1024)
     `when`(originalBitmap.height).thenReturn(512)
 
-    // Mock Bitmap.createScaledBitmap()
+    // Mock Bitmap.createBitmap() for cropping
+    val cropSize = 512 // Min of width and height
+    val cropX = (1024 - cropSize) / 2
+    val cropY = (512 - cropSize) / 2
     val mockBitmapClass = mockStatic(Bitmap::class.java)
     mockBitmapClass
-        .`when`<Bitmap> { Bitmap.createScaledBitmap(originalBitmap, 512, 256, true) }
+        .`when`<Bitmap> { Bitmap.createBitmap(originalBitmap, cropX, cropY, cropSize, cropSize) }
+        .thenReturn(croppedBitmap)
+
+    // Mock Bitmap.createScaledBitmap() for resizing
+    mockBitmapClass
+        .`when`<Bitmap> { Bitmap.createScaledBitmap(croppedBitmap, sideLength, sideLength, true) }
         .thenReturn(resizedBitmap)
 
     // Mock Bitmap.compress() behavior using ArgumentCaptor
     val captor = ArgumentCaptor.forClass(ByteArrayOutputStream::class.java)
-    `when`(resizedBitmap.compress(eq(Bitmap.CompressFormat.JPEG), eq(80), captor.capture()))
+    `when`(resizedBitmap.compress(eq(Bitmap.CompressFormat.JPEG), eq(quality), captor.capture()))
         .thenAnswer {
           captor.value.write(sampleCompressedBytes)
           true
         }
 
     // Act
-    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext, sideLength, quality)
 
     // Assert
     val expectedBase64 = Base64.encodeToString(sampleCompressedBytes, Base64.DEFAULT)
@@ -662,7 +673,9 @@ class ProfileRepositoryFirestoreTest {
     verify(mockInputStream).close()
     verify(resizedBitmap)
         .compress(
-            eq(Bitmap.CompressFormat.JPEG), eq(80), Mockito.any(ByteArrayOutputStream::class.java))
+            eq(Bitmap.CompressFormat.JPEG),
+            eq(quality),
+            Mockito.any(ByteArrayOutputStream::class.java))
 
     // Cleanup
     mockBitmapFactory.close()
