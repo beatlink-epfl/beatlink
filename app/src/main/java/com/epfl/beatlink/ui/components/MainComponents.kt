@@ -430,13 +430,13 @@ fun PrincipalButton(
 @Composable
 fun MusicPlayerUI(
     navigationActions: NavigationActions,
-    api: SpotifyApiViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
 
-  SharedPlayerEffect(api, mapUsersViewModel)
+  SharedPlayerEffect(spotifyApiViewModel, mapUsersViewModel)
 
-  if (api.playbackActive) {
+  if (spotifyApiViewModel.playbackActive) {
     Row(
         modifier =
             Modifier.fillMaxWidth()
@@ -455,7 +455,7 @@ fun MusicPlayerUI(
           shape = RoundedCornerShape(5.dp),
       ) {
         AsyncImage(
-            model = api.currentTrack.cover,
+            model = spotifyApiViewModel.currentTrack.cover,
             contentDescription = "Cover",
             modifier = Modifier.fillMaxSize())
       }
@@ -464,9 +464,10 @@ fun MusicPlayerUI(
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = api.currentTrack.name, style = TypographySongs.titleLarge)
+        Text(text = spotifyApiViewModel.currentTrack.name, style = TypographySongs.titleLarge)
         Text(
-            text = "${api.currentArtist.name} - ${api.currentAlbum.name}",
+            text =
+                "${spotifyApiViewModel.currentArtist.name} - ${spotifyApiViewModel.currentAlbum.name}",
             style = TypographySongs.titleSmall)
       }
 
@@ -475,13 +476,13 @@ fun MusicPlayerUI(
       // Play/Stop button
       IconButton(
           onClick = {
-            if (api.isPlaying) {
-              api.pausePlayback()
+            if (spotifyApiViewModel.isPlaying) {
+              spotifyApiViewModel.pausePlayback()
             } else {
-              api.playPlayback()
+              spotifyApiViewModel.playPlayback()
             }
           }) {
-            if (api.isPlaying) {
+            if (spotifyApiViewModel.isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
@@ -499,8 +500,8 @@ fun MusicPlayerUI(
       // Skip button
       IconButton(
           onClick = {
-            api.skipSong()
-            api.updatePlayer()
+            spotifyApiViewModel.skipSong()
+            spotifyApiViewModel.updatePlayer()
           }) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),

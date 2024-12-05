@@ -7,6 +7,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
+import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -42,6 +47,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 
+@Suppress("UNCHECKED_CAST")
 class ProfileRepositoryFirestoreTest {
 
   private lateinit var repository: ProfileRepositoryFirestore
@@ -338,7 +344,17 @@ class ProfileRepositoryFirestoreTest {
 
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testUsername")
-    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
+    `when`(
+            mockTransaction.set(
+                eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>())))
         .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
@@ -355,7 +371,15 @@ class ProfileRepositoryFirestoreTest {
     assertTrue(success)
     verify(mockTransaction).get(mockProfileDocumentReference)
     verify(mockDocumentSnapshot).getString("username")
-    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
+    verify(mockTransaction)
+        .set(eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>()))
+    verify(mockTransaction, never()).delete(any())
+    verify(mockTransaction, never())
+        .set(eq(mockUsernamesCollectionReference.document("testUsername")), any())
   }
 
   @Test
@@ -364,15 +388,27 @@ class ProfileRepositoryFirestoreTest {
     val profileData = ProfileData(username = "testUsername")
 
     `when`(mockTransaction.get(mockProfileDocumentReference)).thenReturn(mockDocumentSnapshot)
-    `when`(mockTransaction.set(mockProfileDocumentReference, profileData))
-        .thenReturn(mockTransaction)
     `when`(mockDocumentSnapshot.getString("username")).thenReturn("testOtherUsername")
-    `when`(mockTransaction.delete(mockUsernamesCollectionReference.document("testOtherUsername")))
+    `when`(
+            mockTransaction.set(
+                eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.update(
+                eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>())))
+        .thenReturn(mockTransaction)
+    `when`(
+            mockTransaction.delete(
+                eq(mockUsernamesCollectionReference.document("testOtherUsername"))))
         .thenReturn(mockTransaction)
     `when`(
             mockTransaction.set(
-                mockUsernamesCollectionReference.document(profileData.username),
-                mapOf<String, Any>()))
+                eq(mockUsernamesCollectionReference.document("testUsername")),
+                eq(mapOf<String, Any>())))
         .thenReturn(mockTransaction)
 
     // Mock runTransaction to execute the transaction block
@@ -388,11 +424,18 @@ class ProfileRepositoryFirestoreTest {
     // Assert
     assertTrue(success)
     verify(mockTransaction).get(mockProfileDocumentReference)
-    verify(mockTransaction).set(mockProfileDocumentReference, profileData)
     verify(mockDocumentSnapshot).getString("username")
-    verify(mockTransaction).delete(mockUsernamesCollectionReference.document("testOtherUsername"))
     verify(mockTransaction)
-        .set(mockUsernamesCollectionReference.document(profileData.username), mapOf<String, Any>())
+        .set(eq(mockProfileDocumentReference), any<ProfileData>(), eq(SetOptions.merge()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topSongs"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topArtists"), eq(emptyList<Any>()))
+    verify(mockTransaction)
+        .delete(eq(mockUsernamesCollectionReference.document("testOtherUsername")))
+    verify(mockTransaction)
+        .set(
+            eq(mockUsernamesCollectionReference.document("testUsername")), eq(mapOf<String, Any>()))
   }
 
   @Test
@@ -487,7 +530,7 @@ class ProfileRepositoryFirestoreTest {
             .thenReturn(mockBitmap)
 
         // Act
-        val result = repository.base64ToBitmap(validBase64)
+        val result = base64ToBitmap(validBase64)
 
         // Assert
         assertNotNull(result)
@@ -502,7 +545,7 @@ class ProfileRepositoryFirestoreTest {
     val invalidBase64 = "InvalidString"
 
     // Act
-    val bitmap = repository.base64ToBitmap(invalidBase64)
+    val bitmap = base64ToBitmap(invalidBase64)
 
     // Assert
     assertNull(bitmap)
@@ -516,7 +559,7 @@ class ProfileRepositoryFirestoreTest {
     `when`(mockContentResolver.openInputStream(mockUri)).thenThrow(RuntimeException("File error"))
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     assertNull(result)
@@ -526,7 +569,7 @@ class ProfileRepositoryFirestoreTest {
   fun `test uploadProfilePicture logs error on failure`() {
     // Arrange
     val userId = "testUserId"
-    `when`(repository.resizeAndCompressImageFromUri(mockUri, mockContext)).thenReturn(null)
+    `when`(resizeAndCompressImageFromUri(mockUri, mockContext)).thenReturn(null)
 
     // Act
     repository.uploadProfilePicture(mockUri, mockContext, userId)
@@ -609,7 +652,7 @@ class ProfileRepositoryFirestoreTest {
         }
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     val expectedBase64 = Base64.encodeToString(sampleCompressedBytes, Base64.DEFAULT)
@@ -639,7 +682,7 @@ class ProfileRepositoryFirestoreTest {
         .thenThrow(RuntimeException("Test Exception"))
 
     // Act
-    val result = repository.resizeAndCompressImageFromUri(mockUri, mockContext)
+    val result = resizeAndCompressImageFromUri(mockUri, mockContext)
 
     // Assert
     assertNull(result)
@@ -795,5 +838,134 @@ class ProfileRepositoryFirestoreTest {
     // Assert
     assertNotNull(result)
     assert(result.isEmpty())
+  }
+
+  @Test
+  fun `addProfile transforms Spotify tracks and artists to Firestore format`() = runBlocking {
+    // Arrange
+    val userId = "testUserId"
+    val profileData =
+        ProfileData(
+            username = "testUsername",
+            topSongs =
+                listOf(
+                    SpotifyTrack(
+                        name = "Test Track",
+                        artist = "Test Artist",
+                        trackId = "track123",
+                        cover = "http://example.com/cover.jpg",
+                        duration = 200,
+                        popularity = 80,
+                        state = State.PLAY)),
+            topArtists =
+                listOf(
+                    SpotifyArtist(
+                        name = "Test Artist",
+                        image = "http://example.com/artist.jpg",
+                        genres = listOf("Pop", "Rock"),
+                        popularity = 90)))
+
+    `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
+      transactionFunction.apply(mockTransaction)
+      Tasks.forResult(null)
+    }
+
+    // Act
+    val success = repository.addProfile(userId, profileData)
+
+    // Assert
+    assertTrue(success)
+
+    // Verify the transformation of topSongs
+    val topSongsCaptor = ArgumentCaptor.forClass(List::class.java)
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topSongs"), topSongsCaptor.capture())
+    val transformedTopSongs = topSongsCaptor.value as List<Map<String, Any>>
+    assertEquals(1, transformedTopSongs.size)
+    assertEquals("Test Track", transformedTopSongs[0]["name"])
+    assertEquals("Test Artist", transformedTopSongs[0]["artist"])
+    assertEquals("track123", transformedTopSongs[0]["trackId"])
+    assertEquals("http://example.com/cover.jpg", transformedTopSongs[0]["cover"])
+    assertEquals(200, transformedTopSongs[0]["duration"])
+    assertEquals(80, transformedTopSongs[0]["popularity"])
+    assertEquals("PLAY", transformedTopSongs[0]["state"])
+
+    // Verify the transformation of topArtists
+    val topArtistsCaptor = ArgumentCaptor.forClass(List::class.java)
+    verify(mockTransaction)
+        .update(eq(mockProfileDocumentReference), eq("topArtists"), topArtistsCaptor.capture())
+    val transformedTopArtists = topArtistsCaptor.value as List<Map<String, Any>>
+    assertEquals(1, transformedTopArtists.size)
+    assertEquals("Test Artist", transformedTopArtists[0]["name"])
+    assertEquals("http://example.com/artist.jpg", transformedTopArtists[0]["image"])
+    assertEquals(listOf("Pop", "Rock"), transformedTopArtists[0]["genres"])
+    assertEquals(90, transformedTopArtists[0]["popularity"])
+  }
+
+  @Test
+  fun `spotifyTrackToMap correctly transforms SpotifyTrack to map`() {
+    // Arrange
+    val privateMethod =
+        ProfileRepositoryFirestore::class
+            .java
+            .getDeclaredMethod("spotifyTrackToMap", ProfileData::class.java)
+    privateMethod.isAccessible = true
+
+    val profileData =
+        ProfileData(
+            topSongs =
+                listOf(
+                    SpotifyTrack(
+                        name = "Test Track",
+                        artist = "Test Artist",
+                        trackId = "track123",
+                        cover = "http://example.com/cover.jpg",
+                        duration = 200,
+                        popularity = 80,
+                        state = State.PLAY)))
+
+    // Act
+    val result = privateMethod.invoke(repository, profileData) as List<Map<String, Any>>
+
+    // Assert
+    assertEquals(1, result.size)
+    assertEquals("Test Track", result[0]["name"])
+    assertEquals("Test Artist", result[0]["artist"])
+    assertEquals("track123", result[0]["trackId"])
+    assertEquals("http://example.com/cover.jpg", result[0]["cover"])
+    assertEquals(200, result[0]["duration"])
+    assertEquals(80, result[0]["popularity"])
+    assertEquals("PLAY", result[0]["state"])
+  }
+
+  @Test
+  fun `spotifyArtistToMap correctly transforms SpotifyArtist to map`() {
+    // Arrange
+    val privateMethod =
+        ProfileRepositoryFirestore::class
+            .java
+            .getDeclaredMethod("spotifyArtistToMap", ProfileData::class.java)
+    privateMethod.isAccessible = true
+
+    val profileData =
+        ProfileData(
+            topArtists =
+                listOf(
+                    SpotifyArtist(
+                        name = "Test Artist",
+                        image = "http://example.com/artist.jpg",
+                        genres = listOf("Pop", "Rock"),
+                        popularity = 90)))
+
+    // Act
+    val result = privateMethod.invoke(repository, profileData) as List<Map<String, Any>>
+
+    // Assert
+    assertEquals(1, result.size)
+    assertEquals("Test Artist", result[0]["name"])
+    assertEquals("http://example.com/artist.jpg", result[0]["image"])
+    assertEquals(listOf("Pop", "Rock"), result[0]["genres"])
+    assertEquals(90, result[0]["popularity"])
   }
 }
