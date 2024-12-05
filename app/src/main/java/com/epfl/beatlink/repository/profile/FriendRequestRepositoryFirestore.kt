@@ -1,5 +1,6 @@
 package com.epfl.beatlink.repository.profile
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +13,18 @@ open class FriendRequestRepositoryFirestore(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 ) : FriendRequestRepository {
   private val collectionPath = "friendRequests"
+
+  override fun init(onSuccess: () -> Unit) {
+    auth.addAuthStateListener { firebaseAuth ->
+      val currentUser = firebaseAuth.currentUser
+      if (currentUser != null) {
+        // User is authenticated, proceed with onSuccess
+        onSuccess()
+      } else {
+        Log.d(TAG, "User not authenticated")
+      }
+    }
+  }
 
   override fun getUserId(): String? {
     val userId = auth.currentUser?.uid

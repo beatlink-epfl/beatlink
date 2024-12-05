@@ -16,6 +16,7 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import org.junit.Before
@@ -57,6 +58,10 @@ class SearchBarScreenTest {
 
   private val topProfiles = listOf(ProfileData(username = "user1"), ProfileData(username = "user2"))
 
+  private val ownRequests = listOf("user1", "user2")
+  private val friendRequests = listOf("wanna be friend 1", "wanna be friend 2")
+  private val allFriends = listOf("friend1", "friend2")
+
   @Before
   fun setUp() {
 
@@ -66,14 +71,23 @@ class SearchBarScreenTest {
 
     val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
 
     fakeProfileViewModel.setFakeProfiles(topProfiles)
+
+    fakeFriendRequestViewModel.setOwnRequests(ownRequests)
+    fakeFriendRequestViewModel.setFriendRequests(friendRequests)
+    fakeFriendRequestViewModel.setAllFriends(allFriends)
 
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
     composeTestRule.setContent {
-      SearchBarScreen(navigationActions, fakeSpotifyApiViewModel, fakeProfileViewModel)
+      SearchBarScreen(
+          navigationActions,
+          fakeSpotifyApiViewModel,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel)
     }
   }
 

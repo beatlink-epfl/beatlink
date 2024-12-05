@@ -59,9 +59,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -312,6 +314,20 @@ fun SettingsSwitch(
               )
             }
       }
+}
+
+@Composable
+fun GradientText(
+    modifier: Modifier = Modifier,
+    text: String,
+    style: TextStyle = MaterialTheme.typography.bodyLarge
+) {
+  Text(
+      modifier = modifier,
+      text =
+          buildAnnotatedString {
+            withStyle(style.toSpanStyle().copy(brush = PrimaryGradientBrush)) { append(text) }
+          })
 }
 
 @Composable
