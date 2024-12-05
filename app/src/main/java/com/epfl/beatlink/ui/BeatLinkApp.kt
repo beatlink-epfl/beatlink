@@ -29,6 +29,7 @@ import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.player.PlayScreen
 import com.epfl.beatlink.ui.profile.EditProfileScreen
+import com.epfl.beatlink.ui.profile.OtherProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.ui.profile.settings.ChangePassword
@@ -111,6 +112,9 @@ fun BeatLinkApp(
           }
           composable(Screen.SEARCH_BAR) {
             SearchBarScreen(navigationActions, spotifyApiViewModel, profileViewModel)
+          }
+          composable(Screen.OTHER_PROFILE_SCREEN) {
+            OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
           }
           composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
           composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }

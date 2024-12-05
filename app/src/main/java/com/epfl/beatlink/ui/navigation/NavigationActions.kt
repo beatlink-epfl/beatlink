@@ -51,6 +51,7 @@ object Screen {
   const val LIVE_MUSIC_PARTIES = "Live Music Parties screen"
   const val DISCOVER_PEOPLE = "Discover People screen"
   const val PLAY_SCREEN = "Play Screen"
+  const val OTHER_PROFILE_SCREEN = "Other Profile Screen"
 }
 
 data class TopLevelDestination(
