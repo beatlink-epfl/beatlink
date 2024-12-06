@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
@@ -170,7 +171,7 @@ class OtherProfileTest {
     composeTestRule.setContent {
       OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
     }
-    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").performScrollTo().assertIsDisplayed()
     // Check that music genres are displayed
     profileData.favoriteMusicGenres.forEach { genre ->
       composeTestRule.onNodeWithText(genre).assertExists()
@@ -204,7 +205,7 @@ class OtherProfileTest {
     composeTestRule.setContent {
       OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
     }
-    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP SONGSTitle").performScrollTo().assertIsDisplayed()
 
     topSongs.forEach { song ->
       composeTestRule.onNodeWithText(song.name).assertExists()
@@ -222,7 +223,7 @@ class OtherProfileTest {
       OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
     }
 
-    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").performScrollTo().assertIsDisplayed()
 
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
