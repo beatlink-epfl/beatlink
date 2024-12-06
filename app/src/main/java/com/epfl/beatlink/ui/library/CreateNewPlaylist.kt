@@ -6,14 +6,8 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -23,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -37,6 +30,7 @@ import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.SettingsSwitch
 import com.epfl.beatlink.ui.components.library.CollaboratorsSection
 import com.epfl.beatlink.ui.components.library.PlaylistCover
+import com.epfl.beatlink.ui.components.library.PlaylistModifierColumn
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -109,91 +103,84 @@ fun CreateNewPlaylistScreen(
             selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
-        Column(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(innerPadding)
-                    .padding(top = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-              // Playlist Cover
-              PlaylistCover(
-                  playlistViewModel.coverImage,
-                  100.dp,
-                  isClickable = true,
-                  onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
+        PlaylistModifierColumn(innerPadding) {
+          // Playlist Cover
+          PlaylistCover(
+              playlistViewModel.coverImage,
+              100.dp,
+              isClickable = true,
+              onClick = { permissionLauncher.launch(READ_MEDIA_IMAGES) })
 
-              // TITLE
-              CustomInputField(
-                  value = playlistTitle,
-                  onValueChange = { playlistViewModel.updateTemporallyTitle(it) },
-                  label = "Playlist Title *",
-                  placeholder = "Enter Playlist Title",
-                  supportingText = "Max $MAX_PLAYLIST_TITLE_LENGTH characters",
-                  modifier = Modifier.testTag("inputPlaylistTitle"),
-                  isError = titleError)
+          // TITLE
+          CustomInputField(
+              value = playlistTitle,
+              onValueChange = { playlistViewModel.updateTemporallyTitle(it) },
+              label = "Playlist Title *",
+              placeholder = "Enter Playlist Title",
+              supportingText = "Max $MAX_PLAYLIST_TITLE_LENGTH characters",
+              modifier = Modifier.testTag("inputPlaylistTitle"),
+              isError = titleError)
 
-              // DESCRIPTION
-              CustomInputField(
-                  value = playlistDescription,
-                  onValueChange = { playlistViewModel.updateTemporallyDescription(it) },
-                  label = "Playlist Description",
-                  placeholder = "Enter Playlist Description",
-                  singleLine = false,
-                  supportingText = "Max $MAX_PLAYLIST_DESCRIPTION_LENGTH characters",
-                  modifier = Modifier.testTag("inputPlaylistDescription"),
-                  isError = descriptionError)
+          // DESCRIPTION
+          CustomInputField(
+              value = playlistDescription,
+              onValueChange = { playlistViewModel.updateTemporallyDescription(it) },
+              label = "Playlist Description",
+              placeholder = "Enter Playlist Description",
+              singleLine = false,
+              supportingText = "Max $MAX_PLAYLIST_DESCRIPTION_LENGTH characters",
+              modifier = Modifier.testTag("inputPlaylistDescription"),
+              isError = descriptionError)
 
-              Spacer(Modifier.height(0.dp))
+          Spacer(Modifier.height(0.dp))
 
-              SettingsSwitch("Make Playlist Public", "makePlaylistPublicText", playlistIsPublic) {
-                playlistViewModel.updateTemporallyIsPublic(it)
+          SettingsSwitch("Make Playlist Public", "makePlaylistPublicText", playlistIsPublic) {
+            playlistViewModel.updateTemporallyIsPublic(it)
+          }
+
+          CollaboratorsSection(
+              collabUsernames,
+              onClick = { showDialog = true },
+              onRemove = { usernameToRemove ->
+                profileViewModel.getUserIdByUsername(
+                    username = usernameToRemove,
+                    onResult = { userIdToRemove ->
+                      if (userIdToRemove != null) {
+                        val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
+                        playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                        collabUsernames = collabUsernames.filter { it != usernameToRemove }
+                      } else {
+                        Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
+                      }
+                    })
+              })
+
+          PrincipalButton("Create", "createPlaylist") {
+            if (titleError || descriptionError) {
+              Toast.makeText(context, "Fields not correctly filled", Toast.LENGTH_SHORT).show()
+            } else {
+              val newPlaylist =
+                  Playlist(
+                      playlistID = playlistViewModel.getNewUid(),
+                      playlistCover = "",
+                      playlistName = playlistTitle,
+                      playlistDescription = playlistDescription,
+                      playlistPublic = playlistIsPublic,
+                      userId = playlistViewModel.getUserId() ?: "",
+                      playlistOwner = profileData?.username ?: "",
+                      playlistCollaborators = playlistCollab,
+                      playlistTracks = emptyList(),
+                      nbTracks = 0)
+              playlistViewModel.addPlaylist(newPlaylist)
+              if (imageUri != Uri.EMPTY) {
+                playlistViewModel.uploadPlaylistCover(imageUri, context, newPlaylist)
               }
-
-              CollaboratorsSection(
-                  collabUsernames,
-                  onClick = { showDialog = true },
-                  onRemove = { usernameToRemove ->
-                    profileViewModel.getUserIdByUsername(
-                        username = usernameToRemove,
-                        onResult = { userIdToRemove ->
-                          if (userIdToRemove != null) {
-                            val updatedCollabList = playlistCollab.filter { it != userIdToRemove }
-                            playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
-                            collabUsernames = collabUsernames.filter { it != usernameToRemove }
-                          } else {
-                            Log.e("ERROR", "Failed to get userId for username: $usernameToRemove")
-                          }
-                        })
-                  })
-
-              PrincipalButton("Create", "createPlaylist") {
-                if (titleError || descriptionError) {
-                  Toast.makeText(context, "Fields not correctly filled", Toast.LENGTH_SHORT).show()
-                } else {
-                  val newPlaylist =
-                      Playlist(
-                          playlistID = playlistViewModel.getNewUid(),
-                          playlistCover = "",
-                          playlistName = playlistTitle,
-                          playlistDescription = playlistDescription,
-                          playlistPublic = playlistIsPublic,
-                          userId = playlistViewModel.getUserId() ?: "",
-                          playlistOwner = profileData?.username ?: "",
-                          playlistCollaborators = playlistCollab,
-                          playlistTracks = emptyList(),
-                          nbTracks = 0)
-                  playlistViewModel.addPlaylist(newPlaylist)
-                  if (imageUri != Uri.EMPTY) {
-                    playlistViewModel.uploadPlaylistCover(imageUri, context, newPlaylist)
-                  }
-                  playlistViewModel.resetTemporaryState()
-                  playlistViewModel.selectPlaylist(newPlaylist)
-                  navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
-                }
-              }
+              playlistViewModel.resetTemporaryState()
+              playlistViewModel.selectPlaylist(newPlaylist)
+              navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
             }
+          }
+        }
       })
   if (showDialog) {
     InviteCollaboratorsOverlay(navigationActions, onDismissRequest = { showDialog = false })
