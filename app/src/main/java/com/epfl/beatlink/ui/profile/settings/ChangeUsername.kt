@@ -86,7 +86,10 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                                     profilePicture = profileData?.profilePicture,
                                     username = username,
                                     favoriteMusicGenres =
-                                        profileData?.favoriteMusicGenres ?: emptyList())
+                                        profileData?.favoriteMusicGenres ?: emptyList(),
+                                    topSongs = profileData?.topSongs ?: emptyList(),
+                                    topArtists = profileData?.topArtists ?: emptyList(),
+                                    spotifyId = profileData?.spotifyId ?: "")
                             profileViewModel.updateProfile(updatedProfileData)
                             Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
                             navigationActions.navigateTo(Screen.PROFILE)

@@ -2,6 +2,7 @@ package com.epfl.beatlink.ui.components.search
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +29,7 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun PeopleItem(
-    people: ProfileData,
+    people: ProfileData?,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
 ) {
@@ -40,13 +41,19 @@ fun PeopleItem(
   val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-  profileViewModel.getUserIdByUsername(people.username) { uid ->
-    if (uid == null) {
-      return@getUserIdByUsername
-    } else {
-      displayedUserId.value = uid
-      profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
+  val userId = remember { mutableStateOf("") }
+  if (people != null) {
+    profileViewModel.getUserIdByUsername(people.username) { uid ->
+      if (uid == null) {
+        return@getUserIdByUsername
+      } else {
+        displayedUserId.value = uid
+        userId.value = uid
+        profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
+      }
     }
+  } else {
+    Log.d("PeopleItem", "profile data null")
   }
 
   var requestStatus =
@@ -59,17 +66,28 @@ fun PeopleItem(
 
   Row(
       verticalAlignment = Alignment.CenterVertically,
-      modifier = Modifier.padding(end = 16.dp).testTag("peopleItem")) {
+      modifier =
+          Modifier.clickable {
+                // selects user and fetches it's userProfile
+                profileViewModel.selectSelectedUser(userId.value)
+                profileViewModel.fetchUserProfile()
+              }
+              .padding(end = 16.dp)
+              .testTag("peopleItem")) {
         Box(
             modifier =
                 Modifier.padding(16.dp).size(60.dp).clip(CircleShape).testTag("peopleImage")) {
               ProfilePicture(profilePicture)
             }
         Spacer(modifier = Modifier.size(10.dp))
-        Text(
-            text = people.username,
-            style = TypographySongs.titleLarge,
-            modifier = Modifier.testTag("peopleUsername"))
+        if (people != null) {
+          Text(
+              text = people.username,
+              style = TypographySongs.titleLarge,
+              modifier = Modifier.testTag("peopleUsername"))
+        } else {
+          Log.d("PeopleItem", "profile data null")
+        }
         Spacer(modifier = Modifier.weight(1f))
         LinkButton(
             buttonText = requestStatus,

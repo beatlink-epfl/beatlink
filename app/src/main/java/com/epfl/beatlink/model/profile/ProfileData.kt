@@ -13,6 +13,9 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
  * @param username The username of the user with a default value of an empty string
  * @param favoriteMusicGenres The user's favorite music genres with a default value of an empty list
  * @param email The user's email with a default value of an empty string
+ * @param topSongs The user's top songs listened to, in Spotify
+ * @param topArtists The user's top artists listened to, in Spotify
+ * @param spotifyId The user's spotifyId
  * @property MAX_USERNAME_LENGTH The maximum length of the username
  * @property MAX_DESCRIPTION_LENGTH The maximum length of the description
  */
@@ -25,7 +28,8 @@ data class ProfileData(
     val email: String = "",
     var favoriteMusicGenres: List<String> = emptyList(),
     val topSongs: List<SpotifyTrack> = emptyList(),
-    val topArtists: List<SpotifyArtist> = emptyList()
+    val topArtists: List<SpotifyArtist> = emptyList(),
+    val spotifyId: String = ""
 ) {
   companion object {
     const val MAX_USERNAME_LENGTH = 20

@@ -16,6 +16,7 @@ import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.Timestamp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,12 +37,13 @@ class GoogleMapViewTest {
             username = "testUser",
             currentPlayingTrack =
                 CurrentPlayingTrack(
+                    trackId = "testTrackId",
                     songName = "Test Song",
                     artistName = "Test Artist",
                     albumName = "Test Album",
                     albumCover = R.drawable.cover_test1.toString()),
-            location = Location(latitude = 37.7749, longitude = -122.4194) // San Francisco
-            )
+            location = Location(latitude = 37.7749, longitude = -122.4194), // San Francisco
+            lastUpdated = Timestamp.now())
   }
 
   // Test to verify the map is displayed with location permitted

@@ -72,6 +72,8 @@ class MapScreenTest {
                 }
             ]
         }"""))
+      onBlocking { get("me") } doReturn
+          Result.success(JSONObject().apply { put("id", "testSpotifyUserId") })
     }
 
     fakeMapLocationRepository = FakeMapLocationRepository()

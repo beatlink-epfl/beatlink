@@ -10,6 +10,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -18,6 +21,8 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.library.TrackPlaylistItem
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -26,12 +31,24 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 fun DisplayResults(
     tracks: List<SpotifyTrack>? = null,
     artists: List<SpotifyArtist>? = null,
-    people: List<ProfileData>? = null,
+    people: List<ProfileData?>? = null,
     playlistViewModel: PlaylistViewModel? = null,
     profileViewModel: ProfileViewModel? = null,
+    navigationActions: NavigationActions? = null,
     friendRequestViewModel: FriendRequestViewModel? = null,
     onClearQuery: (() -> Unit)? = null
 ) {
+  if (profileViewModel != null && navigationActions != null) {
+    val profileReady by profileViewModel.profileReady.collectAsState()
+
+    // Observe changes in profile readiness and navigate
+    LaunchedEffect(profileReady) {
+      if (profileReady) {
+        navigationActions.navigateTo(Screen.OTHER_PROFILE_SCREEN)
+      }
+    }
+  }
+
   if (tracks.isNullOrEmpty() && artists.isNullOrEmpty() && people.isNullOrEmpty()) {
     // Empty state
     Column(
@@ -63,7 +80,9 @@ fun DisplayResults(
       }
       people?.let {
         items(it) { person ->
-          if (profileViewModel != null && friendRequestViewModel != null) {
+          if (profileViewModel != null &&
+              navigationActions != null &&
+              friendRequestViewModel != null) {
             PeopleItem(
                 person,
                 profileViewModel = profileViewModel,

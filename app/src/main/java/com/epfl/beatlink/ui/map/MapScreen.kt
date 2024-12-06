@@ -49,6 +49,7 @@ fun MapScreen(
 
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
+  val spotifyId = remember { mutableStateOf("") }
   val profileData by profileViewModel.profile.collectAsState()
   val isProfileUpdated by profileViewModel.isProfileUpdated.collectAsState()
 
@@ -60,11 +61,12 @@ fun MapScreen(
     if (!isProfileUpdated) {
       var tracksGotten = false
       var artistsGotten = false
+      var spotifyIdGotten = false
       spotifyApiViewModel.getCurrentUserTopTracks(
           onSuccess = { tracks ->
             topSongsState.value = tracks
             tracksGotten = true
-            if (artistsGotten) {
+            if (artistsGotten && spotifyIdGotten) {
               profileViewModel.markProfileAsUpdated()
             }
             Log.d("MapScreen", "Fetched ${tracks.size} top songs.")
@@ -75,22 +77,37 @@ fun MapScreen(
           onSuccess = { artists ->
             topArtistsState.value = artists
             artistsGotten = true
-            if (tracksGotten) {
+            if (tracksGotten && spotifyIdGotten) {
               profileViewModel.markProfileAsUpdated()
             }
             Log.d("MapScreen", "Fetched ${artists.size} top artists.")
           },
           onFailure = { Log.e("MapScreen", "Failed to fetch top artists.") })
+
+      spotifyApiViewModel.getCurrentUserId(
+          onSuccess = { id ->
+            spotifyId.value = id
+            spotifyIdGotten = true
+            if (tracksGotten && artistsGotten) {
+              profileViewModel.markProfileAsUpdated()
+            }
+            Log.d("MapScreen", "Fetched user's spotify id.")
+          },
+          onFailure = { Log.e("MapScreen", "Failed to fetch user's spotify id.") })
     }
   }
 
   // Update the profile once top songs, top artists, and the profile are available
-  LaunchedEffect(topSongsState.value, topArtistsState.value, profileData) {
+  LaunchedEffect(topSongsState.value, topArtistsState.value, spotifyId.value, profileData) {
     if (topSongsState.value.isNotEmpty() &&
         topArtistsState.value.isNotEmpty() &&
+        spotifyId.value.isNotEmpty() &&
         profileData != null) {
       val updatedProfile =
-          profileData!!.copy(topSongs = topSongsState.value, topArtists = topArtistsState.value)
+          profileData!!.copy(
+              topSongs = topSongsState.value,
+              topArtists = topArtistsState.value,
+              spotifyId = spotifyId.value)
       profileViewModel.updateProfile(updatedProfile)
       Log.d("MapScreen", "Profile updated successfully.")
     }
