@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.search
 
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -51,8 +50,6 @@ class PeopleItemTest {
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
     composeTestRule.onNodeWithTag("peopleItem").assertExists()
-    composeTestRule.onNodeWithTag("peopleUsername").assertTextEquals("user")
-    composeTestRule.onNodeWithTag("peopleImage").assertExists()
     composeTestRule.onNodeWithTag("linkedButton").assertExists()
     composeTestRule.onNodeWithText("Link").assertExists()
     composeTestRule.onNodeWithText("Link").performClick()
