@@ -171,7 +171,7 @@ class OtherProfileTest {
     composeTestRule.setContent {
       OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
     }
-    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
     profileData.favoriteMusicGenres.forEach { genre ->
       composeTestRule.onNodeWithText(genre).assertExists()
@@ -205,7 +205,7 @@ class OtherProfileTest {
     composeTestRule.setContent {
       OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
     }
-    composeTestRule.onNodeWithTag("TOP SONGSTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
 
     topSongs.forEach { song ->
       composeTestRule.onNodeWithText(song.name).assertExists()

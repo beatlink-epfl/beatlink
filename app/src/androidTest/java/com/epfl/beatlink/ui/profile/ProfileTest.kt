@@ -203,7 +203,7 @@ class ProfileTest {
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
-    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
     profileData.favoriteMusicGenres.forEach { genre ->
       composeTestRule.onNodeWithText(genre).assertExists()
@@ -245,7 +245,7 @@ class ProfileTest {
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
-    composeTestRule.onNodeWithTag("TOP SONGSTitle").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
 
     topSongs.forEach { song ->
       composeTestRule.onNodeWithText(song.name).assertExists()
