@@ -108,6 +108,14 @@ open class ProfileRepositoryFirestore(
     return try {
       db.runTransaction { transaction ->
 
+            // Check if the username is already taken
+            val usernameDocRef = db.collection("usernames").document(profileData.username)
+            val usernameSnapshot = transaction.get(usernameDocRef)
+
+            if (usernameSnapshot.exists()) {
+              throw Exception("Username is already taken.")
+            }
+
             // Serialize topSongs and topArtists to Firestore-compatible format
             val topSongs = spotifyTrackToMap(profileData)
 
@@ -125,7 +133,6 @@ open class ProfileRepositoryFirestore(
             transaction.update(profileDoc, "topArtists", topArtists)
 
             // Add the username to the `usernames` collection
-            val usernameDocRef = db.collection("usernames").document(profileData.username)
             transaction.set(usernameDocRef, mapOf<String, Any>())
 
             // Add an empty document in the `friendRequests` collection for the user
@@ -150,17 +157,34 @@ open class ProfileRepositoryFirestore(
     return try {
       db.runTransaction { transaction ->
 
-            // Serialize topSongs and topArtists to Firestore-compatible format
-            val topSongs = spotifyTrackToMap(profileData)
-
-            val topArtists = spotifyArtistToMap(profileData)
-
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
 
             // Read the current profile
             val userSnapshot = transaction.get(profileDocRef)
             val currentUsername = userSnapshot.getString("username")
+
+            // Check if the username has changed
+            if (currentUsername != null && currentUsername != profileData.username) {
+              // Ensure the new username is available
+              val newUsernameDocRef = db.collection("usernames").document(profileData.username)
+              val newUsernameSnapshot = transaction.get(newUsernameDocRef)
+
+              if (newUsernameSnapshot.exists()) {
+                throw Exception("Username is already taken.")
+              }
+
+              // Delete the current username
+              transaction.delete(db.collection("usernames").document(currentUsername))
+
+              // Add the new username
+              transaction.set(newUsernameDocRef, mapOf<String, Any>())
+            }
+
+            // Serialize topSongs and topArtists to Firestore-compatible format
+            val topSongs = spotifyTrackToMap(profileData)
+
+            val topArtists = spotifyArtistToMap(profileData)
 
             // Update user profile (excluding incompatible objects for Firestore)
             transaction.set(
@@ -173,16 +197,6 @@ open class ProfileRepositoryFirestore(
             // Update topSongs and topArtists as separate fields
             transaction.update(profileDocRef, "topSongs", topSongs)
             transaction.update(profileDocRef, "topArtists", topArtists)
-
-            // Check if the username has changed
-            if (currentUsername != null && currentUsername != profileData.username) {
-              // Delete the current username
-              transaction.delete(db.collection("usernames").document(currentUsername))
-
-              // Add the new username
-              val newUsernameDocRef = db.collection("usernames").document(profileData.username)
-              transaction.set(newUsernameDocRef, mapOf<String, Any>())
-            }
           }
           .await()
       Log.d("PROFILE_UPDATE", "Profile and username updated successfully for user: $userId")
