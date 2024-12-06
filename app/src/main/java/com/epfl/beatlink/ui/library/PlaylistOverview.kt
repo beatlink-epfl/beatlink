@@ -18,13 +18,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,6 +46,7 @@ import com.epfl.beatlink.ui.components.IconWithText
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.ViewDescriptionButton
+import com.epfl.beatlink.ui.components.library.GrayBox
 import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.TrackVoteCard
 import com.epfl.beatlink.ui.navigation.AppIcons.collab
@@ -136,11 +135,11 @@ fun PlaylistOverviewScreen(
                   modifier =
                       Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
-                    Card(
-                        modifier = Modifier.testTag("playlistCoverCard"),
-                        shape = RoundedCornerShape(10.dp)) {
-                          PlaylistCover(coverImage, Modifier.size(150.dp))
-                        }
+                    if (coverImage.value == null) {
+                      GrayBox(size = 135.dp)
+                    } else {
+                      PlaylistCover(coverImage, 135.dp)
+                    }
 
                     // Playlist details
                     Column(
