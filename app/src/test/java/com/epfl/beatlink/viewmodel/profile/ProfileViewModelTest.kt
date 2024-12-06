@@ -1,6 +1,7 @@
 package com.epfl.beatlink.viewmodel.profile
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -632,6 +633,110 @@ class ProfileViewModelTest {
     val result = profileViewModel.searchResult.getOrAwaitValue()
     assertNotNull(result)
     assert(result.isEmpty())
+  }
+
+  @Test
+  fun `selectSelectedUser updates selectedUserUserId`() {
+    // Arrange
+    val userId = "testUserId"
+
+    // Act
+    profileViewModel.selectSelectedUser(userId)
+
+    // Assert
+    assertEquals(userId, profileViewModel.selectedUserUserId.value)
+  }
+
+  @Test
+  fun `unselectSelectedUser clears selectedUserUserId`() {
+    // Arrange
+    profileViewModel.selectSelectedUser("testUserId")
+
+    // Act
+    profileViewModel.unselectSelectedUser()
+
+    // Assert
+    assertEquals("", profileViewModel.selectedUserUserId.value)
+  }
+
+  @Test
+  fun `unreadyProfile sets profileReady to false`() {
+    // Arrange
+    profileViewModel.unreadyProfile()
+
+    // Assert
+    assertEquals(false, profileViewModel.profileReady.value)
+  }
+
+  @Test
+  fun `fetchUserProfile updates selectedUserProfile and profileReady`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val expectedProfile =
+        ProfileData(
+            bio = "Bio",
+            links = 1,
+            name = "Test User",
+            profilePicture = null,
+            username = "testuser")
+    profileViewModel.selectSelectedUser(userId)
+    `when`(mockRepository.fetchProfile(userId)).thenReturn(expectedProfile)
+
+    // Act
+    profileViewModel.fetchUserProfile()
+
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
+
+    // Assert
+    assertEquals(expectedProfile, profileViewModel.selectedUserProfile.value)
+    assertEquals(true, profileViewModel.profileReady.value)
+  }
+
+  @Test
+  fun `loadSelectedUserProfilePicture calls repository loadProfilePicture with selected userId`() {
+    // Arrange
+    val userId = "testUserId"
+    val onBitmapLoaded: (Bitmap?) -> Unit = mock()
+    profileViewModel.selectSelectedUser(userId)
+
+    doNothing().`when`(mockRepository).loadProfilePicture(eq(userId), any())
+
+    // Act
+    profileViewModel.loadSelectedUserProfilePicture(userId, onBitmapLoaded)
+
+    // Assert
+    verify(mockRepository).loadProfilePicture(eq(userId), any())
+  }
+
+  @Test
+  fun `loadSelectedUserProfilePicture does not call repository when selected userId is null`() {
+    // Arrange
+    val onBitmapLoaded: (Bitmap?) -> Unit = mock()
+
+    // Act
+    profileViewModel.loadSelectedUserProfilePicture(null, onBitmapLoaded)
+
+    // Assert
+    verify(mockRepository, never()).loadProfilePicture(any(), any())
+  }
+
+  @Test
+  fun `profileReady default value is false`() {
+    // Assert
+    assertEquals(false, profileViewModel.profileReady.value)
+  }
+
+  @Test
+  fun `selectedUserUserId default value is empty string`() {
+    // Assert
+    assertEquals("", profileViewModel.selectedUserUserId.value)
+  }
+
+  @Test
+  fun `selectedUserProfile default value is initialProfile`() {
+    // Assert
+    assertEquals(null, profileViewModel.selectedUserProfile.value)
   }
 }
 

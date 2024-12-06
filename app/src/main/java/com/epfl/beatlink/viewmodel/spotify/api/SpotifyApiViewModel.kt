@@ -111,7 +111,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Gets the current user's ID. */
-  private fun getCurrentUserId(onSuccess: (String) -> Unit, onFailure: () -> Unit) {
+  fun getCurrentUserId(onSuccess: (String) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
       val result = apiRepository.get("me")
       if (result.isSuccess) {
@@ -507,6 +507,45 @@ open class SpotifyApiViewModel(
         onSuccess(playlists)
       } else {
         Log.e("SpotifyApiViewModel", "Failed to fetch playlists")
+        onFailure(emptyList())
+      }
+    }
+  }
+
+  /**
+   * Fetches the user's Spotify playlists upon a giving the user's spotifyId
+   *
+   * @param userId the user's spotifyId
+   * @param onSuccess Callback function to be invoked with the list of user playlists if the fetch
+   *   is successful.
+   * @param onFailure Callback function to be invoked with an empty list if the fetch fails.
+   */
+  open fun getUserPlaylists(
+      userId: String,
+      onSuccess: (List<UserPlaylist>) -> Unit,
+      onFailure: (List<UserPlaylist>) -> Unit
+  ) {
+    viewModelScope.launch {
+      val result = apiRepository.get("users/${userId}/playlists?limit=50")
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "User's playlists fetched successfully")
+        val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
+        val playlists = mutableListOf<UserPlaylist>()
+        for (i in 0 until items.length()) {
+          val playlist = items.optJSONObject(i)
+          if (playlist != null) {
+            val userPlaylist = createUserPlaylist(playlist)
+            // Only add the playlist if it's public
+            if (userPlaylist.playlistPublic) {
+              playlists.add(userPlaylist)
+            }
+          } else {
+            Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
+          }
+        }
+        onSuccess(playlists)
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to fetch user's playlists")
         onFailure(emptyList())
       }
     }

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -266,7 +267,7 @@ class ProfileTest {
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
-    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("TOP ARTISTSTitle").performScrollTo().assertIsDisplayed()
 
     topArtists.forEach { artist -> composeTestRule.onNodeWithText(artist.name).assertExists() }
 
@@ -286,7 +287,7 @@ class ProfileTest {
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
-    composeTestRule.onNodeWithTag("PLAYLISTSTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("PLAYLISTSTitle").performScrollTo().assertIsDisplayed()
 
     userPlaylists.forEach { playlist ->
       composeTestRule.onNodeWithText(playlist.playlistName).assertExists()

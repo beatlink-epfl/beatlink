@@ -95,7 +95,8 @@ open class ProfileRepositoryFirestore(
               favoriteMusicGenres =
                   snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList(),
               topSongs = topSongs,
-              topArtists = topArtists)
+              topArtists = topArtists,
+              spotifyId = snapshot.getString("spotifyId") ?: "")
       Log.d("PROFILE_FETCH", "Fetched profile data")
       profileData
     } catch (e: Exception) {
