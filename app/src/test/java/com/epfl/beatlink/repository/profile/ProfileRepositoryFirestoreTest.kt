@@ -936,6 +936,10 @@ class ProfileRepositoryFirestoreTest {
                         genres = listOf("Pop", "Rock"),
                         popularity = 90)))
 
+    // Mock transaction behavior
+    `when`(mockTransaction.get(mockUsernameDocumentReference)).thenReturn(mockDocumentSnapshot)
+    `when`(mockDocumentSnapshot.exists()).thenReturn(false)
+
     `when`(mockDb.runTransaction<Transaction>(any())).thenAnswer { invocation ->
       val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
