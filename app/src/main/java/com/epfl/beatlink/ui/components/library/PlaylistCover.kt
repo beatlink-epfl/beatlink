@@ -5,11 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,46 +40,41 @@ fun PlaylistCover(
     onClick: (() -> Unit)? = null
 ) {
   // Playlist Cover
-    GrayBox(
-        modifier = Modifier
-        .then(
-            if (isClickable && onClick != null) Modifier.clickable { onClick.invoke() }
-            else Modifier),
-        size = size
-    ) {
+  GrayBox(
+      modifier =
+          Modifier.then(
+              if (isClickable && onClick != null) Modifier.clickable { onClick.invoke() }
+              else Modifier),
+      size = size) {
         coverImage.value?.let { bitmap ->
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Cover Picture",
-                contentScale = ContentScale.Crop)
+          Image(
+              bitmap = bitmap.asImageBitmap(),
+              contentDescription = "Cover Picture",
+              contentScale = ContentScale.Crop)
         }
             ?: run {
-                // Placeholder content if no image is selected
-                Text(
-                    text = "Add \n Playlist Cover",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = PrimaryGray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag("emptyCoverText"))
+              // Placeholder content if no image is selected
+              Text(
+                  text = "Add \n Playlist Cover",
+                  style = MaterialTheme.typography.bodyLarge,
+                  color = PrimaryGray,
+                  textAlign = TextAlign.Center,
+                  modifier = Modifier.testTag("emptyCoverText"))
             }
-    }
+      }
 }
 
 @Composable
-fun GrayBox(
-    modifier: Modifier = Modifier,
-    size: Dp = 80.dp,
-    content: @Composable () -> Unit = {}
-) {
-    Box(
-        modifier =
-        modifier
-            .padding(vertical = 8.dp, horizontal = 12.dp)
-            .background(color = SecondaryGray, shape = RoundedCornerShape(size = 10.dp))
-            .clip(RoundedCornerShape(size = 10.dp))
-            .size(size)
-            .testTag("playlistCover"),
-        contentAlignment = Alignment.Center) {
+fun GrayBox(modifier: Modifier = Modifier, size: Dp = 80.dp, content: @Composable () -> Unit = {}) {
+  Box(
+      modifier =
+          modifier
+              .padding(vertical = 8.dp, horizontal = 12.dp)
+              .background(color = SecondaryGray, shape = RoundedCornerShape(size = 10.dp))
+              .clip(RoundedCornerShape(size = 10.dp))
+              .size(size)
+              .testTag("playlistCover"),
+      contentAlignment = Alignment.Center) {
         content()
-    }
+      }
 }
