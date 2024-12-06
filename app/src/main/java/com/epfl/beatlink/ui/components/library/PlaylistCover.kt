@@ -53,7 +53,7 @@ fun PlaylistCover(
               contentScale = ContentScale.Crop)
         }
             ?: run {
-              // Placeholder content if no image is selected
+              // Placeholder to add a playlist cover
               Text(
                   text = "Add \n Playlist Cover",
                   style = MaterialTheme.typography.bodyLarge,
@@ -64,6 +64,7 @@ fun PlaylistCover(
       }
 }
 
+/** Composable that is displayed when a playlist does not have a cover */
 @Composable
 fun GrayBox(modifier: Modifier = Modifier, size: Dp = 80.dp, content: @Composable () -> Unit = {}) {
   Box(
