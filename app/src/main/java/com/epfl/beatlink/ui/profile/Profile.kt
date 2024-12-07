@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -9,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,23 +25,34 @@ import com.epfl.beatlink.ui.components.profile.ProfileColumn
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen.NOTIFICATIONS
 import com.epfl.beatlink.ui.navigation.Screen.SETTINGS
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
+    // Load Profile Data
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
-
   val profileData by profileViewModel.profile.collectAsState()
+    val friendCount by friendRequestViewModel.friendCount.observeAsState()
+    LaunchedEffect(friendCount) {
+        friendCount?.let { count ->
+            profileData?.let { profile ->
+                profileViewModel.updateNbLinks(profile, count)
+            }
+        }
+    }
 
-  // Load profile picture
+  // Load Profile Picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
   }
@@ -68,7 +81,7 @@ fun ProfileScreen(
             "titleUsername",
             listOf {
               CornerIcons(
-                  onClick = {},
+                  onClick = { navigationAction.navigateTo(NOTIFICATIONS) },
                   icon = Icons.Filled.Notifications,
                   contentDescription = "Notifications",
                   modifier = Modifier.testTag("profileScreenNotificationsButton"))

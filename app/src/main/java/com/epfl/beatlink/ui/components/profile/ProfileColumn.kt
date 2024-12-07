@@ -3,6 +3,7 @@ package com.epfl.beatlink.ui.components.profile
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.components.TrackCard
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.LINKS
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
 
@@ -58,7 +60,7 @@ import com.epfl.beatlink.ui.theme.lightThemeBackground
  * @param userPlaylists A list of [UserPlaylist] objects representing the user's playlists.
  * @param paddingValue Padding values to be applied to the column layout.
  * @param profilePicture A mutable state containing the user's profile picture as a [Bitmap].
- * @param ownProfile A boolean variable that determines wich type of Profile screen needs to be
+ * @param ownProfile A boolean variable that determines which type of Profile screen needs to be
  *   displayed.
  * @param buttonTestTag A test tag for a button that changes depending on the Profile screen
  *   displayed
@@ -90,13 +92,14 @@ fun ProfileColumn(
 
           Column {
             Text(
-                text = "${profileData?.links ?: 0} Links",
+                text = "${profileData?.links } Links",
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(18.dp)
+                        .clickable { navigationAction.navigateTo(LINKS) }
                         .testTag("linksCount"))
 
             Box(

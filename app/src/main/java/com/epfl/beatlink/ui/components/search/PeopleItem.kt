@@ -6,11 +6,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +36,17 @@ fun PeopleItem(
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
 ) {
+    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    val profileData by profileViewModel.profile.collectAsState()
+    val friendCount by friendRequestViewModel.friendCount.observeAsState()
+
+    LaunchedEffect(friendCount) {
+        friendCount?.let { count ->
+            profileData?.let { profile ->
+                profileViewModel.updateNbLinks(profile, count)
+            }
+        }
+    }
 
   val displayedUserId = remember { mutableStateOf<String?>(null) }
 
@@ -72,11 +86,12 @@ fun PeopleItem(
                 profileViewModel.selectSelectedUser(userId.value)
                 profileViewModel.fetchUserProfile()
               }
+              .height(78.dp)
               .padding(end = 16.dp)
               .testTag("peopleItem")) {
         Box(
             modifier =
-                Modifier.padding(16.dp).size(60.dp).clip(CircleShape).testTag("peopleImage")) {
+                Modifier.padding(horizontal = 16.dp).size(60.dp).clip(CircleShape).testTag("peopleImage")) {
               ProfilePicture(profilePicture)
             }
         Spacer(modifier = Modifier.size(10.dp))
@@ -114,7 +129,12 @@ fun PeopleItem(
               val receiverId = displayedUserId.value
               if (receiverId != null) {
                 friendRequestViewModel.acceptFriendRequestFrom(receiverId)
-                requestStatus = "Linked"
+                  val nbLinks = allFriends.size
+                  profileData?.let { currentProfile ->
+                      val updatedProfile = currentProfile.copy(links = nbLinks)
+                      profileViewModel.updateNbLinks(updatedProfile, nbLinks)
+                  }
+                  requestStatus = "Linked"
               } else {
                 Log.e(
                     "PeopleItem", "Unable to accept friend request: Missing sender or receiver ID")
@@ -124,6 +144,11 @@ fun PeopleItem(
               val receiverId = displayedUserId.value
               if (receiverId != null) {
                 friendRequestViewModel.removeFriend(receiverId)
+                  val nbLinks = allFriends.size
+                  profileData?.let { currentProfile ->
+                      val updatedProfile = currentProfile.copy(links = nbLinks)
+                      profileViewModel.updateNbLinks(updatedProfile, nbLinks)
+                  }
                 requestStatus = "Link"
               } else {
                 Log.e("PeopleItem", "Unable to remove friend: Missing sender or receiver ID")

@@ -29,8 +29,11 @@ import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.player.PlayScreen
 import com.epfl.beatlink.ui.profile.EditProfileScreen
+import com.epfl.beatlink.ui.profile.LinksScreen
 import com.epfl.beatlink.ui.profile.OtherProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
+import com.epfl.beatlink.ui.profile.notifications.LinkRequestsScreen
+import com.epfl.beatlink.ui.profile.notifications.NotificationsScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
@@ -129,10 +132,10 @@ fun BeatLinkApp(
                 navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
           }
           composable(Screen.CREATE_NEW_PLAYLIST) {
-            CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+            CreateNewPlaylistScreen(navigationActions, profileViewModel, friendRequestViewModel, playlistViewModel)
           }
           composable(Screen.EDIT_PLAYLIST) {
-            EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+            EditPlaylistScreen(navigationActions, profileViewModel, friendRequestViewModel, playlistViewModel)
           }
           composable(Screen.MY_PLAYLISTS) {
             MyPlaylistsScreen(navigationActions, playlistViewModel)
@@ -158,16 +161,17 @@ fun BeatLinkApp(
         navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
           composable(Screen.PROFILE) {
             ProfileScreen(
-                profileViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
+                profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
           }
+            composable(Screen.LINKS) { LinksScreen(navigationActions, profileViewModel, friendRequestViewModel) }
           composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
           composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
+            composable(Screen.NOTIFICATIONS) { NotificationsScreen(navigationActions) }
+            composable(Screen.LINK_REQUESTS) { LinkRequestsScreen(navigationActions, profileViewModel, friendRequestViewModel) }
           composable(Screen.SETTINGS) {
             SettingsScreen(
                 navigationActions, firebaseAuthViewModel, mapUsersViewModel, profileViewModel)
           }
-          // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
-          // friendRequestViewModel) }
           composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
           composable(Screen.ACCOUNT) {
             AccountScreen(

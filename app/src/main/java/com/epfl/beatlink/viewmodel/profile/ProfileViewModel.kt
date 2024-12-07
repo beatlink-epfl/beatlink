@@ -50,6 +50,10 @@ open class ProfileViewModel(
   val profile: StateFlow<ProfileData?>
     get() = _profile
 
+  private val _otherUserProfile = MutableStateFlow<ProfileData?>(null)
+  val otherUserProfile: StateFlow<ProfileData?>
+    get() = _otherUserProfile
+
   private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
   val searchResult: LiveData<List<ProfileData>>
     get() = _searchResult
@@ -71,6 +75,11 @@ open class ProfileViewModel(
   private val _selectedUserProfile = MutableStateFlow(initialProfile)
   val selectedUserProfile: StateFlow<ProfileData?>
     get() = _selectedUserProfile
+
+
+  fun selectOtherUserProfile(profileData: ProfileData) {
+    _otherUserProfile.value = profileData
+  }
 
   fun selectSelectedUser(userId: String) {
     _selectedUserUserId.value = userId
@@ -126,6 +135,20 @@ open class ProfileViewModel(
     }
   }
 
+  open fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userProfileData = repository.fetchProfile(userId)
+        _otherUserProfile.value = userProfileData
+        onResult(userProfileData)
+      } catch (e: Exception) {
+        Log.e("ViewModel", "Error fetching user profile", e)
+        _otherUserProfile.value = null
+        onResult(null)
+      }
+    }
+  }
+
   open fun fetchUserProfile() {
     _profileReady.value = false
     viewModelScope.launch {
@@ -162,6 +185,21 @@ open class ProfileViewModel(
         _profile.value = null
       } else {
         Log.e("DELETE_PROFILE", "Error deleting profile")
+      }
+    }
+  }
+
+  open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch(dispatcher) {
+      try {
+        val updatedProfile = profileData.copy(links = nbLinks)
+        val success = repository.updateProfile(userId, updatedProfile)
+        if (success) {
+          _profile.emit(updatedProfile)
+        }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
       }
     }
   }

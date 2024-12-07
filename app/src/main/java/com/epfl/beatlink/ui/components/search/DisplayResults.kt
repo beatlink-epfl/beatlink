@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +62,9 @@ fun DisplayResults(
         }
   } else {
     // Display tracks or artists
-    LazyColumn(modifier = Modifier.testTag("searchResultsColumn")) {
+    LazyColumn(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .testTag("searchResultsColumn")) {
       tracks?.let {
         items(it) { track ->
           if (playlistViewModel != null && onClearQuery != null) {

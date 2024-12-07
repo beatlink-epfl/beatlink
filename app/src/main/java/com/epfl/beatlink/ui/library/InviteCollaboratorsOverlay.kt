@@ -20,22 +20,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.ReusableOverlay
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
-fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRequest: () -> Unit) {
+fun InviteCollaboratorsOverlay(
+    navigationActions: NavigationActions,
+    profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
+    onDismissRequest: () -> Unit) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-  val list: List<String> = listOf()
+
+    val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+    val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
+
+    LaunchedEffect(friends) {
+        val profiles = mutableSetOf<ProfileData?>()
+        friends.forEach { userId ->
+            profileViewModel.fetchProfileById(userId) { profileData ->
+                if (profileData != null) {
+                    profiles.add(profileData)
+                    friendsProfileData.value = profiles.toList()
+                }
+            }
+        }
+    }
 
   ReusableOverlay(
       onDismissRequest = onDismissRequest,
@@ -46,7 +70,7 @@ fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRe
         modifier =
             Modifier.fillMaxSize()
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.background,
                     shape = RoundedCornerShape(10.dp))) {
           Spacer(modifier = Modifier.height(15.dp))
           Row(
@@ -81,9 +105,12 @@ fun InviteCollaboratorsOverlay(navigationActions: NavigationActions, onDismissRe
           LazyColumn(
               modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 10.dp),
               verticalArrangement = Arrangement.spacedBy(11.dp)) {
-                items(list.size) { i ->
-                  CollaboratorCard(
-                      list[i], "hello", profilePicture, false, onAdd = {}, onRemove = {})
+                items(friendsProfileData.value.size) { i ->
+                    val profile = friendsProfileData.value[i]
+                    if (profile != null) {
+                        CollaboratorCard(
+                            profile.name, profile.username, profilePicture, false, onAdd = {}, onRemove = {})
+                    }
                 }
               }
         }
