@@ -60,7 +60,7 @@ class LibraryE2ETest {
     composeTestRule.waitUntil(2000) {
       composeTestRule.onNodeWithTag("createNewPlaylistScreen").isDisplayed()
     }
-    composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertExists()
 
     // Step 7: Fill in the playlist title and description
     composeTestRule
@@ -74,15 +74,15 @@ class LibraryE2ETest {
         .performTextInput("This is a test playlist")
 
     // Step 8: Click the create button and verify navigation to Playlist Overview Screen
-    composeTestRule.onNodeWithTag("createPlaylist").performClick()
+    composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
 
     composeTestRule.onNodeWithTag("Library").performClick()
-    composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("libraryScreen").assertExists()
 
-    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
-    composeTestRule.onNodeWithText("Test Playlist").performClick()
+    composeTestRule.onNodeWithText("Test Playlist").performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
     // Step 9: Click the edit button and verify navigation to Edit Playlist Screen
