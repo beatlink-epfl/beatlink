@@ -82,9 +82,10 @@ fun PeopleItem(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.clickable {
-                // selects user and fetches it's userProfile
-                profileViewModel.selectSelectedUser(userId.value)
-                profileViewModel.fetchUserProfile()
+                // selects user and fetches its userProfile
+                  profileViewModel.selectSelectedUser(userId.value)
+                  profileViewModel.fetchUserProfile()
+
               }
               .height(78.dp)
               .padding(end = 16.dp)

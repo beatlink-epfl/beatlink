@@ -118,7 +118,7 @@ fun BeatLinkApp(
                 navigationActions, spotifyApiViewModel, profileViewModel, friendRequestViewModel)
           }
           composable(Screen.OTHER_PROFILE_SCREEN) {
-            OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+            OtherProfileScreen(profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
           }
           composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
           composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
