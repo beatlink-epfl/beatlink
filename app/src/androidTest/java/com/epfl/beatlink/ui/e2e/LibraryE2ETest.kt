@@ -75,6 +75,9 @@ class LibraryE2ETest {
     // Step 8: Click the create button and verify navigation to Playlist Overview Screen
     composeTestRule.onNodeWithTag("createPlaylist").performClick()
     composeTestRule.waitForIdle()
+    composeTestRule.waitUntil(3000) {
+      composeTestRule.onNodeWithTag("playlistOverviewScreen").isDisplayed()
+    }
 
     // Step 9: Click the back button and verify navigation to Library Screen
     composeTestRule.onNodeWithTag("goBackButton").performClick()
