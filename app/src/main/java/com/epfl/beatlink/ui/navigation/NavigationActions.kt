@@ -38,6 +38,7 @@ object Screen {
   const val ADD_TRACK_TO_PLAYLIST = "Add Track Screen"
   const val INVITE_COLLABORATORS = "Invite Collaborators Screen"
   const val PROFILE = "Profile Screen"
+    const val OTHER_PROFILE = "Other User's Profile Screen"
     const val LINKS = "Links Screen"
   const val EDIT_PROFILE = "Edit Profile Screen"
   const val NOTIFICATIONS = "Notifications Screen"
@@ -53,7 +54,6 @@ object Screen {
   const val LIVE_MUSIC_PARTIES = "Live Music Parties screen"
   const val DISCOVER_PEOPLE = "Discover People screen"
   const val PLAY_SCREEN = "Play Screen"
-  const val OTHER_PROFILE_SCREEN = "Other Profile Screen"
 }
 
 data class TopLevelDestination(

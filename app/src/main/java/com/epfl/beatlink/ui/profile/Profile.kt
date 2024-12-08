@@ -103,14 +103,12 @@ fun ProfileScreen(
       },
       content = { paddingValue ->
         ProfileColumn(
-            profileData = profileData,
-            navigationAction = navigationAction,
-            topSongsState = topSongsState.value,
-            topArtistsState = topArtistsState.value,
+            navigationActions = navigationAction,
+            profileViewModel = profileViewModel,
+            friendRequestViewModel = friendRequestViewModel,
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValue,
             profilePicture = profileViewModel.profilePicture,
-            ownProfile = true,
-            buttonTestTag = "editProfileButton")
+            ownProfile =true)
       })
 }

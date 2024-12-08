@@ -28,22 +28,24 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
-    val selectedUser by profileViewModel.selectedUserUserId.collectAsState()
+    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    val profileData by profileViewModel.profile.collectAsState()
 
-    val profileData by profileViewModel.selectedUserProfile.collectAsState()
+    val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
+    val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
 
     val friendCount by friendRequestViewModel.friendCount.observeAsState()
 
     LaunchedEffect(friendCount) {
         friendCount?.let { count ->
-            profileData?.let { profile ->
+            selectedProfileData?.let { profile ->
                 profileViewModel.updateNbLinks(profile, count)
             }
         }
     }
 
-    LaunchedEffect(selectedUser) {
-        if (selectedUser.isNotEmpty()) {
+    LaunchedEffect(selectedUserId) {
+        if (selectedUserId.isNotEmpty()) {
             profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
         }
     }
@@ -51,11 +53,11 @@ fun OtherProfileScreen(
     val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
     // Fetch user's playlists
-    LaunchedEffect(profileData?.spotifyId) {
-        val spotifyId = profileData?.spotifyId
+    LaunchedEffect(selectedProfileData?.spotifyId) {
+        val spotifyId = selectedProfileData?.spotifyId
         if (!spotifyId.isNullOrEmpty()) {
             spotifyApiViewModel.getUserPlaylists(
-                userId = profileData?.spotifyId ?: "",
+                userId = selectedProfileData?.spotifyId ?: "",
                 onSuccess = { playlist -> userPlaylists.value = playlist },
                 onFailure = { userPlaylists.value = emptyList() })
         }
@@ -65,7 +67,7 @@ fun OtherProfileScreen(
         modifier = Modifier.testTag("otherProfileScreen"),
         topBar = {
             ScreenTopAppBar(
-                profileData?.username ?: "",
+                selectedProfileData?.username ?: "",
                 "titleUsername",
                 navigationAction,
                 listOf {
@@ -79,15 +81,13 @@ fun OtherProfileScreen(
         },
         content = { paddingValues ->
             ProfileColumn(
-                profileData = profileData,
-                navigationAction = navigationAction,
-                topSongsState = profileData?.topSongs ?: emptyList(),
-                topArtistsState = profileData?.topArtists ?: emptyList(),
+                navigationActions = navigationAction,
+                profileViewModel = profileViewModel,
+                friendRequestViewModel = friendRequestViewModel,
                 userPlaylists = userPlaylists.value,
                 paddingValue = paddingValues,
                 profilePicture = profileViewModel.profilePicture,
-                ownProfile = false,
-                buttonTestTag = "linkProfileButton"
+                ownProfile = (profileData == selectedProfileData)
             )
         })
 }

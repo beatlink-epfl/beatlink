@@ -32,6 +32,10 @@ open class FriendRequestViewModel(
   val allFriends: LiveData<List<String>>
     get() = _allFriends
 
+  private val _otherProfileAllFriends = MutableLiveData<List<String>>(emptyList())
+  val otherProfileAllFriends: LiveData<List<String>>
+    get() = _otherProfileAllFriends
+
   private val _friendCount = MutableLiveData<Int>()
   val friendCount: LiveData<Int> get() = _friendCount
 
@@ -62,6 +66,19 @@ open class FriendRequestViewModel(
     getAllFriends()
   }
 
+  /**
+   * Determines the request status for a specific user.
+   * Returns one of: "Link", "Requested", "Accept", "Linked".
+   */
+  fun getRequestStatus(userId: String?): String {
+    return when (userId) {
+      in _ownRequests.value.orEmpty() -> "Requested"
+      in _friendRequests.value.orEmpty() -> "Accept"
+      in _allFriends.value.orEmpty() -> "Linked"
+      else -> "Link"
+    }
+  }
+
   open fun sendFriendRequestTo(receiverId: String) {
     val senderId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {
@@ -81,6 +98,7 @@ open class FriendRequestViewModel(
         repository.acceptFriendRequest(receiverId, senderId)
         _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
         _allFriends.postValue(_allFriends.value.orEmpty() + senderId)
+        _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty() + receiverId)
         updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error accepting friend request: ${e.message}")
@@ -118,6 +136,7 @@ open class FriendRequestViewModel(
       try {
         repository.removeFriend(userId, friendToRemove)
         _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
+        _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty().filter { it != userId })
         updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error removing friend: ${e.message}")
@@ -164,6 +183,19 @@ open class FriendRequestViewModel(
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
         _allFriends.postValue(emptyList())
+      }
+    }
+  }
+
+  fun getOtherProfileAllFriends(otherProfileId: String) {
+    viewModelScope.launch(dispatcher) {
+      try {
+        val friends = repository.getAllFriends(otherProfileId)
+        _otherProfileAllFriends.postValue(friends)
+        updateFriendCount()
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
+        _otherProfileAllFriends.postValue(emptyList())
       }
     }
   }

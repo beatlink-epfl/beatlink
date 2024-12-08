@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -50,10 +51,6 @@ open class ProfileViewModel(
   val profile: StateFlow<ProfileData?>
     get() = _profile
 
-  private val _otherUserProfile = MutableStateFlow<ProfileData?>(null)
-  val otherUserProfile: StateFlow<ProfileData?>
-    get() = _otherUserProfile
-
   private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
   val searchResult: LiveData<List<ProfileData>>
     get() = _searchResult
@@ -76,11 +73,6 @@ open class ProfileViewModel(
   val selectedUserProfile: StateFlow<ProfileData?>
     get() = _selectedUserProfile
 
-
-  fun selectOtherUserProfile(profileData: ProfileData) {
-    _otherUserProfile.value = profileData
-  }
-
   fun selectSelectedUser(userId: String) {
     _selectedUserUserId.value = userId
   }
@@ -101,6 +93,11 @@ open class ProfileViewModel(
   /** Function that resets the profileUpdate flag to false */
   fun markProfileAsNotUpdated() {
     _isProfileUpdated.value = false
+  }
+
+  fun clearSelectedUser() {
+    _selectedUserUserId.value = ""
+    _selectedUserProfile.value = null
   }
 
   fun getUsername(userId: String, onResult: (String?) -> Unit) {
@@ -139,11 +136,9 @@ open class ProfileViewModel(
     viewModelScope.launch {
       try {
         val userProfileData = repository.fetchProfile(userId)
-        _otherUserProfile.value = userProfileData
         onResult(userProfileData)
       } catch (e: Exception) {
         Log.e("ViewModel", "Error fetching user profile", e)
-        _otherUserProfile.value = null
         onResult(null)
       }
     }
@@ -197,6 +192,20 @@ open class ProfileViewModel(
         val success = repository.updateProfile(userId, updatedProfile)
         if (success) {
           _profile.emit(updatedProfile)
+        }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
+      }
+    }
+  }
+
+  open fun updateOtherProfileNbLinks(otherProfileData: ProfileData, otherProfileUserId: String, nbLinks: Int) {
+    viewModelScope.launch(dispatcher) {
+      try {
+        val updatedProfile = otherProfileData.copy(links = nbLinks)
+        val success = repository.updateProfile(otherProfileUserId, updatedProfile)
+        if (success) {
+          _selectedUserProfile.emit(updatedProfile)
         }
       } catch (e: Exception) {
         Log.e("ProfileViewModel", "Error updating links: ${e.message}")

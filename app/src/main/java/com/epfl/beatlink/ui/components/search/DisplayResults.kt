@@ -45,7 +45,7 @@ fun DisplayResults(
     // Observe changes in profile readiness and navigate
     LaunchedEffect(profileReady) {
       if (profileReady) {
-        navigationActions.navigateTo(Screen.OTHER_PROFILE_SCREEN)
+          // navigationActions.navigateTo(Screen.OTHER_PROFILE)
       }
     }
   }
@@ -88,6 +88,7 @@ fun DisplayResults(
               friendRequestViewModel != null) {
             PeopleItem(
                 person,
+                navigationActions = navigationActions,
                 profileViewModel = profileViewModel,
                 friendRequestViewModel = friendRequestViewModel)
           }

@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,7 +38,24 @@ fun LinksScreen(navigationActions: NavigationActions,
                 profileViewModel: ProfileViewModel,
                 friendRequestViewModel: FriendRequestViewModel) {
 
-    val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+    val selectedUserUserId by profileViewModel.selectedUserUserId.collectAsState()
+    val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
+    val isOwnProfile = selectedUserUserId == ""
+
+    val friends by if (isOwnProfile) {
+        // Own profile: Show own friend list
+        friendRequestViewModel.allFriends.observeAsState(emptyList())
+    } else {
+        // Displayed user: Fetch their friend list
+        friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
+    }
+    LaunchedEffect(selectedUserUserId) {
+        if (!isOwnProfile) {
+            // Fetch the friends of the displayed user
+            friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
+        }
+    }
+
     val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
     LaunchedEffect(friends) {
@@ -52,8 +70,9 @@ fun LinksScreen(navigationActions: NavigationActions,
         }
     }
 
+
     Scaffold(
-        topBar = { ScreenTopAppBar("Links", "LinksScreenTitle", navigationActions)
+        topBar = { ScreenTopAppBar(if (isOwnProfile) "Links" else "${selectedProfileData?.username}'s Links", "LinksScreenTitle", navigationActions)
         },
         bottomBar = {
             BottomNavigationMenu(
@@ -83,6 +102,7 @@ fun LinksScreen(navigationActions: NavigationActions,
                             val profile = friendsProfileData.value[i]
                             PeopleItem(
                                 people = profile,
+                                navigationActions = navigationActions,
                                 profileViewModel = profileViewModel,
                                 friendRequestViewModel = friendRequestViewModel
                             )
