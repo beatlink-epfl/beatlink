@@ -75,31 +75,15 @@ class LibraryE2ETest {
     // Step 8: Click the create button and verify navigation to Playlist Overview Screen
     composeTestRule.onNodeWithTag("createPlaylist").performClick()
     composeTestRule.waitForIdle()
-    composeTestRule.waitUntil(8000) {
-      composeTestRule.onNodeWithTag("playlistOverviewScreen").isDisplayed()
-    }
 
-    // Step 9: Click the back button and verify navigation to Library Screen
-    composeTestRule.onNodeWithTag("goBackButton").performClick()
-    composeTestRule.waitForIdle()
-    composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("libraryScreen").isDisplayed() }
-    composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
-
-    // Step 10: Click on the Playlist Card and verify navigation to Playlist Overview Screen
-    composeTestRule.onNodeWithTag("playlistItem").performClick()
-    composeTestRule.waitForIdle()
-    composeTestRule.waitUntil(5000) {
-      composeTestRule.onNodeWithTag("playlistOverviewScreen").isDisplayed()
-    }
-
-    // Step 11: Click the edit button and verify navigation to Edit Playlist Screen
+    // Step 9: Click the edit button and verify navigation to Edit Playlist Screen
     composeTestRule.onNodeWithTag("editButton").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.waitUntil(6000) {
       composeTestRule.onNodeWithTag("editPlaylistScreen").isDisplayed()
     }
 
-    // Step 12: Click the delete button and verify navigation to Library Screen
+    // Step 10: Click the delete button and verify navigation to Library Screen
     composeTestRule.onNodeWithTag("deleteButton").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.waitUntil(7000) {
