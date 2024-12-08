@@ -47,9 +47,7 @@ class LibraryE2ETest {
 
       // Step 5: Click the search button and verify navigation to Search Screen
       composeTestRule.waitForIdle()
-      composeTestRule.waitUntil(5000) {
-          composeTestRule.onNodeWithTag("MapScreen").isDisplayed()
-      }
+      composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
     }
     composeTestRule.onNodeWithTag("Library").isDisplayed()
     composeTestRule.onNodeWithTag("Library").performClick()
