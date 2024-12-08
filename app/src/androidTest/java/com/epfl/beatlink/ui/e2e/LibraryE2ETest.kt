@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -78,7 +79,10 @@ class LibraryE2ETest {
     composeTestRule.onNodeWithTag("Library").performClick()
     composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("playlistItem").performClick()
+    composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performClick()
+    composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithText("Test Playlist").performClick()
     composeTestRule.waitForIdle()
 
     // Step 9: Click the edit button and verify navigation to Edit Playlist Screen
