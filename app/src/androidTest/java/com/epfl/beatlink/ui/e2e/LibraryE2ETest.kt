@@ -74,6 +74,11 @@ class LibraryE2ETest {
 
     // Step 8: Click the create button and verify navigation to Playlist Overview Screen
     composeTestRule.onNodeWithTag("createPlaylist").performClick()
+
+    composeTestRule.onNodeWithTag("Library").performClick()
+    composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
+
+    composeTestRule.onNodeWithTag("playlistItem").performClick()
     composeTestRule.waitForIdle()
 
     // Step 9: Click the edit button and verify navigation to Edit Playlist Screen
