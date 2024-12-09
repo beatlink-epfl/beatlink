@@ -1,8 +1,6 @@
 package com.epfl.beatlink.viewmodel.profile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -16,8 +14,6 @@ import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -29,8 +25,7 @@ import kotlinx.coroutines.launch
  */
 open class ProfileViewModel(
     private val repository: ProfileRepository,
-    initialProfile: ProfileData? = null,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+    initialProfile: ProfileData? = null
 ) : ViewModel() {
 
   /** Represents the result of username validation. */
@@ -164,11 +159,6 @@ open class ProfileViewModel(
         Log.e("DELETE_PROFILE", "Error deleting profile")
       }
     }
-  }
-
-  open fun uploadProfilePicture(context: Context, uri: Uri) {
-    val userId = repository.getUserId() ?: return
-    viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
   }
 
   open fun loadProfilePicture(

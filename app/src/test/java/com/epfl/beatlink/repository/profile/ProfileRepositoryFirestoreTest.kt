@@ -36,7 +36,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.mockStatic
@@ -624,20 +623,6 @@ class ProfileRepositoryFirestoreTest {
   }
 
   @Test
-  fun `test uploadProfilePicture logs error on failure`() {
-    // Arrange
-    val userId = "testUserId"
-    `when`(resizeAndCompressImageFromUri(mockUri, mockContext)).thenReturn(null)
-
-    // Act
-    repository.uploadProfilePicture(mockUri, mockContext, userId)
-
-    // Assert
-    // No save operation should occur since Base64 conversion failed
-    verify(mockProfileCollectionReference, never()).document(anyString())
-  }
-
-  @Test
   fun `test loadProfilePicture handles missing profile picture`() {
     // Arrange
     val userId = "testUserId"
@@ -652,20 +637,6 @@ class ProfileRepositoryFirestoreTest {
       // Assert
       assertNull(bitmap)
     }
-  }
-
-  @Test
-  fun `saveProfilePictureBase64 calls Firestore set() with correct data`() {
-    // Arrange
-    val userId = "testUserId"
-    val base64Image = "base64_image_data"
-    val profileData = mapOf("profilePicture" to base64Image)
-
-    // Act
-    repository.saveProfilePictureBase64(userId, base64Image)
-
-    // Assert
-    verify(mockProfileDocumentReference).set(profileData, SetOptions.merge())
   }
 
   @Test
