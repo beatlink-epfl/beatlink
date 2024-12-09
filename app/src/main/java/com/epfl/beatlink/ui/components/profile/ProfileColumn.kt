@@ -91,7 +91,6 @@ fun ProfileColumn(
     val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
     val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
     val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
-    val friendCount by friendRequestViewModel.friendCount.observeAsState()
 
     // Info of the selected user
     val selectedUserUserId by profileViewModel.selectedUserUserId.collectAsState()
@@ -102,8 +101,18 @@ fun ProfileColumn(
 
     val isOwnProfile = selectedUserUserId == ""
 
-    val topSongsState = selectedProfileData?.topSongs ?: emptyList()
-    val topArtistsState = selectedProfileData?.topArtists ?: emptyList()
+    val topSongsState =
+        if (ownProfile) {
+            profileData?.topSongs ?: emptyList()
+        } else {
+            selectedProfileData?.topSongs ?: emptyList()
+        }
+    val topArtistsState =
+        if (ownProfile) {
+            profileData?.topArtists ?: emptyList()
+        } else {
+            selectedProfileData?.topArtists ?: emptyList()
+        }
 
     var requestStatus =
         when (selectedUserUserId) {
@@ -113,29 +122,20 @@ fun ProfileColumn(
             else -> "Link"
         }
 
-    LaunchedEffect(friendCount) {
-        friendCount?.let { count ->
-            selectedProfileData?.let { profile ->
-                profileViewModel.updateNbLinks(profile, count) // current user
-            }
-        }
+    LaunchedEffect(profileData) {
+        // updates the profile changes
+        // profileViewModel.fetchProfile()
     }
-
-    LaunchedEffect(otherProfileAllFriends) {
-        val nbLinks = otherProfileAllFriends.size
-        selectedProfileData?.let { selectedProfile ->
-            profileViewModel.updateOtherProfileNbLinks(
-                selectedProfile,
-                selectedUserUserId,
-                nbLinks
-            ) // selected user
-        }
+    LaunchedEffect(selectedProfileData) {
+        // updates the other profile changes
+        // profileViewModel.fetchUserProfile()
     }
 
     LaunchedEffect(selectedUserUserId) {
         if (!isOwnProfile) {
             // Fetch the friends of the displayed user
             friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
+            Log.d("PROFILE_LINK", "The list of friends of other user: $otherProfileAllFriends")
         }
     }
 
@@ -143,7 +143,7 @@ fun ProfileColumn(
 
     Log.d("PROFILE", "Selected User ID: $selectedUserUserId")
     Log.d("PROFILE", "Is Own Profile: $isOwnProfile")
-    Log.d("PROFILE", "Friends: $otherProfileAllFriends")
+    Log.d("PROFILE_LINK", "FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
 
     Column(
         modifier =
@@ -201,23 +201,35 @@ fun ProfileColumn(
                             }
                             "Accept" -> {
                                 selectedUserUserId.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
-                                val nbLinks = otherProfileAllFriends.size
                                 profileData?.let { currentProfile ->
-                                    profileViewModel.updateNbLinks(currentProfile, nbLinks)
+                                    Log.d("PROFILE_USERNAME", " username of current user: ${currentProfile.username}")
+                                    profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+                                    friendRequestViewModel.getAllFriends()
                                 }
                                 selectedProfileData?.let { selectedProfile ->
-                                    profileViewModel.updateOtherProfileNbLinks(selectedProfile, selectedUserUserId, nbLinks)
+                                    Log.d("PROFILE_USERNAME", " username of selected user: ${selectedProfile.username}")
+                                    profileViewModel.updateOtherProfileNbLinks(
+                                        selectedProfile,
+                                        selectedUserUserId,
+                                        otherProfileAllFriends.size)
+                                    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
                                 }
                                 requestStatus= "Linked"
                             }
                             "Linked" -> {
                                 selectedUserUserId.let { friendRequestViewModel.removeFriend(it) }
-                                val nbLinks = otherProfileAllFriends.size
                                 profileData?.let { currentProfile ->
-                                    profileViewModel.updateNbLinks(currentProfile, nbLinks)
+                                    Log.d("PROFILE_USERNAME", " username of current user: ${currentProfile.username}")
+                                    profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+                                    friendRequestViewModel.getAllFriends()
                                 }
                                 selectedProfileData?.let { selectedProfile ->
-                                    profileViewModel.updateOtherProfileNbLinks(selectedProfile, selectedUserUserId, nbLinks)
+                                    Log.d("PROFILE_USERNAME", " username of selected user: ${selectedProfile.username}")
+                                    profileViewModel.updateOtherProfileNbLinks(
+                                        selectedProfile,
+                                        selectedUserUserId,
+                                        otherProfileAllFriends.size)
+                                    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
                                 }
                                 requestStatus = "Link"
                             }

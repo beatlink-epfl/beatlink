@@ -36,9 +36,6 @@ open class FriendRequestViewModel(
   val otherProfileAllFriends: LiveData<List<String>>
     get() = _otherProfileAllFriends
 
-  private val _friendCount = MutableLiveData<Int>()
-  val friendCount: LiveData<Int> get() = _friendCount
-
   // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
@@ -55,9 +52,6 @@ open class FriendRequestViewModel(
 
   init {
     repository.init(onSuccess = { fetchInitialData() })
-    _allFriends.observeForever { friends ->
-      _friendCount.postValue(friends.size)
-    }
   }
 
   private fun fetchInitialData() {
@@ -99,7 +93,6 @@ open class FriendRequestViewModel(
         _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
         _allFriends.postValue(_allFriends.value.orEmpty() + senderId)
         _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty() + receiverId)
-        updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error accepting friend request: ${e.message}")
       }
@@ -137,7 +130,6 @@ open class FriendRequestViewModel(
         repository.removeFriend(userId, friendToRemove)
         _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
         _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty().filter { it != userId })
-        updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error removing friend: ${e.message}")
       }
@@ -179,7 +171,6 @@ open class FriendRequestViewModel(
       try {
         val friends = repository.getAllFriends(userId)
         _allFriends.postValue(friends)
-        updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
         _allFriends.postValue(emptyList())
@@ -192,16 +183,10 @@ open class FriendRequestViewModel(
       try {
         val friends = repository.getAllFriends(otherProfileId)
         _otherProfileAllFriends.postValue(friends)
-        updateFriendCount()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
         _otherProfileAllFriends.postValue(emptyList())
       }
     }
   }
-
-  private fun updateFriendCount() {
-    _friendCount.value = _allFriends.value?.size ?: 0
-  }
-
 }

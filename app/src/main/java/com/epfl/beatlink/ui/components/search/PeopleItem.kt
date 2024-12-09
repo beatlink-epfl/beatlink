@@ -47,7 +47,6 @@ fun PeopleItem(
     val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
     val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
     val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
-    val friendCount by friendRequestViewModel.friendCount.observeAsState()
 
     val displayedUserId = remember { mutableStateOf<String?>(null) }
     val selectedUserUserId = remember { mutableStateOf("") }
@@ -70,6 +69,8 @@ fun PeopleItem(
         Log.d("PeopleItem", "profile data null")
     }
 
+    Log.d("PROFILE_LINK", "FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
+
   var requestStatus =
       when (displayedUserId.value) {
         in ownRequests -> "Requested"
@@ -78,30 +79,42 @@ fun PeopleItem(
         else -> "Link"
       }
 
-
-    LaunchedEffect(friendCount) {
-        friendCount?.let { count ->
-            profileData?.let { profile ->
-                profileViewModel.updateNbLinks(profile, count)
-            }
-        }
-    }
-    LaunchedEffect(otherProfileAllFriends) {
-        val nbLinks = otherProfileAllFriends.size
-        people?.let { selectedProfile ->
-            val updatedProfile = selectedProfile.copy(links = nbLinks)
-            profileViewModel.updateOtherProfileNbLinks(
-                updatedProfile,
-                selectedUserUserId.value,
-                nbLinks
-            ) // selected user
-        }
-    }
     LaunchedEffect(selectedUserUserId) {
         if (profileData != people) {
             // Fetch the friends of the displayed user
             friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId.value)
         }
+    }
+
+    LaunchedEffect(allFriends) {
+        profileData?.let { currentProfile ->
+            Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
+            profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+        }
+        people?.let { selectedProfile ->
+            Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
+            profileViewModel.updateOtherProfileNbLinks(
+                selectedProfile,
+                selectedUserUserId.value,
+                otherProfileAllFriends.size
+            )
+        }
+    }
+
+    LaunchedEffect(otherProfileAllFriends) {
+        profileData?.let { currentProfile ->
+            Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
+            profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+        }
+        people?.let { selectedProfile ->
+            Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
+            profileViewModel.updateOtherProfileNbLinks(
+                selectedProfile,
+                selectedUserUserId.value,
+                otherProfileAllFriends.size
+            )
+        }
+
     }
 
     Row(
@@ -140,63 +153,29 @@ fun PeopleItem(
         }
         Spacer(modifier = Modifier.weight(1f))
         if (profileData != people) {
-            LinkButton(
-                buttonText = requestStatus,
-                onClickLink = {
-                    val receiverId = displayedUserId.value
-                    if (receiverId != null) {
-                        friendRequestViewModel.sendFriendRequestTo(receiverId)
+            ProfileCardLinkButton(
+                buttonText = requestStatus
+            ) {
+                when (requestStatus) {
+                    "Link" -> {
+                        selectedUserUserId.value.let { friendRequestViewModel.sendFriendRequestTo(it) }
                         requestStatus = "Requested"
-                    } else {
-                        Log.e(
-                            "PeopleItem",
-                            "Unable to send friend request: Missing sender or receiver ID"
-                        )
                     }
-                },
-                onClickRequested = {
-                    val receiverId = displayedUserId.value
-                    if (receiverId != null) {
-                        friendRequestViewModel.cancelFriendRequestTo(receiverId)
+                    "Requested" -> {
+                        selectedUserUserId.value.let { friendRequestViewModel.cancelFriendRequestTo(it) }
                         requestStatus = "Link"
-                    } else {
-                        Log.e(
-                            "PeopleItem",
-                            "Unable to cancel friend request: Missing sender or receiver ID"
-                        )
                     }
-                },
-                onClickAccept = {
-                    val receiverId = displayedUserId.value
-                    if (receiverId != null) {
-                        friendRequestViewModel.acceptFriendRequestFrom(receiverId)
-                        val nbLinks = allFriends.size
-                        profileData?.let { currentProfile ->
-                            val updatedProfile = currentProfile.copy(links = nbLinks)
-                            profileViewModel.updateNbLinks(updatedProfile, nbLinks)
-                        }
+                    "Accept" -> {
+                        selectedUserUserId.value.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
                         requestStatus = "Linked"
-                    } else {
-                        Log.e(
-                            "PeopleItem",
-                            "Unable to accept friend request: Missing sender or receiver ID"
-                        )
                     }
-                },
-                onClickLinked = {
-                    val receiverId = displayedUserId.value
-                    if (receiverId != null) {
-                        friendRequestViewModel.removeFriend(receiverId)
-                        val nbLinks = allFriends.size
-                        profileData?.let { currentProfile ->
-                            val updatedProfile = currentProfile.copy(links = nbLinks)
-                            profileViewModel.updateNbLinks(updatedProfile, nbLinks)
-                        }
+
+                    "Linked" -> {
+                        selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
                         requestStatus = "Link"
-                    } else {
-                        Log.e("PeopleItem", "Unable to remove friend: Missing sender or receiver ID")
                     }
-                })
+                }
+            }
         }
     }
 }

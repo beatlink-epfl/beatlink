@@ -311,8 +311,8 @@ fun ProfileCardLinkButton(
         .border(
             width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)
         )
-        .width(233.dp)
-        .height(34.dp)
+        .width(100.dp)
+        .height(40.dp)
 
     Box(
         modifier = when (buttonText) {

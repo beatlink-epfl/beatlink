@@ -62,11 +62,6 @@ fun LinksScreen(navigationActions: NavigationActions,
 
     }
 
-
-    Log.d("LINKS_SCREEN", "Selected User ID: $selectedUserUserId")
-    Log.d("LINKS_SCREEN", "Is Own Profile: $isOwnProfile")
-    Log.d("LINKS_SCREEN", "Friends: $friends")
-
     val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
     LaunchedEffect(friends) {
@@ -123,5 +118,4 @@ fun LinksScreen(navigationActions: NavigationActions,
             }
         }
     )
-
 }

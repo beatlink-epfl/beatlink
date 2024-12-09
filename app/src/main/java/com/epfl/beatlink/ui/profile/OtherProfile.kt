@@ -34,22 +34,11 @@ fun OtherProfileScreen(
     val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
     val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
 
-    val friendCount by friendRequestViewModel.friendCount.observeAsState()
-
-    LaunchedEffect(friendCount) {
-        friendCount?.let { count ->
-            selectedProfileData?.let { profile ->
-                profileViewModel.updateNbLinks(profile, count)
-            }
-        }
-    }
-
     LaunchedEffect(selectedUserId) {
         if (selectedUserId.isNotEmpty()) {
             profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
         }
     }
-
     val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
     // Fetch user's playlists
