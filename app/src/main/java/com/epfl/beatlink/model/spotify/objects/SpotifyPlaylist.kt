@@ -5,6 +5,5 @@ data class SpotifyPlaylist(
     val cover: String,
     val tracks: List<String>, // Track IDs
     val size: Int,
-    val popularity: Int,
-    val playlistId: String
+    val popularity: Int
 )
