@@ -3,6 +3,7 @@ package com.epfl.beatlink.viewmodel.library
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,6 +15,7 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 class PlaylistViewModel(
     private val repository: PlaylistRepository,
@@ -148,8 +151,11 @@ class PlaylistViewModel(
       try {
         val newTrackList = playlist.playlistTracks.toMutableList()
         newTrackList.add(track)
-        val updatedPlaylist =
-            playlist.copy(playlistTracks = newTrackList, nbTracks = newTrackList.size)
+        val updatedPlaylist = playlist.copy(
+          playlistTracks = newTrackList,
+          nbTracks = newTrackList.size,
+          playlistCover = playlist.playlistCover // Explicitly preserve cover
+        )
 
         updatePlaylist(updatedPlaylist)
         onSuccess()
@@ -271,5 +277,21 @@ class PlaylistViewModel(
       return
     }
     repository.loadPlaylistCover(playlist, onBitmapLoaded)
+  }
+
+  fun preparePlaylistCoverForSpotify(): String? {
+    return try {
+      // Decode Base64 to Bitmap
+      val bitmap = base64ToBitmap(selectedPlaylist.value?.playlistCover!!)
+
+      // Re-encode the Bitmap to Base64 JPEG
+      val outputStream = ByteArrayOutputStream()
+      bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+      val byteArray = outputStream.toByteArray()
+      Base64.encodeToString(byteArray, Base64.NO_WRAP) // NO_WRAP removes padding
+    } catch (e: Exception) {
+      Log.e("PlaylistViewModel", "Error preparing playlist cover: ${e.message}", e)
+      null
+    }
   }
 }

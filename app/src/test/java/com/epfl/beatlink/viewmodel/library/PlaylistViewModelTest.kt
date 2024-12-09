@@ -2,7 +2,9 @@ package com.epfl.beatlink.viewmodel.library
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Base64
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
@@ -36,6 +38,8 @@ import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("UNCHECKED_CAST")
@@ -630,4 +634,70 @@ class PlaylistViewModelTest {
     // Assert
     assertTrue(finalTracks.isEmpty())
   }
+
+    /*@Test
+    fun `preparePlaylistCoverForSpotify should return a valid Base64 JPEG string`() {
+        // Arrange
+        val fileName = "cover_test1.png"
+        val classLoader = Thread.currentThread().contextClassLoader
+        val inputStream: InputStream = classLoader.getResourceAsStream(fileName)
+            ?: throw IllegalArgumentException("Test image not found: $fileName")
+
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+            ?: throw IllegalArgumentException("Failed to decode bitmap from test image")
+
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val byteArray = outputStream.toByteArray()
+        val validBase64Image = Base64.encodeToString(byteArray, Base64.NO_WRAP)
+
+        val playlistWithCover = playlist2.copy(playlistCover = validBase64Image)
+        playlistViewModel.selectPlaylist(playlistWithCover)
+
+        // Act
+        val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+        // Assert
+        assertTrue(!result.isNullOrEmpty())
+    }*/
+
+
+    @Test
+    fun `preparePlaylistCoverForSpotify should return null for an invalid Base64 string`() {
+        // Arrange
+        val invalidBase64String = "InvalidBase64Data"
+        val playlistWithInvalidCover = playlist2.copy(playlistCover = invalidBase64String)
+
+        playlistViewModel.selectPlaylist(playlistWithInvalidCover)
+
+        // Act
+        val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+        // Assert
+        assertNull(result) // Ensure the result is null due to invalid input
+    }
+
+    @Test
+    fun `preparePlaylistCoverForSpotify should return null if no playlist is selected`() {
+        // Act
+        val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+        // Assert
+        assertNull(result) // Ensure the result is null when no playlist is selected
+    }
+
+    @Test
+    fun `preparePlaylistCoverForSpotify should return null if playlistCover is empty`() {
+        // Arrange
+        val playlistWithoutCover = playlist2.copy(playlistCover = "")
+        playlistViewModel.selectPlaylist(playlistWithoutCover)
+
+        // Act
+        val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+        // Assert
+        assertNull(result) // Ensure the result is null due to empty cover
+    }
+
+
 }
