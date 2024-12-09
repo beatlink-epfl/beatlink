@@ -122,22 +122,31 @@ fun ProfileColumn(
             else -> "Link"
         }
 
-    LaunchedEffect(profileData) {
-        // updates the profile changes
-        // profileViewModel.fetchProfile()
+    LaunchedEffect(allFriends) {
+        profileData?.let { currentProfile ->
+            Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
+            profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+        }
     }
-    LaunchedEffect(selectedProfileData) {
-        // updates the other profile changes
-        // profileViewModel.fetchUserProfile()
+
+    LaunchedEffect(otherProfileAllFriends) {
+        selectedProfileData?.let { selectedProfile ->
+            Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
+            profileViewModel.updateOtherProfileNbLinks(
+                selectedProfile,
+                selectedUserUserId,
+                otherProfileAllFriends.size
+            )
+        }
     }
 
     LaunchedEffect(selectedUserUserId) {
         if (!isOwnProfile) {
             // Fetch the friends of the displayed user
             friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
-            Log.d("PROFILE_LINK", "The list of friends of other user: $otherProfileAllFriends")
         }
     }
+    Log.d("PROFILE_LINK", "The list of friends of other user: $otherProfileAllFriends")
 
     val profileReady by profileViewModel.profileReady.collectAsState()
 
@@ -201,36 +210,10 @@ fun ProfileColumn(
                             }
                             "Accept" -> {
                                 selectedUserUserId.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
-                                profileData?.let { currentProfile ->
-                                    Log.d("PROFILE_USERNAME", " username of current user: ${currentProfile.username}")
-                                    profileViewModel.updateNbLinks(currentProfile, allFriends.size)
-                                    friendRequestViewModel.getAllFriends()
-                                }
-                                selectedProfileData?.let { selectedProfile ->
-                                    Log.d("PROFILE_USERNAME", " username of selected user: ${selectedProfile.username}")
-                                    profileViewModel.updateOtherProfileNbLinks(
-                                        selectedProfile,
-                                        selectedUserUserId,
-                                        otherProfileAllFriends.size)
-                                    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
-                                }
                                 requestStatus= "Linked"
                             }
                             "Linked" -> {
                                 selectedUserUserId.let { friendRequestViewModel.removeFriend(it) }
-                                profileData?.let { currentProfile ->
-                                    Log.d("PROFILE_USERNAME", " username of current user: ${currentProfile.username}")
-                                    profileViewModel.updateNbLinks(currentProfile, allFriends.size)
-                                    friendRequestViewModel.getAllFriends()
-                                }
-                                selectedProfileData?.let { selectedProfile ->
-                                    Log.d("PROFILE_USERNAME", " username of selected user: ${selectedProfile.username}")
-                                    profileViewModel.updateOtherProfileNbLinks(
-                                        selectedProfile,
-                                        selectedUserUserId,
-                                        otherProfileAllFriends.size)
-                                    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
-                                }
                                 requestStatus = "Link"
                             }
                         }

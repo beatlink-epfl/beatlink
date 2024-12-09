@@ -91,21 +91,9 @@ fun PeopleItem(
             Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
             profileViewModel.updateNbLinks(currentProfile, allFriends.size)
         }
-        people?.let { selectedProfile ->
-            Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
-            profileViewModel.updateOtherProfileNbLinks(
-                selectedProfile,
-                selectedUserUserId.value,
-                otherProfileAllFriends.size
-            )
-        }
     }
 
     LaunchedEffect(otherProfileAllFriends) {
-        profileData?.let { currentProfile ->
-            Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
-            profileViewModel.updateNbLinks(currentProfile, allFriends.size)
-        }
         people?.let { selectedProfile ->
             Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
             profileViewModel.updateOtherProfileNbLinks(
@@ -114,7 +102,6 @@ fun PeopleItem(
                 otherProfileAllFriends.size
             )
         }
-
     }
 
     Row(
