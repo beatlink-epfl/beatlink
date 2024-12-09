@@ -286,6 +286,68 @@ fun LinkButton(
 }
 
 @Composable
+fun ProfileCardLinkButton(
+    buttonText: String,
+    onClick: () -> Unit
+) {
+    val linkModifier = Modifier
+        .border(
+            width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)
+        )
+        .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+        .width(100.dp)
+        .height(40.dp)
+
+    val acceptModifier = Modifier
+        .border(
+            width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)
+        )
+        .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
+        .width(120.dp)
+        .height(40.dp)
+
+    val linkedModifier = Modifier
+        .border(
+            width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp)
+        )
+        .width(233.dp)
+        .height(34.dp)
+
+    Box(
+        modifier = when (buttonText) {
+            "Linked" -> linkedModifier
+            "Link" -> linkModifier
+            else ->  acceptModifier
+        },
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxSize(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (buttonText == "Requested" || buttonText == "Accept") Color.White.copy(
+                    alpha = 0.75f
+                ) else Color.Transparent,
+                contentColor = if (buttonText == "Linked") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryWhite
+            ),
+            shape = RoundedCornerShape(30.dp),
+            elevation = null
+        ) {
+            if (buttonText == "Link") {
+                Text(
+                    text = buttonText,
+                    color = MaterialTheme.colorScheme.primaryWhite,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                GradientText(text = buttonText, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+    }
+
+}
+
+@Composable
 fun ProfileLinkButton(
     buttonText: String,
     onClick: () -> Unit

@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,12 +50,22 @@ fun LinksScreen(navigationActions: NavigationActions,
         // Displayed user: Fetch their friend list
         friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
     }
-    LaunchedEffect(selectedUserUserId) {
-        if (!isOwnProfile) {
-            // Fetch the friends of the displayed user
-            friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
+    val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(
+        emptyList()
+    )
+
+    if (!isOwnProfile) {
+        LaunchedEffect(Unit) {
+                Log.d("LINKS_SCREEN", "LaunchedEffect triggered with User ID: $selectedUserUserId")
+                friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
         }
+
     }
+
+
+    Log.d("LINKS_SCREEN", "Selected User ID: $selectedUserUserId")
+    Log.d("LINKS_SCREEN", "Is Own Profile: $isOwnProfile")
+    Log.d("LINKS_SCREEN", "Friends: $friends")
 
     val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 

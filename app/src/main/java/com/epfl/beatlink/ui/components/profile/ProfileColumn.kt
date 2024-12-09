@@ -121,9 +121,8 @@ fun ProfileColumn(
     LaunchedEffect(otherProfileAllFriends) {
         val nbLinks = otherProfileAllFriends.size
         selectedProfileData?.let { selectedProfile ->
-            val updatedProfile = selectedProfile.copy(links = nbLinks)
             profileViewModel.updateOtherProfileNbLinks(
-                updatedProfile,
+                selectedProfile,
                 selectedUserUserId,
                 nbLinks
             ) // selected user
@@ -138,6 +137,10 @@ fun ProfileColumn(
     }
 
     val profileReady by profileViewModel.profileReady.collectAsState()
+
+    Log.d("PROFILE", "Selected User ID: $selectedUserUserId")
+    Log.d("PROFILE", "Is Own Profile: $isOwnProfile")
+    Log.d("PROFILE", "Friends: $otherProfileAllFriends")
 
     Column(
         modifier =
@@ -166,6 +169,7 @@ fun ProfileColumn(
                         .padding(18.dp)
                         .clickable {
                             if (ownProfile) {
+                                profileViewModel.clearSelectedUser()
                                 navigationActions.navigateTo(LINKS)
                             } else {
                                 profileViewModel.selectSelectedUser(selectedUserUserId)
@@ -215,7 +219,6 @@ fun ProfileColumn(
                                 requestStatus = "Link"
                             }
                         }
-
                     }
                 }
             }

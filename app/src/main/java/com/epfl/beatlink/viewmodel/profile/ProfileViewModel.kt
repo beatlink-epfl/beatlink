@@ -199,7 +199,9 @@ open class ProfileViewModel(
     }
   }
 
-  open fun updateOtherProfileNbLinks(otherProfileData: ProfileData, otherProfileUserId: String, nbLinks: Int) {
+  open fun updateOtherProfileNbLinks(otherProfileData: ProfileData,
+                                     otherProfileUserId: String,
+                                     nbLinks: Int) {
     viewModelScope.launch(dispatcher) {
       try {
         val updatedProfile = otherProfileData.copy(links = nbLinks)
