@@ -38,6 +38,19 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  fun playPlaylist(playlist: UserPlaylist) {
+    viewModelScope.launch {
+      val body = JSONObject().apply { put("context_uri", "spotify:playlist:${playlist.playlistID}") }
+      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playlist played successfully")
+        updatePlayer()
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to play playlist")
+      }
+    }
+  }
+
   fun playTrackAlone(track: SpotifyTrack) {
     viewModelScope.launch {
       val body = JSONObject().apply {
