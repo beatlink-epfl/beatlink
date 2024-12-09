@@ -67,6 +67,7 @@ fun OtherProfileScreen(
         ProfileColumn(
             profileData = profileData,
             navigationAction = navigationAction,
+            spotifyApiViewModel = spotifyApiViewModel,
             topSongsState = profileData?.topSongs ?: emptyList(),
             topArtistsState = profileData?.topArtists ?: emptyList(),
             userPlaylists = userPlaylists.value,
