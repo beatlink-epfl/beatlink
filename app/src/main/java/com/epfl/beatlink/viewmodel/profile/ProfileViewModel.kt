@@ -1,8 +1,6 @@
 package com.epfl.beatlink.viewmodel.profile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
@@ -164,11 +162,6 @@ open class ProfileViewModel(
         Log.e("DELETE_PROFILE", "Error deleting profile")
       }
     }
-  }
-
-  open fun uploadProfilePicture(context: Context, uri: Uri) {
-    val userId = repository.getUserId() ?: return
-    viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
   }
 
   open fun loadProfilePicture(

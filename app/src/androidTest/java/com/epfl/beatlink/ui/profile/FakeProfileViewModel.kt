@@ -56,8 +56,4 @@ class FakeProfileViewModel(
   override fun deleteProfile() {
     // Mocked delete profile
   }
-
-  override fun uploadProfilePicture(context: Context, uri: Uri) {
-    // Mocked upload profile picture
-  }
 }

@@ -18,7 +18,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -269,43 +268,6 @@ class ProfileViewModelTest {
     val actualProfile = profileViewModel.profile.value
     assertEquals(existingProfile, actualProfile)
   }
-
-  @Test
-  fun `uploadProfilePicture should call repository uploadProfilePicture when userId is valid`() =
-      runTest {
-        // Arrange
-        val mockContext = mock(Context::class.java)
-        val mockUri = mock(Uri::class.java)
-        val userId = "testUserId"
-
-        `when`(mockRepository.getUserId()).thenReturn(userId)
-        doNothing().`when`(mockRepository).uploadProfilePicture(any(), any(), eq(userId))
-
-        // Act
-        profileViewModel.uploadProfilePicture(mockContext, mockUri)
-        runCurrent() // Ensure the coroutine block executes
-
-        // Assert
-        verify(mockRepository).getUserId()
-        verify(mockRepository).uploadProfilePicture(mockUri, mockContext, userId)
-      }
-
-  @Test
-  fun `uploadProfilePicture should not call repository uploadProfilePicture when userId is null`() =
-      runTest {
-        // Arrange
-        val mockContext = mock(Context::class.java)
-        val mockUri = mock(Uri::class.java)
-
-        `when`(mockRepository.getUserId()).thenReturn(null)
-
-        // Act
-        profileViewModel.uploadProfilePicture(mockContext, mockUri)
-
-        // Assert
-        verify(mockRepository).getUserId()
-        verify(mockRepository, never()).uploadProfilePicture(any(), any(), any())
-      }
 
   @Suppress("UNCHECKED_CAST")
   @Test
