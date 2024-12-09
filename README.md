@@ -29,7 +29,7 @@ If you do own a Spotify Premium account, but the features appear not to be worki
 | Name               | GitHub account                                            |
 |--------------------|-----------------------------------------------------------|
 | Arthur Wolf        | [arthur-wolf](https://github.com/arthur-wolf)             |
-| Eric Dall'acqua    | [ericdall](https://github.com/ericdall)                   |
+| Eric Dall'Acqua    | [ericdall](https://github.com/ericdall)                   |
 | Morgane Magnin     | [memagnin](https://github.com/memagnin)                   |
 | Sandro Lilljequist | [sandroquist](https://github.com/sandroquist)             |
 | Mikhail Perevoznyk | [mikhailperevoznyk](https://github.com/mikhailperevoznyk) |
