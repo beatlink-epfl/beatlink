@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.work.CoroutineWorker.DeprecatedDispatcher.dispatcher
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
@@ -30,8 +31,7 @@ import kotlinx.coroutines.launch
  */
 open class ProfileViewModel(
     private val repository: ProfileRepository,
-    initialProfile: ProfileData? = null,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+    initialProfile: ProfileData? = null
 ) : ViewModel() {
 
   /** Represents the result of username validation. */
@@ -186,7 +186,7 @@ open class ProfileViewModel(
 
   open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
     val userId = repository.getUserId() ?: return
-    viewModelScope.launch(dispatcher) {
+    viewModelScope.launch {
       try {
         val updatedProfile = profileData.copy(links = nbLinks)
         val success = repository.updateProfile(userId, updatedProfile)
@@ -202,7 +202,7 @@ open class ProfileViewModel(
   open fun updateOtherProfileNbLinks(otherProfileData: ProfileData,
                                      otherProfileUserId: String,
                                      nbLinks: Int) {
-    viewModelScope.launch(dispatcher) {
+    viewModelScope.launch {
       try {
         val updatedProfile = otherProfileData.copy(links = nbLinks)
         val success = repository.updateProfile(otherProfileUserId, updatedProfile)
@@ -213,11 +213,6 @@ open class ProfileViewModel(
         Log.e("ProfileViewModel", "Error updating links: ${e.message}")
       }
     }
-  }
-
-  open fun uploadProfilePicture(context: Context, uri: Uri) {
-    val userId = repository.getUserId() ?: return
-    viewModelScope.launch(dispatcher) { repository.uploadProfilePicture(uri, context, userId) }
   }
 
   open fun loadProfilePicture(

@@ -84,6 +84,7 @@ fun OtherProfileScreen(
                 navigationActions = navigationAction,
                 profileViewModel = profileViewModel,
                 friendRequestViewModel = friendRequestViewModel,
+                spotifyApiViewModel = spotifyApiViewModel,
                 userPlaylists = userPlaylists.value,
                 paddingValue = paddingValues,
                 profilePicture = profileViewModel.profilePicture,

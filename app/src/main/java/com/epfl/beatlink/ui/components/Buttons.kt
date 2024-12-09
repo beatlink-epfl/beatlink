@@ -105,43 +105,44 @@ fun VoteButton(
     // Check if the current user has already voted
     val isVoted = playlistTrack.likedBy.contains(userId) // No need for local state
 
-    Box(
-        modifier =
-        Modifier
-            .border(
-                width = 2.dp, brush = PositiveGradientBrush, shape = RoundedCornerShape(30.dp)
-            )
-            .width(78.dp)
-            .height(30.dp)
-            .clip(RoundedCornerShape(30.dp))
-            .background(
-                brush =
-                if (isVoted) PositiveGradientBrush
-                else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent))
-            )
-            .clickable {
+  Box(
+      modifier =
+          Modifier.border(
+                  width = 2.dp, brush = PositiveGradientBrush, shape = RoundedCornerShape(30.dp))
+              .width(78.dp)
+              .height(30.dp)
+              .clip(RoundedCornerShape(30.dp))
+              .background(
+                  brush =
+                      if (isVoted) PositiveGradientBrush
+                      else Brush.verticalGradient(listOf(Color.Transparent, Color.Transparent)))
+              .clickable {
                 // Notify the ViewModel about the vote change
                 onVoteChanged(playlistTrack.track.trackId, !isVoted)
-            }
-            .testTag("voteButton")) {
+              }
+              .testTag("voteButton")) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = playlistTrack.likes.toString(),
-                color =
-                if (isVoted) MaterialTheme.colorScheme.primaryWhite
-                else MaterialTheme.colorScheme.primaryRed,
-                modifier = Modifier.testTag("nbVote")
-            )
-        }
-    }
+            verticalAlignment = Alignment.CenterVertically) {
+              Icon(
+                  painter = painter,
+                  contentDescription = "fire",
+                  tint =
+                      if (isVoted) MaterialTheme.colorScheme.primaryWhite
+                      else MaterialTheme.colorScheme.primaryRed,
+                  modifier = Modifier.size(24.dp))
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+                  text = playlistTrack.likes.toString(),
+                  color =
+                      if (isVoted) MaterialTheme.colorScheme.primaryWhite
+                      else MaterialTheme.colorScheme.primaryRed,
+                  modifier = Modifier.testTag("nbVote"))
+            }
+      }
 }
 
 @Composable

@@ -106,6 +106,7 @@ fun ProfileScreen(
             navigationActions = navigationAction,
             profileViewModel = profileViewModel,
             friendRequestViewModel = friendRequestViewModel,
+            spotifyApiViewModel = spotifyApiViewModel,
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValue,
             profilePicture = profileViewModel.profilePicture,
