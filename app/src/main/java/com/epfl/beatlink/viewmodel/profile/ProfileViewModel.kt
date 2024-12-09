@@ -14,8 +14,6 @@ import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,8 +25,7 @@ import kotlinx.coroutines.launch
  */
 open class ProfileViewModel(
     private val repository: ProfileRepository,
-    initialProfile: ProfileData? = null,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
+    initialProfile: ProfileData? = null
 ) : ViewModel() {
 
   /** Represents the result of username validation. */

@@ -322,7 +322,7 @@ class ProfileViewModelTest {
     `when`(mockRepository.getUsername(userId)).thenReturn(expectedUsername)
 
     // Act
-    val result = profileViewModel.getUsername(userId, onResult)
+    profileViewModel.getUsername(userId, onResult)
     advanceUntilIdle()
 
     // Assert
@@ -341,7 +341,7 @@ class ProfileViewModelTest {
         `when`(mockRepository.getUsername(userId)).thenThrow(exception)
 
         // Act
-        val result = profileViewModel.getUsername(userId, onResult)
+        profileViewModel.getUsername(userId, onResult)
         advanceUntilIdle()
 
         // Assert
