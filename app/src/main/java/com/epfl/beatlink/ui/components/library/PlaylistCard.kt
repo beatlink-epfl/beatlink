@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +51,12 @@ fun PlaylistCard(
       colors = CardDefaults.cardColors(containerColor = Color.Transparent)) {
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
           // Cover image
-          PlaylistCover(coverImage, Modifier.size(90.dp).padding(horizontal = 12.dp))
+          if (coverImage.value == null) {
+            GrayBox()
+          } else {
+            PlaylistCover(coverImage)
+          }
+          Spacer(modifier = Modifier.width(8.dp))
 
           // Playlist details
           Column(modifier = Modifier.weight(1f)) {
