@@ -57,9 +57,7 @@ fun UserPlaylistCard(playlist: UserPlaylist, spotifyApiViewModel: SpotifyApiView
                 style = TypographyPlaylist.titleSmall,
             )
           }
-          PlayButton(
-              onClick = { spotifyApiViewModel.playPlaylist(playlist) }
-          )
+          PlayButton(onClick = { spotifyApiViewModel.playPlaylist(playlist) })
           Spacer(Modifier.width(12.dp))
         }
       }

@@ -74,15 +74,15 @@ class SpotifyApiViewModelTest {
   @Test
   fun `playPlaylist calls repository and returns success result`() = runTest {
     // Arrange
-    val playlist = UserPlaylist(
-      playlistID = "testPlaylistID",
-      ownerID = "testOwnerID",
-      playlistCover = "testPlaylistCover",
-      playlistName = "testPlaylistName",
-      playlistPublic = true,
-      playlistTracks = listOf(SpotifyTrack("testTrackID")),
-      nbTracks = 1
-    )
+    val playlist =
+        UserPlaylist(
+            playlistID = "testPlaylistID",
+            ownerID = "testOwnerID",
+            playlistCover = "testPlaylistCover",
+            playlistName = "testPlaylistName",
+            playlistPublic = true,
+            playlistTracks = listOf(SpotifyTrack("testTrackID")),
+            nbTracks = 1)
     val mockResult = Result.success(JSONObject())
 
     // Use spy() to keep the original ViewModel implementation
@@ -91,55 +91,39 @@ class SpotifyApiViewModelTest {
     // Stub updatePlayer() to do nothing when invoked
     doNothing().whenever(spyViewModel).updatePlayer()
 
-    whenever(
-      mockApiRepository.put(
-        eq("me/player/play"),
-        any<RequestBody>()
-      )
-    ).thenReturn(mockResult)
+    whenever(mockApiRepository.put(eq("me/player/play"), any<RequestBody>())).thenReturn(mockResult)
 
     // Act
     spyViewModel.playPlaylist(playlist)
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(
-      eq("me/player/play"),
-      any()
-    )
+    verify(mockApiRepository).put(eq("me/player/play"), any())
   }
 
   @Test
   fun `playPlaylist calls repository and returns failure result`() = runTest {
     // Arrange
-    val playlist = UserPlaylist(
-      playlistID = "testPlaylistID",
-      ownerID = "testOwnerID",
-      playlistCover = "testPlaylistCover",
-      playlistName = "testPlaylistName",
-      playlistPublic = true,
-      playlistTracks = listOf(SpotifyTrack("testTrackID")),
-      nbTracks = 1
-    )
+    val playlist =
+        UserPlaylist(
+            playlistID = "testPlaylistID",
+            ownerID = "testOwnerID",
+            playlistCover = "testPlaylistCover",
+            playlistName = "testPlaylistName",
+            playlistPublic = true,
+            playlistTracks = listOf(SpotifyTrack("testTrackID")),
+            nbTracks = 1)
     val exception = Exception("Network error")
     val mockResult = Result.failure<JSONObject>(exception)
 
-    whenever(
-      mockApiRepository.put(
-        eq("me/player/play"),
-        any<RequestBody>()
-      )
-    ).thenReturn(mockResult)
+    whenever(mockApiRepository.put(eq("me/player/play"), any<RequestBody>())).thenReturn(mockResult)
 
     // Act
     viewModel.playPlaylist(playlist)
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(
-      eq("me/player/play"),
-      any()
-      )
+    verify(mockApiRepository).put(eq("me/player/play"), any())
   }
 
   @Test
@@ -154,22 +138,14 @@ class SpotifyApiViewModelTest {
     // Stub updatePlayer() to do nothing when invoked
     doNothing().whenever(spyViewModel).updatePlayer()
 
-    whenever(
-      mockApiRepository.put(
-        eq("me/player/play"),
-        any<RequestBody>()
-      )
-    ).thenReturn(mockResult)
+    whenever(mockApiRepository.put(eq("me/player/play"), any<RequestBody>())).thenReturn(mockResult)
 
     // Act
     spyViewModel.playTrackAlone(track)
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(
-      eq("me/player/play"),
-      any()
-    )
+    verify(mockApiRepository).put(eq("me/player/play"), any())
   }
 
   @Test
@@ -179,22 +155,14 @@ class SpotifyApiViewModelTest {
     val exception = Exception("Network error")
     val mockResult = Result.failure<JSONObject>(exception)
 
-    whenever(
-      mockApiRepository.put(
-        eq("me/player/play"),
-        any<RequestBody>()
-      )
-    ).thenReturn(mockResult)
+    whenever(mockApiRepository.put(eq("me/player/play"), any<RequestBody>())).thenReturn(mockResult)
 
     // Act
     viewModel.playTrackAlone(track)
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert
-    verify(mockApiRepository).put(
-      eq("me/player/play"),
-      any()
-    )
+    verify(mockApiRepository).put(eq("me/player/play"), any())
   }
 
   @Test

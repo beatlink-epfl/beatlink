@@ -11,11 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
-import com.epfl.beatlink.model.spotify.objects.SpotifyPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
-import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -40,7 +38,8 @@ open class SpotifyApiViewModel(
 
   fun playPlaylist(playlist: UserPlaylist) {
     viewModelScope.launch {
-      val body = JSONObject().apply { put("context_uri", "spotify:playlist:${playlist.playlistID}") }
+      val body =
+          JSONObject().apply { put("context_uri", "spotify:playlist:${playlist.playlistID}") }
       val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Playlist played successfully")
@@ -53,9 +52,8 @@ open class SpotifyApiViewModel(
 
   fun playTrackAlone(track: SpotifyTrack) {
     viewModelScope.launch {
-      val body = JSONObject().apply {
-        put("uris", JSONArray(listOf("spotify:track:${track.trackId}")))
-      }
+      val body =
+          JSONObject().apply { put("uris", JSONArray(listOf("spotify:track:${track.trackId}"))) }
       val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Track played successfully")
