@@ -27,9 +27,10 @@ import coil.compose.AsyncImage
 import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.ui.components.PlayButton
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun UserPlaylistCard(playlist: UserPlaylist) {
+fun UserPlaylistCard(playlist: UserPlaylist, spotifyApiViewModel: SpotifyApiViewModel) {
   Card(
       modifier = Modifier.height(88.dp).fillMaxWidth().testTag("userPlaylistCard"),
       shape = RoundedCornerShape(size = 5.dp),
@@ -56,7 +57,9 @@ fun UserPlaylistCard(playlist: UserPlaylist) {
                 style = TypographyPlaylist.titleSmall,
             )
           }
-          PlayButton {}
+          PlayButton(
+              onClick = { spotifyApiViewModel.playPlaylist(playlist) }
+          )
           Spacer(Modifier.width(12.dp))
         }
       }
