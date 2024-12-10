@@ -295,16 +295,10 @@ class PlaylistViewModel(
         return null
       }
 
-      val bitmap = base64ToBitmap(cover)
-      if (bitmap == null) {
-        Log.e("PlaylistViewModel", "Failed to decode playlist cover")
-        return null
-      }
-
       // Decode Base64 to Bitmap and Re-encode the Bitmap to Base64 JPEG
       val byteArray =
           ByteArrayOutputStream().use {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            base64ToBitmap(cover)?.compress(Bitmap.CompressFormat.JPEG, 100, it)
             it.toByteArray()
           }
       Base64.encodeToString(byteArray, Base64.NO_WRAP) // NO_WRAP removes padding
