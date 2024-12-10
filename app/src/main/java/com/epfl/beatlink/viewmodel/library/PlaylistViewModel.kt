@@ -83,6 +83,10 @@ class PlaylistViewModel(
     repository.init(onSuccess = { fetchData() })
   }
 
+  fun resetCoverImage() {
+    coverImage.value = null
+  }
+
   fun getUserId(): String? {
     return repository.getUserId()
   }
@@ -221,7 +225,9 @@ class PlaylistViewModel(
   fun deletePlaylist(playlistUID: String) {
     repository.deletePlaylistById(
         playlistUID,
-        onSuccess = {},
+        onSuccess = {
+          resetCoverImage() // Reset the cover image after deletion
+        },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlist", e) })
     getOwnedPlaylists()
   }
@@ -248,6 +254,7 @@ class PlaylistViewModel(
     tempPlaylistDescription_.value = ""
     tempPlaylistIsPublic_.value = false
     tempPlaylistCollaborators_.value = emptyList()
+    resetCoverImage()
   }
 
   fun preloadTemporaryState(selectedPlaylist: Playlist) {

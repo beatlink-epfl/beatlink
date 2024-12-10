@@ -631,32 +631,6 @@ class PlaylistViewModelTest {
     assertTrue(finalTracks.isEmpty())
   }
 
-  /*@Test
-  fun `preparePlaylistCoverForSpotify should return a valid Base64 JPEG string`() {
-      // Arrange
-      val fileName = "cover_test1.png"
-      val classLoader = Thread.currentThread().contextClassLoader
-      val inputStream: InputStream = classLoader.getResourceAsStream(fileName)
-          ?: throw IllegalArgumentException("Test image not found: $fileName")
-
-      val bitmap = BitmapFactory.decodeStream(inputStream)
-          ?: throw IllegalArgumentException("Failed to decode bitmap from test image")
-
-      val outputStream = ByteArrayOutputStream()
-      bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-      val byteArray = outputStream.toByteArray()
-      val validBase64Image = Base64.encodeToString(byteArray, Base64.NO_WRAP)
-
-      val playlistWithCover = playlist2.copy(playlistCover = validBase64Image)
-      playlistViewModel.selectPlaylist(playlistWithCover)
-
-      // Act
-      val result = playlistViewModel.preparePlaylistCoverForSpotify()
-
-      // Assert
-      assertTrue(!result.isNullOrEmpty())
-  }*/
-
   @Test
   fun `preparePlaylistCoverForSpotify should return null for an invalid Base64 string`() {
     // Arrange
@@ -692,5 +666,38 @@ class PlaylistViewModelTest {
 
     // Assert
     assertNull(result) // Ensure the result is null due to empty cover
+  }
+
+  @Test
+  fun `resetTemporaryState should reset coverImage`() = runTest {
+    // Arrange
+    playlistViewModel.coverImage.value = mock(Bitmap::class.java) // Simulate a cover image
+
+    // Act
+    playlistViewModel.resetTemporaryState()
+
+    // Assert
+    assertNull(playlistViewModel.coverImage.value) // Ensure the cover image is reset
+  }
+
+  @Test
+  fun `deletePlaylist should reset coverImage on success`() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    playlistViewModel.coverImage.value = mock(Bitmap::class.java) // Simulate a cover image
+
+    doAnswer { invocation ->
+          val onSuccess = invocation.arguments[1] as? () -> Unit
+          onSuccess?.invoke() // Call the success callback
+          null
+        }
+        .whenever(playlistRepository)
+        .deletePlaylistById(eq(playlist.playlistID), any(), any())
+
+    // Act
+    playlistViewModel.deletePlaylist(playlist.playlistID)
+
+    // Assert
+    assertNull(playlistViewModel.coverImage.value) // Ensure the cover image is reset
   }
 }
