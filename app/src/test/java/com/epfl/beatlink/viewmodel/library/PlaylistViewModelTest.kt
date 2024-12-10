@@ -171,12 +171,6 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun updateCollaboratorsCallsRepository() {
-    playlistViewModel.updateCollaborators(playlist, listOf())
-    verify(playlistRepository).updatePlaylistCollaborators(eq(playlist), any(), any(), any())
-  }
-
-  @Test
   fun deletePlaylistCallsRepository() {
     playlistViewModel.deletePlaylist("test")
     verify(playlistRepository).deletePlaylistById(eq("test"), any(), any())
@@ -329,21 +323,6 @@ class PlaylistViewModelTest {
         .deletePlaylistById(eq(playlistUID), any(), any())
 
     playlistViewModel.deletePlaylist(playlistUID)
-  }
-
-  @Test
-  fun updateTrackCount_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
-    val newTrackCount = 5
-    doAnswer { invocation ->
-          (invocation.arguments[2] as () -> Unit).invoke() // invoke onSuccess callback
-          null
-        }
-        .`when`(playlistRepository)
-        .updatePlaylistTrackCount(eq(playlist), eq(newTrackCount), any(), any())
-
-    playlistViewModel.updateTrackCount(playlist, newTrackCount)
-
-    verify(playlistRepository).getOwnedPlaylists(any(), any())
   }
 
   @Test

@@ -11,6 +11,7 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
@@ -23,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Transaction
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
@@ -777,259 +779,113 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun updatePlaylist_shouldCallFirestoreCollection() {
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null)) // Simulate success
+  fun `updatePlaylist succeeds`() {
+    // Arrange
+    val playlistData = playlistRepositoryFirestore.playlistToMap(playlist)
 
-    // This test verifies that when we add a new playlist, the Firestore `collection()` method is
-    // called
-    playlistRepositoryFirestore.updatePlaylist(playlist1, onSuccess = {}, onFailure = {})
+    val mockPlaylistDocRef = mock(DocumentReference::class.java)
+    val mockCollectionReference = mock(CollectionReference::class.java)
+    val mockTransaction = mock(Transaction::class.java)
+    val mockTask = mock(Task::class.java) as Task<Transaction>
 
-    shadowOf(Looper.getMainLooper()).idle()
+    // Mock the Firestore collection and document retrieval
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockPlaylistDocRef)
 
-    // Ensure Firestore collection method was called to reference the "playlists" collection
-    verify(mockDocumentReference).set(any())
-  }
+    // Simulate the transaction's set operation
+    `when`(mockTransaction.set(mockPlaylistDocRef, playlistData)).thenReturn(mockTransaction)
 
-  @Test
-  fun updatePlaylist_withFirestoreError() {
-    val exception = Exception("Firestore set error")
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forException(exception))
+    // Mock the runTransaction method to execute the transaction block and return the task
+    `when`(mockFirestore.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
+      transactionFunction.apply(mockTransaction)
+      return@thenAnswer mockTask
+    }
 
+    // Simulate the onSuccess listener for the task
+    `when`(mockTask.addOnSuccessListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnSuccessListener<Transaction>>(0)
+      listener.onSuccess(mockTransaction)
+      mockTask
+    }
+
+    // Ensure that addOnFailureListener also returns the task for proper chaining
+    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
+
+    var success = false
+
+    // Act
     playlistRepositoryFirestore.updatePlaylist(
-        playlist1,
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { error -> assert(error == exception) })
+        playlist,
+        onSuccess = { success = true },
+        onFailure = { fail("Failure callback should not be called") })
 
-    shadowOf(Looper.getMainLooper()).idle()
+    // Assert
+    assertTrue(success)
+    verify(mockFirestore).collection(collectionPath)
+    verify(mockTransaction).set(mockPlaylistDocRef, playlistData)
+    verify(mockTask).addOnSuccessListener(any())
   }
 
   @Test
-  fun updatePlaylist_correctlyUpdatesPlaylist() {
-    // Mock the conversion of the playlist to a Map
-    val playlistMap = playlistRepositoryFirestore.playlistToMap(playlist)
-    // Simulate a successful operation when saving playlist by mocking Firestore's set() method
-    `when`(mockDocumentReference.set(playlistMap)).thenReturn(Tasks.forResult(null))
+  fun `updatePlaylist transaction fails`() {
+    // Arrange
+    `when`(mockFirestore.runTransaction<Transaction>(any()))
+        .thenReturn(Tasks.forException(Exception("Transaction failed")))
 
-    playlistRepositoryFirestore.updatePlaylist(playlist = playlist, onSuccess = {}, onFailure = {})
-    verify(mockDocumentReference).set(playlistMap)
-
-    assertTrue(playlistMap.containsKey("playlistID"))
-    assertEquals("playlist1", playlistMap["playlistID"])
-    assertEquals("user123", playlistMap["userId"])
-    assertEquals("cover.jpg", playlistMap["playlistCover"])
-    assertEquals("Test Playlist", playlistMap["playlistName"])
-  }
-
-  @Test
-  fun updatePlaylist_correctlyCallsOnSuccess() {
-    `when`(mockDocumentReference.set(any())).thenReturn(Tasks.forResult(null))
-
+    // Act
     playlistRepositoryFirestore.updatePlaylist(
-        playlist = playlist1,
-        onSuccess = {},
-        onFailure = { fail("onFailure callback should not be called") })
-
-    shadowOf(Looper.getMainLooper()).idle()
-  }
-
-  @Test
-  fun updatePlaylistCollaborators_shouldCallFirestoreUpdate() {
-    // Create a playlist object to be used in the test
-    val playlist =
-        Playlist(
-            playlistID = "playlistID",
-            playlistName = "Test Playlist",
-            playlistDescription = "A description",
-            playlistCover = "cover.jpg",
-            playlistPublic = true,
-            userId = "userID",
-            playlistOwner = "owner",
-            playlistCollaborators = emptyList(),
-            playlistTracks = emptyList(),
-            nbTracks = 0)
-
-    // Simulate the Firestore update response using Tasks.forResult() (success case)
-    `when`(mockFirestore.collection("playlists").document("playlistID"))
-        .thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.update("playlistCollaborators", listOf("C1")))
-        .thenReturn(Tasks.forResult(null)) // Simulate success
-
-    // Call the method to update the track count
-    playlistRepositoryFirestore.updatePlaylistCollaborators(
-        playlist = playlist,
-        newCollabList = listOf("C1"),
-        onSuccess = {
-          // Verify that the update was successful and the callback was triggered
-          verify(mockDocumentReference).update("playlistCollaborators", listOf("C1"))
-        },
-        onFailure = { _ ->
-          // Fail the test if this callback is called
-          assert(false) { "onFailure should not be called" }
-        })
-  }
-
-  @Test
-  fun updatePlaylistCollaborators_withFirestoreError() {
-    val exception = Exception("Firestore update error")
-    `when`(mockDocumentReference.update("playlistCollaborators", listOf("C1")))
-        .thenReturn(Tasks.forException(exception))
-
-    playlistRepositoryFirestore.updatePlaylistCollaborators(
-        playlist1,
-        listOf("C1"),
+        playlist,
         onSuccess = { fail("Success callback should not be called") },
-        onFailure = { error -> assert(error == exception) })
-
-    shadowOf(Looper.getMainLooper()).idle()
+        onFailure = { e -> assertEquals("Transaction failed", e.message) })
   }
 
   @Test
-  fun updatePlaylistCollaborators_correctlyUpdatesCollaboratorsList() {
-    val newCollabList = listOf("C1", "C2", "C3")
+  fun `updatePlaylist invokes onFailure listener`() {
+    // Arrange
+    val mockPlaylistDocRef = mock(DocumentReference::class.java)
+    val mockCollectionReference = mock(CollectionReference::class.java)
+    val mockTransaction = mock(Transaction::class.java)
+    val mockTask = mock(Task::class.java) as Task<Transaction>
 
-    // Mock the initial document retrieval behavior
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
-    `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
+    // Mock the Firestore collection and document retrieval
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockPlaylistDocRef)
 
-    `when`(mockDocumentReference.update("playlistCollaborators", newCollabList))
-        .thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.updatePlaylistCollaborators(
-        playlist = playlist1,
-        newCollabList = newCollabList,
-        onSuccess = { assertEquals(newCollabList, playlist1.playlistCollaborators) },
-        onFailure = { fail("Update failed") })
+    // Simulate the transaction's set operation
+    `when`(
+            mockTransaction.set(
+                mockPlaylistDocRef, playlistRepositoryFirestore.playlistToMap(playlist)))
+        .thenReturn(mockTransaction)
 
-    // Verify that the `update()` method was called with the correct field and value
-    verify(mockDocumentReference).update("playlistCollaborators", newCollabList)
-  }
+    // Mock the runTransaction method to execute the transaction block and return the task
+    `when`(mockFirestore.runTransaction<Transaction>(any())).thenAnswer { invocation ->
+      val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
+      transactionFunction.apply(mockTransaction)
+      return@thenAnswer mockTask
+    }
 
-  @Test
-  fun updatePlaylistTrackCount_shouldCallFirestoreUpdate() {
-    // Create a playlist object to be used in the test
-    val playlist =
-        Playlist(
-            playlistID = "playlistID",
-            playlistName = "Test Playlist",
-            playlistDescription = "A description",
-            playlistCover = "cover.jpg",
-            playlistPublic = true,
-            userId = "userID",
-            playlistOwner = "owner",
-            playlistCollaborators = emptyList(),
-            playlistTracks = emptyList(),
-            nbTracks = 0)
+    // Ensure that addOnSuccessListener also returns the task for proper chaining
+    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
 
-    // Simulate the Firestore update response using Tasks.forResult() (success case)
-    `when`(mockFirestore.collection("playlists").document("playlistID"))
-        .thenReturn(mockDocumentReference)
-    `when`(mockDocumentReference.update("nbTracks", 10))
-        .thenReturn(Tasks.forResult(null)) // Simulate success
+    // Simulate the onFailure listener for the task
+    `when`(mockTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Simulated failure"))
+      mockTask
+    }
 
-    // Call the method to update the track count
-    playlistRepositoryFirestore.updatePlaylistTrackCount(
-        playlist = playlist,
-        newTrackCount = 10,
-        onSuccess = {
-          // Verify that the update was successful and the callback was triggered
-          verify(mockDocumentReference).update("nbTracks", 10)
-        },
-        onFailure = { _ ->
-          // Fail the test if this callback is called
-          assert(false) { "onFailure should not be called" }
-        })
-  }
-
-  @Test
-  fun updatePlaylistTrackCount_withFirestoreError() {
-    val exception = Exception("Firestore update error")
-    `when`(mockDocumentReference.update("nbTracks", 10)).thenReturn(Tasks.forException(exception))
-
-    playlistRepositoryFirestore.updatePlaylistTrackCount(
-        playlist1,
-        10,
+    // Act
+    playlistRepositoryFirestore.updatePlaylist(
+        playlist,
         onSuccess = { fail("Success callback should not be called") },
-        onFailure = { error -> assert(error == exception) })
+        onFailure = { e -> assertEquals("Simulated failure", e.message) })
 
-    shadowOf(Looper.getMainLooper()).idle()
-  }
-
-  @Test
-  fun updatePlaylistTrackCount_correctlyUpdatesNbTracks() {
-    val newTrackCount = 3
-
-    // Mock the initial document retrieval behavior
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
-    `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
-
-    `when`(mockDocumentReference.update("nbTracks", newTrackCount))
-        .thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.updatePlaylistTrackCount(
-        playlist = playlist1,
-        newTrackCount = newTrackCount,
-        onSuccess = { assertEquals(newTrackCount, playlist1.nbTracks) },
-        onFailure = { fail("Update failed") })
-
-    // Verify that the `update()` method was called with the correct field and value
-    verify(mockDocumentReference).update("nbTracks", newTrackCount)
-  }
-
-  @Test
-  fun updatePlaylistTrackCount_correctlyCallsOnSuccess() {
-    val newTrackCount = 3
-
-    // Mock the initial document retrieval behavior
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
-    `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
-
-    `when`(mockDocumentReference.update("nbTracks", newTrackCount))
-        .thenReturn(Tasks.forResult(null))
-    playlistRepositoryFirestore.updatePlaylistTrackCount(
-        playlist = playlist1,
-        newTrackCount = newTrackCount,
-        onSuccess = {},
-        onFailure = { fail("Fail callback should not be called") })
-  }
-
-  @Test
-  fun updatePlaylistTracks_correctlyUpdatesTracks() {
-    val newTrackList = listOf(track1, track2)
-    val trackMapList = newTrackList.map { playlistRepositoryFirestore.playlistTrackToMap(it) }
-
-    `when`(mockDocumentReference.get()).thenReturn(Tasks.forResult(mockDocumentSnapshot))
-    `when`(mockDocumentSnapshot.toObject(Playlist::class.java)).thenReturn(playlist1)
-    `when`(mockDocumentReference.update("playlistTracks", trackMapList))
-        .thenReturn(Tasks.forResult(null))
-
-    playlistRepositoryFirestore.updatePlaylistTracks(
-        playlist = playlist1,
-        newListTracks = newTrackList,
-        onSuccess = {
-          assertEquals(newTrackList, playlist1.playlistTracks)
-          assert(true)
-        },
-        onFailure = {
-          fail("Update failed")
-          assert(false)
-        })
-
-    verify(mockDocumentReference).update("playlistTracks", trackMapList)
-  }
-
-  @Test
-  fun updatePlaylistSongs_withFirestoreError() {
-    val newTrackList = listOf(track1, track2)
-    val trackMapList = newTrackList.map { playlistRepositoryFirestore.playlistTrackToMap(it) }
-    val exception = Exception("Firestore update error")
-    `when`(mockDocumentReference.update("playlistTracks", trackMapList))
-        .thenReturn(Tasks.forException(exception))
-
-    playlistRepositoryFirestore.updatePlaylistTracks(
-        playlist1,
-        newTrackList,
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { error -> assert(error == exception) })
-
-    shadowOf(Looper.getMainLooper()).idle()
+    // Assert
+    verify(mockFirestore).collection(collectionPath)
+    verify(mockTransaction)
+        .set(mockPlaylistDocRef, playlistRepositoryFirestore.playlistToMap(playlist))
+    verify(mockTask).addOnFailureListener(any())
   }
 
   @Test

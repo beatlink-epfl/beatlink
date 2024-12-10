@@ -134,15 +134,6 @@ class PlaylistViewModel(
     getOwnedPlaylists()
   }
 
-  fun updateTrackCount(playlist: Playlist, newTrackCount: Int) {
-    repository.updatePlaylistTrackCount(
-        playlist = playlist,
-        newTrackCount = newTrackCount,
-        onSuccess = { selectedPlaylist_.value = playlist },
-        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
-    getOwnedPlaylists()
-  }
-
   fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     selectedPlaylist_.value?.let { playlist ->
       try {
@@ -200,15 +191,6 @@ class PlaylistViewModel(
         ?.take(DEFAULT_TRACK_LIMIT) // Take at most 50 tracks
         ?.map { it.track } // Map to SpotifyTrack
     ?: emptyList() // Return an empty list if no playlist is selected
-  }
-
-  fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
-    repository.updatePlaylistCollaborators(
-        playlist,
-        newCollabList,
-        onSuccess = { selectedPlaylist_.value = playlist },
-        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update collab list", e) })
-    getOwnedPlaylists()
   }
 
   fun deletePlaylist(playlistUID: String) {
