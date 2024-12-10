@@ -609,4 +609,41 @@ class PlaylistViewModelTest {
     // Assert
     assertTrue(finalTracks.isEmpty())
   }
+
+  @Test
+  fun `deleteOwnedPlaylists triggers success callback`() = runTest {
+    // Arrange: Simulate a success by invoking the success callback
+    doAnswer { invocation ->
+          val onSuccess = invocation.arguments[0] as () -> Unit
+          onSuccess.invoke()
+          null
+        }
+        .whenever(playlistRepository)
+        .deleteOwnedPlaylists(any(), any())
+
+    // Act
+    playlistViewModel.deleteOwnedPlaylists()
+
+    // Assert
+    verify(playlistRepository).deleteOwnedPlaylists(any(), any())
+  }
+
+  @Test
+  fun `deleteOwnedPlaylists triggers failure callback`() = runTest {
+    // Arrange: Simulate a failure by invoking the failure callback
+    val exception = Exception("Failed to delete playlists")
+    doAnswer { invocation ->
+          val onFailure = invocation.arguments[1] as (Exception) -> Unit
+          onFailure.invoke(exception) // Simulate failure
+          null
+        }
+        .whenever(playlistRepository)
+        .deleteOwnedPlaylists(any(), any())
+
+    // Act
+    playlistViewModel.deleteOwnedPlaylists()
+
+    // Assert
+    verify(playlistRepository).deleteOwnedPlaylists(any(), any())
+  }
 }

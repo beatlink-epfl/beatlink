@@ -9,13 +9,13 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.util.Date
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlinx.coroutines.tasks.await
 
 // Approximate value for meters per degree of latitude/longitude at the equator
 private const val APPROX_METERS_PER_DEGREE = 111000

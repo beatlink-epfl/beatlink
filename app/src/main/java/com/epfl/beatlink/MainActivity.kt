@@ -29,8 +29,8 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModelFactory
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
 
 private const val WORK_INTERVAL_MINUTES = 15L
 

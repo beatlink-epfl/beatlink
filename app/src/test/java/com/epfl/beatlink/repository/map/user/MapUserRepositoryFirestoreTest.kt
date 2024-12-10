@@ -21,7 +21,6 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
-import kotlin.math.abs
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -34,6 +33,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.robolectric.RobolectricTestRunner
+import kotlin.math.abs
 
 @RunWith(RobolectricTestRunner::class)
 class MapUserRepositoryFirestoreTest {
