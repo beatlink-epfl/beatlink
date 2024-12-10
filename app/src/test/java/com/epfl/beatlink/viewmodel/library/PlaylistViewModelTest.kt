@@ -171,8 +171,8 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun deletePlaylistCallsRepository() {
-    playlistViewModel.deletePlaylist("test")
+  fun deletePlaylistByIdCallsRepository() {
+    playlistViewModel.deletePlaylistById("test")
     verify(playlistRepository).deletePlaylistById(eq("test"), any(), any())
   }
 
@@ -282,7 +282,7 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun deletePlaylist_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
+  fun deletePlaylist_ById_shouldTriggerSuccessCallback_andRefreshPlaylists() = runTest {
     doAnswer { invocation ->
           (invocation.arguments[1] as () -> Unit).invoke()
           null
@@ -290,7 +290,7 @@ class PlaylistViewModelTest {
         .whenever(playlistRepository)
         .deletePlaylistById(eq(playlist.playlistID), any(), any())
 
-    playlistViewModel.deletePlaylist(playlist.playlistID)
+    playlistViewModel.deletePlaylistById(playlist.playlistID)
 
     verify(playlistRepository).deletePlaylistById(eq(playlist.playlistID), any(), any())
     verify(playlistRepository).getOwnedPlaylists(any(), any())
@@ -311,7 +311,7 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun deletePlaylist_shouldCallOnFailure_whenDeleteFails() = runTest {
+  fun deletePlaylist_shouldCallOnFailure_whenDeleteFailsById() = runTest {
     val playlistUID = "test_playlist_id"
     val exception = Exception("Failed to delete playlist")
     doAnswer { invocation ->
@@ -322,7 +322,7 @@ class PlaylistViewModelTest {
         .`when`(playlistRepository)
         .deletePlaylistById(eq(playlistUID), any(), any())
 
-    playlistViewModel.deletePlaylist(playlistUID)
+    playlistViewModel.deletePlaylistById(playlistUID)
   }
 
   @Test

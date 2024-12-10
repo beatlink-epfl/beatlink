@@ -117,7 +117,7 @@ fun EditPlaylistScreen(
             navigationActions,
             listOf {
               DeleteButton {
-                selectedPlaylistState.playlistID.let { playlistViewModel.deletePlaylist(it) }
+                selectedPlaylistState.playlistID.let { playlistViewModel.deletePlaylistById(it) }
                 navigationActions.navigateToAndClearBackStack(MY_PLAYLISTS, 2)
                 Toast.makeText(context, "Playlist deleted successfully!", Toast.LENGTH_LONG).show()
               }

@@ -161,6 +161,44 @@ class PlaylistRepositoryFirestore(
     }
   }
 
+  override fun deleteOwnedPlaylists(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    try {
+      // Query for all playlists owned by the current user
+      val query = db.collection(collectionPath).whereEqualTo("userId", userID)
+
+      query
+          .get()
+          .addOnSuccessListener { querySnapshot ->
+            val batch = db.batch()
+
+            // Add delete operations for each document found
+            for (document in querySnapshot.documents) {
+              val docRef = document.reference
+              batch.delete(docRef)
+            }
+
+            // Commit the batch delete operation
+            batch
+                .commit()
+                .addOnSuccessListener {
+                  Log.d(TAG, "Successfully deleted owned playlists")
+                  onSuccess()
+                }
+                .addOnFailureListener { err ->
+                  Log.e(TAG, "Error committing batch delete", err)
+                  onFailure(err)
+                }
+          }
+          .addOnFailureListener { err ->
+            Log.e(TAG, "Error retrieving owned playlists", err)
+            onFailure(err)
+          }
+    } catch (e: Exception) {
+      Log.e(TAG, "Unexpected error in deleteOwnedPlaylists", e)
+      onFailure(e)
+    }
+  }
+
   override fun deletePlaylistById(
       id: String,
       onSuccess: () -> Unit,

@@ -69,6 +69,14 @@ interface PlaylistRepository {
   fun updatePlaylist(playlist: Playlist, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
+   * Delete all playlists owned by the current user from Firestore.
+   *
+   * @param onSuccess Callback for successful deletion.
+   * @param onFailure Callback that is invoked with an exception upon failure.
+   */
+  fun deleteOwnedPlaylists(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+
+  /**
    * Delete a playlist by its ID from Firestore.
    *
    * @param id The ID of the playlist to be deleted.
