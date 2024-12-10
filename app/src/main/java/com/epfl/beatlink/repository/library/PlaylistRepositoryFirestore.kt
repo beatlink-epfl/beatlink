@@ -184,14 +184,14 @@ class PlaylistRepositoryFirestore(
                   Log.d(TAG, "Successfully deleted owned playlists")
                   onSuccess()
                 }
-                .addOnFailureListener { err ->
-                  Log.e(TAG, "Error committing batch delete", err)
-                  onFailure(err)
+                .addOnFailureListener { e ->
+                  Log.e(TAG, "Error committing batch delete", e)
+                  onFailure(e)
                 }
           }
-          .addOnFailureListener { err ->
-            Log.e(TAG, "Error retrieving owned playlists", err)
-            onFailure(err)
+          .addOnFailureListener { e ->
+            Log.e(TAG, "Error retrieving owned playlists", e)
+            onFailure(e)
           }
     } catch (e: Exception) {
       Log.e(TAG, "Unexpected error in deleteOwnedPlaylists", e)

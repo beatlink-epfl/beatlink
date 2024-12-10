@@ -25,6 +25,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.Transaction
+import com.google.firebase.firestore.WriteBatch
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
@@ -53,6 +54,10 @@ class PlaylistRepositoryFirestoreTest {
 
   @Mock private lateinit var mockQuery: Query
   @Mock private lateinit var mockQuerySnapshot: QuerySnapshot
+  @Mock private lateinit var mockQueryTask: Task<QuerySnapshot>
+
+  @Mock private lateinit var mockBatch: WriteBatch
+  @Mock private lateinit var mockBatchTask: Task<Void>
 
   @Mock private lateinit var mockFirestore: FirebaseFirestore
   @Mock private lateinit var mockAuth: FirebaseAuth
@@ -62,15 +67,18 @@ class PlaylistRepositoryFirestoreTest {
   @Mock private lateinit var mockCollectionReference: CollectionReference
   @Mock private lateinit var mockDocumentSnapshot: DocumentSnapshot
 
+  @Mock private lateinit var mockTransaction: Transaction
+  @Mock private lateinit var mockTransactionTask: Task<Transaction>
+
+  @Mock private lateinit var imageUri: Uri
+  @Mock private lateinit var context: Context
+  @Mock private lateinit var mockTask: Task<DocumentSnapshot>
+
+  @Mock private lateinit var onSuccess: () -> Unit
+
   private lateinit var playlistRepositoryFirestore: PlaylistRepositoryFirestore
-  private lateinit var imageUri: Uri
-  private lateinit var context: Context
-  private lateinit var mockTask: Task<DocumentSnapshot>
-  private lateinit var mockBitmap: Bitmap
 
   private val collectionPath = "playlists"
-
-  private lateinit var onSuccess: () -> Unit
 
   private val track1 =
       PlaylistTrack(
@@ -148,20 +156,6 @@ class PlaylistRepositoryFirestoreTest {
     if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
       FirebaseApp.initializeApp(ApplicationProvider.getApplicationContext())
     }
-
-    mockAuth = mock()
-    mockFirebaseUser = mock()
-    onSuccess = mock()
-    mockQuery = mock(Query::class.java)
-    mockQuerySnapshot = mock(QuerySnapshot::class.java)
-    mockDocumentSnapshot = mock(DocumentSnapshot::class.java)
-    imageUri = mock(Uri::class.java)
-    context = mock(Context::class.java)
-    mockTask = mock(Task::class.java) as Task<DocumentSnapshot>
-    mockBitmap = mock(Bitmap::class.java)
-
-    mockFirestore = mock(FirebaseFirestore::class.java)
-    mockCollectionReference = mock(CollectionReference::class.java)
 
     // Mock FirebaseAuth and current user
     `when`(mockAuth.currentUser).thenReturn(mockFirebaseUser)
@@ -779,38 +773,33 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `updatePlaylist succeeds`() {
+  fun `updatePlaylist completes successfully`() {
     // Arrange
     val playlistData = playlistRepositoryFirestore.playlistToMap(playlist)
 
-    val mockPlaylistDocRef = mock(DocumentReference::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockTransaction = mock(Transaction::class.java)
-    val mockTask = mock(Task::class.java) as Task<Transaction>
-
     // Mock the Firestore collection and document retrieval
     `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockPlaylistDocRef)
+    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockDocumentReference)
 
     // Simulate the transaction's set operation
-    `when`(mockTransaction.set(mockPlaylistDocRef, playlistData)).thenReturn(mockTransaction)
+    `when`(mockTransaction.set(mockDocumentReference, playlistData)).thenReturn(mockTransaction)
 
     // Mock the runTransaction method to execute the transaction block and return the task
     `when`(mockFirestore.runTransaction<Transaction>(any())).thenAnswer { invocation ->
       val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
-      return@thenAnswer mockTask
+      return@thenAnswer mockTransactionTask
     }
 
     // Simulate the onSuccess listener for the task
-    `when`(mockTask.addOnSuccessListener(any())).thenAnswer { invocation ->
+    `when`(mockTransactionTask.addOnSuccessListener(any())).thenAnswer { invocation ->
       val listener = invocation.getArgument<OnSuccessListener<Transaction>>(0)
       listener.onSuccess(mockTransaction)
-      mockTask
+      mockTransactionTask
     }
 
     // Ensure that addOnFailureListener also returns the task for proper chaining
-    `when`(mockTask.addOnFailureListener(any())).thenReturn(mockTask)
+    `when`(mockTransactionTask.addOnFailureListener(any())).thenReturn(mockTransactionTask)
 
     var success = false
 
@@ -823,8 +812,8 @@ class PlaylistRepositoryFirestoreTest {
     // Assert
     assertTrue(success)
     verify(mockFirestore).collection(collectionPath)
-    verify(mockTransaction).set(mockPlaylistDocRef, playlistData)
-    verify(mockTask).addOnSuccessListener(any())
+    verify(mockTransaction).set(mockDocumentReference, playlistData)
+    verify(mockTransactionTask).addOnSuccessListener(any())
   }
 
   @Test
@@ -843,36 +832,31 @@ class PlaylistRepositoryFirestoreTest {
   @Test
   fun `updatePlaylist invokes onFailure listener`() {
     // Arrange
-    val mockPlaylistDocRef = mock(DocumentReference::class.java)
-    val mockCollectionReference = mock(CollectionReference::class.java)
-    val mockTransaction = mock(Transaction::class.java)
-    val mockTask = mock(Task::class.java) as Task<Transaction>
-
     // Mock the Firestore collection and document retrieval
     `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
-    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockPlaylistDocRef)
+    `when`(mockCollectionReference.document(playlist.playlistID)).thenReturn(mockDocumentReference)
 
     // Simulate the transaction's set operation
     `when`(
             mockTransaction.set(
-                mockPlaylistDocRef, playlistRepositoryFirestore.playlistToMap(playlist)))
+                mockDocumentReference, playlistRepositoryFirestore.playlistToMap(playlist)))
         .thenReturn(mockTransaction)
 
     // Mock the runTransaction method to execute the transaction block and return the task
     `when`(mockFirestore.runTransaction<Transaction>(any())).thenAnswer { invocation ->
       val transactionFunction = invocation.arguments[0] as Transaction.Function<*>
       transactionFunction.apply(mockTransaction)
-      return@thenAnswer mockTask
+      return@thenAnswer mockTransactionTask
     }
 
     // Ensure that addOnSuccessListener also returns the task for proper chaining
-    `when`(mockTask.addOnSuccessListener(any())).thenReturn(mockTask)
+    `when`(mockTransactionTask.addOnSuccessListener(any())).thenReturn(mockTransactionTask)
 
     // Simulate the onFailure listener for the task
-    `when`(mockTask.addOnFailureListener(any())).thenAnswer { invocation ->
+    `when`(mockTransactionTask.addOnFailureListener(any())).thenAnswer { invocation ->
       val listener = invocation.getArgument<OnFailureListener>(0)
       listener.onFailure(Exception("Simulated failure"))
-      mockTask
+      mockTransactionTask
     }
 
     // Act
@@ -884,8 +868,153 @@ class PlaylistRepositoryFirestoreTest {
     // Assert
     verify(mockFirestore).collection(collectionPath)
     verify(mockTransaction)
-        .set(mockPlaylistDocRef, playlistRepositoryFirestore.playlistToMap(playlist))
-    verify(mockTask).addOnFailureListener(any())
+        .set(mockDocumentReference, playlistRepositoryFirestore.playlistToMap(playlist))
+    verify(mockTransactionTask).addOnFailureListener(any())
+  }
+
+  @Test
+  fun `deleteOwnedPlaylists completes successfully`() {
+    // Arrange
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Mock the documents returned by the query
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.reference).thenReturn(mockDocumentReference)
+
+    // Mock batch operations
+    `when`(mockFirestore.batch()).thenReturn(mockBatch)
+    `when`(mockBatch.delete(mockDocumentReference)).thenReturn(mockBatch)
+    `when`(mockBatch.commit()).thenReturn(mockBatchTask)
+
+    // Simulate the onSuccess for the query task
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnSuccessListener<QuerySnapshot>>(0)
+      listener.onSuccess(mockQuerySnapshot)
+      mockQueryTask
+    }
+    // Ensure that addOnFailureListener also returns the query task for proper chaining
+    `when`(mockQueryTask.addOnFailureListener(any())).thenReturn(mockQueryTask)
+
+    // Simulate the onSuccess for the batch task
+    `when`(mockBatchTask.addOnSuccessListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnSuccessListener<Void>>(0)
+      listener.onSuccess(null)
+      mockBatchTask
+    }
+
+    // Ensure that addOnFailureListener also returns the batch task for proper chaining
+    `when`(mockBatchTask.addOnFailureListener(any())).thenReturn(mockBatchTask)
+
+    var success = false
+
+    // Act
+    playlistRepositoryFirestore.deleteOwnedPlaylists(
+        onSuccess = { success = true },
+        onFailure = { fail("Failure callback should not be called") })
+
+    // Assert
+    assertTrue(success)
+    verify(mockFirestore).collection(collectionPath)
+    verify(mockCollectionReference).whereEqualTo(eq("userId"), anyString())
+    verify(mockQueryTask).addOnSuccessListener(any())
+    verify(mockBatchTask).addOnSuccessListener(any())
+    verify(mockBatch).delete(mockDocumentReference)
+  }
+
+  @Test
+  fun `deleteOwnedPlaylists fails when batch commit operation encounters an error`() {
+    // Arrange
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Mock the documents returned by the query
+    `when`(mockQuerySnapshot.documents).thenReturn(listOf(mockDocumentSnapshot))
+    `when`(mockDocumentSnapshot.reference).thenReturn(mockDocumentReference)
+
+    // Mock batch operations
+    `when`(mockFirestore.batch()).thenReturn(mockBatch)
+    `when`(mockBatch.delete(mockDocumentReference)).thenReturn(mockBatch)
+    `when`(mockBatch.commit()).thenReturn(mockBatchTask)
+
+    // Simulate the onSuccess for the query task
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnSuccessListener<QuerySnapshot>>(0)
+      listener.onSuccess(mockQuerySnapshot)
+      mockQueryTask
+    }
+
+    // Ensure that addOnFailureListener also returns the query task for proper chaining
+    `when`(mockQueryTask.addOnFailureListener(any())).thenReturn(mockQueryTask)
+
+    // Ensure that addOnSuccessListener also returns the batch task for proper chaining
+    `when`(mockBatchTask.addOnSuccessListener(any())).thenReturn(mockBatchTask)
+
+    // Simulate the onFailure for the batch task
+    `when`(mockBatchTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Batch commit failed"))
+      mockBatchTask
+    }
+
+    // Act
+    playlistRepositoryFirestore.deleteOwnedPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { e -> assertEquals("Batch commit failed", e.message) })
+
+    // Assert
+    verify(mockQueryTask).addOnSuccessListener(any())
+    verify(mockBatchTask).addOnFailureListener(any())
+    verify(mockBatch).delete(mockDocumentReference)
+  }
+
+  @Test
+  fun `deleteOwnedPlaylists fails when query execution encounters an error`() {
+    // Arrange
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Ensure that addOnSuccessListener also returns the query task for proper chaining
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask)
+
+    // Simulate the onFailure for the query task
+    `when`(mockQueryTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Query get operation failed"))
+      mockQueryTask
+    }
+
+    // Act
+    playlistRepositoryFirestore.deleteOwnedPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { e -> assertEquals("Query get operation failed", e.message) })
+
+    // Assert
+    verify(mockQueryTask).addOnFailureListener(any())
+  }
+
+  @Test
+  fun `deleteOwnedPlaylists fails when query cannot be constructed`() {
+    // Arrange
+    // Mock Firestore behavior
+    `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
+    `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString()))
+        .thenThrow(RuntimeException("Query failed"))
+
+    // Act
+    playlistRepositoryFirestore.deleteOwnedPlaylists(
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { e -> assertEquals("Query failed", e.message) })
+
+    // Assert
+    verify(mockFirestore).collection(collectionPath)
+    verify(mockCollectionReference).whereEqualTo(eq("userId"), anyString())
   }
 
   @Test

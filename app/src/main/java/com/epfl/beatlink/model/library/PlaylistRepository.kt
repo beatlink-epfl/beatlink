@@ -27,7 +27,7 @@ interface PlaylistRepository {
   fun getUserId(): String?
 
   /**
-   * Retrieve all playlists owned by the current user from Firestore.
+   * Retrieve all playlists owned by the current user.
    *
    * @param onSuccess Callback that is invoked with the list of owned playlists.
    * @param onFailure Callback that is invoked with an exception upon failure.
@@ -35,7 +35,7 @@ interface PlaylistRepository {
   fun getOwnedPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Retrieve all playlists shared with the current user from Firestore.
+   * Retrieve all playlists shared with the current user.
    *
    * @param onSuccess Callback that is invoked with the list of shared playlists.
    * @param onFailure Callback that is invoked with an exception upon failure.
@@ -43,7 +43,7 @@ interface PlaylistRepository {
   fun getSharedPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Retrieve all public playlists from Firestore.
+   * Retrieve all public playlists that are not owned by the current user.
    *
    * @param onSuccess Callback that is invoked with the list of public playlists.
    * @param onFailure Callback that is invoked with an exception upon failure.
@@ -51,7 +51,7 @@ interface PlaylistRepository {
   fun getPublicPlaylists(onSuccess: (List<Playlist>) -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Add a new playlist to Firestore.
+   * Add a new playlist.
    *
    * @param playlist The Playlist object to be added.
    * @param onSuccess Callback for successful addition.
@@ -60,7 +60,7 @@ interface PlaylistRepository {
   fun addPlaylist(playlist: Playlist, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Update an existing playlist in Firestore.
+   * Update an existing playlist.
    *
    * @param playlist The Playlist object to be updated.
    * @param onSuccess Callback for successful update.
@@ -69,7 +69,7 @@ interface PlaylistRepository {
   fun updatePlaylist(playlist: Playlist, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Delete all playlists owned by the current user from Firestore.
+   * Delete all playlists owned by the current user.
    *
    * @param onSuccess Callback for successful deletion.
    * @param onFailure Callback that is invoked with an exception upon failure.
@@ -77,7 +77,7 @@ interface PlaylistRepository {
   fun deleteOwnedPlaylists(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Delete a playlist by its ID from Firestore.
+   * Delete a playlist by its ID.
    *
    * @param id The ID of the playlist to be deleted.
    * @param onSuccess Callback for successful deletion.
@@ -86,7 +86,7 @@ interface PlaylistRepository {
   fun deletePlaylistById(id: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
 
   /**
-   * Upload a playlist cover image to Firestore.
+   * Upload a playlist cover image.
    *
    * @param imageUri The URI of the image to be uploaded.
    * @param context The context in which the function is called.
@@ -95,7 +95,7 @@ interface PlaylistRepository {
   fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist)
 
   /**
-   * Load a playlist cover image from Firestore.
+   * Load a playlist cover image.
    *
    * @param playlist The Playlist object whose cover image is to be loaded.
    * @param onBitmapLoaded Callback invoked with the loaded Bitmap.
