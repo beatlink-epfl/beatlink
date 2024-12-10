@@ -126,18 +126,15 @@ fun PlaylistOverviewScreen(
       content = { innerPadding ->
         Column(
             modifier =
-            Modifier
-                .padding(innerPadding)
-                .padding(vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
+                Modifier.padding(innerPadding)
+                    .padding(vertical = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Header Section
               Row(
                   horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
-                  Modifier
-                      .padding(horizontal = 30.dp, vertical = 14.dp)
-                      .height(150.dp)) {
+                      Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
                     if (coverImage.value == null) {
                       GrayBox(size = 135.dp)
@@ -147,29 +144,30 @@ fun PlaylistOverviewScreen(
 
                     // Playlist details
                     Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween) {
                           IconWithText(
                               "@" + selectedPlaylistState.playlistOwner,
                               "ownerText",
                               Icons.Outlined.AccountCircle,
                               TypographyPlaylist.headlineMedium)
-                            IconWithText("${selectedPlaylistState.nbTracks} tracks", "nbTracksText", Icons.Outlined.Star, TypographyPlaylist.headlineSmall)
-
-                           if (collabUsernames.isNotEmpty()) {
-                                IconWithText(
-                                    collabUsernames.joinToString(", "),
-                                    "collaboratorsText",
-                                    collab,
-                                    TypographyPlaylist.headlineSmall
-                                )
-                            }
+                          if (collabUsernames.isNotEmpty()) {
+                            IconWithText(
+                                collabUsernames.joinToString(", "),
+                                "collaboratorsText",
+                                collab,
+                                TypographyPlaylist.headlineSmall)
+                          }
                           IconWithText(
                               if (selectedPlaylistState.playlistPublic) "Public" else "Private",
                               "publicText",
                               Icons.Outlined.Lock,
+                              TypographyPlaylist.headlineSmall)
+
+                          IconWithText(
+                              "${selectedPlaylistState.nbTracks} tracks",
+                              "nbTracksText",
+                              Icons.Outlined.Star,
                               TypographyPlaylist.headlineSmall)
                           Spacer(modifier = Modifier.height(10.dp))
                           ViewDescriptionButton { showDialogOverlay = true }
@@ -202,13 +200,9 @@ fun PlaylistOverviewScreen(
                 Text(
                     text = "NO SONGS ADDED",
                     style = TypographyPlaylist.displayMedium,
-                    modifier = Modifier
-                        .padding(top = 165.dp)
-                        .testTag("emptyPlaylistPrompt"))
+                    modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
               } else {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .heightIn(min = 0.dp, max = 400.dp)) {
+                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 400.dp)) {
                   LazyColumn(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
