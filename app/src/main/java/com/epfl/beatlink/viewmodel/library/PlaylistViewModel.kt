@@ -289,13 +289,17 @@ class PlaylistViewModel(
 
   fun preparePlaylistCoverForSpotify(): String? {
     return try {
-      // Decode Base64 to Bitmap
-      val bitmap = base64ToBitmap(selectedPlaylist.value?.playlistCover!!)
-
-      // Re-encode the Bitmap to Base64 JPEG
-      val outputStream = ByteArrayOutputStream()
-      bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-      val byteArray = outputStream.toByteArray()
+      val cover = selectedPlaylist.value?.playlistCover
+      if (cover == null) {
+        Log.e("PlaylistViewModel", "Playlist cover is null")
+        return null
+      }
+      // Decode Base64 to Bitmap and Re-encode the Bitmap to Base64 JPEG
+      val byteArray =
+          ByteArrayOutputStream().use {
+            base64ToBitmap(cover)?.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            it.toByteArray()
+          }
       Base64.encodeToString(byteArray, Base64.NO_WRAP) // NO_WRAP removes padding
     } catch (e: Exception) {
       Log.e("PlaylistViewModel", "Error preparing playlist cover: ${e.message}", e)
