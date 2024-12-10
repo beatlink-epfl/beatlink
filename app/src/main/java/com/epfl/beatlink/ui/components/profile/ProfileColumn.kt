@@ -44,6 +44,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 /**
  * Displays a detailed profile view in a vertically scrollable column layout, including user profile
@@ -67,6 +68,7 @@ import com.epfl.beatlink.ui.theme.lightThemeBackground
 fun ProfileColumn(
     profileData: ProfileData?,
     navigationAction: NavigationActions,
+    spotifyApiViewModel: SpotifyApiViewModel,
     topSongsState: List<SpotifyTrack>,
     topArtistsState: List<SpotifyArtist>,
     userPlaylists: List<UserPlaylist>,
@@ -203,7 +205,9 @@ fun ProfileColumn(
           LazyColumn(
               verticalArrangement = Arrangement.spacedBy(11.dp),
               modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp).heightIn(max = 400.dp)) {
-                items(userPlaylists.size) { i -> UserPlaylistCard(userPlaylists[i]) }
+                items(userPlaylists.size) { i ->
+                  UserPlaylistCard(userPlaylists[i], spotifyApiViewModel)
+                }
               }
         }
       }
