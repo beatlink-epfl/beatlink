@@ -28,7 +28,7 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
-    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    // LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
     val profileData by profileViewModel.profile.collectAsState()
 
     val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()

@@ -27,6 +27,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -84,9 +86,8 @@ fun ProfileColumn(
     profilePicture: MutableState<Bitmap?>,
     ownProfile: Boolean
 ) {
-    // Info of the current user
-    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
     val profileData by profileViewModel.profile.collectAsState()
+    Log.d("PROFILE", "current user profile: ${profileData?.username}")
 
     val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
     val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
@@ -95,9 +96,10 @@ fun ProfileColumn(
     // Info of the selected user
     val selectedUserUserId by profileViewModel.selectedUserUserId.collectAsState()
     val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
-    val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(
-        emptyList()
-    )
+
+    val fetchOtherProfileFriends = remember { mutableStateOf(false) }
+    val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
+    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
 
     val isOwnProfile = selectedUserUserId == ""
 
@@ -122,37 +124,39 @@ fun ProfileColumn(
             else -> "Link"
         }
 
-    LaunchedEffect(allFriends) {
-        profileData?.let { currentProfile ->
-            Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
-            profileViewModel.updateNbLinks(currentProfile, allFriends.size)
-        }
-    }
-
-    LaunchedEffect(otherProfileAllFriends) {
-        selectedProfileData?.let { selectedProfile ->
-            Log.d("PROFILE_USERNAME", " username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}")
-            profileViewModel.updateOtherProfileNbLinks(
-                selectedProfile,
-                selectedUserUserId,
-                otherProfileAllFriends.size
-            )
-        }
-    }
-
-    LaunchedEffect(selectedUserUserId) {
+    LaunchedEffect(selectedUserUserId, allFriends, fetchOtherProfileFriends) {
         if (!isOwnProfile) {
             // Fetch the friends of the displayed user
             friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
         }
+        if (profileData?.links != allFriends.size) {
+            profileData?.let { currentProfile ->
+                Log.d("PROFILE_USERNAME", " PROFILE COLUMN -- username of current user before update: ${currentProfile.username} and ${allFriends.size}")
+                profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+            }
+        }
+        Log.d("PROFILE", "profileColumn:  ${otherProfileAllFriends.size} and nbLinks ${selectedProfileData?.links}")
+        if (selectedProfileData?.links != otherProfileAllFriends.size && selectedUserUserId != "") {
+            selectedProfileData?.let { selectedProfile ->
+                Log.d(
+                    "PROFILE_USERNAME",
+                    " PROFILE COLUMN -- username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}"
+                )
+                Log.d("PROFILE", "PROFILE COLUMN: ID $selectedUserUserId")
+                profileViewModel.updateOtherProfileNbLinks(
+                    selectedProfile,
+                    selectedUserUserId,
+                    otherProfileAllFriends.size
+                )
+            }
+        }
     }
-    Log.d("PROFILE_LINK", "The list of friends of other user: $otherProfileAllFriends")
 
     val profileReady by profileViewModel.profileReady.collectAsState()
 
-    Log.d("PROFILE", "Selected User ID: $selectedUserUserId")
-    Log.d("PROFILE", "Is Own Profile: $isOwnProfile")
-    Log.d("PROFILE_LINK", "FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
+    Log.d("PROFILE", "ProfileColumn: Selected User ID: $selectedUserUserId")
+    Log.d("PROFILE", "ProfileColumn: Is Own Profile: $isOwnProfile")
+    Log.d("PROFILE_LINK", "ProfileColumn: FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
 
     Column(
         modifier =

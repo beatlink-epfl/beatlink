@@ -50,9 +50,6 @@ fun LinksScreen(navigationActions: NavigationActions,
         // Displayed user: Fetch their friend list
         friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
     }
-    val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(
-        emptyList()
-    )
 
     if (!isOwnProfile) {
         LaunchedEffect(Unit) {
@@ -78,7 +75,10 @@ fun LinksScreen(navigationActions: NavigationActions,
 
 
     Scaffold(
-        topBar = { ScreenTopAppBar(if (isOwnProfile) "Links" else "${selectedProfileData?.username}'s Links", "LinksScreenTitle", navigationActions)
+        topBar = { ScreenTopAppBar(
+            if (isOwnProfile) "Links" else "${selectedProfileData?.username}'s Links",
+            "LinksScreenTitle",
+            navigationActions)
         },
         bottomBar = {
             BottomNavigationMenu(

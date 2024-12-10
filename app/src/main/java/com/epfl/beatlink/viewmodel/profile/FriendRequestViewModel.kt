@@ -189,4 +189,8 @@ open class FriendRequestViewModel(
       }
     }
   }
+
+  fun clearOtherProfileAllFriends() {
+    _otherProfileAllFriends.value = emptyList()
+  }
 }

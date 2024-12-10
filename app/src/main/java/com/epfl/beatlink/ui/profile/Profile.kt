@@ -41,7 +41,7 @@ fun ProfileScreen(
     mapUsersViewModel: MapUsersViewModel
 ) {
     // Load Profile Data
-    LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+    // LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
     val profileData by profileViewModel.profile.collectAsState()
 
     // Load Profile Picture

@@ -40,13 +40,9 @@ fun DisplayResults(
     onClearQuery: (() -> Unit)? = null
 ) {
   if (profileViewModel != null && navigationActions != null) {
-    val profileReady by profileViewModel.profileReady.collectAsState()
 
-    // Observe changes in profile readiness and navigate
-    LaunchedEffect(profileReady) {
-      if (profileReady) {
-          // navigationActions.navigateTo(Screen.OTHER_PROFILE)
-      }
+    LaunchedEffect(Unit) {
+      profileViewModel.clearSelectedUser()
     }
   }
 

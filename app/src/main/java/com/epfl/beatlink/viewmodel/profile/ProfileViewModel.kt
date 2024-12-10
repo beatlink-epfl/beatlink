@@ -59,6 +59,9 @@ open class ProfileViewModel(
     val profileReady: StateFlow<Boolean>
         get() = _profileReady
 
+    // Stack-like structure to hold user navigation history
+    private val userStack = mutableListOf<String>()
+
     private val _selectedUserUserId = MutableStateFlow("")
     val selectedUserUserId: StateFlow<String>
         get() = _selectedUserUserId
@@ -68,11 +71,30 @@ open class ProfileViewModel(
         get() = _selectedUserProfile
 
     fun selectSelectedUser(userId: String) {
+        if (_selectedUserUserId.value.isNotEmpty()) {
+            userStack.add(_selectedUserUserId.value) // Push current user to the stack
+        }
         _selectedUserUserId.value = userId
     }
 
+    /**
+     * Pops the last user ID from the stack and sets it as the selected user.
+     * If the stack is empty, clears the selected user.
+     */
+    fun goBackToPreviousUser() {
+        if (userStack.isNotEmpty()) {
+            val previousUserId = userStack.removeAt(userStack.lastIndex) // Pop the stack
+            _selectedUserUserId.value = previousUserId
+        } else {
+            unselectSelectedUser() // Clear selection if the stack is empty
+        }
+    }
+    /**
+     * Clears the selected user and resets the stack.
+     */
     fun unselectSelectedUser() {
         _selectedUserUserId.value = ""
+        userStack.clear()
     }
 
     fun unreadyProfile() {
