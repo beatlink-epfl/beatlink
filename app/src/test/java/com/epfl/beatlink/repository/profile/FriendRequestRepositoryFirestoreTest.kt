@@ -110,10 +110,14 @@ class FriendRequestRepositoryFirestoreTest {
     repositoryFirestore.acceptFriendRequest("testReceiver", "testSender")
 
     // Verify all Firestore updates are called with correct arguments
-    verify(mockTransaction).update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
-    verify(mockTransaction).update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
-    verify(mockTransaction).update(mockReceiverDocument, "allFriends.testSender", mapOf("status" to "linked"))
-    verify(mockTransaction).update(mockSenderDocument, "allFriends.testReceiver", mapOf("status" to "linked"))
+    verify(mockTransaction)
+        .update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockReceiverDocument, "allFriends.testSender", mapOf("status" to "linked"))
+    verify(mockTransaction)
+        .update(mockSenderDocument, "allFriends.testReceiver", mapOf("status" to "linked"))
   }
 
   @Test
@@ -126,8 +130,10 @@ class FriendRequestRepositoryFirestoreTest {
 
     // Verify Firestore updates are called with correct arguments
 
-    verify(mockTransaction).update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
-    verify(mockTransaction).update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
   }
 
   @Test
@@ -139,8 +145,10 @@ class FriendRequestRepositoryFirestoreTest {
     repositoryFirestore.cancelFriendRequest("testSender", "testReceiver")
 
     // Verify Firestore updates are called with correct arguments
-    verify(mockTransaction).update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
-    verify(mockTransaction).update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockSenderDocument, "ownRequests.testReceiver", FieldValue.delete())
+    verify(mockTransaction)
+        .update(mockReceiverDocument, "friendRequests.testSender", FieldValue.delete())
   }
 
   @Test
