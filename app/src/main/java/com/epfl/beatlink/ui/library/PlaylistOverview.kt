@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -125,15 +126,18 @@ fun PlaylistOverviewScreen(
       content = { innerPadding ->
         Column(
             modifier =
-                Modifier.padding(innerPadding)
-                    .padding(vertical = 16.dp)
-                    .verticalScroll(rememberScrollState()),
+            Modifier
+                .padding(innerPadding)
+                .padding(vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Header Section
               Row(
                   horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
-                      Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
+                  Modifier
+                      .padding(horizontal = 30.dp, vertical = 14.dp)
+                      .height(150.dp)) {
                     // Playlist Cover Image
                     if (coverImage.value == null) {
                       GrayBox(size = 135.dp)
@@ -143,24 +147,25 @@ fun PlaylistOverviewScreen(
 
                     // Playlist details
                     Column(
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween) {
-                          Text(
-                              text = selectedPlaylistState.playlistName,
-                              style = TypographyPlaylist.headlineLarge,
-                              color = MaterialTheme.colorScheme.primary,
-                              modifier = Modifier.testTag("playlistTitle"))
-                          Spacer(modifier = Modifier.height(4.dp))
                           IconWithText(
                               "@" + selectedPlaylistState.playlistOwner,
                               "ownerText",
                               Icons.Outlined.AccountCircle,
                               TypographyPlaylist.headlineMedium)
-                          IconWithText(
-                              collabUsernames.joinToString(", "),
-                              "collaboratorsText",
-                              collab,
-                              TypographyPlaylist.headlineSmall)
+                            IconWithText("${selectedPlaylistState.nbTracks} tracks", "nbTracksText", Icons.Outlined.Star, TypographyPlaylist.headlineSmall)
+
+                           if (collabUsernames.isNotEmpty()) {
+                                IconWithText(
+                                    collabUsernames.joinToString(", "),
+                                    "collaboratorsText",
+                                    collab,
+                                    TypographyPlaylist.headlineSmall
+                                )
+                            }
                           IconWithText(
                               if (selectedPlaylistState.playlistPublic) "Public" else "Private",
                               "publicText",
@@ -197,9 +202,13 @@ fun PlaylistOverviewScreen(
                 Text(
                     text = "NO SONGS ADDED",
                     style = TypographyPlaylist.displayMedium,
-                    modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
+                    modifier = Modifier
+                        .padding(top = 165.dp)
+                        .testTag("emptyPlaylistPrompt"))
               } else {
-                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 400.dp)) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .heightIn(min = 0.dp, max = 400.dp)) {
                   LazyColumn(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
