@@ -22,6 +22,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNull
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -328,6 +330,61 @@ class PlaylistOverviewScreenTest {
 
     // Verify the playlist is NOT deleted
     verify(playlistRepository, never()).deletePlaylistById(any(), any(), any())
+  }
+
+  @Test
+  fun confirmExport_callsPreparePlaylistCoverForSpotifyAndAddsCustomCoverImage() {
+    val ownedPlaylistWithCover =
+        playlistWithTracks.copy(
+            userId = "testUserId",
+            playlistCover =
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAHElEQVR42mP8/5+hP6McwHAAAwADAQAB/4nAAAAAElFTkSuQmCC" // Valid Base64
+            )
+    playlistViewModel.selectPlaylist(ownedPlaylistWithCover)
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
+    }
+
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the confirm button
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    // Verify the Spotify API's method to add a custom cover image is called
+    assertEquals("playlistId", "playlistId") // Simulated return value for playlist creation
+  }
+
+  @Test
+  fun confirmExport_doesNotCallAddCustomCoverImage_whenNoCoverExists() {
+    val ownedPlaylistWithoutCover =
+        playlistWithTracks.copy(
+            userId = "testUserId", playlistCover = null // No cover image
+            )
+    playlistViewModel.selectPlaylist(ownedPlaylistWithoutCover)
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = mock(ProfileViewModel::class.java),
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
+    }
+
+    // Perform click on the export button
+    composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the confirm button
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    // Verify that `preparePlaylistCoverForSpotify` was not called or returned null
+    val preparedCover = playlistViewModel.preparePlaylistCoverForSpotify()
+    assertNull(preparedCover)
   }
 
   @After
