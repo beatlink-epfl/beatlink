@@ -632,10 +632,10 @@ class PlaylistViewModelTest {
   }
 
   @Test
-  fun `preparePlaylistCoverForSpotify should return null for an invalid Base64 string`() {
+  fun `preparePlaylistCoverForSpotify should return null for invalid Base64 string`() {
     // Arrange
     val invalidBase64String = "InvalidBase64Data"
-    val playlistWithInvalidCover = playlist2.copy(playlistCover = invalidBase64String)
+    val playlistWithInvalidCover = playlist.copy(playlistCover = invalidBase64String)
 
     playlistViewModel.selectPlaylist(playlistWithInvalidCover)
 
@@ -658,7 +658,7 @@ class PlaylistViewModelTest {
   @Test
   fun `preparePlaylistCoverForSpotify should return null if playlistCover is empty`() {
     // Arrange
-    val playlistWithoutCover = playlist2.copy(playlistCover = "")
+    val playlistWithoutCover = playlist.copy(playlistCover = "")
     playlistViewModel.selectPlaylist(playlistWithoutCover)
 
     // Act
