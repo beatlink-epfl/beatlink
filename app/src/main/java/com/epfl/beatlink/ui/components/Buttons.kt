@@ -115,7 +115,13 @@ fun VoteButton(
             modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically) {
-              Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
+              Icon(
+                  painter = painter,
+                  contentDescription = "fire",
+                  tint =
+                      if (isVoted) MaterialTheme.colorScheme.primaryWhite
+                      else MaterialTheme.colorScheme.primaryRed,
+                  modifier = Modifier.size(24.dp))
               Spacer(modifier = Modifier.width(6.dp))
               Text(
                   text = playlistTrack.likes.toString(),

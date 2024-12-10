@@ -262,6 +262,11 @@ fun PlaylistOverviewScreen(
                         onResult = { idSpotify ->
                           Log.d("Spotify", idSpotify.toString())
                           if (idSpotify != null) {
+                            if (selectedPlaylistState.playlistCover != null) {
+                              playlistViewModel.preparePlaylistCoverForSpotify()?.let {
+                                spotifyViewModel.addCustomPlaylistCoverImage(idSpotify, it)
+                              }
+                            }
                             // Delete playlist only if creation was successful
                             playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
                             showDialogExport = false

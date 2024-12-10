@@ -646,4 +646,74 @@ class PlaylistViewModelTest {
     // Assert
     verify(playlistRepository).deleteOwnedPlaylists(any(), any())
   }
+
+  @Test
+  fun `preparePlaylistCoverForSpotify should return null for invalid Base64 string`() {
+    // Arrange
+    val invalidBase64String = "InvalidBase64Data"
+    val playlistWithInvalidCover = playlist.copy(playlistCover = invalidBase64String)
+
+    playlistViewModel.selectPlaylist(playlistWithInvalidCover)
+
+    // Act
+    val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+    // Assert
+    assertNull(result) // Ensure the result is null due to invalid input
+  }
+
+  @Test
+  fun `preparePlaylistCoverForSpotify should return null if no playlist is selected`() {
+    // Act
+    val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+    // Assert
+    assertNull(result) // Ensure the result is null when no playlist is selected
+  }
+
+  @Test
+  fun `preparePlaylistCoverForSpotify should return null if playlistCover is empty`() {
+    // Arrange
+    val playlistWithoutCover = playlist.copy(playlistCover = "")
+    playlistViewModel.selectPlaylist(playlistWithoutCover)
+
+    // Act
+    val result = playlistViewModel.preparePlaylistCoverForSpotify()
+
+    // Assert
+    assertNull(result) // Ensure the result is null due to empty cover
+  }
+
+  @Test
+  fun `resetTemporaryState should reset coverImage`() = runTest {
+    // Arrange
+    playlistViewModel.coverImage.value = mock(Bitmap::class.java) // Simulate a cover image
+
+    // Act
+    playlistViewModel.resetTemporaryState()
+
+    // Assert
+    assertNull(playlistViewModel.coverImage.value) // Ensure the cover image is reset
+  }
+
+  @Test
+  fun `deletePlaylist should reset coverImage on success`() = runTest {
+    // Arrange
+    playlistViewModel.selectPlaylist(playlist)
+    playlistViewModel.coverImage.value = mock(Bitmap::class.java) // Simulate a cover image
+
+    doAnswer { invocation ->
+          val onSuccess = invocation.arguments[1] as? () -> Unit
+          onSuccess?.invoke() // Call the success callback
+          null
+        }
+        .whenever(playlistRepository)
+        .deletePlaylistById(eq(playlist.playlistID), any(), any())
+
+    // Act
+    playlistViewModel.deletePlaylistById(playlist.playlistID)
+
+    // Assert
+    assertNull(playlistViewModel.coverImage.value) // Ensure the cover image is reset
+  }
 }
