@@ -18,12 +18,12 @@ import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
 import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
-import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 class PlaylistViewModel(
     private val repository: PlaylistRepository,

@@ -539,12 +539,21 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `getOwnedPlaylists should call onFailure when Firestore query fails`() {
-    // Mock Firestore query failure
-    val exception = Exception("Firestore error")
+  fun `getOwnedPlaylists should call onFailure when Firestore query execution fails`() {
+    // Mock Firestore query
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
     `when`(mockCollectionReference.whereEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Ensure that addOnSuccessListener returns the query task for proper chaining
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask)
+
+    // Simulate the onFailure for the query task
+    `when`(mockQueryTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Query get operation failed"))
+      mockQueryTask
+    }
 
     // Test function
     playlistRepositoryFirestore.getOwnedPlaylists(
@@ -552,8 +561,11 @@ class PlaylistRepositoryFirestoreTest {
         onFailure = { error ->
           // Assertions
           assertNotNull(error)
-          assertEquals("Firestore error", error.message)
+          assertEquals("Query get operation failed", error.message)
         })
+
+    // Assert
+    verify(mockQueryTask).addOnFailureListener(any())
   }
 
   @Test
@@ -613,14 +625,23 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `getSharedPlaylists should call onFailure when Firestore query fails`() {
+  fun `getSharedPlaylists should call onFailure when Firestore query execution fails`() {
     // Mock Firestore query failure
-    val exception = Exception("Firestore error")
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
     `when`(mockCollectionReference.whereArrayContains(eq("playlistCollaborators"), anyString()))
         .thenReturn(mockQuery)
     `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Ensure that addOnSuccessListener returns the query task for proper chaining
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask)
+
+    // Simulate the onFailure for the query task
+    `when`(mockQueryTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Query get operation failed"))
+      mockQueryTask
+    }
 
     // Test function
     playlistRepositoryFirestore.getSharedPlaylists(
@@ -628,7 +649,7 @@ class PlaylistRepositoryFirestoreTest {
         onFailure = { error ->
           // Assertions
           assertNotNull(error)
-          assertEquals("Firestore error", error.message)
+          assertEquals("Query get operation failed", error.message)
         })
   }
 
@@ -689,14 +710,23 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `getPublicPlaylists should call onFailure when Firestore query fails`() {
+  fun `getPublicPlaylists should call onFailure when Firestore query execution fails`() {
     // Mock Firestore query failure
-    val exception = Exception("Firestore error")
     `when`(mockFirestore.collection(any())).thenReturn(mockCollectionReference)
     `when`(mockCollectionReference.whereEqualTo(eq("playlistPublic"), eq(true)))
         .thenReturn(mockQuery)
     `when`(mockQuery.whereNotEqualTo(eq("userId"), anyString())).thenReturn(mockQuery)
-    `when`(mockQuery.get()).thenReturn(Tasks.forException(exception))
+    `when`(mockQuery.get()).thenReturn(mockQueryTask)
+
+    // Ensure that addOnSuccessListener returns the query task for proper chaining
+    `when`(mockQueryTask.addOnSuccessListener(any())).thenReturn(mockQueryTask)
+
+    // Simulate the onFailure for the query task
+    `when`(mockQueryTask.addOnFailureListener(any())).thenAnswer { invocation ->
+      val listener = invocation.getArgument<OnFailureListener>(0)
+      listener.onFailure(Exception("Query get operation failed"))
+      mockQueryTask
+    }
 
     // Test function
     playlistRepositoryFirestore.getPublicPlaylists(
@@ -704,7 +734,7 @@ class PlaylistRepositoryFirestoreTest {
         onFailure = { error ->
           // Assertions
           assertNotNull(error)
-          assertEquals("Firestore error", error.message)
+          assertEquals("Query get operation failed", error.message)
         })
   }
 
@@ -926,7 +956,7 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `deleteOwnedPlaylists fails when batch commit operation encounters an error`() {
+  fun `deleteOwnedPlaylists fails when batch commit operation fails`() {
     // Arrange
     // Mock Firestore behavior
     `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
@@ -974,7 +1004,7 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `deleteOwnedPlaylists fails when query execution encounters an error`() {
+  fun `deleteOwnedPlaylists fails when query execution fails`() {
     // Arrange
     // Mock Firestore behavior
     `when`(mockFirestore.collection(collectionPath)).thenReturn(mockCollectionReference)
