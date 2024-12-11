@@ -175,7 +175,8 @@ fun BeatLinkApp(
                 spotifyAuthViewModel,
                 profileViewModel,
                 firebaseAuthViewModel,
-                mapUsersViewModel)
+                mapUsersViewModel,
+                playlistViewModel)
           }
           composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
         }
