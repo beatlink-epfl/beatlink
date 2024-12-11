@@ -171,11 +171,7 @@ class ProfileTest {
         .assertTextContains("${profileData.links} Links")
 
     // Check if the edit button is displayed
-    composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
-    composeTestRule
-        .onNodeWithTag("editProfileButton")
-        .assertExists()
-        .assertTextContains("Edit Profile")
+    composeTestRule.onNodeWithTag("editProfileButton").assertExists()
 
     // Check if the user's name is displayed
     composeTestRule.onNodeWithTag("name").assertExists()

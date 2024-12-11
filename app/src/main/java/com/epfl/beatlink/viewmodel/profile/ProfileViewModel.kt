@@ -115,7 +115,7 @@ open class ProfileViewModel(
     _selectedUserProfile.value = null
   }
 
-  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+  open fun getUsername(userId: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {
         val username = repository.getUsername(userId)

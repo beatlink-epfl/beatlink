@@ -83,14 +83,11 @@ class LinksScreenTest {
 
   @Test
   fun emptyFriendsListDisplaysNoLinksMessage() {
-    // Mock or create instances of your ViewModels
     val fakeProfileViewModel = FakeProfileViewModel()
     val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
 
-    // Set an empty list of friends for this test case
     fakeFriendRequestViewModel.setAllFriends(emptyList())
 
-    // Set the content for the Compose test rule
     composeTestRule.setContent {
       LinksScreen(
           navigationActions = navigationActions,
