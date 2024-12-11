@@ -19,12 +19,14 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
@@ -60,6 +62,9 @@ class ProfileTest {
 
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
+
+    private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
+    private lateinit var friendRequestViewModel: FriendRequestViewModel
 
   private val profileData =
       ProfileData(
@@ -111,7 +116,12 @@ class ProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
-    spotifyApiRepository = mock(SpotifyApiRepository::class.java)
+      friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
+      friendRequestViewModel =
+          FriendRequestViewModel(friendRequestRepositoryFirestore)
+
+
+      spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
 
     navigationActions = mock(NavigationActions::class.java)
@@ -134,6 +144,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -180,6 +191,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -199,6 +211,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -225,6 +238,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -241,6 +255,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -262,6 +277,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -282,6 +298,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -301,6 +318,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -314,6 +332,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))

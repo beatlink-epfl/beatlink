@@ -8,6 +8,7 @@ import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.components.search.PeopleItem
+import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -21,6 +22,7 @@ import org.mockito.Mockito.mock
 class PeopleItemTest {
   @get:Rule val composeTestRule = createComposeRule()
 
+  private lateinit var navigationActions: NavigationActions
   private lateinit var mockFriendRequestRepository: FriendRequestRepository
   private lateinit var mockFriendRequestViewModel: FriendRequestViewModel
   private lateinit var mockProfileRepository: ProfileRepository
@@ -39,6 +41,7 @@ class PeopleItemTest {
     mockProfileViewModel = mockk(relaxed = true)
     mockFriendRequestRepository = mock(FriendRequestRepository::class.java)
     mockFriendRequestViewModel = mockk(relaxed = true)
+    navigationActions = mock(NavigationActions::class.java)
   }
 
   @Test
@@ -46,6 +49,7 @@ class PeopleItemTest {
     composeTestRule.setContent {
       PeopleItem(
           selectedProfileData = userProfile,
+        navigationActions = navigationActions,
           profileViewModel = mockProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -74,6 +78,7 @@ class PeopleItemTest {
     composeTestRule.setContent {
       PeopleItem(
           selectedProfileData = displayedUser1,
+        navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -100,6 +105,7 @@ class PeopleItemTest {
     composeTestRule.setContent {
       PeopleItem(
           selectedProfileData = displayedUser2,
+        navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -126,6 +132,7 @@ class PeopleItemTest {
     composeTestRule.setContent {
       PeopleItem(
           selectedProfileData = displayedUser3,
+        navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }

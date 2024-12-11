@@ -11,10 +11,12 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
@@ -47,6 +49,9 @@ class OtherProfileTest {
 
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
+
+  private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
+  private lateinit var friendRequestViewModel: FriendRequestViewModel
 
   private var topSongs =
       listOf(
@@ -96,11 +101,15 @@ class OtherProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
+      friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
+      friendRequestViewModel =
+          FriendRequestViewModel(friendRequestRepositoryFirestore)
+
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
 
     navigationActions = mock(NavigationActions::class.java)
-    `when`(navigationActions.currentRoute()).thenReturn(Screen.OTHER_PROFILE_SCREEN)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.OTHER_PROFILE)
 
     // Initialize Firebase if necessary
     if (FirebaseApp.getApps(ApplicationProvider.getApplicationContext()).isEmpty()) {
@@ -117,7 +126,7 @@ class OtherProfileTest {
   @Test
   fun elementsAreDisplayed() {
     composeTestRule.setContent {
-      OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      OtherProfileScreen(profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
 
     // Check if the icons are displayed
@@ -152,7 +161,7 @@ class OtherProfileTest {
   @Test
   fun buttonsAreClickable() {
     composeTestRule.setContent {
-      OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
+      OtherProfileScreen(profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
     // Perform click action on the MoreVert button
     composeTestRule.onNodeWithTag("profileScreenMoreVertButton").performClick()

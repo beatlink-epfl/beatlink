@@ -16,6 +16,7 @@ import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
@@ -62,7 +63,10 @@ class EditPlaylistScreenTest {
 
     composeTestRule.setContent {
       EditPlaylistScreen(
-          navigationActions, viewModel(factory = ProfileViewModel.Factory), playlistViewModel)
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
     }
   }
 
