@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
@@ -38,7 +39,8 @@ fun LinkRequestsButton(onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.secondaryGray,
                 shape = RoundedCornerShape(size = 10.dp))
             .clickable(onClick = onClick)
-        .padding(horizontal = 16.dp),
+        .padding(horizontal = 16.dp)
+            .testTag("linkRequestsButton"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -75,5 +77,4 @@ fun LinkRequestsButton(onClick: () -> Unit) {
 
         }
     }
-
 }

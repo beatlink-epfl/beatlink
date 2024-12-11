@@ -25,12 +25,6 @@ fun NotificationsScreen(
 ) {
     Scaffold(
         topBar = { ScreenTopAppBar("Notifications", "notificationsScreenTitle", navigationActions)  },
-        bottomBar = {
-            BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-        },
         content = { innerPadding ->
             Column(
                 modifier = Modifier.padding(innerPadding).padding(16.dp),

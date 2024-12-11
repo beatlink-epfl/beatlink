@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -335,4 +336,47 @@ class FriendRequestViewModelTest {
     val actualFriends = friendRequestViewModel.allFriends.value
     assertEquals(emptyList<String>(), actualFriends)
   }
+
+  @Test
+  fun getOtherProfileAllFriendsIsSuccessful(): Unit = runTest {
+    // Arrange
+    val otherProfileId = "otherProfileId"
+    val expectedFriends = listOf("friend1", "friend2", "friend3")
+
+    `when`(mockRepository.getAllFriends(otherProfileId)).thenReturn(expectedFriends)
+
+    var onCompleteCalled = false
+    val onComplete = { onCompleteCalled = true }
+
+    // Act
+    friendRequestViewModel.getOtherProfileAllFriends(otherProfileId, onComplete)
+    advanceUntilIdle() // Wait for coroutine completion
+
+    // Assert
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
+    assertEquals(expectedFriends, actualFriends)
+    assertTrue(onCompleteCalled)
+  }
+
+  @Test
+  fun getOtherProfileAllFriendsReturnsEmptyList(): Unit = runTest {
+    // Arrange
+    val otherProfileId = "otherProfileId"
+    val expectedFriends = emptyList<String>()
+
+    `when`(mockRepository.getAllFriends(otherProfileId)).thenReturn(expectedFriends)
+
+    var onCompleteCalled = false
+    val onComplete = { onCompleteCalled = true }
+
+    // Act
+    friendRequestViewModel.getOtherProfileAllFriends(otherProfileId, onComplete)
+    advanceUntilIdle() // Wait for coroutine completion
+
+    // Assert
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
+    assertEquals(expectedFriends, actualFriends)
+    assertTrue(onCompleteCalled)
+  }
+
 }

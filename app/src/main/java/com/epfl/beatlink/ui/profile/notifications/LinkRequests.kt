@@ -86,13 +86,8 @@ fun LinkRequestsScreen(navigationActions: NavigationActions,
     }
 
     Scaffold(
+        modifier = Modifier.testTag("linkRequestsScreen"),
         topBar = { ScreenTopAppBar("Link Requests", "linkRequestsScreenTitle", navigationActions)  },
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute())
-        },
         content = { innerPadding ->
             Column(
                 modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
@@ -100,7 +95,7 @@ fun LinkRequestsScreen(navigationActions: NavigationActions,
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 TabRow(
                     selectedTabIndex = state,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("tabRow"),
                     containerColor = MaterialTheme.colorScheme.background
                 ) {
                     titles.forEachIndexed { index, title ->

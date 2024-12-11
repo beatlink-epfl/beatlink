@@ -63,8 +63,8 @@ class ProfileTest {
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
 
-    private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
-    private lateinit var friendRequestViewModel: FriendRequestViewModel
+  private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
+  private lateinit var friendRequestViewModel: FriendRequestViewModel
 
   private val profileData =
       ProfileData(
