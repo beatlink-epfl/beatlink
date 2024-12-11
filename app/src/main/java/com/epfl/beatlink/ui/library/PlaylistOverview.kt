@@ -132,7 +132,6 @@ fun PlaylistOverviewScreen(
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Header Section
               Row(
-                  horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
                       Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
@@ -142,36 +141,41 @@ fun PlaylistOverviewScreen(
                       PlaylistCover(coverImage, 135.dp)
                     }
 
-                    // Playlist details
-                    Column(
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceBetween) {
-                          IconWithText(
-                              "@" + selectedPlaylistState.playlistOwner,
-                              "ownerText",
-                              Icons.Outlined.AccountCircle,
-                              TypographyPlaylist.headlineMedium)
-                          if (collabUsernames.isNotEmpty()) {
-                            IconWithText(
-                                collabUsernames.joinToString(", "),
-                                "collaboratorsText",
-                                collab,
-                                TypographyPlaylist.headlineSmall)
-                          }
-                          IconWithText(
-                              if (selectedPlaylistState.playlistPublic) "Public" else "Private",
-                              "publicText",
-                              Icons.Outlined.Lock,
-                              TypographyPlaylist.headlineSmall)
+                    // Spacer for scaling space dynamically
+                    Spacer(modifier = Modifier.weight(0.1f))
 
-                          IconWithText(
-                              "${selectedPlaylistState.nbTracks} tracks",
-                              "nbTracksText",
-                              Icons.Outlined.Star,
-                              TypographyPlaylist.headlineSmall)
-                          Spacer(modifier = Modifier.height(10.dp))
-                          ViewDescriptionButton { showDialogOverlay = true }
-                        }
+                    Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                      // Playlist details
+                      Column(
+                          modifier = Modifier.fillMaxHeight(),
+                          verticalArrangement = Arrangement.SpaceBetween) {
+                            IconWithText(
+                                "@" + selectedPlaylistState.playlistOwner,
+                                "ownerText",
+                                Icons.Outlined.AccountCircle,
+                                TypographyPlaylist.headlineMedium)
+                            if (collabUsernames.isNotEmpty()) {
+                              IconWithText(
+                                  collabUsernames.joinToString(", "),
+                                  "collaboratorsText",
+                                  collab,
+                                  TypographyPlaylist.headlineSmall)
+                            }
+                            IconWithText(
+                                if (selectedPlaylistState.playlistPublic) "Public" else "Private",
+                                "publicText",
+                                Icons.Outlined.Lock,
+                                TypographyPlaylist.headlineSmall)
+
+                            IconWithText(
+                                "${selectedPlaylistState.nbTracks} tracks",
+                                "nbTracksText",
+                                Icons.Outlined.Star,
+                                TypographyPlaylist.headlineSmall)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            ViewDescriptionButton { showDialogOverlay = true }
+                          }
+                    }
                   }
               Spacer(modifier = Modifier.height(16.dp))
 
