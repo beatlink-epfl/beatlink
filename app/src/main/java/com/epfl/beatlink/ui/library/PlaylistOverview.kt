@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -269,7 +268,7 @@ fun PlaylistOverviewScreen(
                               }
                             }
                             // Delete playlist only if creation was successful
-                            playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
+                            playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
                             showDialogExport = false
                             Toast.makeText(
                                     context, "Playlist exported successfully", Toast.LENGTH_SHORT)

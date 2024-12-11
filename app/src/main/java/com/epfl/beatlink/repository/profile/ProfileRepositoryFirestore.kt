@@ -207,6 +207,10 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
+      // Fetch all the friendRequests documents
+      val friendRequestsCollection = db.collection("friendRequests")
+      val allFriendRequestsSnapshot = friendRequestsCollection.get().await()
+
       db.runTransaction { transaction ->
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
@@ -224,18 +228,17 @@ open class ProfileRepositoryFirestore(
               transaction.delete(usernameDocRef)
             }
 
-            // Delete the friendRequests document for the user
+            // Delete the friendRequests document of the user
             val friendRequestDocRef = db.collection("friendRequests").document(userId)
             transaction.delete(friendRequestDocRef)
-            // Clean up references to this user ID in other users' friendRequests
-            val friendRequestsCollection = db.collection("friendRequests")
-            val allFriendRequestsSnapshot = friendRequestsCollection.get().result
+
+            // Loop through all friend requests and clean up references to the userId
             for (doc in allFriendRequestsSnapshot.documents) {
               val docRef = doc.reference
               val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
               val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
 
-              // Remove userId from ownRequests and friendRequests
+              // Remove userId from ownRequests and friendRequests if they exist
               if (updatedOwnRequests?.containsKey(userId) == true) {
                 transaction.update(docRef, "ownRequests.$userId", FieldValue.delete())
               }
