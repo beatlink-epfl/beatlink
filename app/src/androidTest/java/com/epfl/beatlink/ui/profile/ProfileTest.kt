@@ -206,7 +206,7 @@ class ProfileTest {
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
     // Check that music genres are displayed
     profileData.favoriteMusicGenres.forEach { genre ->
-      composeTestRule.onNodeWithText(genre).assertExists()
+      composeTestRule.onNodeWithText(genre).performScrollTo().assertExists()
     }
   }
 
