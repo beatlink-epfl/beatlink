@@ -39,6 +39,9 @@ val ShadowColor = Color(0x1A000000)
 // Border of the Box
 val BorderColor = Color(0xFFEADDFF)
 
+// Offline background
+val OfflineBackground = Color(0x99a09da1)
+
 // DARK THEME
 val darkThemeBackground = Color(0xFF121212) // screen black
 val darkThemeGray1 = Color(0xFF2F2A31)
