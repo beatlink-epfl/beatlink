@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.components.profile
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,20 +59,6 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 /**
  * Displays a detailed profile view in a vertically scrollable column layout, including user profile
  * information, top songs, top artists, playlists, and favorite music genres.
- *
- * @param profileData The [ProfileData] object containing the user's profile information, such as
- *   name, bio, and links. Can be null if no profile data is available.
- * @param navigationAction An instance of [NavigationActions] to handle navigation actions, such as
- *   navigating to the "Edit Profile" screen.
- * @param topSongsState A list of [SpotifyTrack] objects representing the user's top songs.
- * @param topArtistsState A list of [SpotifyArtist] objects representing the user's top artists.
- * @param userPlaylists A list of [UserPlaylist] objects representing the user's playlists.
- * @param paddingValue Padding values to be applied to the column layout.
- * @param profilePicture A mutable state containing the user's profile picture as a [Bitmap].
- * @param ownProfile A boolean variable that determines which type of Profile screen needs to be
- *   displayed.
- * @param buttonTestTag A test tag for a button that changes depending on the Profile screen
- *   displayed
  */
 @Composable
 fun ProfileColumn(
@@ -87,7 +72,6 @@ fun ProfileColumn(
     ownProfile: Boolean
 ) {
     val profileData by profileViewModel.profile.collectAsState()
-    Log.d("PROFILE", "current user profile: ${profileData?.username}")
 
     val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
     val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
@@ -99,9 +83,7 @@ fun ProfileColumn(
 
     val fetchOtherProfileFriends = remember { mutableStateOf(false) }
     val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
-    friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
 
-    val isOwnProfile = selectedUserUserId == ""
 
     val topSongsState =
         if (ownProfile) {
@@ -125,24 +107,17 @@ fun ProfileColumn(
         }
 
     LaunchedEffect(selectedUserUserId, allFriends, fetchOtherProfileFriends) {
-        if (!isOwnProfile) {
+        if (!ownProfile) {
             // Fetch the friends of the displayed user
-            friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
+            friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId) { }
         }
         if (profileData?.links != allFriends.size) {
             profileData?.let { currentProfile ->
-                Log.d("PROFILE_USERNAME", " PROFILE COLUMN -- username of current user before update: ${currentProfile.username} and ${allFriends.size}")
                 profileViewModel.updateNbLinks(currentProfile, allFriends.size)
             }
         }
-        Log.d("PROFILE", "profileColumn:  ${otherProfileAllFriends.size} and nbLinks ${selectedProfileData?.links}")
-        if (selectedProfileData?.links != otherProfileAllFriends.size && selectedUserUserId != "") {
+        if (selectedProfileData?.links != otherProfileAllFriends.size && selectedUserUserId != "" && !fetchOtherProfileFriends.value) {
             selectedProfileData?.let { selectedProfile ->
-                Log.d(
-                    "PROFILE_USERNAME",
-                    " PROFILE COLUMN -- username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}"
-                )
-                Log.d("PROFILE", "PROFILE COLUMN: ID $selectedUserUserId")
                 profileViewModel.updateOtherProfileNbLinks(
                     selectedProfile,
                     selectedUserUserId,
@@ -151,12 +126,6 @@ fun ProfileColumn(
             }
         }
     }
-
-    val profileReady by profileViewModel.profileReady.collectAsState()
-
-    Log.d("PROFILE", "ProfileColumn: Selected User ID: $selectedUserUserId")
-    Log.d("PROFILE", "ProfileColumn: Is Own Profile: $isOwnProfile")
-    Log.d("PROFILE_LINK", "ProfileColumn: FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
 
     Column(
         modifier =
@@ -185,14 +154,7 @@ fun ProfileColumn(
                         .padding(18.dp)
                         .clickable {
                             if (ownProfile) {
-                                profileViewModel.clearSelectedUser()
                                 navigationActions.navigateTo(LINKS)
-                            } else {
-                                profileViewModel.selectSelectedUser(selectedUserUserId)
-                                profileViewModel.fetchUserProfile()
-                                if (profileReady) {
-                                    navigationActions.navigateTo(LINKS)
-                                }
                             }
                         }
                         .testTag("linksCount"))

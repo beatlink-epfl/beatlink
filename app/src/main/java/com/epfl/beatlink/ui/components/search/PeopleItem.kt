@@ -23,11 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.distinctUntilChanged
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.ui.components.LinkButton
 import com.epfl.beatlink.ui.components.ProfileCardLinkButton
-import com.epfl.beatlink.ui.components.ProfileLinkButton
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
@@ -37,35 +34,28 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @Composable
 fun PeopleItem(
-    people: ProfileData?,
+    selectedProfileData: ProfileData?,
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
 ) {
-    LaunchedEffect(Unit) {
-        // profileViewModel.fetchProfile()
-        profileViewModel.clearSelectedUser()
-    }
     val profileData by profileViewModel.profile.collectAsState()
 
     val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
     val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
     val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
-    val displayedUserId = remember { mutableStateOf<String?>(null) }
+    // use only when accepting or removing
     val selectedUserUserId = remember { mutableStateOf("") }
+    val selectedProfileDataNbLinks = remember { mutableStateOf(selectedProfileData?.links) }
 
-    val fetchOtherProfileFriends = remember { mutableStateOf(false) }
-    val otherProfileAllFriends by friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
-    Log.d("PROFILE_LINK","PEOPLE ITEM -- other friend list : $otherProfileAllFriends")
     val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
-    if (people != null) {
-        profileViewModel.getUserIdByUsername(people.username) { uid ->
+    if (selectedProfileData != null) {
+        profileViewModel.getUserIdByUsername(selectedProfileData.username) { uid ->
             if (uid == null) {
                 return@getUserIdByUsername
             } else {
-                displayedUserId.value = uid
                 selectedUserUserId.value = uid
                 profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
             }
@@ -74,41 +64,30 @@ fun PeopleItem(
         Log.d("PeopleItem", "profile data null")
     }
 
-    Log.d("PROFILE_LINK", " PEOPLE ITEM -- selectedUserId: ${selectedUserUserId.value}")
-    Log.d("PROFILE_LINK", " PEOPLE ITEM -- FRIENDS: $allFriends /// OTHER FRIENDS: $otherProfileAllFriends")
-
   var requestStatus =
-      when (displayedUserId.value) {
+      when (selectedUserUserId.value) {
         in ownRequests -> "Requested"
         in friendRequests -> "Accept"
         in allFriends -> "Linked"
         else -> "Link"
       }
 
-    LaunchedEffect(allFriends, fetchOtherProfileFriends.value) {
+    LaunchedEffect(allFriends, selectedProfileDataNbLinks) {
         if (profileData?.links != allFriends.size) {
             profileData?.let { currentProfile ->
-                Log.d("PROFILE_USERNAME", " username of current user before update: ${currentProfile.username} and ${allFriends.size}")
                 profileViewModel.updateNbLinks(currentProfile, allFriends.size)
             }
         }
-        if (fetchOtherProfileFriends.value) {
-            friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId.value)
-            Log.d("PROFILE", "peopleItem: after getOtherProfile ${otherProfileAllFriends.size} and nbLinks ${people?.links}")
-            if (people?.links != otherProfileAllFriends.size) {
-                people?.let { selectedProfile ->
-                    Log.d(
-                        "PROFILE_USERNAME",
-                        " PEOPLE ITEM -- username of selected user before update: ${selectedProfile.username} and ${otherProfileAllFriends.size}"
-                    )
-                    profileViewModel.updateOtherProfileNbLinks(
-                        selectedProfile,
-                        selectedUserUserId.value,
-                        otherProfileAllFriends.size
-                    )
+        if (selectedProfileData?.links != selectedProfileDataNbLinks.value) {
+                selectedProfileData?.let { selectedProfile ->
+                    selectedProfileDataNbLinks.value?.let {
+                        profileViewModel.updateOtherProfileNbLinks(
+                            selectedProfile,
+                            selectedUserUserId.value,
+                            it
+                        )
+                    }
                 }
-            }
-            fetchOtherProfileFriends.value = false // Reset trigger
         }
     }
 
@@ -137,9 +116,9 @@ fun PeopleItem(
             ProfilePicture(profilePicture)
         }
         Spacer(modifier = Modifier.size(10.dp))
-        if (people != null) {
+        if (selectedProfileData != null) {
             Text(
-                text = people.username,
+                text = selectedProfileData.username,
                 style = TypographySongs.titleLarge,
                 modifier = Modifier.testTag("peopleUsername")
             )
@@ -147,7 +126,7 @@ fun PeopleItem(
             Log.d("PeopleItem", "profile data null")
         }
         Spacer(modifier = Modifier.weight(1f))
-        if (profileData != people) {
+        if (profileData != selectedProfileData) {
             ProfileCardLinkButton(
                 buttonText = requestStatus
             ) {
@@ -163,15 +142,16 @@ fun PeopleItem(
                     "Accept" -> {
                         selectedUserUserId.value.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
                         requestStatus = "Linked"
-                        fetchOtherProfileFriends.value = true
+                        selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.plus(1)
                     }
                     "Linked" -> {
                         selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
                         requestStatus = "Link"
-                        fetchOtherProfileFriends.value = true
+                        selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.minus(1)
                     }
                 }
             }
         }
     }
 }
+

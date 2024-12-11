@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,44 +36,29 @@ fun LinksScreen(navigationActions: NavigationActions,
                 profileViewModel: ProfileViewModel,
                 friendRequestViewModel: FriendRequestViewModel) {
 
-    val selectedUserUserId by profileViewModel.selectedUserUserId.collectAsState()
-    val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
-    val isOwnProfile = selectedUserUserId == ""
-
-    val friends by if (isOwnProfile) {
-        // Own profile: Show own friend list
-        friendRequestViewModel.allFriends.observeAsState(emptyList())
-    } else {
-        // Displayed user: Fetch their friend list
-        friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
+    LaunchedEffect(Unit) {
+        profileViewModel.unreadyProfile()
     }
 
-    if (!isOwnProfile) {
-        LaunchedEffect(Unit) {
-                Log.d("LINKS_SCREEN", "LaunchedEffect triggered with User ID: $selectedUserUserId")
-                friendRequestViewModel.getOtherProfileAllFriends(selectedUserUserId)
-        }
+    val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+    val allFriendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
-    }
-
-    val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
-
-    LaunchedEffect(friends) {
+    // Fetches the ProfileData for all friends to display them
+    LaunchedEffect(allFriends) {
         val profiles = mutableSetOf<ProfileData?>()
-        friends.forEach { userId ->
+        allFriends.forEach { userId ->
             profileViewModel.fetchProfileById(userId) { profileData ->
                 if (profileData != null) {
                     profiles.add(profileData)
-                    friendsProfileData.value = profiles.toList()
+                    allFriendsProfileData.value = profiles.toList()
                 }
             }
         }
     }
 
-
     Scaffold(
         topBar = { ScreenTopAppBar(
-            if (isOwnProfile) "Links" else "${selectedProfileData?.username}'s Links",
+           "Links",
             "LinksScreenTitle",
             navigationActions)
         },
@@ -92,7 +74,7 @@ fun LinksScreen(navigationActions: NavigationActions,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (friends.isEmpty()) {
+                if (allFriends.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize().testTag("emptyLinksPrompt"),
                         contentAlignment = Alignment.Center) {
@@ -104,10 +86,10 @@ fun LinksScreen(navigationActions: NavigationActions,
                     }
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(friendsProfileData.value.size) { i ->
-                            val profile = friendsProfileData.value[i]
+                        items(allFriendsProfileData.value.size) { i ->
+                            val profile = allFriendsProfileData.value[i]
                             PeopleItem(
-                                people = profile,
+                                selectedProfileData = profile,
                                 navigationActions = navigationActions,
                                 profileViewModel = profileViewModel,
                                 friendRequestViewModel = friendRequestViewModel

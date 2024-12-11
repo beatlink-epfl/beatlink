@@ -13,6 +13,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 open class FriendRequestViewModel(
@@ -60,18 +62,6 @@ open class FriendRequestViewModel(
     getAllFriends()
   }
 
-  /**
-   * Determines the request status for a specific user.
-   * Returns one of: "Link", "Requested", "Accept", "Linked".
-   */
-  fun getRequestStatus(userId: String?): String {
-    return when (userId) {
-      in _ownRequests.value.orEmpty() -> "Requested"
-      in _friendRequests.value.orEmpty() -> "Accept"
-      in _allFriends.value.orEmpty() -> "Linked"
-      else -> "Link"
-    }
-  }
 
   open fun sendFriendRequestTo(receiverId: String) {
     val senderId = repository.getUserId() ?: return
@@ -178,11 +168,12 @@ open class FriendRequestViewModel(
     }
   }
 
-  fun getOtherProfileAllFriends(otherProfileId: String) {
+  fun getOtherProfileAllFriends(otherProfileId: String, onComplete: () -> Unit) {
     viewModelScope.launch(dispatcher) {
       try {
         val friends = repository.getAllFriends(otherProfileId)
         _otherProfileAllFriends.postValue(friends)
+        onComplete()
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
         _otherProfileAllFriends.postValue(emptyList())

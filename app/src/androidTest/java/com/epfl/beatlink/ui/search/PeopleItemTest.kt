@@ -45,7 +45,7 @@ class PeopleItemTest {
   fun displayAllComponents(): Unit = runTest {
     composeTestRule.setContent {
       PeopleItem(
-          people = userProfile,
+          selectedProfileData = userProfile,
           profileViewModel = mockProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -73,7 +73,7 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser1,
+          selectedProfileData = displayedUser1,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -99,7 +99,7 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser2,
+          selectedProfileData = displayedUser2,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -125,7 +125,7 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser3,
+          selectedProfileData = displayedUser3,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }

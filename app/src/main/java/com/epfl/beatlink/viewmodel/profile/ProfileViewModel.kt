@@ -85,6 +85,7 @@ open class ProfileViewModel(
         if (userStack.isNotEmpty()) {
             val previousUserId = userStack.removeAt(userStack.lastIndex) // Pop the stack
             _selectedUserUserId.value = previousUserId
+            Log.d("PROFILE", "selectedUser: $previousUserId")
         } else {
             unselectSelectedUser() // Clear selection if the stack is empty
         }

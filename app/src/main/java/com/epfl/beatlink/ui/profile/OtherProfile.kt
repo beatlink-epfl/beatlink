@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,7 +29,6 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
-    // LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
     val profileData by profileViewModel.profile.collectAsState()
 
     val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
@@ -66,7 +66,11 @@ fun OtherProfileScreen(
                         contentDescription = "MoreVert",
                         modifier = Modifier.testTag("profileScreenMoreVertButton")
                     )
-                })
+                },
+                goBackManagement = {
+                    profileViewModel.goBackToPreviousUser()
+                }
+                )
         },
         content = { paddingValues ->
             ProfileColumn(

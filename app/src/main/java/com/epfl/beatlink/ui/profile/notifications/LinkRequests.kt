@@ -127,7 +127,7 @@ fun LinkRequestsScreen(navigationActions: NavigationActions,
                                     items(ownRequestProfileData.value.size) { i ->
                                         val profile = ownRequestProfileData.value[i]
                                         PeopleItem(
-                                            people = profile,
+                                            selectedProfileData = profile,
                                             navigationActions = navigationActions,
                                             profileViewModel = profileViewModel,
                                             friendRequestViewModel = friendRequestViewModel
@@ -152,7 +152,7 @@ fun LinkRequestsScreen(navigationActions: NavigationActions,
                                    items(friendRequestProfileData.value.size) { i ->
                                        val profile = friendRequestProfileData.value[i]
                                        PeopleItem(
-                                           people = profile,
+                                           selectedProfileData = profile,
                                            navigationActions = navigationActions,
                                            profileViewModel = profileViewModel,
                                            friendRequestViewModel = friendRequestViewModel
