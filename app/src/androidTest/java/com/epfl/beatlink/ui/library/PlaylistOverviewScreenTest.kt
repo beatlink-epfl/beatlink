@@ -3,6 +3,7 @@ package com.epfl.beatlink.ui.library
 import android.widget.Toast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -115,12 +116,10 @@ class PlaylistOverviewScreenTest {
 
     // Check playlist details are displayed
     composeTestRule
-        .onNodeWithTag("playlistTitle")
-        .assertTextContains(playlistWithTracks.playlistName)
-    composeTestRule
         .onNodeWithTag("ownerText")
         .assertTextContains("@" + playlistWithTracks.playlistOwner)
     composeTestRule.onNodeWithTag("publicText").assertTextContains("Public")
+    composeTestRule.onNodeWithTag("nbTracksText").assertTextEquals("1 tracks")
   }
 
   @Test
