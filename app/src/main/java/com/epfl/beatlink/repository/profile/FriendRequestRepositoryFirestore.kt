@@ -35,18 +35,20 @@ open class FriendRequestRepositoryFirestore(
   // Add a request to the "ownRequests" of the sender and "friendRequests" of the receiver
   override suspend fun sendFriendRequest(senderId: String, receiverId: String) {
     try {
-      // Add to sender's ownRequests
-      db.collection(collectionPath)
-          .document(senderId)
-          .update("ownRequests.$receiverId", true) // Use `true` to denote the UID exists
-          .await()
+      db.runTransaction { transaction ->
+            // Reference to sender's document
+            val senderRef = db.collection(collectionPath).document(senderId)
 
-      // Add to receiver's friendRequests
-      db.collection(collectionPath)
-          .document(receiverId)
-          .update("friendRequests.$senderId", true)
-          .await()
+            // Reference to receiver's document
+            val receiverRef = db.collection(collectionPath).document(receiverId)
 
+            // Update sender's ownRequests
+            transaction.update(senderRef, "ownRequests.$receiverId", true)
+
+            // Update receiver's friendRequests
+            transaction.update(receiverRef, "friendRequests.$senderId", true)
+          }
+          .await()
       Log.d("SEND_FRIEND_REQUEST", "Friend request sent successfully!")
     } catch (e: Exception) {
       Log.e("SEND_FRIEND_REQUEST", "Error sending friend request: ${e.message}")
@@ -56,29 +58,22 @@ open class FriendRequestRepositoryFirestore(
   // Accept a friend request by moving it from "friendRequests" to "allFriends"
   override suspend fun acceptFriendRequest(receiverId: String, senderId: String) {
     try {
-      // Remove from receiver's friendRequests
-      db.collection(collectionPath)
-          .document(receiverId)
-          .update("friendRequests.$senderId", FieldValue.delete())
-          .await()
+      db.runTransaction { transaction ->
+            // References to the relevant documents
+            val receiverRef = db.collection(collectionPath).document(receiverId)
+            val senderRef = db.collection(collectionPath).document(senderId)
 
-      // Remove from sender's ownRequests
-      db.collection(collectionPath)
-          .document(senderId)
-          .update("ownRequests.$receiverId", FieldValue.delete())
-          .await()
+            // Remove from receiver's friendRequests
+            transaction.update(receiverRef, "friendRequests.$senderId", FieldValue.delete())
 
-      // Add to both users' allFriends
-      db.collection(collectionPath)
-          .document(receiverId)
-          .update("allFriends.$senderId", mapOf("status" to "linked"))
-          .await()
+            // Remove from sender's ownRequests
+            transaction.update(senderRef, "ownRequests.$receiverId", FieldValue.delete())
 
-      db.collection(collectionPath)
-          .document(senderId)
-          .update("allFriends.$receiverId", mapOf("status" to "linked"))
+            // Add to both users' allFriends
+            transaction.update(receiverRef, "allFriends.$senderId", mapOf("status" to "linked"))
+            transaction.update(senderRef, "allFriends.$receiverId", mapOf("status" to "linked"))
+          }
           .await()
-
       Log.d("ACCEPT_FRIEND_REQUEST", "Friend request accepted successfully!")
     } catch (e: Exception) {
       Log.e("ACCEPT_FRIEND_REQUEST", "Error accepting friend request: ${e.message}")
@@ -88,63 +83,63 @@ open class FriendRequestRepositoryFirestore(
   // Reject a friend request by removing it from "friendRequests"
   override suspend fun rejectFriendRequest(receiverId: String, senderId: String) {
     try {
-      // Remove from receiver's friendRequests
-      db.collection(collectionPath)
-          .document(receiverId)
-          .update("friendRequests.$senderId", FieldValue.delete())
-          .await()
+      db.runTransaction { transaction ->
+            // References to the relevant documents
+            val receiverRef = db.collection(collectionPath).document(receiverId)
+            val senderRef = db.collection(collectionPath).document(senderId)
 
-      // Remove from sender's ownRequests
-      db.collection(collectionPath)
-          .document(senderId)
-          .update("ownRequests.$receiverId", FieldValue.delete())
-          .await()
+            // Remove from receiver's friendRequests
+            transaction.update(receiverRef, "friendRequests.$senderId", FieldValue.delete())
 
-      println("Friend request rejected successfully!")
+            // Remove from sender's ownRequests
+            transaction.update(senderRef, "ownRequests.$receiverId", FieldValue.delete())
+          }
+          .await()
+      Log.d("REJECT_FRIEND_REQUEST", "Friend request rejected successfully!")
     } catch (e: Exception) {
-      println("Error rejecting friend request: ${e.message}")
+      Log.e("REJECT_FRIEND_REQUEST", "Error rejecting friend request: ${e.message}")
     }
   }
 
   // Cancel a sent friend request by removing it from "ownRequests"
   override suspend fun cancelFriendRequest(senderId: String, receiverId: String) {
     try {
-      // Remove from sender's ownRequests
-      db.collection(collectionPath)
-          .document(senderId)
-          .update("ownRequests.$receiverId", FieldValue.delete())
-          .await()
+      db.runTransaction { transaction ->
+            // References to the relevant documents
+            val senderRef = db.collection(collectionPath).document(senderId)
+            val receiverRef = db.collection(collectionPath).document(receiverId)
 
-      // Remove from receiver's friendRequests
-      db.collection(collectionPath)
-          .document(receiverId)
-          .update("friendRequests.$senderId", FieldValue.delete())
-          .await()
+            // Remove from sender's ownRequests
+            transaction.update(senderRef, "ownRequests.$receiverId", FieldValue.delete())
 
-      println("Friend request canceled successfully!")
+            // Remove from receiver's friendRequests
+            transaction.update(receiverRef, "friendRequests.$senderId", FieldValue.delete())
+          }
+          .await()
+      Log.d("CANCEL_FRIEND_REQUEST", "Friend request canceled successfully!")
     } catch (e: Exception) {
-      println("Error canceling friend request: ${e.message}")
+      Log.e("CANCEL_FRIEND_REQUEST", "Error canceling friend request: ${e.message}")
     }
   }
 
   // Remove a friend by deleting from "allFriends"
   override suspend fun removeFriend(userId: String, friendId: String) {
     try {
-      // Remove from user's allFriends
-      db.collection(collectionPath)
-          .document(userId)
-          .update("allFriends.$friendId", FieldValue.delete())
-          .await()
+      db.runTransaction { transaction ->
+            // References to the relevant documents
+            val userRef = db.collection(collectionPath).document(userId)
+            val friendRef = db.collection(collectionPath).document(friendId)
 
-      // Remove from friend's allFriends
-      db.collection(collectionPath)
-          .document(friendId)
-          .update("allFriends.$userId", FieldValue.delete())
-          .await()
+            // Remove the friend from the user's allFriends
+            transaction.update(userRef, "allFriends.$friendId", FieldValue.delete())
 
-      println("Friend removed successfully!")
+            // Remove the user from the friend's allFriends
+            transaction.update(friendRef, "allFriends.$userId", FieldValue.delete())
+          }
+          .await()
+      Log.d("REMOVE_FRIEND", "Friend removed successfully!")
     } catch (e: Exception) {
-      println("Error removing friend: ${e.message}")
+      Log.e("REMOVE_FRIEND", "Error removing friend: ${e.message}")
     }
   }
 
@@ -152,10 +147,16 @@ open class FriendRequestRepositoryFirestore(
   override suspend fun getOwnRequests(userId: String): List<String> {
     return try {
       val document = db.collection(collectionPath).document(userId).get().await()
-      val ownRequests = document.get("ownRequests") as? Map<String, Boolean>
-      ownRequests?.keys?.toList() ?: emptyList()
+      val ownRequests = document.data?.get("ownRequests") as? Map<*, *>
+
+      // Safely process the map
+      ownRequests
+          ?.filterKeys { it is String }
+          ?.filterValues { it is Boolean && it }
+          ?.keys
+          ?.map { it as String } ?: emptyList()
     } catch (e: Exception) {
-      println("Error fetching own requests: ${e.message}")
+      Log.e("GET_OWN_REQUESTS", "Error fetching own requests: ${e.message}")
       emptyList()
     }
   }
@@ -164,10 +165,16 @@ open class FriendRequestRepositoryFirestore(
   override suspend fun getFriendRequests(userId: String): List<String> {
     return try {
       val document = db.collection(collectionPath).document(userId).get().await()
-      val friendRequests = document.get("friendRequests") as? Map<String, Boolean>
-      friendRequests?.keys?.toList() ?: emptyList()
+      val friendRequests = document.data?.get("friendRequests") as? Map<*, *>
+
+      // Safely process the map
+      friendRequests
+          ?.filterKeys { it is String }
+          ?.filterValues { it is Boolean && it }
+          ?.keys
+          ?.map { it as String } ?: emptyList()
     } catch (e: Exception) {
-      println("Error fetching friend requests: ${e.message}")
+      Log.e("GET_FRIEND_REQUESTS", "Error fetching friend requests: ${e.message}")
       emptyList()
     }
   }
@@ -176,10 +183,16 @@ open class FriendRequestRepositoryFirestore(
   override suspend fun getAllFriends(userId: String): List<String> {
     return try {
       val document = db.collection(collectionPath).document(userId).get().await()
-      val allFriends = document.get("allFriends") as? Map<String, Map<String, String>>
-      allFriends?.keys?.toList() ?: emptyList()
+      val allFriends = document.data?.get("allFriends") as? Map<*, *>
+
+      // Safely process the map
+      allFriends
+          ?.filterKeys { it is String }
+          ?.filterValues { it is Map<*, *> }
+          ?.keys
+          ?.map { it as String } ?: emptyList()
     } catch (e: Exception) {
-      println("Error fetching friends: ${e.message}")
+      Log.e("GET_ALL_FRIENDS", "Error fetching all friends: ${e.message}")
       emptyList()
     }
   }
