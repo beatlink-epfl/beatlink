@@ -37,8 +37,15 @@ fun ViewDescriptionOverlay(onDismissRequest: () -> Unit, description: String) {
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(10.dp))) {
               Row(
-                  modifier = Modifier.fillMaxWidth().padding(6.dp),
-                  horizontalArrangement = Arrangement.End) {
+                  modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                  horizontalArrangement = Arrangement.SpaceBetween,
+                  verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Description",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.testTag("descriptionTitle"))
+
                     CloseButton { onDismissRequest() }
                   }
               Box(
