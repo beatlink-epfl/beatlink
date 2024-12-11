@@ -31,8 +31,6 @@ import com.epfl.beatlink.ui.components.SettingsSwitch
 import com.epfl.beatlink.ui.components.library.CollaboratorsSection
 import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.PlaylistModifierColumn
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.CREATE_NEW_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
@@ -95,12 +93,6 @@ fun CreateNewPlaylistScreen(
       modifier = Modifier.testTag("createNewPlaylistScreen"),
       topBar = {
         ScreenTopAppBar("Create a new playlist", "createNewPlaylistTitle", navigationActions)
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
         PlaylistModifierColumn(innerPadding) {

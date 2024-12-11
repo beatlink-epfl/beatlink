@@ -12,7 +12,6 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Before
@@ -63,8 +62,6 @@ class CreateNewPlaylistScreenTest {
         .assertTextEquals("Create a new playlist")
     // The back button is displayed
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
-    // The bottom nav bar is displayed
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     // The playlist cover rectangle is displayed
     composeTestRule.onNodeWithTag("playlistCover").assertIsDisplayed()
     // The input field for title is displayed
@@ -113,17 +110,5 @@ class CreateNewPlaylistScreenTest {
     composeTestRule.onNodeWithTag("collabButton").performClick()
     // Verify the overlay is visible after the click
     composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
-  }
-
-  @Test
-  fun testNavigation() {
-    composeTestRule.onNodeWithTag("Home").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-    composeTestRule.onNodeWithTag("Search").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-    composeTestRule.onNodeWithTag("Library").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }

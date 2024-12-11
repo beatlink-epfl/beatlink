@@ -28,6 +28,7 @@ class ViewDescriptionOverlayTest {
     composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
     composeTestRule.onNodeWithTag("description").assertIsDisplayed()
     composeTestRule.onNodeWithTag("closeButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("descriptionTitle").assertIsDisplayed()
   }
 
   @Test
