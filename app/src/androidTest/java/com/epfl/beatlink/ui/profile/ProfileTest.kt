@@ -348,4 +348,19 @@ class ProfileTest {
     composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
     verify(navigationActions).navigateTo(Screen.SETTINGS)
   }
+
+  @Test
+  fun linksTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          friendRequestViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+
+    composeTestRule.onNodeWithTag("linksCount").performClick()
+    verify(navigationActions).navigateTo(Screen.LINKS)
+  }
 }

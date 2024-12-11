@@ -113,7 +113,7 @@ fun ProfileColumn(
     }
     if (selectedProfileData?.links != otherProfileAllFriends.size &&
         selectedUserUserId != "" &&
-        !fetchOtherProfileFriends.value) {
+        fetchOtherProfileFriends.value) {
       selectedProfileData?.let { selectedProfile ->
         profileViewModel.updateOtherProfileNbLinks(
             selectedProfile, selectedUserUserId, otherProfileAllFriends.size)
@@ -168,10 +168,12 @@ fun ProfileColumn(
                   "Accept" -> {
                     selectedUserUserId.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
                     requestStatus = "Linked"
+                    fetchOtherProfileFriends.value = true
                   }
                   "Linked" -> {
                     selectedUserUserId.let { friendRequestViewModel.removeFriend(it) }
                     requestStatus = "Link"
+                    fetchOtherProfileFriends.value = true
                   }
                 }
               }

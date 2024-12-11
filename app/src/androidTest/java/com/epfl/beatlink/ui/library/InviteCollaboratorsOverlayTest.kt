@@ -23,24 +23,30 @@ class InviteCollaboratorsOverlayTest {
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
+  }
 
+  @Test
+  fun everythingIsDisplayed() {
     composeTestRule.setContent {
       InviteCollaboratorsOverlay(
           navigationActions,
           viewModel(factory = ProfileViewModel.Factory),
           viewModel(factory = FriendRequestViewModel.Factory),
-          {})
+      ) {}
     }
-  }
-
-  @Test
-  fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
     composeTestRule.onNodeWithTag("searchBar").assertIsDisplayed()
   }
 
   @Test
   fun searchBarNavigatesToInviteCollaboratorsScreen() {
+    composeTestRule.setContent {
+      InviteCollaboratorsOverlay(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+      ) {}
+    }
     composeTestRule.onNodeWithTag("searchBar").performClick()
     verify(navigationActions).navigateTo(INVITE_COLLABORATORS)
   }

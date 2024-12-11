@@ -15,6 +15,7 @@ class FakeProfileViewModel(
   private val fakeProfiles = mutableListOf<ProfileData>()
   private val fakeProfilePictures = mutableMapOf<String, Bitmap>()
   private var fakeUserIdByUsername = mutableMapOf<String, String>()
+  private val fakeProfileDateById = mutableMapOf<String, ProfileData>()
 
   override fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit) {
     val result = fakeProfiles.filter { it.username.contains(query, ignoreCase = true) }
@@ -31,8 +32,9 @@ class FakeProfileViewModel(
   }
 
   override fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
-    val fakeProfile = fakeProfiles.find { it.username == userId }
-    onResult(fakeProfile)
+    // Return the fake profile if the userId exists in the map
+    val profile = fakeProfileDateById[userId]
+    onResult(profile)
   }
 
   override fun loadProfilePicture(userId: String?, onBitmapLoaded: (Bitmap?) -> Unit) {
@@ -52,8 +54,19 @@ class FakeProfileViewModel(
     (profile as MutableStateFlow).value = profileData
   }
 
+  // Adding some fake profiles to return
+  fun setFakeProfileDateById(profiles: List<ProfileData>) {
+    profiles.forEach { profile ->
+      fakeProfileDateById[profile.username] = profile // Assume username is userId
+    }
+  }
+
   fun setFakeSelectedProfile(selectedProfileData: ProfileData) {
     (selectedUserProfile as MutableStateFlow).value = selectedProfileData
+  }
+
+  fun setFakeSelectedId(id: String) {
+    (selectedUserUserId as MutableStateFlow).value = id
   }
 
   fun setFakeProfiles(profiles: List<ProfileData>) {

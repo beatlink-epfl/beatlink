@@ -9,12 +9,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
-import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
-import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
@@ -22,6 +22,7 @@ import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -50,11 +51,17 @@ class OtherProfileTest {
   private lateinit var spotifyApiRepository: SpotifyApiRepository
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
-  private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
-  private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var mockFriendRequestRepository: FriendRequestRepository
+  private lateinit var mockFriendRequestViewModel: FriendRequestViewModel
+  private lateinit var mockProfileRepository: ProfileRepository
+  private lateinit var mockProfileViewModel: ProfileViewModel
 
-  private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
-  private lateinit var friendRequestViewModel: FriendRequestViewModel
+  private val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+
+  private val userProfile = ProfileData(username = "user")
+  private val displayedUser1 = ProfileData(username = "username1")
+  private val displayedUser2 = ProfileData(username = "username2")
+  private val displayedUser3 = ProfileData(username = "username3")
 
   private var topSongs =
       listOf(
@@ -100,12 +107,11 @@ class OtherProfileTest {
     MockitoAnnotations.openMocks(this)
     Dispatchers.setMain(testDispatcher)
 
-    profileRepositoryFirestore = mock(ProfileRepositoryFirestore::class.java)
-    profileViewModel =
-        ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
+    mockProfileRepository = mock(ProfileRepository::class.java)
+    mockProfileViewModel = mockk(relaxed = true)
 
-    friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
-    friendRequestViewModel = FriendRequestViewModel(friendRequestRepositoryFirestore)
+    mockFriendRequestRepository = mock(FriendRequestRepository::class.java)
+    mockFriendRequestViewModel = mockk(relaxed = true)
 
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
@@ -129,7 +135,7 @@ class OtherProfileTest {
   fun elementsAreDisplayed() {
     composeTestRule.setContent {
       OtherProfileScreen(
-          profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+          mockProfileViewModel, mockFriendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
 
     // Check if the icons are displayed
@@ -168,10 +174,35 @@ class OtherProfileTest {
 
     composeTestRule.setContent {
       OtherProfileScreen(
-          fakeProfileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+          fakeProfileViewModel, mockFriendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
 
     composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed().assertTextEquals("Link")
   }
+
+  //    @OptIn(ExperimentalCoroutinesApi::class)
+  //    @Test
+  //    fun linkButtonDisplaysRequest(): Unit = runTest {
+  //        val displayedUserId = "TestId1"
+  //        val ownRequests = listOf("TestId1", "testId2")
+  //        val fakeProfileViewModel = FakeProfileViewModel()
+  //        fakeProfileViewModel.setFakeSelectedProfile(displayedUser1)
+  //        fakeProfileViewModel.setFakeSelectedId(displayedUserId)
+  //
+  //        fakeFriendRequestViewModel.setOwnRequests(ownRequests)
+  //
+  //        composeTestRule.setContent {
+  //            OtherProfileScreen(
+  //                profileViewModel = fakeProfileViewModel,
+  //                friendRequestViewModel = fakeFriendRequestViewModel,
+  //                navigationActions,
+  //                spotifyApiViewModel)
+  //        }
+  //        advanceUntilIdle()
+  //
+  //        composeTestRule.onNodeWithText("Requested").assertExists()
+  //        composeTestRule.onNodeWithTag("linkedButton").assertExists()
+  //    }
+
 }
