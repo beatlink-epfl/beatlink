@@ -43,23 +43,24 @@ fun InviteCollaboratorsOverlay(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
-    onDismissRequest: () -> Unit) {
+    onDismissRequest: () -> Unit
+) {
   val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
-    val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
-    val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
+  val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+  val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
-    LaunchedEffect(friends) {
-        val profiles = mutableSetOf<ProfileData?>()
-        friends.forEach { userId ->
-            profileViewModel.fetchProfileById(userId) { profileData ->
-                if (profileData != null) {
-                    profiles.add(profileData)
-                    friendsProfileData.value = profiles.toList()
-                }
-            }
+  LaunchedEffect(friends) {
+    val profiles = mutableSetOf<ProfileData?>()
+    friends.forEach { userId ->
+      profileViewModel.fetchProfileById(userId) { profileData ->
+        if (profileData != null) {
+          profiles.add(profileData)
+          friendsProfileData.value = profiles.toList()
         }
+      }
     }
+  }
 
   ReusableOverlay(
       onDismissRequest = onDismissRequest,
@@ -106,11 +107,16 @@ fun InviteCollaboratorsOverlay(
               modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 10.dp),
               verticalArrangement = Arrangement.spacedBy(11.dp)) {
                 items(friendsProfileData.value.size) { i ->
-                    val profile = friendsProfileData.value[i]
-                    if (profile != null) {
-                        CollaboratorCard(
-                            profile.name, profile.username, profilePicture, false, onAdd = {}, onRemove = {})
-                    }
+                  val profile = friendsProfileData.value[i]
+                  if (profile != null) {
+                    CollaboratorCard(
+                        profile.name,
+                        profile.username,
+                        profilePicture,
+                        false,
+                        onAdd = {},
+                        onRemove = {})
+                  }
                 }
               }
         }

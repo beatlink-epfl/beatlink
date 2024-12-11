@@ -28,300 +28,285 @@ open class ProfileViewModel(
     initialProfile: ProfileData? = null
 ) : ViewModel() {
 
-    /** Represents the result of username validation. */
-    sealed class UsernameValidationResult {
-        /** Indicates that the username is valid. */
-        object Valid : UsernameValidationResult()
-
-        /**
-         * Indicates that the username is invalid.
-         *
-         * @param errorMessage A message describing why the username is invalid.
-         */
-        data class Invalid(val errorMessage: String) : UsernameValidationResult()
-    }
-
-    private val _profile = MutableStateFlow(initialProfile)
-    val profile: StateFlow<ProfileData?>
-        get() = _profile
-
-    private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
-    val searchResult: LiveData<List<ProfileData>>
-        get() = _searchResult
-
-    private val _isProfileUpdated = MutableStateFlow(false)
-    val isProfileUpdated: StateFlow<Boolean>
-        get() = _isProfileUpdated
-
-    val profilePicture = mutableStateOf<Bitmap?>(null)
-
-    private val _profileReady = MutableStateFlow(false)
-    val profileReady: StateFlow<Boolean>
-        get() = _profileReady
-
-    // Stack-like structure to hold user navigation history
-    private val userStack = mutableListOf<String>()
-
-    private val _selectedUserUserId = MutableStateFlow("")
-    val selectedUserUserId: StateFlow<String>
-        get() = _selectedUserUserId
-
-    private val _selectedUserProfile = MutableStateFlow(initialProfile)
-    val selectedUserProfile: StateFlow<ProfileData?>
-        get() = _selectedUserProfile
-
-    fun selectSelectedUser(userId: String) {
-        if (_selectedUserUserId.value.isNotEmpty()) {
-            userStack.add(_selectedUserUserId.value) // Push current user to the stack
-        }
-        _selectedUserUserId.value = userId
-    }
+  /** Represents the result of username validation. */
+  sealed class UsernameValidationResult {
+    /** Indicates that the username is valid. */
+    object Valid : UsernameValidationResult()
 
     /**
-     * Pops the last user ID from the stack and sets it as the selected user.
-     * If the stack is empty, clears the selected user.
-     */
-    fun goBackToPreviousUser() {
-        if (userStack.isNotEmpty()) {
-            val previousUserId = userStack.removeAt(userStack.lastIndex) // Pop the stack
-            _selectedUserUserId.value = previousUserId
-            Log.d("PROFILE", "selectedUser: $previousUserId")
-        } else {
-            unselectSelectedUser() // Clear selection if the stack is empty
-        }
-    }
-    /**
-     * Clears the selected user and resets the stack.
-     */
-    fun unselectSelectedUser() {
-        _selectedUserUserId.value = ""
-        userStack.clear()
-    }
-
-    fun unreadyProfile() {
-        _profileReady.value = false
-    }
-
-    /** Function that updates the profileUpdate flag to true */
-    fun markProfileAsUpdated() {
-        _isProfileUpdated.value = true
-    }
-
-    /** Function that resets the profileUpdate flag to false */
-    fun markProfileAsNotUpdated() {
-        _isProfileUpdated.value = false
-    }
-
-    fun clearSelectedUser() {
-        _selectedUserUserId.value = ""
-        _selectedUserProfile.value = null
-    }
-
-    fun getUsername(userId: String, onResult: (String?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val username = repository.getUsername(userId)
-                onResult(username)
-            } catch (e: Exception) {
-                Log.e("ERROR", "Error fetching username", e)
-                onResult(null)
-            }
-        }
-    }
-
-    open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val userId = repository.getUserIdByUsername(username)
-                onResult(userId)
-            } catch (e: Exception) {
-                Log.e("ERROR", "Error fetching user id", e)
-                onResult(null)
-            }
-        }
-    }
-
-    open fun fetchProfile() {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch {
-            val userProfile = repository.fetchProfile(userId)
-            _profile.value = userProfile
-        }
-    }
-
-    open fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
-        viewModelScope.launch {
-            try {
-                val userProfileData = repository.fetchProfile(userId)
-                onResult(userProfileData)
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error fetching user profile", e)
-                onResult(null)
-            }
-        }
-    }
-
-    open fun fetchUserProfile() {
-        _profileReady.value = false
-        viewModelScope.launch {
-            val userProfile = repository.fetchProfile(_selectedUserUserId.value)
-            _selectedUserProfile.value = userProfile
-            _profileReady.value = true
-        }
-    }
-
-    open fun addProfile(profileData: ProfileData) {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch {
-            val success = repository.addProfile(userId, profileData)
-            if (success) {
-                _profile.value = profileData
-            }
-        }
-    }
-
-    open fun updateProfile(profileData: ProfileData) {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch {
-            val success = repository.updateProfile(userId, profileData)
-            if (success) {
-                _profile.value = profileData
-            }
-        }
-    }
-
-    open fun deleteProfile() {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch {
-            if (repository.deleteProfile(userId)) {
-                _profile.value = null
-            } else {
-                Log.e("DELETE_PROFILE", "Error deleting profile")
-            }
-        }
-    }
-
-    open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
-        val userId = repository.getUserId() ?: return
-        viewModelScope.launch {
-            try {
-                val updatedProfile = profileData.copy(links = nbLinks)
-                val success = repository.updateProfile(userId, updatedProfile)
-                if (success) {
-                    _profile.emit(updatedProfile)
-                  _profile.value = updatedProfile
-                }
-            } catch (e: Exception) {
-                Log.e("ProfileViewModel", "Error updating links: ${e.message}")
-            }
-        }
-    }
-
-    open fun updateOtherProfileNbLinks(
-        otherProfileData: ProfileData,
-        otherProfileUserId: String,
-        nbLinks: Int
-    ) {
-        viewModelScope.launch {
-            try {
-                val updatedProfile = otherProfileData.copy(links = nbLinks)
-                val success = repository.updateProfile(otherProfileUserId, updatedProfile)
-                if (success) {
-                    _selectedUserProfile.emit(updatedProfile)
-                  _selectedUserProfile.value = updatedProfile
-                }
-            } catch (e: Exception) {
-                Log.e("ProfileViewModel", "Error updating links: ${e.message}")
-            }
-        }
-    }
-
-    open fun loadProfilePicture(
-        userId: String? = repository.getUserId(),
-        onBitmapLoaded: (Bitmap?) -> Unit
-    ) {
-        if (userId == null) {
-            return
-        }
-        return repository.loadProfilePicture(userId, onBitmapLoaded)
-    }
-
-    open fun loadSelectedUserProfilePicture(
-        userId: String? = _selectedUserUserId.value,
-        onBitmapLoaded: (Bitmap?) -> Unit
-    ) {
-        if (userId == null) {
-            return
-        }
-        return repository.loadProfilePicture(userId, onBitmapLoaded)
-    }
-
-    open fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit = {}) {
-        viewModelScope.launch {
-            try {
-                val profiles = repository.searchUsers(query)
-                _searchResult.value = profiles
-                callback(profiles)
-            } catch (e: Exception) {
-                Log.e("SEARCH_PROFILES", "Error searching profiles: ${e.message}")
-                _searchResult.value = emptyList()
-            }
-        }
-    }
-
-    /**
-     * Verify the validity of a username based on specific criteria.
+     * Indicates that the username is invalid.
      *
-     * @param username The username to be verified.
-     * @param onResult A callback function that is called with the result of the validation.
+     * @param errorMessage A message describing why the username is invalid.
      */
-    fun verifyUsername(username: String, onResult: (UsernameValidationResult) -> Unit) {
-        viewModelScope.launch {
-            val result =
-                when {
-                    username.length !in 1..30 ->
-                        UsernameValidationResult.Invalid("Username must be between 1 and 30 characters")
+    data class Invalid(val errorMessage: String) : UsernameValidationResult()
+  }
 
-                    !username.matches("^[a-zA-Z0-9._]+$".toRegex()) ->
-                        UsernameValidationResult.Invalid(
-                            "Username can only contain letters, numbers, dots and underscores"
-                        )
+  private val _profile = MutableStateFlow(initialProfile)
+  val profile: StateFlow<ProfileData?>
+    get() = _profile
 
-                    username.startsWith(".") || username.endsWith(".") ->
-                        UsernameValidationResult.Invalid("Username cannot start or end with a dot")
+  private val _searchResult = MutableLiveData<List<ProfileData>>(emptyList())
+  val searchResult: LiveData<List<ProfileData>>
+    get() = _searchResult
 
-                    username.contains("..") ->
-                        UsernameValidationResult.Invalid("Username cannot have consecutive dots")
+  private val _isProfileUpdated = MutableStateFlow(false)
+  val isProfileUpdated: StateFlow<Boolean>
+    get() = _isProfileUpdated
 
-                    username.contains("___") ->
-                        UsernameValidationResult.Invalid(
-                            "Username cannot have more than two consecutive underscores"
-                        )
+  val profilePicture = mutableStateOf<Bitmap?>(null)
 
-                    !repository.isUsernameAvailable(username) ->
-                        UsernameValidationResult.Invalid("Username is already taken")
+  private val _profileReady = MutableStateFlow(false)
+  val profileReady: StateFlow<Boolean>
+    get() = _profileReady
 
-                    else -> UsernameValidationResult.Valid
-                }
-            onResult(result)
+  // Stack-like structure to hold user navigation history
+  private val userStack = mutableListOf<String>()
+
+  private val _selectedUserUserId = MutableStateFlow("")
+  val selectedUserUserId: StateFlow<String>
+    get() = _selectedUserUserId
+
+  private val _selectedUserProfile = MutableStateFlow(initialProfile)
+  val selectedUserProfile: StateFlow<ProfileData?>
+    get() = _selectedUserProfile
+
+  fun selectSelectedUser(userId: String) {
+    if (_selectedUserUserId.value.isNotEmpty()) {
+      userStack.add(_selectedUserUserId.value) // Push current user to the stack
+    }
+    _selectedUserUserId.value = userId
+  }
+
+  /**
+   * Pops the last user ID from the stack and sets it as the selected user. If the stack is empty,
+   * clears the selected user.
+   */
+  fun goBackToPreviousUser() {
+    if (userStack.isNotEmpty()) {
+      val previousUserId = userStack.removeAt(userStack.lastIndex) // Pop the stack
+      _selectedUserUserId.value = previousUserId
+      Log.d("PROFILE", "selectedUser: $previousUserId")
+    } else {
+      unselectSelectedUser() // Clear selection if the stack is empty
+    }
+  }
+  /** Clears the selected user and resets the stack. */
+  fun unselectSelectedUser() {
+    _selectedUserUserId.value = ""
+    userStack.clear()
+  }
+
+  fun unreadyProfile() {
+    _profileReady.value = false
+  }
+
+  /** Function that updates the profileUpdate flag to true */
+  fun markProfileAsUpdated() {
+    _isProfileUpdated.value = true
+  }
+
+  /** Function that resets the profileUpdate flag to false */
+  fun markProfileAsNotUpdated() {
+    _isProfileUpdated.value = false
+  }
+
+  fun clearSelectedUser() {
+    _selectedUserUserId.value = ""
+    _selectedUserProfile.value = null
+  }
+
+  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val username = repository.getUsername(userId)
+        onResult(username)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching username", e)
+        onResult(null)
+      }
+    }
+  }
+
+  open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userId = repository.getUserIdByUsername(username)
+        onResult(userId)
+      } catch (e: Exception) {
+        Log.e("ERROR", "Error fetching user id", e)
+        onResult(null)
+      }
+    }
+  }
+
+  open fun fetchProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val userProfile = repository.fetchProfile(userId)
+      _profile.value = userProfile
+    }
+  }
+
+  open fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userProfileData = repository.fetchProfile(userId)
+        onResult(userProfileData)
+      } catch (e: Exception) {
+        Log.e("ViewModel", "Error fetching user profile", e)
+        onResult(null)
+      }
+    }
+  }
+
+  open fun fetchUserProfile() {
+    _profileReady.value = false
+    viewModelScope.launch {
+      val userProfile = repository.fetchProfile(_selectedUserUserId.value)
+      _selectedUserProfile.value = userProfile
+      _profileReady.value = true
+    }
+  }
+
+  open fun addProfile(profileData: ProfileData) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.addProfile(userId, profileData)
+      if (success) {
+        _profile.value = profileData
+      }
+    }
+  }
+
+  open fun updateProfile(profileData: ProfileData) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      val success = repository.updateProfile(userId, profileData)
+      if (success) {
+        _profile.value = profileData
+      }
+    }
+  }
+
+  open fun deleteProfile() {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      if (repository.deleteProfile(userId)) {
+        _profile.value = null
+      } else {
+        Log.e("DELETE_PROFILE", "Error deleting profile")
+      }
+    }
+  }
+
+  open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      try {
+        val updatedProfile = profileData.copy(links = nbLinks)
+        val success = repository.updateProfile(userId, updatedProfile)
+        if (success) {
+          _profile.emit(updatedProfile)
+          _profile.value = updatedProfile
         }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
+      }
     }
+  }
 
-    // Create factory
-    companion object {
-        val Factory: ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    return ProfileViewModel(
-                        ProfileRepositoryFirestore(
-                            Firebase.firestore,
-                            firebaseAuth
-                        )
-                    )
-                            as T
-                }
-            }
+  open fun updateOtherProfileNbLinks(
+      otherProfileData: ProfileData,
+      otherProfileUserId: String,
+      nbLinks: Int
+  ) {
+    viewModelScope.launch {
+      try {
+        val updatedProfile = otherProfileData.copy(links = nbLinks)
+        val success = repository.updateProfile(otherProfileUserId, updatedProfile)
+        if (success) {
+          _selectedUserProfile.emit(updatedProfile)
+          _selectedUserProfile.value = updatedProfile
+        }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
+      }
     }
+  }
+
+  open fun loadProfilePicture(
+      userId: String? = repository.getUserId(),
+      onBitmapLoaded: (Bitmap?) -> Unit
+  ) {
+    if (userId == null) {
+      return
+    }
+    return repository.loadProfilePicture(userId, onBitmapLoaded)
+  }
+
+  open fun loadSelectedUserProfilePicture(
+      userId: String? = _selectedUserUserId.value,
+      onBitmapLoaded: (Bitmap?) -> Unit
+  ) {
+    if (userId == null) {
+      return
+    }
+    return repository.loadProfilePicture(userId, onBitmapLoaded)
+  }
+
+  open fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit = {}) {
+    viewModelScope.launch {
+      try {
+        val profiles = repository.searchUsers(query)
+        _searchResult.value = profiles
+        callback(profiles)
+      } catch (e: Exception) {
+        Log.e("SEARCH_PROFILES", "Error searching profiles: ${e.message}")
+        _searchResult.value = emptyList()
+      }
+    }
+  }
+
+  /**
+   * Verify the validity of a username based on specific criteria.
+   *
+   * @param username The username to be verified.
+   * @param onResult A callback function that is called with the result of the validation.
+   */
+  fun verifyUsername(username: String, onResult: (UsernameValidationResult) -> Unit) {
+    viewModelScope.launch {
+      val result =
+          when {
+            username.length !in 1..30 ->
+                UsernameValidationResult.Invalid("Username must be between 1 and 30 characters")
+            !username.matches("^[a-zA-Z0-9._]+$".toRegex()) ->
+                UsernameValidationResult.Invalid(
+                    "Username can only contain letters, numbers, dots and underscores")
+            username.startsWith(".") || username.endsWith(".") ->
+                UsernameValidationResult.Invalid("Username cannot start or end with a dot")
+            username.contains("..") ->
+                UsernameValidationResult.Invalid("Username cannot have consecutive dots")
+            username.contains("___") ->
+                UsernameValidationResult.Invalid(
+                    "Username cannot have more than two consecutive underscores")
+            !repository.isUsernameAvailable(username) ->
+                UsernameValidationResult.Invalid("Username is already taken")
+            else -> UsernameValidationResult.Valid
+          }
+      onResult(result)
+    }
+  }
+
+  // Create factory
+  companion object {
+    val Factory: ViewModelProvider.Factory =
+        object : ViewModelProvider.Factory {
+          @Suppress("UNCHECKED_CAST")
+          override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val firebaseAuth = FirebaseAuth.getInstance()
+            return ProfileViewModel(ProfileRepositoryFirestore(Firebase.firestore, firebaseAuth))
+                as T
+          }
+        }
+  }
 }

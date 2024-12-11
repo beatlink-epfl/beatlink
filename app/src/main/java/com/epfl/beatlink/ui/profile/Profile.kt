@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -10,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -40,71 +38,67 @@ fun ProfileScreen(
     spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
-    val profileData by profileViewModel.profile.collectAsState()
+  val profileData by profileViewModel.profile.collectAsState()
 
-    // Load Profile Picture
-    LaunchedEffect(Unit) {
-        profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
-    }
+  // Load Profile Picture
+  LaunchedEffect(Unit) {
+    profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+  }
 
-    val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
-    val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
-    val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
+  val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
+  val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
+  val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
-    // Fetch top songs and top artists
-    LaunchedEffect(spotifyApiViewModel) {
-        spotifyApiViewModel.getCurrentUserTopTracks(
-            onSuccess = { tracks -> topSongsState.value = tracks },
-            onFailure = { topSongsState.value = emptyList() })
-        spotifyApiViewModel.getCurrentUserTopArtists(
-            onSuccess = { artists -> topArtistsState.value = artists },
-            onFailure = { topArtistsState.value = emptyList() })
-        spotifyApiViewModel.getCurrentUserPlaylists(
-            onSuccess = { playlist -> userPlaylists.value = playlist },
-            onFailure = { userPlaylists.value = emptyList() })
-    }
+  // Fetch top songs and top artists
+  LaunchedEffect(spotifyApiViewModel) {
+    spotifyApiViewModel.getCurrentUserTopTracks(
+        onSuccess = { tracks -> topSongsState.value = tracks },
+        onFailure = { topSongsState.value = emptyList() })
+    spotifyApiViewModel.getCurrentUserTopArtists(
+        onSuccess = { artists -> topArtistsState.value = artists },
+        onFailure = { topArtistsState.value = emptyList() })
+    spotifyApiViewModel.getCurrentUserPlaylists(
+        onSuccess = { playlist -> userPlaylists.value = playlist },
+        onFailure = { userPlaylists.value = emptyList() })
+  }
 
-    Scaffold(
-        modifier = Modifier.testTag("profileScreen"),
-        topBar = {
-            PageTopAppBar(
-                profileData?.username ?: "",
-                "titleUsername",
-                listOf {
-                    CornerIcons(
-                        onClick = { navigationAction.navigateTo(NOTIFICATIONS) },
-                        icon = Icons.Filled.Notifications,
-                        contentDescription = "Notifications",
-                        modifier = Modifier.testTag("profileScreenNotificationsButton")
-                    )
-                    CornerIcons(
-                        onClick = { navigationAction.navigateTo(SETTINGS) },
-                        icon = Icons.Filled.Settings,
-                        contentDescription = "Settings",
-                        modifier = Modifier.testTag("profileScreenSettingsButton")
-                    )
-                })
-        },
-        bottomBar = {
-            Column {
-                MusicPlayerUI(navigationAction, spotifyApiViewModel, mapUsersViewModel)
-                BottomNavigationMenu(
-                    onTabSelect = { route -> navigationAction.navigateTo(route) },
-                    tabList = LIST_TOP_LEVEL_DESTINATION,
-                    selectedItem = navigationAction.currentRoute()
-                )
-            }
-        },
-        content = { paddingValue ->
-            ProfileColumn(
-                navigationActions = navigationAction,
-                profileViewModel = profileViewModel,
-                friendRequestViewModel = friendRequestViewModel,
-                spotifyApiViewModel = spotifyApiViewModel,
-                userPlaylists = userPlaylists.value,
-                paddingValue = paddingValue,
-                profilePicture = profileViewModel.profilePicture,
-                ownProfile = true
-            )
-        })
+  Scaffold(
+      modifier = Modifier.testTag("profileScreen"),
+      topBar = {
+        PageTopAppBar(
+            profileData?.username ?: "",
+            "titleUsername",
+            listOf {
+              CornerIcons(
+                  onClick = { navigationAction.navigateTo(NOTIFICATIONS) },
+                  icon = Icons.Filled.Notifications,
+                  contentDescription = "Notifications",
+                  modifier = Modifier.testTag("profileScreenNotificationsButton"))
+              CornerIcons(
+                  onClick = { navigationAction.navigateTo(SETTINGS) },
+                  icon = Icons.Filled.Settings,
+                  contentDescription = "Settings",
+                  modifier = Modifier.testTag("profileScreenSettingsButton"))
+            })
+      },
+      bottomBar = {
+        Column {
+          MusicPlayerUI(navigationAction, spotifyApiViewModel, mapUsersViewModel)
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationAction.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationAction.currentRoute())
+        }
+      },
+      content = { paddingValue ->
+        ProfileColumn(
+            navigationActions = navigationAction,
+            profileViewModel = profileViewModel,
+            friendRequestViewModel = friendRequestViewModel,
+            spotifyApiViewModel = spotifyApiViewModel,
+            userPlaylists = userPlaylists.value,
+            paddingValue = paddingValue,
+            profilePicture = profileViewModel.profilePicture,
+            ownProfile = true)
+      })
 }

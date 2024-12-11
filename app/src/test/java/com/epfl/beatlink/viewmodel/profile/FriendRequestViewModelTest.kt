@@ -378,5 +378,4 @@ class FriendRequestViewModelTest {
     assertEquals(expectedFriends, actualFriends)
     assertTrue(onCompleteCalled)
   }
-
 }

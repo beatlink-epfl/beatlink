@@ -101,9 +101,8 @@ class OtherProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
-      friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
-      friendRequestViewModel =
-          FriendRequestViewModel(friendRequestRepositoryFirestore)
+    friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
+    friendRequestViewModel = FriendRequestViewModel(friendRequestRepositoryFirestore)
 
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
@@ -126,7 +125,8 @@ class OtherProfileTest {
   @Test
   fun elementsAreDisplayed() {
     composeTestRule.setContent {
-      OtherProfileScreen(profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+      OtherProfileScreen(
+          profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
 
     // Check if the icons are displayed
@@ -161,7 +161,8 @@ class OtherProfileTest {
   @Test
   fun buttonsAreClickable() {
     composeTestRule.setContent {
-      OtherProfileScreen(profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+      OtherProfileScreen(
+          profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
     // Perform click action on the MoreVert button
     composeTestRule.onNodeWithTag("profileScreenMoreVertButton").performClick()

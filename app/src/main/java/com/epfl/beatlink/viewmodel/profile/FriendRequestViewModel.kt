@@ -13,8 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 open class FriendRequestViewModel(
@@ -61,7 +59,6 @@ open class FriendRequestViewModel(
     getFriendRequests()
     getAllFriends()
   }
-
 
   open fun sendFriendRequestTo(receiverId: String) {
     val senderId = repository.getUserId() ?: return
@@ -119,7 +116,8 @@ open class FriendRequestViewModel(
       try {
         repository.removeFriend(userId, friendToRemove)
         _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
-        _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty().filter { it != userId })
+        _otherProfileAllFriends.postValue(
+            _otherProfileAllFriends.value.orEmpty().filter { it != userId })
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error removing friend: ${e.message}")
       }

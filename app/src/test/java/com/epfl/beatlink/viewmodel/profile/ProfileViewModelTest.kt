@@ -102,82 +102,75 @@ class ProfileViewModelTest {
     assertEquals(null, profileViewModel.profile.value)
   }
 
-    @Test
-    fun `fetchProfileById invokes onResult with profile data when successful`() = runTest {
-        // Arrange
-        val userId = "testUserId"
-        val expectedProfile = ProfileData(
+  @Test
+  fun `fetchProfileById invokes onResult with profile data when successful`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val expectedProfile =
+        ProfileData(
             bio = "Sample bio",
             links = 5,
             name = "John Doe",
             profilePicture = null,
-            username = "johndoe"
-        )
-        `when`(mockRepository.fetchProfile(userId)).thenReturn(expectedProfile)
+            username = "johndoe")
+    `when`(mockRepository.fetchProfile(userId)).thenReturn(expectedProfile)
 
-        var actualResult: ProfileData? = null
-        val onResult: (ProfileData?) -> Unit = { result ->
-            actualResult = result
-        }
+    var actualResult: ProfileData? = null
+    val onResult: (ProfileData?) -> Unit = { result -> actualResult = result }
 
-        // Act
-        profileViewModel.fetchProfileById(userId, onResult)
+    // Act
+    profileViewModel.fetchProfileById(userId, onResult)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        assertEquals(expectedProfile, actualResult)
-        verify(mockRepository).fetchProfile(userId) // Ensure repository method was called
-    }
+    // Assert
+    assertEquals(expectedProfile, actualResult)
+    verify(mockRepository).fetchProfile(userId) // Ensure repository method was called
+  }
 
-    @Test
-    fun `fetchProfileById invokes onResult with null when repository returns null`() = runTest {
-        // Arrange
-        val userId = "testUserId"
-        `when`(mockRepository.fetchProfile(userId)).thenReturn(null)
+  @Test
+  fun `fetchProfileById invokes onResult with null when repository returns null`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    `when`(mockRepository.fetchProfile(userId)).thenReturn(null)
 
-        var actualResult: ProfileData? = null
-        val onResult: (ProfileData?) -> Unit = { result ->
-            actualResult = result
-        }
+    var actualResult: ProfileData? = null
+    val onResult: (ProfileData?) -> Unit = { result -> actualResult = result }
 
-        // Act
-        profileViewModel.fetchProfileById(userId, onResult)
+    // Act
+    profileViewModel.fetchProfileById(userId, onResult)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        assertNull(actualResult)
-        verify(mockRepository).fetchProfile(userId)
-    }
+    // Assert
+    assertNull(actualResult)
+    verify(mockRepository).fetchProfile(userId)
+  }
 
-    @Test
-    fun `fetchProfileById invokes onResult with null when an exception occurs`() = runTest {
-        // Arrange
-        val userId = "testUserId"
-        val exception = RuntimeException("Network error")
-        `when`(mockRepository.fetchProfile(userId)).thenThrow(exception)
+  @Test
+  fun `fetchProfileById invokes onResult with null when an exception occurs`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val exception = RuntimeException("Network error")
+    `when`(mockRepository.fetchProfile(userId)).thenThrow(exception)
 
-        var actualResult: ProfileData? = null
-        val onResult: (ProfileData?) -> Unit = { result ->
-            actualResult = result
-        }
+    var actualResult: ProfileData? = null
+    val onResult: (ProfileData?) -> Unit = { result -> actualResult = result }
 
-        // Act
-        profileViewModel.fetchProfileById(userId, onResult)
+    // Act
+    profileViewModel.fetchProfileById(userId, onResult)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        assertNull(actualResult)
-        verify(mockRepository).fetchProfile(userId) // Ensure repository method was called
-    }
+    // Assert
+    assertNull(actualResult)
+    verify(mockRepository).fetchProfile(userId) // Ensure repository method was called
+  }
 
-
-    @Test
+  @Test
   fun `addProfile updates profile state when successful`() = runTest {
     // Arrange
     val userId = "testUserId"
@@ -346,137 +339,138 @@ class ProfileViewModelTest {
     assertEquals(existingProfile, actualProfile)
   }
 
-    @Test
-    fun `updateNbLinks updates profile state when successful`() = runTest {
-        // Arrange
-        val userId = "testUserId"
-        val initialProfile = ProfileData(
+  @Test
+  fun `updateNbLinks updates profile state when successful`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val initialProfile =
+        ProfileData(
             bio = "Initial bio",
             links = 2,
             name = "John Doe",
             profilePicture = null,
-            username = "johndoe"
-        )
-        val updatedLinks = 5
-        val updatedProfile = initialProfile.copy(links = updatedLinks)
+            username = "johndoe")
+    val updatedLinks = 5
+    val updatedProfile = initialProfile.copy(links = updatedLinks)
 
-        `when`(mockRepository.getUserId()).thenReturn(userId)
-        `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(true)
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.updateProfile(userId, updatedProfile)).thenReturn(true)
 
-        // Act
-        profileViewModel.updateNbLinks(initialProfile, updatedLinks)
+    // Act
+    profileViewModel.updateNbLinks(initialProfile, updatedLinks)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        val actualProfile = profileViewModel.profile.value
-        assertEquals(updatedProfile, actualProfile)
-    }
+    // Assert
+    val actualProfile = profileViewModel.profile.value
+    assertEquals(updatedProfile, actualProfile)
+  }
 
-    @Test
-    fun `updateNbLinks does not update profile when userId is null`() = runTest {
-        // Arrange
-        val initialProfile = ProfileData(
+  @Test
+  fun `updateNbLinks does not update profile when userId is null`() = runTest {
+    // Arrange
+    val initialProfile =
+        ProfileData(
             bio = "Initial bio",
             links = 2,
             name = "John Doe",
             profilePicture = null,
-            username = "johndoe"
-        )
-        val updatedLinks = 5
+            username = "johndoe")
+    val updatedLinks = 5
 
-        `when`(mockRepository.getUserId()).thenReturn(null)
+    `when`(mockRepository.getUserId()).thenReturn(null)
 
-        // Act
-        profileViewModel.updateNbLinks(initialProfile, updatedLinks)
+    // Act
+    profileViewModel.updateNbLinks(initialProfile, updatedLinks)
 
-        // Assert
-        assertNull(profileViewModel.profile.value)
-    }
+    // Assert
+    assertNull(profileViewModel.profile.value)
+  }
 
-    @Test
-    fun `updateNbLinks logs error when update fails`() = runTest {
-        // Arrange
-        val userId = "testUserId"
-        val initialProfile = ProfileData(
+  @Test
+  fun `updateNbLinks logs error when update fails`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val initialProfile =
+        ProfileData(
             bio = "Initial bio",
             links = 2,
             name = "John Doe",
             profilePicture = null,
-            username = "johndoe"
-        )
-        val updatedLinks = 5
-        val updatedProfile = initialProfile.copy(links = updatedLinks)
+            username = "johndoe")
+    val updatedLinks = 5
+    val updatedProfile = initialProfile.copy(links = updatedLinks)
 
-        `when`(mockRepository.getUserId()).thenReturn(userId)
-        `when`(mockRepository.updateProfile(userId, updatedProfile)).thenThrow(RuntimeException("Update failed"))
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.updateProfile(userId, updatedProfile))
+        .thenThrow(RuntimeException("Update failed"))
 
-        // Act
-        profileViewModel.updateNbLinks(initialProfile, updatedLinks)
+    // Act
+    profileViewModel.updateNbLinks(initialProfile, updatedLinks)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        assertNotEquals(updatedProfile, profileViewModel.profile.value)
-    }
+    // Assert
+    assertNotEquals(updatedProfile, profileViewModel.profile.value)
+  }
 
-    @Test
-    fun `updateOtherProfileNbLinks updates other profile state when successful`() = runTest {
-        // Arrange
-        val otherUserId = "otherUserId"
-        val initialProfile = ProfileData(
+  @Test
+  fun `updateOtherProfileNbLinks updates other profile state when successful`() = runTest {
+    // Arrange
+    val otherUserId = "otherUserId"
+    val initialProfile =
+        ProfileData(
             bio = "Other user's bio",
             links = 3,
             name = "Jane Doe",
             profilePicture = null,
-            username = "janedoe"
-        )
-        val updatedLinks = 6
-        val updatedProfile = initialProfile.copy(links = updatedLinks)
+            username = "janedoe")
+    val updatedLinks = 6
+    val updatedProfile = initialProfile.copy(links = updatedLinks)
 
-        `when`(mockRepository.updateProfile(otherUserId, updatedProfile)).thenReturn(true)
+    `when`(mockRepository.updateProfile(otherUserId, updatedProfile)).thenReturn(true)
 
-        // Act
-        profileViewModel.updateOtherProfileNbLinks(initialProfile, otherUserId, updatedLinks)
+    // Act
+    profileViewModel.updateOtherProfileNbLinks(initialProfile, otherUserId, updatedLinks)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        val actualProfile = profileViewModel.selectedUserProfile.value
-        assertEquals(updatedProfile, actualProfile)
-    }
+    // Assert
+    val actualProfile = profileViewModel.selectedUserProfile.value
+    assertEquals(updatedProfile, actualProfile)
+  }
 
-    @Test
-    fun `updateOtherProfileNbLinks logs error when update fails`() = runTest {
-        // Arrange
-        val otherUserId = "otherUserId"
-        val initialProfile = ProfileData(
+  @Test
+  fun `updateOtherProfileNbLinks logs error when update fails`() = runTest {
+    // Arrange
+    val otherUserId = "otherUserId"
+    val initialProfile =
+        ProfileData(
             bio = "Other user's bio",
             links = 3,
             name = "Jane Doe",
             profilePicture = null,
-            username = "janedoe"
-        )
-        val updatedLinks = 6
-        val updatedProfile = initialProfile.copy(links = updatedLinks)
+            username = "janedoe")
+    val updatedLinks = 6
+    val updatedProfile = initialProfile.copy(links = updatedLinks)
 
-        `when`(mockRepository.updateProfile(otherUserId, updatedProfile)).thenThrow(RuntimeException("Update failed"))
+    `when`(mockRepository.updateProfile(otherUserId, updatedProfile))
+        .thenThrow(RuntimeException("Update failed"))
 
-        // Act
-        profileViewModel.updateOtherProfileNbLinks(initialProfile, otherUserId, updatedLinks)
+    // Act
+    profileViewModel.updateOtherProfileNbLinks(initialProfile, otherUserId, updatedLinks)
 
-        // Advance time to let the coroutine run
-        advanceUntilIdle()
+    // Advance time to let the coroutine run
+    advanceUntilIdle()
 
-        // Assert
-        assertNotEquals(updatedProfile, profileViewModel.selectedUserProfile.value)
-    }
+    // Assert
+    assertNotEquals(updatedProfile, profileViewModel.selectedUserProfile.value)
+  }
 
-
-    @Suppress("UNCHECKED_CAST")
+  @Suppress("UNCHECKED_CAST")
   @Test
   fun `handlePermissionResult launches gallery when permission is granted`() {
     // Arrange

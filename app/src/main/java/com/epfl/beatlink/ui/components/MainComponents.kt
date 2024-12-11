@@ -130,8 +130,8 @@ fun ScreenTopAppBar(
       navigationIcon = {
         Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
           BackArrowButton {
-              goBackManagement()
-              navigationActions.goBack()
+            goBackManagement()
+            navigationActions.goBack()
           }
         }
       },

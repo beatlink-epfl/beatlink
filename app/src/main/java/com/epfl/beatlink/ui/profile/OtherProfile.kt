@@ -4,11 +4,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -29,59 +27,54 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
-    val profileData by profileViewModel.profile.collectAsState()
+  val profileData by profileViewModel.profile.collectAsState()
 
-    val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
-    val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
+  val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
+  val selectedProfileData by profileViewModel.selectedUserProfile.collectAsState()
 
-    LaunchedEffect(selectedUserId) {
-        if (selectedUserId.isNotEmpty()) {
-            profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
-        }
+  LaunchedEffect(selectedUserId) {
+    if (selectedUserId.isNotEmpty()) {
+      profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
     }
-    val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
+  }
+  val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
 
-    // Fetch user's playlists
-    LaunchedEffect(selectedProfileData?.spotifyId) {
-        val spotifyId = selectedProfileData?.spotifyId
-        if (!spotifyId.isNullOrEmpty()) {
-            spotifyApiViewModel.getUserPlaylists(
-                userId = selectedProfileData?.spotifyId ?: "",
-                onSuccess = { playlist -> userPlaylists.value = playlist },
-                onFailure = { userPlaylists.value = emptyList() })
-        }
+  // Fetch user's playlists
+  LaunchedEffect(selectedProfileData?.spotifyId) {
+    val spotifyId = selectedProfileData?.spotifyId
+    if (!spotifyId.isNullOrEmpty()) {
+      spotifyApiViewModel.getUserPlaylists(
+          userId = selectedProfileData?.spotifyId ?: "",
+          onSuccess = { playlist -> userPlaylists.value = playlist },
+          onFailure = { userPlaylists.value = emptyList() })
     }
+  }
 
-    Scaffold(
-        modifier = Modifier.testTag("otherProfileScreen"),
-        topBar = {
-            ScreenTopAppBar(
-                selectedProfileData?.username ?: "",
-                "titleUsername",
-                navigationAction,
-                listOf {
-                    CornerIcons(
-                        onClick = { /*click action*/ },
-                        icon = Icons.Filled.MoreVert,
-                        contentDescription = "MoreVert",
-                        modifier = Modifier.testTag("profileScreenMoreVertButton")
-                    )
-                },
-                goBackManagement = {
-                    profileViewModel.goBackToPreviousUser()
-                }
-                )
-        },
-        content = { paddingValues ->
-            ProfileColumn(
-                navigationActions = navigationAction,
-                profileViewModel = profileViewModel,
-                friendRequestViewModel = friendRequestViewModel,
-                spotifyApiViewModel = spotifyApiViewModel,
-                userPlaylists = userPlaylists.value,
-                paddingValue = paddingValues,
-                profilePicture = profileViewModel.profilePicture,
-                ownProfile = (profileData == selectedProfileData)
-            )
-        })
+  Scaffold(
+      modifier = Modifier.testTag("otherProfileScreen"),
+      topBar = {
+        ScreenTopAppBar(
+            selectedProfileData?.username ?: "",
+            "titleUsername",
+            navigationAction,
+            listOf {
+              CornerIcons(
+                  onClick = { /*click action*/},
+                  icon = Icons.Filled.MoreVert,
+                  contentDescription = "MoreVert",
+                  modifier = Modifier.testTag("profileScreenMoreVertButton"))
+            },
+            goBackManagement = { profileViewModel.goBackToPreviousUser() })
+      },
+      content = { paddingValues ->
+        ProfileColumn(
+            navigationActions = navigationAction,
+            profileViewModel = profileViewModel,
+            friendRequestViewModel = friendRequestViewModel,
+            spotifyApiViewModel = spotifyApiViewModel,
+            userPlaylists = userPlaylists.value,
+            paddingValue = paddingValues,
+            profilePicture = profileViewModel.profilePicture,
+            ownProfile = (profileData == selectedProfileData))
+      })
 }

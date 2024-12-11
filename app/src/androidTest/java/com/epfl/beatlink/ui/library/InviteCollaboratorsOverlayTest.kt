@@ -24,10 +24,13 @@ class InviteCollaboratorsOverlayTest {
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
 
-    composeTestRule.setContent { InviteCollaboratorsOverlay(navigationActions,
-      viewModel(factory = ProfileViewModel.Factory),
-      viewModel(factory = FriendRequestViewModel.Factory) ,
-      {}) }
+    composeTestRule.setContent {
+      InviteCollaboratorsOverlay(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          {})
+    }
   }
 
   @Test

@@ -11,29 +11,25 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-
 class NotificationsScreenTest {
-    @get:Rule
-    val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createComposeRule()
 
-    // Mocks and instances
-    private lateinit var navigationActions: NavigationActions
+  // Mocks and instances
+  private lateinit var navigationActions: NavigationActions
 
-    @Before
-    fun setUp() {
-        navigationActions = mockk(relaxed = true)
+  @Before
+  fun setUp() {
+    navigationActions = mockk(relaxed = true)
 
-        every { navigationActions.currentRoute() } returns Route.PROFILE
+    every { navigationActions.currentRoute() } returns Route.PROFILE
 
-        composeTestRule.setContent {
-            NotificationsScreen(navigationActions = navigationActions)
-        }
-    }
+    composeTestRule.setContent { NotificationsScreen(navigationActions = navigationActions) }
+  }
 
-    @Test
-    fun everythingIsDisplayed() {
-        composeTestRule.onNodeWithTag("notificationsScreenTitle").assertExists()
-        composeTestRule.onNodeWithText("Notifications").assertExists()
-        composeTestRule.onNodeWithTag("linkRequestsButton")
-    }
+  @Test
+  fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("notificationsScreenTitle").assertExists()
+    composeTestRule.onNodeWithText("Notifications").assertExists()
+    composeTestRule.onNodeWithTag("linkRequestsButton")
+  }
 }

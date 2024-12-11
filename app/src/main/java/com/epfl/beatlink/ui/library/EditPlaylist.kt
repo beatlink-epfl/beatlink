@@ -210,7 +210,10 @@ fun EditPlaylistScreen(
         }
       })
   if (showDialog) {
-    InviteCollaboratorsOverlay(navigationActions, profileViewModel, friendRequestViewModel,
+    InviteCollaboratorsOverlay(
+        navigationActions,
+        profileViewModel,
+        friendRequestViewModel,
         onDismissRequest = { showDialog = false })
   }
 }

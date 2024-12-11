@@ -39,30 +39,30 @@ fun PeopleItem(
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
 ) {
-    val profileData by profileViewModel.profile.collectAsState()
+  val profileData by profileViewModel.profile.collectAsState()
 
-    val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
-    val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
-    val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+  val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
+  val friendRequests by friendRequestViewModel.friendRequests.observeAsState(emptyList())
+  val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
-    // use only when accepting or removing
-    val selectedUserUserId = remember { mutableStateOf("") }
-    val selectedProfileDataNbLinks = remember { mutableStateOf(selectedProfileData?.links) }
+  // use only when accepting or removing
+  val selectedUserUserId = remember { mutableStateOf("") }
+  val selectedProfileDataNbLinks = remember { mutableStateOf(selectedProfileData?.links) }
 
-    val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
+  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
-    if (selectedProfileData != null) {
-        profileViewModel.getUserIdByUsername(selectedProfileData.username) { uid ->
-            if (uid == null) {
-                return@getUserIdByUsername
-            } else {
-                selectedUserUserId.value = uid
-                profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
-            }
-        }
-    } else {
-        Log.d("PeopleItem", "profile data null")
+  if (selectedProfileData != null) {
+    profileViewModel.getUserIdByUsername(selectedProfileData.username) { uid ->
+      if (uid == null) {
+        return@getUserIdByUsername
+      } else {
+        selectedUserUserId.value = uid
+        profileViewModel.loadProfilePicture(uid) { profilePicture.value = it }
+      }
     }
+  } else {
+    Log.d("PeopleItem", "profile data null")
+  }
 
   var requestStatus =
       when (selectedUserUserId.value) {
@@ -72,86 +72,76 @@ fun PeopleItem(
         else -> "Link"
       }
 
-    LaunchedEffect(allFriends, selectedProfileDataNbLinks) {
-        if (profileData?.links != allFriends.size) {
-            profileData?.let { currentProfile ->
-                profileViewModel.updateNbLinks(currentProfile, allFriends.size)
-            }
-        }
-        if (selectedProfileData?.links != selectedProfileDataNbLinks.value) {
-                selectedProfileData?.let { selectedProfile ->
-                    selectedProfileDataNbLinks.value?.let {
-                        profileViewModel.updateOtherProfileNbLinks(
-                            selectedProfile,
-                            selectedUserUserId.value,
-                            it
-                        )
-                    }
-                }
-        }
+  LaunchedEffect(allFriends, selectedProfileDataNbLinks) {
+    if (profileData?.links != allFriends.size) {
+      profileData?.let { currentProfile ->
+        profileViewModel.updateNbLinks(currentProfile, allFriends.size)
+      }
     }
+    if (selectedProfileData?.links != selectedProfileDataNbLinks.value) {
+      selectedProfileData?.let { selectedProfile ->
+        selectedProfileDataNbLinks.value?.let {
+          profileViewModel.updateOtherProfileNbLinks(selectedProfile, selectedUserUserId.value, it)
+        }
+      }
+    }
+  }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-        Modifier
-            .clickable {
+  Row(
+      verticalAlignment = Alignment.CenterVertically,
+      modifier =
+          Modifier.clickable {
                 if (selectedUserUserId.value.isNotEmpty()) {
-                    profileViewModel.selectSelectedUser(selectedUserUserId.value) // Set the selected user
-                    profileViewModel.fetchUserProfile() // Fetch the user's profile
-                    navigationActions.navigateTo(Screen.OTHER_PROFILE)
+                  profileViewModel.selectSelectedUser(
+                      selectedUserUserId.value) // Set the selected user
+                  profileViewModel.fetchUserProfile() // Fetch the user's profile
+                  navigationActions.navigateTo(Screen.OTHER_PROFILE)
                 }
-            }
-            .height(78.dp)
-            .padding(end = 16.dp)
-            .testTag("peopleItem")) {
+              }
+              .height(78.dp)
+              .padding(end = 16.dp)
+              .testTag("peopleItem")) {
         Box(
             modifier =
-            Modifier
-                .padding(horizontal = 16.dp)
-                .size(60.dp)
-                .clip(CircleShape)
-                .testTag("peopleImage")
-        ) {
-            ProfilePicture(profilePicture)
-        }
+                Modifier.padding(horizontal = 16.dp)
+                    .size(60.dp)
+                    .clip(CircleShape)
+                    .testTag("peopleImage")) {
+              ProfilePicture(profilePicture)
+            }
         Spacer(modifier = Modifier.size(10.dp))
         if (selectedProfileData != null) {
-            Text(
-                text = selectedProfileData.username,
-                style = TypographySongs.titleLarge,
-                modifier = Modifier.testTag("peopleUsername")
-            )
+          Text(
+              text = selectedProfileData.username,
+              style = TypographySongs.titleLarge,
+              modifier = Modifier.testTag("peopleUsername"))
         } else {
-            Log.d("PeopleItem", "profile data null")
+          Log.d("PeopleItem", "profile data null")
         }
         Spacer(modifier = Modifier.weight(1f))
         if (profileData != selectedProfileData) {
-            ProfileCardLinkButton(
-                buttonText = requestStatus
-            ) {
-                when (requestStatus) {
-                    "Link" -> {
-                        selectedUserUserId.value.let { friendRequestViewModel.sendFriendRequestTo(it) }
-                        requestStatus = "Requested"
-                    }
-                    "Requested" -> {
-                        selectedUserUserId.value.let { friendRequestViewModel.cancelFriendRequestTo(it) }
-                        requestStatus = "Link"
-                    }
-                    "Accept" -> {
-                        selectedUserUserId.value.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
-                        requestStatus = "Linked"
-                        selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.plus(1)
-                    }
-                    "Linked" -> {
-                        selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
-                        requestStatus = "Link"
-                        selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.minus(1)
-                    }
-                }
+          ProfileCardLinkButton(buttonText = requestStatus) {
+            when (requestStatus) {
+              "Link" -> {
+                selectedUserUserId.value.let { friendRequestViewModel.sendFriendRequestTo(it) }
+                requestStatus = "Requested"
+              }
+              "Requested" -> {
+                selectedUserUserId.value.let { friendRequestViewModel.cancelFriendRequestTo(it) }
+                requestStatus = "Link"
+              }
+              "Accept" -> {
+                selectedUserUserId.value.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
+                requestStatus = "Linked"
+                selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.plus(1)
+              }
+              "Linked" -> {
+                selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
+                requestStatus = "Link"
+                selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.minus(1)
+              }
             }
+          }
         }
-    }
+      }
 }
-

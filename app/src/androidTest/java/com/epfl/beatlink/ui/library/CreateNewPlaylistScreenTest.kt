@@ -49,9 +49,9 @@ class CreateNewPlaylistScreenTest {
     composeTestRule.setContent {
       CreateNewPlaylistScreen(
           navigationActions,
-        viewModel(factory = ProfileViewModel.Factory),
-        viewModel(factory = FriendRequestViewModel.Factory),
-        playlistViewModel)
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
     }
   }
 

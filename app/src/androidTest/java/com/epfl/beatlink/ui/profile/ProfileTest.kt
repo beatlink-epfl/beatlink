@@ -116,12 +116,10 @@ class ProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
-      friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
-      friendRequestViewModel =
-          FriendRequestViewModel(friendRequestRepositoryFirestore)
+    friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
+    friendRequestViewModel = FriendRequestViewModel(friendRequestRepositoryFirestore)
 
-
-      spotifyApiRepository = mock(SpotifyApiRepository::class.java)
+    spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
 
     navigationActions = mock(NavigationActions::class.java)

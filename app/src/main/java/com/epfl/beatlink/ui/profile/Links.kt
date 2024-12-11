@@ -30,74 +30,66 @@ import com.epfl.beatlink.ui.theme.primaryGray
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
-
 @Composable
-fun LinksScreen(navigationActions: NavigationActions,
-                profileViewModel: ProfileViewModel,
-                friendRequestViewModel: FriendRequestViewModel) {
+fun LinksScreen(
+    navigationActions: NavigationActions,
+    profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel
+) {
 
-    LaunchedEffect(Unit) {
-        profileViewModel.unreadyProfile()
-    }
+  LaunchedEffect(Unit) { profileViewModel.unreadyProfile() }
 
-    val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
-    val allFriendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
+  val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+  val allFriendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
-    // Fetches the ProfileData for all friends to display them
-    LaunchedEffect(allFriends) {
-        val profiles = mutableSetOf<ProfileData?>()
-        allFriends.forEach { userId ->
-            profileViewModel.fetchProfileById(userId) { profileData ->
-                if (profileData != null) {
-                    profiles.add(profileData)
-                    allFriendsProfileData.value = profiles.toList()
-                }
-            }
+  // Fetches the ProfileData for all friends to display them
+  LaunchedEffect(allFriends) {
+    val profiles = mutableSetOf<ProfileData?>()
+    allFriends.forEach { userId ->
+      profileViewModel.fetchProfileById(userId) { profileData ->
+        if (profileData != null) {
+          profiles.add(profileData)
+          allFriendsProfileData.value = profiles.toList()
         }
+      }
     }
+  }
 
-    Scaffold(
-        topBar = { ScreenTopAppBar(
-           "Links",
-            "LinksScreenTitle",
-            navigationActions)
-        },
-        bottomBar = {
-            BottomNavigationMenu(
-                onTabSelect = { route -> navigationActions.navigateTo(route) },
-                tabList = LIST_TOP_LEVEL_DESTINATION,
-                selectedItem = navigationActions.currentRoute())
-        },
-        content = { innerPadding ->
-            Column(
-                modifier = Modifier.padding(innerPadding).padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (allFriends.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize().testTag("emptyLinksPrompt"),
-                        contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "No Links :(",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primaryGray,
-                        )
+  Scaffold(
+      topBar = { ScreenTopAppBar("Links", "LinksScreenTitle", navigationActions) },
+      bottomBar = {
+        BottomNavigationMenu(
+            onTabSelect = { route -> navigationActions.navigateTo(route) },
+            tabList = LIST_TOP_LEVEL_DESTINATION,
+            selectedItem = navigationActions.currentRoute())
+      },
+      content = { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding).padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+              if (allFriends.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize().testTag("emptyLinksPrompt"),
+                    contentAlignment = Alignment.Center) {
+                      Text(
+                          text = "No Links :(",
+                          style = MaterialTheme.typography.bodyLarge,
+                          color = MaterialTheme.colorScheme.primaryGray,
+                      )
                     }
-                } else {
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(allFriendsProfileData.value.size) { i ->
-                            val profile = allFriendsProfileData.value[i]
-                            PeopleItem(
-                                selectedProfileData = profile,
-                                navigationActions = navigationActions,
-                                profileViewModel = profileViewModel,
-                                friendRequestViewModel = friendRequestViewModel
-                            )
-                        }
-                    }
+              } else {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                  items(allFriendsProfileData.value.size) { i ->
+                    val profile = allFriendsProfileData.value[i]
+                    PeopleItem(
+                        selectedProfileData = profile,
+                        navigationActions = navigationActions,
+                        profileViewModel = profileViewModel,
+                        friendRequestViewModel = friendRequestViewModel)
+                  }
                 }
+              }
             }
-        }
-    )
+      })
 }
