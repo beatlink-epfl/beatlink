@@ -68,7 +68,7 @@ class ProfileTest {
           bio = null,
           links = 0,
           profilePicture = null,
-          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"))
+          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz"))
 
   private var topSongs =
       listOf(
