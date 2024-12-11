@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -131,7 +131,6 @@ fun PlaylistOverviewScreen(
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Header Section
               Row(
-                  horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
                       Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
@@ -141,34 +140,41 @@ fun PlaylistOverviewScreen(
                       PlaylistCover(coverImage, 135.dp)
                     }
 
-                    // Playlist details
-                    Column(
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceBetween) {
-                          Text(
-                              text = selectedPlaylistState.playlistName,
-                              style = TypographyPlaylist.headlineLarge,
-                              color = MaterialTheme.colorScheme.primary,
-                              modifier = Modifier.testTag("playlistTitle"))
-                          Spacer(modifier = Modifier.height(4.dp))
-                          IconWithText(
-                              "@" + selectedPlaylistState.playlistOwner,
-                              "ownerText",
-                              Icons.Outlined.AccountCircle,
-                              TypographyPlaylist.headlineMedium)
-                          IconWithText(
-                              collabUsernames.joinToString(", "),
-                              "collaboratorsText",
-                              collab,
-                              TypographyPlaylist.headlineSmall)
-                          IconWithText(
-                              if (selectedPlaylistState.playlistPublic) "Public" else "Private",
-                              "publicText",
-                              Icons.Outlined.Lock,
-                              TypographyPlaylist.headlineSmall)
-                          Spacer(modifier = Modifier.height(10.dp))
-                          ViewDescriptionButton { showDialogOverlay = true }
-                        }
+                    // Spacer for scaling space dynamically
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                      // Playlist details
+                      Column(
+                          modifier = Modifier.fillMaxHeight(),
+                          verticalArrangement = Arrangement.SpaceBetween) {
+                            IconWithText(
+                                "@" + selectedPlaylistState.playlistOwner,
+                                "ownerText",
+                                Icons.Outlined.AccountCircle,
+                                TypographyPlaylist.headlineMedium)
+                            if (collabUsernames.isNotEmpty()) {
+                              IconWithText(
+                                  collabUsernames.joinToString(", "),
+                                  "collaboratorsText",
+                                  collab,
+                                  TypographyPlaylist.headlineSmall)
+                            }
+                            IconWithText(
+                                if (selectedPlaylistState.playlistPublic) "Public" else "Private",
+                                "publicText",
+                                Icons.Outlined.Lock,
+                                TypographyPlaylist.headlineSmall)
+
+                            IconWithText(
+                                "${selectedPlaylistState.nbTracks} tracks",
+                                "nbTracksText",
+                                Icons.Outlined.Star,
+                                TypographyPlaylist.headlineSmall)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            ViewDescriptionButton { showDialogOverlay = true }
+                          }
+                    }
                   }
               Spacer(modifier = Modifier.height(16.dp))
 
@@ -269,7 +275,7 @@ fun PlaylistOverviewScreen(
                               }
                             }
                             // Delete playlist only if creation was successful
-                            playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
+                            playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
                             showDialogExport = false
                             Toast.makeText(
                                     context, "Playlist exported successfully", Toast.LENGTH_SHORT)

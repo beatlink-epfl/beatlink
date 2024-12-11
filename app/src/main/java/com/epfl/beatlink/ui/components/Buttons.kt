@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
@@ -66,33 +68,34 @@ fun FilledButton(buttonText: String, buttonTag: String, onClick: () -> Unit) {
 /** Button for viewing the description of a playlist */
 @Composable
 fun ViewDescriptionButton(onClick: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-        Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(size = 20.dp)
-            )
-            .width(150.dp)
-            .height(30.dp)
-            .clickable { onClick() }
-            .semantics { contentDescription = "View Description" }
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(size = 20.dp)
-            )
-            .padding(start = 16.dp, end = 16.dp)
-            .testTag("viewDescriptionButton")) {
+  Row(
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically,
+      modifier =
+          Modifier.border(
+                  width = 1.dp,
+                  color = MaterialTheme.colorScheme.primary,
+                  shape = RoundedCornerShape(size = 20.dp))
+              .width(150.dp)
+              .height(30.dp)
+              .clickable { onClick() }
+              .semantics { contentDescription = "View Description" }
+              .background(
+                  color = MaterialTheme.colorScheme.surfaceVariant,
+                  shape = RoundedCornerShape(size = 20.dp))
+              .padding(start = 16.dp, end = 16.dp)
+              .testTag("viewDescriptionButton")) {
         Text(
             text = "View Description",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-    }
+            modifier =
+                Modifier.align(Alignment.CenterVertically)
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp))
+      }
 }
 
 @Composable
@@ -102,8 +105,8 @@ fun VoteButton(
     userId: String, // Pass the current user's ID
     onVoteChanged: (String, Boolean) -> Unit // Pass track ID and vote status
 ) {
-    // Check if the current user has already voted
-    val isVoted = playlistTrack.likedBy.contains(userId) // No need for local state
+  // Check if the current user has already voted
+  val isVoted = playlistTrack.likedBy.contains(userId) // No need for local state
 
   Box(
       modifier =

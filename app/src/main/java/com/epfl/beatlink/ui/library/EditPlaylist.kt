@@ -34,8 +34,6 @@ import com.epfl.beatlink.ui.components.SettingsSwitch
 import com.epfl.beatlink.ui.components.library.CollaboratorsSection
 import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.PlaylistModifierColumn
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.EDIT_PLAYLIST
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
@@ -119,17 +117,11 @@ fun EditPlaylistScreen(
             navigationActions,
             listOf {
               DeleteButton {
-                selectedPlaylistState.playlistID.let { playlistViewModel.deletePlaylist(it) }
+                selectedPlaylistState.playlistID.let { playlistViewModel.deletePlaylistById(it) }
                 navigationActions.navigateToAndClearBackStack(MY_PLAYLISTS, 2)
                 Toast.makeText(context, "Playlist deleted successfully!", Toast.LENGTH_LONG).show()
               }
             })
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
         PlaylistModifierColumn(innerPadding) {

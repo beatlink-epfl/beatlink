@@ -14,7 +14,6 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -87,8 +86,6 @@ class EditPlaylistScreenTest {
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     // The delete button is displayed
     composeTestRule.onNodeWithTag("deleteButton").assertIsDisplayed()
-    // The bottom nav bar is displayed
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     // The playlist cover rectangle is displayed
     composeTestRule.onNodeWithTag("playlistCover").assertIsDisplayed()
     // The input field for title is displayed
@@ -176,17 +173,5 @@ class EditPlaylistScreenTest {
   fun testNavigationAfterPlaylistUpdate() {
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
     verify(navigationActions).navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
-  }
-
-  @Test
-  fun testNavigation() {
-    composeTestRule.onNodeWithTag("Home").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-    composeTestRule.onNodeWithTag("Search").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.SEARCH)
-    composeTestRule.onNodeWithTag("Library").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.LIBRARY)
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    verify(navigationActions).navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }
