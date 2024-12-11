@@ -23,8 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.search.PeopleItem
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.primaryGray
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
@@ -57,12 +55,6 @@ fun LinksScreen(
 
   Scaffold(
       topBar = { ScreenTopAppBar("Links", "LinksScreenTitle", navigationActions) },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      },
       content = { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding).padding(16.dp),

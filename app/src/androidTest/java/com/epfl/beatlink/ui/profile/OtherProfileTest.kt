@@ -2,7 +2,9 @@ package com.epfl.beatlink.ui.profile
 
 import android.app.Application
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -35,6 +37,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
+import org.mockito.kotlin.verify
 
 class OtherProfileTest {
 
@@ -79,7 +82,7 @@ class OtherProfileTest {
 
   private val profileData =
       ProfileData(
-          username = "",
+          username = "username",
           name = null,
           bio = null,
           links = 0,
@@ -148,26 +151,27 @@ class OtherProfileTest {
         .assertTextContains("${profileData.links} Links")
 
     // Check if the edit button is displayed
-    composeTestRule.onNodeWithTag("linkProfileButtonContainer").assertExists()
-    composeTestRule.onNodeWithTag("linkProfileButton").assertExists().assertTextContains("Link")
-
+    composeTestRule.onNodeWithTag("editProfileButton").assertExists()
     // Check if the user's name is displayed
     composeTestRule.onNodeWithTag("name").assertExists()
-
     // Check if the user's bio is displayed
     composeTestRule.onNodeWithTag("bio").assertExists()
+
+    composeTestRule.onNodeWithTag("editProfileButton").performClick()
+    verify(navigationActions).navigateTo(screen = Screen.EDIT_PROFILE)
   }
 
   @Test
-  fun buttonsAreClickable() {
+  fun otherProfileScreenDisplaysOtherProfileDetails() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeProfile(profileData)
+
     composeTestRule.setContent {
       OtherProfileScreen(
-          profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+          fakeProfileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
     }
-    // Perform click action on the MoreVert button
-    composeTestRule.onNodeWithTag("profileScreenMoreVertButton").performClick()
 
-    // Perform click action on the link button
-    composeTestRule.onNodeWithTag("linkProfileButton").performClick()
+    composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed().assertTextEquals("Link")
   }
 }

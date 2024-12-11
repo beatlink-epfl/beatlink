@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.mockito.Mockito.mock
 
 class FakeProfileViewModel(
@@ -29,6 +30,11 @@ class FakeProfileViewModel(
     onResult(fakeUserIdByUsername[username])
   }
 
+  override fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
+    val fakeProfile = fakeProfiles.find { it.username == userId }
+    onResult(fakeProfile)
+  }
+
   override fun loadProfilePicture(userId: String?, onBitmapLoaded: (Bitmap?) -> Unit) {
     val bitmap = fakeProfilePictures[userId]
     onBitmapLoaded(bitmap)
@@ -40,6 +46,14 @@ class FakeProfileViewModel(
 
   override fun updateProfile(profileData: ProfileData) {
     fakeProfiles.replaceAll { if (it.username == profileData.username) profileData else it }
+  }
+
+  fun setFakeProfile(profileData: ProfileData) {
+    (profile as MutableStateFlow).value = profileData
+  }
+
+  fun setFakeSelectedProfile(selectedProfileData: ProfileData) {
+    (selectedUserProfile as MutableStateFlow).value = selectedProfileData
   }
 
   fun setFakeProfiles(profiles: List<ProfileData>) {

@@ -1,15 +1,16 @@
 package com.epfl.beatlink.ui.search
 
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.components.search.PeopleItem
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.mockk
@@ -45,24 +46,28 @@ class PeopleItemTest {
   }
 
   @Test
-  fun displayAllComponents(): Unit = runTest {
+  fun testPeopleItemDisplaysCorrectly() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+
+    fakeProfileViewModel.setFakeSelectedProfile(userProfile)
+
     composeTestRule.setContent {
       PeopleItem(
           selectedProfileData = userProfile,
           navigationActions = navigationActions,
-          profileViewModel = mockProfileViewModel,
+          profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
+
     composeTestRule.onNodeWithTag("peopleItem").assertExists()
-    composeTestRule.onNodeWithTag("linkedButton").assertExists()
-    composeTestRule.onNodeWithText("Link").assertExists()
-    composeTestRule.onNodeWithText("Link").performClick()
+    composeTestRule.onNodeWithTag("peopleItem").assertTextEquals("user")
   }
 
   @Test
   fun linkButtonDisplaysRequest(): Unit = runTest {
     val displayedUserId = "TestId1"
-    val ownRequests = listOf("TestId1", "user2")
+    val ownRequests = listOf("TestId1", "testId2")
     val fakeProfileViewModel =
         object : ProfileViewModel(repository = mockProfileRepository) {
           override fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {

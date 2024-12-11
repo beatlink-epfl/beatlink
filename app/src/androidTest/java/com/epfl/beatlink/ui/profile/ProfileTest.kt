@@ -326,6 +326,20 @@ class ProfileTest {
   }
 
   @Test
+  fun notificationsButtonTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          friendRequestViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+    composeTestRule.onNodeWithTag("profileScreenNotificationsButton").performClick()
+    verify(navigationActions).navigateTo(Screen.NOTIFICATIONS)
+  }
+
+  @Test
   fun settingsButtonTriggersNavigation() {
     composeTestRule.setContent {
       ProfileScreen(

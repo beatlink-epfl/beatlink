@@ -72,6 +72,8 @@ fun OtherProfileScreen(
             profileViewModel = profileViewModel,
             friendRequestViewModel = friendRequestViewModel,
             spotifyApiViewModel = spotifyApiViewModel,
+            topSongsState = selectedProfileData?.topSongs ?: emptyList(),
+            topArtistsState = selectedProfileData?.topArtists ?: emptyList(),
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValues,
             profilePicture = profileViewModel.profilePicture,

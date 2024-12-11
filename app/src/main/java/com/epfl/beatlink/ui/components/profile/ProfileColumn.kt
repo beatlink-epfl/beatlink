@@ -33,6 +33,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.UserPlaylist
+import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.ArtistCard
 import com.epfl.beatlink.ui.components.EditProfileButton
 import com.epfl.beatlink.ui.components.GradientTitle
@@ -57,6 +59,8 @@ fun ProfileColumn(
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
     spotifyApiViewModel: SpotifyApiViewModel,
+    topSongsState: List<SpotifyTrack>,
+    topArtistsState: List<SpotifyArtist>,
     userPlaylists: List<UserPlaylist>,
     paddingValue: PaddingValues,
     profilePicture: MutableState<Bitmap?>,
@@ -76,18 +80,18 @@ fun ProfileColumn(
   val otherProfileAllFriends by
       friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
 
-  val topSongsState =
-      if (ownProfile) {
-        profileData?.topSongs ?: emptyList()
-      } else {
-        selectedProfileData?.topSongs ?: emptyList()
-      }
-  val topArtistsState =
-      if (ownProfile) {
-        profileData?.topArtists ?: emptyList()
-      } else {
-        selectedProfileData?.topArtists ?: emptyList()
-      }
+  //  val topSongsState =
+  //      if (ownProfile) {
+  //        profileData?.topSongs ?: emptyList()
+  //      } else {
+  //        selectedProfileData?.topSongs ?: emptyList()
+  //      }
+  //  val topArtistsState =
+  //      if (ownProfile) {
+  //        profileData?.topArtists ?: emptyList()
+  //      } else {
+  //        selectedProfileData?.topArtists ?: emptyList()
+  //      }
 
   var requestStatus =
       when (selectedUserUserId) {
