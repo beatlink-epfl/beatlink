@@ -817,19 +817,6 @@ class PlaylistRepositoryFirestoreTest {
   }
 
   @Test
-  fun `updatePlaylist transaction fails`() {
-    // Arrange
-    `when`(mockFirestore.runTransaction<Transaction>(any()))
-        .thenReturn(Tasks.forException(Exception("Transaction failed")))
-
-    // Act
-    playlistRepositoryFirestore.updatePlaylist(
-        playlist,
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { e -> assertEquals("Transaction failed", e.message) })
-  }
-
-  @Test
   fun `updatePlaylist invokes onFailure listener`() {
     // Arrange
     // Mock the Firestore collection and document retrieval
@@ -870,6 +857,20 @@ class PlaylistRepositoryFirestoreTest {
     verify(mockTransaction)
         .set(mockDocumentReference, playlistRepositoryFirestore.playlistToMap(playlist))
     verify(mockTransactionTask).addOnFailureListener(any())
+  }
+
+  @Test
+  fun `updatePlaylist catches unexpected exceptions`() {
+    // Arrange
+    // Simulate an unexpected exception during the transaction
+    `when`(mockFirestore.runTransaction<Transaction>(any()))
+        .thenThrow(RuntimeException("Unexpected error"))
+
+    // Act
+    playlistRepositoryFirestore.updatePlaylist(
+        playlist,
+        onSuccess = { fail("Success callback should not be called") },
+        onFailure = { e -> assertEquals("Unexpected error", e.message) })
   }
 
   @Test
