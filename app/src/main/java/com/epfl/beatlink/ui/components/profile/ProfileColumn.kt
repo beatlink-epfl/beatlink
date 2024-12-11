@@ -3,7 +3,6 @@ package com.epfl.beatlink.ui.components.profile
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,8 +83,7 @@ fun ProfileColumn(
           Modifier.fillMaxSize()
               .padding(paddingValue)
               .padding(16.dp)
-              .verticalScroll(rememberScrollState())
-              .horizontalScroll(rememberScrollState())) {
+              .verticalScroll(rememberScrollState())) {
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
 
           // Profile picture
@@ -173,7 +171,10 @@ fun ProfileColumn(
         if (profileData?.favoriteMusicGenres?.isNotEmpty() == true) {
           GradientTitle("MUSIC GENRES")
           LazyRow(
-              modifier = Modifier.padding(vertical = 16.dp).testTag("favoriteMusicGenresRow"),
+              modifier =
+                  Modifier.fillMaxWidth()
+                      .padding(vertical = 16.dp)
+                      .testTag("favoriteMusicGenresRow"),
               horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(profileData.favoriteMusicGenres) { genre ->
                   val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
