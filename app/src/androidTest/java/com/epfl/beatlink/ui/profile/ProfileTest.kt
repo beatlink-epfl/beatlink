@@ -204,9 +204,12 @@ class ProfileTest {
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+
     // Check that music genres are displayed
+    composeTestRule.onNodeWithTag("favoriteMusicGenresRow").assertIsDisplayed()
+
     profileData.favoriteMusicGenres.forEach { genre ->
-      composeTestRule.onNodeWithText(genre).performScrollTo().assertExists()
+      composeTestRule.onNodeWithText(genre).assertIsDisplayed()
     }
   }
 
