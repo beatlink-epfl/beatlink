@@ -3,6 +3,7 @@ package com.epfl.beatlink.ui.components.profile
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,7 +84,8 @@ fun ProfileColumn(
           Modifier.fillMaxSize()
               .padding(paddingValue)
               .padding(16.dp)
-              .verticalScroll(rememberScrollState())) {
+              .verticalScroll(rememberScrollState())
+              .horizontalScroll(rememberScrollState())) {
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
 
           // Profile picture

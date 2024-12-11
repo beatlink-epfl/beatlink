@@ -209,7 +209,7 @@ class ProfileTest {
     composeTestRule.onNodeWithTag("favoriteMusicGenresRow").assertIsDisplayed()
 
     profileData.favoriteMusicGenres.forEach { genre ->
-      composeTestRule.onNodeWithText(genre).assertIsDisplayed()
+      composeTestRule.onNodeWithText(genre).performScrollTo().assertIsDisplayed()
     }
   }
 
