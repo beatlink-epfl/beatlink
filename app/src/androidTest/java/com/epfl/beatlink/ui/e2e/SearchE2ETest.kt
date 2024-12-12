@@ -99,7 +99,7 @@ class SearchE2ETest {
     }
     composeTestRule.onNodeWithText("Delilah", substring = true).assertIsDisplayed()
 
-    // Step 7: Same but for artists
+    // Step 6: Same but for artists
     composeTestRule.onNodeWithText("Artists").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextClearance()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("f")
