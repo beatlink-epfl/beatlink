@@ -67,6 +67,8 @@ fun InviteCollaboratorsScreen(
       modifier = Modifier.testTag("inviteCollaboratorsScreen"),
       topBar = {
         ShortSearchBarLayout(
+            navigationActions = navigationActions,
+            backArrowButton = true,
             searchQuery = searchQuery.value,
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },

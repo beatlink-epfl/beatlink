@@ -79,6 +79,7 @@ fun SearchBarScreen(
       navigationActions = navigationActions,
       spotifyApiViewModel = spotifyApiViewModel,
       mapUsersViewModel = mapUsersViewModel,
+      backArrowButton = false,
       searchQuery = searchQuery) { paddingValues ->
         Column(
             modifier =

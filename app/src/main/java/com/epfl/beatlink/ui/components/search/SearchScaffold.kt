@@ -21,12 +21,15 @@ fun SearchScaffold(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel,
+    backArrowButton: Boolean,
     searchQuery: MutableState<TextFieldValue>,
     content: @Composable (PaddingValues) -> Unit
 ) {
   Scaffold(
       topBar = {
         ShortSearchBarLayout(
+            navigationActions = navigationActions,
+            backArrowButton = backArrowButton,
             searchQuery = searchQuery.value,
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },

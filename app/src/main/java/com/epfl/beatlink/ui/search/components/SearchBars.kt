@@ -2,11 +2,13 @@ package com.epfl.beatlink.ui.search.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -28,12 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.ui.components.BackArrowButton
+import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 
 @Composable
 fun ShortSearchBarLayout(
+    backArrowButton: Boolean,
+    navigationActions: NavigationActions,
     searchQuery: TextFieldValue = TextFieldValue(""),
     onQueryChange: (TextFieldValue) -> Unit = {}
 ) {
@@ -55,6 +61,11 @@ fun ShortSearchBarLayout(
                 }
               }
               .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)) {
+        if (backArrowButton) {
+          BackArrowButton { navigationActions.goBack() }
+          Spacer(Modifier.width(12.dp))
+        }
+
         // Search Bar
         ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange)
       }

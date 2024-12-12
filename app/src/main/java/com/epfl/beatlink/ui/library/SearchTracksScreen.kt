@@ -42,6 +42,7 @@ fun SearchTracksScreen(
       navigationActions = navigationActions,
       spotifyApiViewModel = spotifyApiViewModel,
       mapUsersViewModel = mapUsersViewModel,
+      backArrowButton = true,
       searchQuery = searchQuery) { paddingValues ->
         Column(
             modifier =
