@@ -114,7 +114,7 @@ class LinksScreenTest {
     }
 
     composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(2)
-    composeTestRule.onNodeWithText("alice123").assertIsDisplayed()
-    composeTestRule.onNodeWithText("bob123").assertIsDisplayed()
+    composeTestRule.onNodeWithText("@ALICE123").assertIsDisplayed()
+    composeTestRule.onNodeWithText("@BOB123").assertIsDisplayed()
   }
 }

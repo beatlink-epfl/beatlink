@@ -90,7 +90,7 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
       placeholder = {
         Text(
             text = "Search songs, artists or people",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primaryContainer)
       },
       colors =

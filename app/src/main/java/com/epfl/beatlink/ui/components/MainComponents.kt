@@ -442,6 +442,7 @@ fun MusicPlayerUI(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
+                .background(color = MaterialTheme.colorScheme.tertiary)
                 .testTag("playerContainer")
                 .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
@@ -464,11 +465,15 @@ fun MusicPlayerUI(
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = spotifyApiViewModel.currentTrack.name, style = TypographySongs.titleLarge)
+        Text(
+            text = spotifyApiViewModel.currentTrack.name,
+            style = TypographySongs.titleLarge,
+            color = MaterialTheme.colorScheme.primary)
         Text(
             text =
                 "${spotifyApiViewModel.currentArtist.name} - ${spotifyApiViewModel.currentAlbum.name}",
-            style = TypographySongs.titleSmall)
+            style = TypographySongs.titleMedium,
+            color = MaterialTheme.colorScheme.primary)
       }
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -481,19 +486,20 @@ fun MusicPlayerUI(
             } else {
               spotifyApiViewModel.playPlayback()
             }
-          }) {
+          },
+          modifier = Modifier.testTag("playPauseButton")) {
             if (spotifyApiViewModel.isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
-                  modifier = Modifier.size(35.dp).testTag("pauseButton"))
+                  modifier = Modifier.size(35.dp))
             } else {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
                   tint = Color.Unspecified,
-                  modifier = Modifier.size(35.dp).testTag("playButton"))
+                  modifier = Modifier.size(35.dp))
             }
           }
 
@@ -502,7 +508,8 @@ fun MusicPlayerUI(
           onClick = {
             spotifyApiViewModel.skipSong()
             spotifyApiViewModel.updatePlayer()
-          }) {
+          },
+          modifier = Modifier.padding(end = 8.dp).testTag("skipButton")) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
                 contentDescription = "Skip",

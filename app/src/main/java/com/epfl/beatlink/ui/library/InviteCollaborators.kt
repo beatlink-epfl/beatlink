@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.library
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +34,6 @@ fun InviteCollaboratorsScreen(
     profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
-
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState()
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -51,8 +49,6 @@ fun InviteCollaboratorsScreen(
 
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
   val results = remember { mutableStateOf(emptyList<ProfileData>()) }
-
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
 
   // Observe search query changes and fetch corresponding results
   LaunchedEffect(searchQuery.value.text) {
@@ -91,9 +87,8 @@ fun InviteCollaboratorsScreen(
             val profile = results.value[i]
             val isCollaborator = collabUsernames.contains(profile.username)
             CollaboratorCard(
-                profile.name,
-                profile.username,
-                profilePicture,
+                profile,
+                profileViewModel,
                 isCollaborator,
                 onAdd = {
                   profileViewModel.getUserIdByUsername(

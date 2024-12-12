@@ -126,8 +126,10 @@ class LinkRequestsScreenTest {
 
     composeTestRule.onNodeWithText("SENT (2)").assertExists()
     composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(2)
-    composeTestRule.onNodeWithText("alice123").assertExists()
-    composeTestRule.onNodeWithText("bob123").assertExists()
+    composeTestRule.onNodeWithText("Alice").assertExists()
+    composeTestRule.onNodeWithText("Bob").assertExists()
+    composeTestRule.onNodeWithText("@ALICE123").assertExists()
+    composeTestRule.onNodeWithText("@BOB123").assertExists()
   }
 
   @Test

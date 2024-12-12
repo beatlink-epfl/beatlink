@@ -235,7 +235,7 @@ fun ProfileColumn(
                         .padding(vertical = 16.dp)
                         .testTag("favoriteMusicGenresRow"),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                  items(profileData!!.favoriteMusicGenres) { genre ->
+                  items(selectedProfileData!!.favoriteMusicGenres) { genre ->
                     val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
                     MusicGenreCard(genre = genre, brush = genreGradient)
                   }

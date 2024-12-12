@@ -1,15 +1,15 @@
 package com.epfl.beatlink.ui.library
 
-import android.graphics.Bitmap
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.library.CollabList
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -18,6 +18,9 @@ import org.junit.Test
 class CollaboratorsSectionTest {
 
   @get:Rule val composeTestRule = createComposeRule()
+
+  private val profileData =
+      ProfileData(bio = "this is a bio", links = 0, name = "Alice", username = "alice123")
 
   @Before fun setUp() {}
 
@@ -63,12 +66,15 @@ class CollaboratorsSectionTest {
 
   @Test
   fun collaboratorCardHasCheckWhenUserIsCollaborator() {
+    val fakeProfileViewModel = FakeProfileViewModel()
     val isCollab = true
-    val profilePicture = mutableStateOf<Bitmap?>(null)
     composeTestRule.setContent {
-      CollaboratorCard("Alice", "alice", profilePicture, isCollab, {}, {})
+      CollaboratorCard(profileData, fakeProfileViewModel, isCollab, {}, {})
     }
     composeTestRule.onNodeWithTag("checkButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("checkButton").performClick()
+    composeTestRule.onNodeWithTag("profilePic").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Alice").assertExists()
+    composeTestRule.onNodeWithText("@ALICE123").assertExists()
   }
 }

@@ -11,6 +11,8 @@ import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.firebase.Timestamp
+import java.time.Instant
+import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -147,5 +149,26 @@ class SongPreviewMapUsersTest {
     composeTestRule.onNodeWithTag("artistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("albumName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("username").assertIsDisplayed()
+  }
+
+  @Test
+  fun getTimeSinceLastUpdate_shouldReturnJustNow() {
+    val now = Instant.now()
+    val timestamp = Timestamp(now.epochSecond, now.nano)
+
+    val result = getTimeSinceLastUpdate(timestamp)
+
+    assertEquals("Just now", result)
+  }
+
+  @Test
+  fun getTimeSinceLastUpdate_shouldReturnOneMinAgo() {
+    val now = Instant.now()
+    val oneMinuteAgo = now.minusSeconds(60)
+    val timestamp = Timestamp(oneMinuteAgo.epochSecond, oneMinuteAgo.nano)
+
+    val result = getTimeSinceLastUpdate(timestamp)
+
+    assertEquals("1 min ago", result)
   }
 }
