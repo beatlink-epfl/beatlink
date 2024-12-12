@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.components.search
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,12 +31,13 @@ fun SearchScaffold(
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },
       bottomBar = {
-        MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+        Column {
+          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+          BottomNavigationMenu(
+              onTabSelect = { route -> navigationActions.navigateTo(route) },
+              tabList = LIST_TOP_LEVEL_DESTINATION,
+              selectedItem = navigationActions.currentRoute())
+        }
       },
       modifier = Modifier.testTag("searchScaffold"),
       content = content)
