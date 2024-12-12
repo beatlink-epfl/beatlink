@@ -81,7 +81,6 @@ import com.epfl.beatlink.ui.theme.RedGradientBrush
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
-import com.epfl.beatlink.ui.theme.lightThemePurple
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -466,7 +465,8 @@ fun MusicPlayerUI(
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = spotifyApiViewModel.currentTrack.name,
+        Text(
+            text = spotifyApiViewModel.currentTrack.name,
             style = TypographySongs.titleLarge,
             color = MaterialTheme.colorScheme.primary)
         Text(

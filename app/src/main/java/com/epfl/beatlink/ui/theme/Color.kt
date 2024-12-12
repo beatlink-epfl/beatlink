@@ -51,7 +51,6 @@ val darkThemeGray2 = Color(0xFF454147)
 val darkThemeLightPurple = Color(0xFF956EAC)
 val darkThemeWhite = Color.White
 
-
 val lightThemePlaylistCard = Color(0x145F2A83)
 val darkThemePlaylistCard = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 

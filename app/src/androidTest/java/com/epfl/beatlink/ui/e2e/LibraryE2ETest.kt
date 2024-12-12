@@ -66,7 +66,7 @@ class LibraryE2ETest {
     composeTestRule
         .onNodeWithTag("inputPlaylistTitle")
         .performScrollTo()
-        .performTextInput("Test Playlist Hello")
+        .performTextInput("Test Playlist")
 
     composeTestRule
         .onNodeWithTag("inputPlaylistDescription")
@@ -82,7 +82,7 @@ class LibraryE2ETest {
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
-    composeTestRule.onNodeWithText("Test Playlist Hello").performScrollTo().performClick()
+    composeTestRule.onNodeWithText("Test Playlist").performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
     // Step 8: Click the edit button and verify navigation to Edit Playlist Screen

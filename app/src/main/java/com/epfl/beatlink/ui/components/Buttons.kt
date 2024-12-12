@@ -261,7 +261,8 @@ fun EditProfileButton(onClick: () -> Unit) {
                     contentColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(30.dp),
             elevation = null) {
-              Text(text = "Edit Profile",
+              Text(
+                  text = "Edit Profile",
                   style = MaterialTheme.typography.bodyMedium,
                   color = MaterialTheme.colorScheme.primary)
             }
