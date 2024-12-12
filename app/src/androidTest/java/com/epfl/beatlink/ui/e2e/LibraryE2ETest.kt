@@ -46,9 +46,9 @@ class LibraryE2ETest {
           .performTextInput("testuserbeatlink")
       composeTestRule.onNodeWithTag("loginButton").performScrollTo().performClick()
 
-      // Step 5: Click the search button and verify navigation to Search Screen
+      // Step 5: Click the library button and verify navigation to Library Screen
       composeTestRule.waitForIdle()
-      composeTestRule.waitUntil(1000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
+      composeTestRule.waitUntil(5000) { composeTestRule.onNodeWithTag("MapScreen").isDisplayed() }
     }
     composeTestRule.onNodeWithTag("Library").isDisplayed()
     composeTestRule.onNodeWithTag("Library").performClick()

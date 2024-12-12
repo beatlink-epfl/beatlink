@@ -55,7 +55,7 @@ class M1e2eTest {
     }
     composeTestRule.onNodeWithTag("Search").isDisplayed()
     composeTestRule.onNodeWithTag("Search").performClick()
-    composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
 
     // Step 6: Click the library button and verify navigation to Library Screen
     composeTestRule.onNodeWithTag("Library").isDisplayed()

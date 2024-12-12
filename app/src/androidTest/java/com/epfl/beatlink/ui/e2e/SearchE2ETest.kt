@@ -89,16 +89,9 @@ class SearchE2ETest {
     // Step 4: Click the search button and verify navigation to Search Screen
     composeTestRule.onNodeWithTag("Search").isDisplayed()
     composeTestRule.onNodeWithTag("Search").performClick()
-    composeTestRule.onNodeWithTag("searchScreen").assertIsDisplayed()
-
-    // Step 5: Click on the search bar and verify that the search bar screen is displayed
-    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").isDisplayed()
-    composeTestRule.onNodeWithTag("nonWritableSearchBarBox").performClick()
-
-    // Step 6: Check that navigation to SearchBarScreen is successful
     composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
 
-    // Step 7: Input some text in the search bar and verify that the search is successful
+    // Step 5: Input some text in the search bar and verify that the search is successful
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("Del")
     composeTestRule.waitUntil {
@@ -106,7 +99,7 @@ class SearchE2ETest {
     }
     composeTestRule.onNodeWithText("Delilah", substring = true).assertIsDisplayed()
 
-    // Step 8: Same but for artists
+    // Step 7: Same but for artists
     composeTestRule.onNodeWithText("Artists").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextClearance()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("f")

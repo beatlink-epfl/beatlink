@@ -86,4 +86,8 @@ open class FakeSpotifyApiViewModel(
   ) {
     onResult("playlistId")
   }
+
+  override fun updatePlayer() {
+    // Simulate fetching playback state
+  }
 }
