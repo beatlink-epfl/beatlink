@@ -72,11 +72,12 @@ class InviteCollaboratorsScreenTest {
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertExists()
   }
 
-  @Test
-  fun testBackNavigation() {
-    composeTestRule.onNodeWithTag("goBackButton").performClick()
-    org.mockito.kotlin.verify(navigationActions).goBack()
-  }
+  // same comment as in SearchTracksScreenTest
+  //  @Test
+  //  fun testBackNavigation() {
+  //    composeTestRule.onNodeWithTag("goBackButton").performClick()
+  //    org.mockito.kotlin.verify(navigationActions).goBack()
+  //  }
 
   @Test
   fun testSearchBarInteraction() {
