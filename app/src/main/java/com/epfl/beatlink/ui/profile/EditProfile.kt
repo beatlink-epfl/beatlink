@@ -39,13 +39,13 @@ import com.epfl.beatlink.model.profile.MusicGenre
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.profile.ProfileData.Companion.MAX_USERNAME_LENGTH
-import com.epfl.beatlink.ui.authentication.MusicGenreSelectionDialog
-import com.epfl.beatlink.ui.authentication.SelectFavoriteMusicGenres
 import com.epfl.beatlink.ui.components.CircleWithIcon
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ProfilePicture
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
+import com.epfl.beatlink.ui.components.profile.MusicGenreSelectionDialog
+import com.epfl.beatlink.ui.components.profile.SelectFavoriteMusicGenres
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -77,6 +77,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
   var imageCover by remember { mutableStateOf(profileData?.profilePicture ?: "") }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
+
   // Load profile picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
@@ -92,6 +93,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
           profileViewModel.profilePicture.value = base64ToBitmap(imageCover)
         }
       }
+
   Scaffold(
       modifier = Modifier.testTag("editProfileScreen"),
       topBar = { ScreenTopAppBar("Edit profile", "editProfileTitle", navigationActions) },
@@ -110,7 +112,9 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     .testTag("editProfileContent"),
             horizontalAlignment = Alignment.CenterHorizontally) {
               HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+
               Spacer(modifier = Modifier.height(50.dp))
+
               Box(
                   modifier =
                       Modifier.clickable(
@@ -120,7 +124,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                       CircleWithIcon(Icons.Filled.Edit, MaterialTheme.colorScheme.primary)
                     }
                   }
+
               Spacer(modifier = Modifier.height(66.dp))
+
+              // Name input field
               CustomInputField(
                   value = name,
                   onValueChange = { newName ->
@@ -133,7 +140,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                   supportingText = "Max $MAX_USERNAME_LENGTH characters",
                   trailingIcon = Icons.Filled.Clear,
                   modifier = Modifier.testTag("editProfileNameInput"))
+
               Spacer(modifier = Modifier.height(16.dp))
+
+              // Description input field
               Row {
                 CustomInputField(
                     value = description,
@@ -149,10 +159,16 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     trailingIcon = Icons.Filled.Clear,
                     modifier = Modifier.testTag("editProfileDescriptionInput"))
               }
+
               Spacer(modifier = Modifier.height(10.dp))
+
+              // Select favorite music genres
               SelectFavoriteMusicGenres(
                   onGenreSelectionVisibilityChanged = { isGenreSelectionVisible = it })
+
               Spacer(modifier = Modifier.height(100.dp))
+
+              // Save button
               PrincipalButton(
                   "Save",
                   "saveProfileButton",
@@ -178,6 +194,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                     }
                   })
 
+              // Show music genre selection dialog if visible
               if (isGenreSelectionVisible) {
                 MusicGenreSelectionDialog(
                     musicGenres = MusicGenre.getAllGenres(),
