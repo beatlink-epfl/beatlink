@@ -78,7 +78,6 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.PrimaryRed
 import com.epfl.beatlink.ui.theme.RedGradientBrush
-import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
@@ -443,7 +442,6 @@ fun MusicPlayerUI(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = SecondaryGray)
                 .testTag("playerContainer")
                 .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
