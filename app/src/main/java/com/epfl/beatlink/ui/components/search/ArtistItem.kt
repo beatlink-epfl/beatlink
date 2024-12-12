@@ -26,7 +26,7 @@ fun ArtistItem(artist: SpotifyArtist) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.Start,
-      modifier = Modifier.testTag("artistItem")) {
+      modifier = Modifier.padding(top = 8.dp).testTag("artistItem")) {
         // Artist image
         Box(
             modifier =

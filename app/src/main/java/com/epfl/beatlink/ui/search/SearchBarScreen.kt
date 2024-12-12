@@ -37,6 +37,7 @@ import com.epfl.beatlink.ui.theme.PrimaryOrange
 import com.epfl.beatlink.ui.theme.PrimaryPurple
 import com.epfl.beatlink.ui.theme.PrimaryRed
 import com.epfl.beatlink.ui.theme.primaryWhite
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
@@ -45,6 +46,7 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 fun SearchBarScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
 ) {
@@ -73,34 +75,38 @@ fun SearchBarScreen(
         spotifyApiViewModel = spotifyApiViewModel)
   }
 
-  SearchScaffold(navigationActions = navigationActions, searchQuery = searchQuery) { paddingValues
-    ->
-    Column(
-        modifier =
-            Modifier.fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)) {
-          // Add category buttons
-          CategoryButtons(selectedCategory = selectedCategory)
+  SearchScaffold(
+      navigationActions = navigationActions,
+      spotifyApiViewModel = spotifyApiViewModel,
+      mapUsersViewModel = mapUsersViewModel,
+      backArrowButton = false,
+      searchQuery = searchQuery) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)) {
+              // Add category buttons
+              CategoryButtons(selectedCategory = selectedCategory)
 
-          // Display results based on the selected category
-          when (selectedCategory.value) {
-            "Songs" -> {
-              DisplayResults(tracks = results.value.first)
+              // Display results based on the selected category
+              when (selectedCategory.value) {
+                "Songs" -> {
+                  DisplayResults(tracks = results.value.first)
+                }
+                "Artists" -> {
+                  DisplayResults(artists = results.value.second)
+                }
+                "People" -> {
+                  DisplayResults(
+                      people = peopleResult.value,
+                      profileViewModel = profileViewModel,
+                      navigationActions = navigationActions,
+                      friendRequestViewModel = friendRequestViewModel)
+                }
+              }
             }
-            "Artists" -> {
-              DisplayResults(artists = results.value.second)
-            }
-            "People" -> {
-              DisplayResults(
-                  people = peopleResult.value,
-                  profileViewModel = profileViewModel,
-                  navigationActions = navigationActions,
-                  friendRequestViewModel = friendRequestViewModel)
-            }
-          }
-        }
-  }
+      }
 }
 
 @Composable
@@ -109,9 +115,7 @@ fun CategoryButtons(selectedCategory: MutableState<String>) {
       horizontalArrangement = Arrangement.SpaceEvenly,
       verticalAlignment = Alignment.CenterVertically,
       modifier =
-          Modifier.fillMaxWidth()
-              .padding(horizontal = 12.dp, vertical = 8.dp)
-              .testTag("categoryButtons")) {
+          Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp).testTag("categoryButtons")) {
         CategoryButton("Songs", selectedCategory.value, PrimaryRed) {
           selectedCategory.value = "Songs"
         }
@@ -142,8 +146,7 @@ fun CategoryButton(
               containerColor = backgroundColor, contentColor = contentColor),
       shape = RoundedCornerShape(20.dp),
       border = BorderStroke(2.dp, categoryColor),
-      modifier =
-          Modifier.testTag("$category categoryButton").height(36.dp).padding(horizontal = 4.dp)) {
+      modifier = Modifier.testTag("$category categoryButton").height(36.dp)) {
         Text(
             text = category,
             style = MaterialTheme.typography.labelLarge,

@@ -1,9 +1,6 @@
 package com.epfl.beatlink.ui.search.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +18,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,65 +28,17 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.epfl.beatlink.ui.components.BackArrowButton
-import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
-import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.BorderColor
 import com.epfl.beatlink.ui.theme.LightGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 
 @Composable
-fun FullSearchBar(navigationActions: NavigationActions) {
-
-  Row(
-      horizontalArrangement = Arrangement.Center,
-      verticalAlignment = Alignment.CenterVertically,
-      modifier =
-          Modifier.testTag("nonWritableSearchBar")
-              .background(color = MaterialTheme.colorScheme.background)
-              .topAppBarModifier()) {
-        Box(
-            modifier =
-                Modifier.testTag("nonWritableSearchBarBox")
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 6.dp)
-                    .background(color = LightGray, shape = RoundedCornerShape(size = 5.dp))
-                    .clickable { navigationActions.navigateTo(Screen.SEARCH_BAR) }) {
-              Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.Start,
-                  modifier = Modifier.testTag("nonWritableSearchBarBoxRow")) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = MaterialTheme.colorScheme.primaryContainer,
-                        modifier =
-                            Modifier.testTag("nonWritableSearchBarIcon")
-                                .padding(start = 5.dp, top = 4.dp, bottom = 4.dp))
-                    Text(
-                        text = "Search songs, artists, live music parties, ... ",
-                        style =
-                            TextStyle(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight(400),
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                            ),
-                        modifier =
-                            Modifier.testTag("nonWritableSearchBarText")
-                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp))
-                  }
-            }
-      }
-}
-
-@Composable
 fun ShortSearchBarLayout(
+    backArrowButton: Boolean,
     navigationActions: NavigationActions,
     searchQuery: TextFieldValue = TextFieldValue(""),
     onQueryChange: (TextFieldValue) -> Unit = {}
@@ -101,7 +49,6 @@ fun ShortSearchBarLayout(
           Modifier.testTag("shortSearchBarRow")
               .fillMaxWidth()
               .height(60.dp)
-              .background(color = MaterialTheme.colorScheme.background)
               .drawWithCache {
                 onDrawWithContent {
                   drawContent()
@@ -114,8 +61,11 @@ fun ShortSearchBarLayout(
                 }
               }
               .shadow(elevation = 2.dp, spotColor = ShadowColor, ambientColor = ShadowColor)) {
-        BackArrowButton { navigationActions.goBack() }
-        Spacer(Modifier.width(12.dp))
+        if (backArrowButton) {
+          BackArrowButton { navigationActions.goBack() }
+          Spacer(Modifier.width(12.dp))
+        }
+
         // Search Bar
         ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange)
       }
@@ -125,8 +75,6 @@ fun ShortSearchBarLayout(
 fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) -> Unit) {
   val focusRequester = remember { FocusRequester() }
 
-  // Request focus when the composable is first loaded
-  LaunchedEffect(Unit) { focusRequester.requestFocus() }
   OutlinedTextField(
       value = searchQuery,
       onValueChange = onQueryChange,
@@ -139,6 +87,12 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
             tint = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.testTag("writableSearchBarIcon").size(28.dp).padding(start = 5.dp))
       },
+      placeholder = {
+        Text(
+            text = "Search songs, artists or people",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primaryContainer)
+      },
       colors =
           OutlinedTextFieldDefaults.colors(
               focusedTextColor = MaterialTheme.colorScheme.primary,
@@ -149,9 +103,9 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
       modifier =
           Modifier.testTag("writableSearchBar")
               .focusRequester(focusRequester)
+              .padding(top = 4.dp, bottom = 4.dp, start = 8.dp, end = 8.dp)
               .shadow(elevation = 4.dp, spotColor = LightGray, ambientColor = LightGray)
-              .width(350.dp)
-              .height(50.dp)
+              .fillMaxSize()
               .background(
                   color = MaterialTheme.colorScheme.surfaceContainer,
                   shape = RoundedCornerShape(5.dp)))
