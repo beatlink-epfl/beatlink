@@ -78,10 +78,10 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.PrimaryGray
 import com.epfl.beatlink.ui.theme.PrimaryRed
 import com.epfl.beatlink.ui.theme.RedGradientBrush
-import com.epfl.beatlink.ui.theme.SecondaryGray
 import com.epfl.beatlink.ui.theme.ShadowColor
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.ui.theme.lightThemeBackground
+import com.epfl.beatlink.ui.theme.lightThemePurple
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
@@ -443,7 +443,7 @@ fun MusicPlayerUI(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = SecondaryGray)
+                .background(color = lightThemePurple)
                 .testTag("playerContainer")
                 .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
@@ -470,7 +470,7 @@ fun MusicPlayerUI(
         Text(
             text =
                 "${spotifyApiViewModel.currentArtist.name} - ${spotifyApiViewModel.currentAlbum.name}",
-            style = TypographySongs.titleSmall)
+            style = TypographySongs.titleMedium)
       }
 
       Spacer(modifier = Modifier.width(8.dp))
@@ -504,7 +504,8 @@ fun MusicPlayerUI(
           onClick = {
             spotifyApiViewModel.skipSong()
             spotifyApiViewModel.updatePlayer()
-          }) {
+          },
+          modifier = Modifier.padding(end = 8.dp)) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
                 contentDescription = "Skip",

@@ -197,7 +197,7 @@ class SearchBarScreenTest {
 
     // Check all profiles are displayed
     topProfiles.forEach { profile ->
-      composeTestRule.onNodeWithText(profile.username).assertExists()
+      composeTestRule.onNodeWithText("@${profile.username.uppercase()}").assertExists()
     }
 
     composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(topProfiles.size)
