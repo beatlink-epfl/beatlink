@@ -78,7 +78,7 @@ class SearchTracksScreenTest {
     composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    // composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
   }
 
@@ -135,13 +135,11 @@ class SearchTracksScreenTest {
     verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 
-  // Commented because library uses main search screen scaffold that doesn't have back navigation,
-  // need to be fixed to use another search scaffold screen that uses back navigation
-  //  @Test
-  //  fun testBackNavigation() {
-  //    composeTestRule.onNodeWithTag("goBackButton").performClick()
-  //    verify(navigationActions).goBack()
-  //  }
+  @Test
+  fun testBackNavigation() {
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
+    verify(navigationActions).goBack()
+  }
 
   @Test
   fun testNavigationToHome() {
