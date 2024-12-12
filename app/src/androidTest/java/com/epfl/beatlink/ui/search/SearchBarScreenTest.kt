@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -19,6 +20,7 @@ import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +69,7 @@ class SearchBarScreenTest {
 
     navigationActions = mock(NavigationActions::class.java)
 
-    `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH_BAR)
+    `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH)
 
     val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     val fakeProfileViewModel = FakeProfileViewModel()
@@ -82,10 +84,13 @@ class SearchBarScreenTest {
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
+    fakeSpotifyApiViewModel.updatePlayer()
+
     composeTestRule.setContent {
       SearchBarScreen(
           navigationActions,
           fakeSpotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory),
           fakeProfileViewModel,
           fakeFriendRequestViewModel)
     }
@@ -96,7 +101,6 @@ class SearchBarScreenTest {
     composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
     composeTestRule.onNodeWithTag("categoryButtons").assertIsDisplayed()
     composeTestRule.onNodeWithTag("Songs categoryButton").assertIsDisplayed()
@@ -115,12 +119,6 @@ class SearchBarScreenTest {
     composeTestRule
         .onNodeWithTag("People categoryText", useUnmergedTree = true)
         .assertTextEquals("People")
-  }
-
-  @Test
-  fun testBackNavigation() {
-    composeTestRule.onNodeWithTag("goBackButton").performClick()
-    verify(navigationActions).goBack()
   }
 
   @Test
