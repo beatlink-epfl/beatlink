@@ -111,7 +111,8 @@ fun ScreenTopAppBar(
     title: String,
     titleTag: String,
     navigationActions: NavigationActions,
-    actionButtons: List<@Composable () -> Unit> = emptyList()
+    actionButtons: List<@Composable () -> Unit> = emptyList(),
+    goBackManagement: () -> Unit = {},
 ) {
   TopAppBar(
       title = {
@@ -128,7 +129,10 @@ fun ScreenTopAppBar(
       },
       navigationIcon = {
         Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
-          BackArrowButton { navigationActions.goBack() }
+          BackArrowButton {
+            goBackManagement()
+            navigationActions.goBack()
+          }
         }
       },
       modifier = Modifier.topAppBarModifier())

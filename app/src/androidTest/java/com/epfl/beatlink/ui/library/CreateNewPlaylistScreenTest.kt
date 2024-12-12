@@ -13,6 +13,7 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +48,10 @@ class CreateNewPlaylistScreenTest {
 
     composeTestRule.setContent {
       CreateNewPlaylistScreen(
-          navigationActions, viewModel(factory = ProfileViewModel.Factory), playlistViewModel)
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
     }
   }
 
