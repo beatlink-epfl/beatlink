@@ -59,6 +59,9 @@ open class ProfileViewModel(
   val profileReady: StateFlow<Boolean>
     get() = _profileReady
 
+  // Stack-like structure to hold user navigation history
+  private val userStack = mutableListOf<String>()
+
   private val _selectedUserUserId = MutableStateFlow("")
   val selectedUserUserId: StateFlow<String>
     get() = _selectedUserUserId
@@ -68,11 +71,30 @@ open class ProfileViewModel(
     get() = _selectedUserProfile
 
   fun selectSelectedUser(userId: String) {
+    if (_selectedUserUserId.value.isNotEmpty()) {
+      userStack.add(_selectedUserUserId.value) // Push current user to the stack
+    }
     _selectedUserUserId.value = userId
   }
 
+  /**
+   * Pops the last user ID from the stack and sets it as the selected user. If the stack is empty,
+   * clears the selected user.
+   */
+  fun goBackToPreviousUser() {
+    if (userStack.isNotEmpty()) {
+      val previousUserId = userStack.removeAt(userStack.lastIndex) // Pop the stack
+      _selectedUserUserId.value = previousUserId
+      Log.d("PROFILE", "selectedUser: $previousUserId")
+    } else {
+      unselectSelectedUser() // Clear selection if the stack is empty
+    }
+  }
+
+  /** Clears the selected user and resets the stack. */
   fun unselectSelectedUser() {
     _selectedUserUserId.value = ""
+    userStack.clear()
   }
 
   fun unreadyProfile() {
@@ -89,7 +111,12 @@ open class ProfileViewModel(
     _isProfileUpdated.value = false
   }
 
-  fun getUsername(userId: String, onResult: (String?) -> Unit) {
+  fun clearSelectedUser() {
+    _selectedUserUserId.value = ""
+    _selectedUserProfile.value = null
+  }
+
+  open fun getUsername(userId: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {
         val username = repository.getUsername(userId)
@@ -118,6 +145,25 @@ open class ProfileViewModel(
     viewModelScope.launch {
       val userProfile = repository.fetchProfile(userId)
       _profile.value = userProfile
+    }
+  }
+
+  /**
+   * Fetches the profile data for a user by their unique ID.
+   *
+   * @param userId The unique ID of the user whose profile is being fetched.
+   * @param onResult A callback function that receives the fetched `ProfileData` if successful, or
+   *   `null` if the operation fails or no data is found.
+   */
+  open fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
+    viewModelScope.launch {
+      try {
+        val userProfileData = repository.fetchProfile(userId)
+        onResult(userProfileData)
+      } catch (e: Exception) {
+        Log.e("ViewModel", "Error fetching user profile", e)
+        onResult(null)
+      }
     }
   }
 
@@ -157,6 +203,54 @@ open class ProfileViewModel(
         _profile.value = null
       } else {
         Log.e("DELETE_PROFILE", "Error deleting profile")
+      }
+    }
+  }
+
+  /**
+   * Updates the number of Links of the current user
+   *
+   * @param profileData The current user's profile data that will be updated.
+   * @param nbLinks The new number of links to set for the current user.
+   */
+  open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
+    val userId = repository.getUserId() ?: return
+    viewModelScope.launch {
+      try {
+        val updatedProfile = profileData.copy(links = nbLinks)
+        val success = repository.updateProfile(userId, updatedProfile)
+        if (success) {
+          _profile.emit(updatedProfile)
+          _profile.value = updatedProfile
+        }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
+      }
+    }
+  }
+
+  /**
+   * Updates the number of Links of the given user ProfileData and ID
+   *
+   * @param otherProfileData The profile data of the user to be updated.
+   * @param otherProfileUserId The unique ID of the user whose profile is being updated.
+   * @param nbLinks The new number of links to set for the specified user.
+   */
+  open fun updateOtherProfileNbLinks(
+      otherProfileData: ProfileData,
+      otherProfileUserId: String,
+      nbLinks: Int
+  ) {
+    viewModelScope.launch {
+      try {
+        val updatedProfile = otherProfileData.copy(links = nbLinks)
+        val success = repository.updateProfile(otherProfileUserId, updatedProfile)
+        if (success) {
+          _selectedUserProfile.emit(updatedProfile)
+          _selectedUserProfile.value = updatedProfile
+        }
+      } catch (e: Exception) {
+        Log.e("ProfileViewModel", "Error updating links: ${e.message}")
       }
     }
   }

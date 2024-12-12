@@ -38,15 +38,17 @@ object Screen {
   const val ADD_TRACK_TO_PLAYLIST = "Add Track Screen"
   const val INVITE_COLLABORATORS = "Invite Collaborators Screen"
   const val PROFILE = "Profile Screen"
+  const val OTHER_PROFILE = "Other User's Profile Screen"
+  const val LINKS = "Links Screen"
   const val EDIT_PROFILE = "Edit Profile Screen"
   const val NOTIFICATIONS = "Notifications Screen"
+  const val LINK_REQUESTS = "Link Requests Screen"
   const val SETTINGS = "Settings Screen"
   const val NOTIFICATION_SETTINGS = "Notification Settings Screen"
   const val ACCOUNT = "Account Screen"
   const val CHANGE_USERNAME = "Change Username Screen"
   const val CHANGE_PASSWORD = "Change Password Screen"
   const val PLAY_SCREEN = "Play Screen"
-  const val OTHER_PROFILE_SCREEN = "Other Profile Screen"
 }
 
 data class TopLevelDestination(

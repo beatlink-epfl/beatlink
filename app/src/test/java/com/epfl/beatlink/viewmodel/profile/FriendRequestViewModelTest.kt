@@ -13,11 +13,13 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FriendRequestViewModelTest {
@@ -76,6 +78,7 @@ class FriendRequestViewModelTest {
 
     val actualOwnRequests = friendRequestViewModel.ownRequests.value
     assertEquals(newOwnRequests, actualOwnRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -109,7 +112,6 @@ class FriendRequestViewModelTest {
 
     friendRequestViewModel.acceptFriendRequestFrom(senderId)
     advanceUntilIdle()
-
     assertEquals(updatedFriendRequests, friendRequestViewModel.friendRequests.value)
     assertEquals(updatedAllFriends, friendRequestViewModel.allFriends.value)
   }
@@ -148,6 +150,7 @@ class FriendRequestViewModelTest {
 
     val actualFriendRequests = friendRequestViewModel.friendRequests.value
     assertEquals(expectedFriendRequests, actualFriendRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -184,6 +187,7 @@ class FriendRequestViewModelTest {
 
     val actualOwnRequests = friendRequestViewModel.ownRequests.value
     assertEquals(expectedOwnRequests, actualOwnRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -224,6 +228,7 @@ class FriendRequestViewModelTest {
 
     val actualFriends = friendRequestViewModel.allFriends.value
     assertEquals(expectedFriends, actualFriends)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -259,6 +264,7 @@ class FriendRequestViewModelTest {
 
     val actualRequests = friendRequestViewModel.ownRequests.value
     assertEquals(expectedRequests, actualRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -289,6 +295,7 @@ class FriendRequestViewModelTest {
 
     val actualRequests = friendRequestViewModel.friendRequests.value
     assertEquals(expectedRequests, actualRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -319,6 +326,7 @@ class FriendRequestViewModelTest {
 
     val actualFriends = friendRequestViewModel.allFriends.value
     assertEquals(expectedFriends, actualFriends)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -333,6 +341,62 @@ class FriendRequestViewModelTest {
     advanceUntilIdle() // Wait for coroutine completion
 
     val actualFriends = friendRequestViewModel.allFriends.value
+    assertEquals(emptyList<String>(), actualFriends)
+  }
+
+  @Test
+  fun getOtherProfileAllFriendsIsSuccessful(): Unit = runTest {
+    // Arrange
+    val otherProfileId = "otherProfileId"
+    val expectedFriends = listOf("friend1", "friend2", "friend3")
+
+    `when`(mockRepository.getAllFriends(otherProfileId)).thenReturn(expectedFriends)
+
+    var onCompleteCalled = false
+    val onComplete = { onCompleteCalled = true }
+
+    // Act
+    friendRequestViewModel.getOtherProfileAllFriends(otherProfileId, onComplete)
+    advanceUntilIdle() // Wait for coroutine completion
+
+    // Assert
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
+    assertEquals(expectedFriends, actualFriends)
+    assertTrue(onCompleteCalled)
+  }
+
+  @Test
+  fun getOtherProfileAllFriendsReturnsEmptyList(): Unit = runTest {
+    // Arrange
+    val otherProfileId = "otherProfileId"
+    val expectedFriends = emptyList<String>()
+
+    `when`(mockRepository.getAllFriends(otherProfileId)).thenReturn(expectedFriends)
+
+    var onCompleteCalled = false
+    val onComplete = { onCompleteCalled = true }
+
+    // Act
+    friendRequestViewModel.getOtherProfileAllFriends(otherProfileId, onComplete)
+    advanceUntilIdle() // Wait for coroutine completion
+
+    // Assert
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
+    assertEquals(expectedFriends, actualFriends)
+    assertTrue(onCompleteCalled)
+  }
+
+  @Test
+  fun getOtherProfileAllFriendsFails(): Unit = runTest {
+    val userId = "testUserId"
+
+    `when`(mockRepository.getAllFriends(userId))
+        .thenThrow(RuntimeException("Failed to fetch friends"))
+
+    friendRequestViewModel.getOtherProfileAllFriends(userId) {}
+    advanceUntilIdle() // Wait for coroutine completion
+
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
     assertEquals(emptyList<String>(), actualFriends)
   }
 }

@@ -63,8 +63,8 @@ class NavigationActionsTest {
     navigationActions.navigateTo(Screen.SETTINGS)
     verify(navHostController).navigate(Screen.SETTINGS)
 
-    navigationActions.navigateTo(Screen.OTHER_PROFILE_SCREEN)
-    verify(navHostController).navigate(Screen.OTHER_PROFILE_SCREEN)
+    navigationActions.navigateTo(Screen.OTHER_PROFILE)
+    verify(navHostController).navigate(Screen.OTHER_PROFILE)
   }
 
   @Test

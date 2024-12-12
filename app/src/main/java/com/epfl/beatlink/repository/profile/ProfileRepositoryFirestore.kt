@@ -154,36 +154,27 @@ open class ProfileRepositoryFirestore(
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
-
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
-
             // Read the current profile
             val userSnapshot = transaction.get(profileDocRef)
             val currentUsername = userSnapshot.getString("username")
-
             // Check if the username has changed
             if (currentUsername != null && currentUsername != profileData.username) {
               // Ensure the new username is available
               val newUsernameDocRef = db.collection("usernames").document(profileData.username)
               val newUsernameSnapshot = transaction.get(newUsernameDocRef)
-
               if (newUsernameSnapshot.exists()) {
                 throw Exception("Username is already taken.")
               }
-
               // Delete the current username
               transaction.delete(db.collection("usernames").document(currentUsername))
-
               // Add the new username
               transaction.set(newUsernameDocRef, mapOf<String, Any>())
             }
-
             // Serialize topSongs and topArtists to Firestore-compatible format
             val topSongs = spotifyTrackToMap(profileData)
-
             val topArtists = spotifyArtistToMap(profileData)
-
             // Update user profile (excluding incompatible objects for Firestore)
             transaction.set(
                 profileDocRef,
@@ -191,7 +182,6 @@ open class ProfileRepositoryFirestore(
                     topSongs = emptyList(),
                     topArtists = emptyList()), // Prevent issues with incompatible objects
                 SetOptions.merge())
-
             // Update topSongs and topArtists as separate fields
             transaction.update(profileDocRef, "topSongs", topSongs)
             transaction.update(profileDocRef, "topArtists", topArtists)
