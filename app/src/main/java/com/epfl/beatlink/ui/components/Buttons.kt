@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -149,7 +152,7 @@ fun ProfileCardLinkButton(buttonText: String, onClick: () -> Unit) {
   val linkModifier =
       linkedModifier.background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
 
-  val acceptModifier =
+  val requestedModifier =
       Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .width(120.dp)
@@ -159,8 +162,8 @@ fun ProfileCardLinkButton(buttonText: String, onClick: () -> Unit) {
       modifier =
           when (buttonText) {
             "Linked" -> linkedModifier
-            "Link" -> linkModifier
-            else -> acceptModifier
+            "Requested" -> requestedModifier
+            else -> linkModifier
           },
       contentAlignment = Alignment.Center) {
         Button(
@@ -187,6 +190,17 @@ fun ProfileCardLinkButton(buttonText: String, onClick: () -> Unit) {
               }
             }
       }
+}
+
+@Composable
+fun RejectButton(onClick: () -> Unit) {
+  IconButton(onClick = onClick, modifier = Modifier.testTag("rejectButton")) {
+    Icon(
+        imageVector = Icons.Filled.Close,
+        contentDescription = "Reject friend request",
+        tint = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier.size(24.dp))
+  }
 }
 
 @Composable
@@ -247,7 +261,10 @@ fun EditProfileButton(onClick: () -> Unit) {
                     contentColor = MaterialTheme.colorScheme.primary),
             shape = RoundedCornerShape(30.dp),
             elevation = null) {
-              Text(text = "Edit Profile", style = MaterialTheme.typography.bodyMedium)
+              Text(
+                  text = "Edit Profile",
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = MaterialTheme.colorScheme.primary)
             }
       }
 }

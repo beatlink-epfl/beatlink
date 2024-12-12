@@ -89,7 +89,7 @@ fun LinkRequestsScreen(
       topBar = { ScreenTopAppBar("Link Requests", "linkRequestsScreenTitle", navigationActions) },
       content = { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(horizontal = 16.dp),
+            modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               TabRow(

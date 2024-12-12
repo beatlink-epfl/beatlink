@@ -3,13 +3,18 @@ package com.epfl.beatlink.ui.components.search
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,13 +27,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.ProfileCardLinkButton
 import com.epfl.beatlink.ui.components.ProfilePicture
+import com.epfl.beatlink.ui.components.RejectButton
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
@@ -99,49 +105,77 @@ fun PeopleItem(
                 }
               }
               .height(78.dp)
-              .padding(end = 16.dp)
+              .padding(end = 12.dp)
               .testTag("peopleItem")) {
         Box(
             modifier =
-                Modifier.padding(horizontal = 16.dp)
+                Modifier.padding(horizontal = 12.dp)
                     .size(60.dp)
                     .clip(CircleShape)
                     .testTag("peopleImage")) {
               ProfilePicture(profilePicture)
             }
-        Spacer(modifier = Modifier.size(10.dp))
         if (selectedProfileData != null) {
-          Text(
-              text = selectedProfileData.username,
-              style = TypographySongs.titleLarge,
-              modifier = Modifier.testTag("peopleUsername"))
+          Column(
+              verticalArrangement = Arrangement.spacedBy(6.dp),
+              modifier = Modifier.fillMaxWidth(0.5f)) {
+                Text(
+                    text = selectedProfileData.name ?: "",
+                    style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "@${selectedProfileData.username.uppercase()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
+              }
         } else {
           Log.d("PeopleItem", "profile data null")
         }
         Spacer(modifier = Modifier.weight(1f))
         if (profileData != selectedProfileData) {
-          ProfileCardLinkButton(buttonText = requestStatus) {
-            when (requestStatus) {
-              "Link" -> {
-                selectedUserUserId.value.let { friendRequestViewModel.sendFriendRequestTo(it) }
-                requestStatus = "Requested"
+          Row(
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.End,
+              modifier = Modifier.width(130.dp)) {
+                ProfileCardLinkButton(buttonText = requestStatus) {
+                  when (requestStatus) {
+                    "Link" -> {
+                      selectedUserUserId.value.let {
+                        friendRequestViewModel.sendFriendRequestTo(it)
+                      }
+                      requestStatus = "Requested"
+                    }
+                    "Requested" -> {
+                      selectedUserUserId.value.let {
+                        friendRequestViewModel.cancelFriendRequestTo(it)
+                      }
+                      requestStatus = "Link"
+                    }
+                    "Accept" -> {
+                      selectedUserUserId.value.let {
+                        friendRequestViewModel.acceptFriendRequestFrom(it)
+                      }
+                      requestStatus = "Linked"
+                      selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.plus(1)
+                    }
+                    "Linked" -> {
+                      selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
+                      requestStatus = "Link"
+                      selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.minus(1)
+                    }
+                  }
+                }
+                Spacer(Modifier.width(10.dp))
+                if (requestStatus == "Accept") {
+                  RejectButton {
+                    selectedUserUserId.value.let {
+                      friendRequestViewModel.rejectFriendRequestFrom(it)
+                      requestStatus = "Link"
+                    }
+                  }
+                }
               }
-              "Requested" -> {
-                selectedUserUserId.value.let { friendRequestViewModel.cancelFriendRequestTo(it) }
-                requestStatus = "Link"
-              }
-              "Accept" -> {
-                selectedUserUserId.value.let { friendRequestViewModel.acceptFriendRequestFrom(it) }
-                requestStatus = "Linked"
-                selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.plus(1)
-              }
-              "Linked" -> {
-                selectedUserUserId.value.let { friendRequestViewModel.removeFriend(it) }
-                requestStatus = "Link"
-                selectedProfileDataNbLinks.value = selectedProfileDataNbLinks.value?.minus(1)
-              }
-            }
-          }
         }
       }
 }
