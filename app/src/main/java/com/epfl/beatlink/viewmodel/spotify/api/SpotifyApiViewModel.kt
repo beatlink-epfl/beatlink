@@ -309,7 +309,7 @@ open class SpotifyApiViewModel(
   }
 
   /** Updates the player state. */
-  fun updatePlayer() {
+  open fun updatePlayer() {
     getPlaybackState(
         onSuccess = {
           playbackActive = true
