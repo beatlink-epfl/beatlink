@@ -86,7 +86,8 @@ fun SearchBarScreen(
           // Display results based on the selected category
           when (selectedCategory.value) {
             "Songs" -> {
-              DisplayResults(tracks = results.value.first)
+              DisplayResults(
+                  tracks = results.value.first, spotifyApiViewModel = spotifyApiViewModel)
             }
             "Artists" -> {
               DisplayResults(artists = results.value.second)
