@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -208,32 +207,32 @@ fun ProfileColumn(
         if (ownProfile) {
           if (profileData?.favoriteMusicGenres?.isNotEmpty() == true) {
             GradientTitle("MUSIC GENRES")
-              LazyRow(
-                  modifier =
-                  Modifier.fillMaxWidth()
-                      .padding(vertical = 16.dp)
-                      .testTag("favoriteMusicGenresRow"),
-                  horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            LazyRow(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .testTag("favoriteMusicGenresRow"),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                   items(profileData!!.favoriteMusicGenres) { genre ->
-                      val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                      MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
+                    val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
+                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
                   }
-              }
+                }
           }
         } else {
           if (selectedProfileData?.favoriteMusicGenres?.isNotEmpty() == true) {
             GradientTitle("MUSIC GENRES")
-              LazyRow(
-                  modifier =
-                  Modifier.fillMaxWidth()
-                      .padding(vertical = 16.dp)
-                      .testTag("favoriteMusicGenresRow"),
-                  horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            LazyRow(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .testTag("favoriteMusicGenresRow"),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                   items(profileData!!.favoriteMusicGenres) { genre ->
-                      val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                      MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
+                    val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
+                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
                   }
-              }
+                }
           }
         }
 
