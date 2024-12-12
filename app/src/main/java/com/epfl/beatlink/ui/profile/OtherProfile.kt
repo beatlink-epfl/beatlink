@@ -34,7 +34,7 @@ fun OtherProfileScreen(
 
   LaunchedEffect(selectedUserId) {
     if (selectedUserId.isNotEmpty()) {
-      profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+      profileViewModel.loadSelectedUserProfilePicture { profileViewModel.profilePicture.value = it }
     }
   }
   val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
