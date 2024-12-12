@@ -36,12 +36,7 @@ import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
 import com.epfl.beatlink.ui.profile.settings.NotificationSettingsScreen
 import com.epfl.beatlink.ui.profile.settings.SettingsScreen
-import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
-import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
-import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
 import com.epfl.beatlink.ui.search.SearchBarScreen
-import com.epfl.beatlink.ui.search.SearchScreen
-import com.epfl.beatlink.ui.search.TrendingSongsScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.MapViewModel
@@ -108,19 +103,16 @@ fun BeatLinkApp(
 
         navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
           composable(Screen.SEARCH) {
-            SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-          }
-          composable(Screen.SEARCH_BAR) {
             SearchBarScreen(
-                navigationActions, spotifyApiViewModel, profileViewModel, friendRequestViewModel)
+                navigationActions,
+                spotifyApiViewModel,
+                mapUsersViewModel,
+                profileViewModel,
+                friendRequestViewModel)
           }
           composable(Screen.OTHER_PROFILE_SCREEN) {
             OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
           }
-          composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
-          composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
-          composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
-          composable(Screen.DISCOVER_PEOPLE) { DiscoverPeopleScreen(navigationActions) }
         }
 
         navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
@@ -148,7 +140,8 @@ fun BeatLinkApp(
                 navigationActions, profileViewModel, playlistViewModel, spotifyApiViewModel)
           }
           composable(Screen.ADD_TRACK_TO_PLAYLIST) {
-            SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
+            SearchTracksScreen(
+                navigationActions, spotifyApiViewModel, mapUsersViewModel, playlistViewModel)
           }
           composable(Screen.INVITE_COLLABORATORS) {
             InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel)
