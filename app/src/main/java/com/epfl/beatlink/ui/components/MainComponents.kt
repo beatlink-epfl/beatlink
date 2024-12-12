@@ -486,19 +486,20 @@ fun MusicPlayerUI(
             } else {
               spotifyApiViewModel.playPlayback()
             }
-          }) {
+          },
+          modifier = Modifier.testTag("playPauseButton")) {
             if (spotifyApiViewModel.isPlaying) {
               Icon(
                   painter = painterResource(R.drawable.pause),
                   contentDescription = "Pause",
                   tint = Color.Unspecified,
-                  modifier = Modifier.size(35.dp).testTag("pauseButton"))
+                  modifier = Modifier.size(35.dp))
             } else {
               Icon(
                   painter = painterResource(R.drawable.play),
                   contentDescription = "Play",
                   tint = Color.Unspecified,
-                  modifier = Modifier.size(35.dp).testTag("playButton"))
+                  modifier = Modifier.size(35.dp))
             }
           }
 
@@ -508,7 +509,7 @@ fun MusicPlayerUI(
             spotifyApiViewModel.skipSong()
             spotifyApiViewModel.updatePlayer()
           },
-          modifier = Modifier.padding(end = 8.dp)) {
+          modifier = Modifier.padding(end = 8.dp).testTag("skipButton")) {
             Icon(
                 painter = painterResource(R.drawable.skip_forward),
                 contentDescription = "Skip",
