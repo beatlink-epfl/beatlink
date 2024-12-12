@@ -68,6 +68,7 @@ fun InviteCollaboratorsScreen(
       topBar = {
         ShortSearchBarLayout(
             navigationActions = navigationActions,
+            backArrowButton = true,
             searchQuery = searchQuery.value,
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },

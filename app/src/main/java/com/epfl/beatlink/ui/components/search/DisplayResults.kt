@@ -24,6 +24,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun DisplayResults(
@@ -34,6 +35,7 @@ fun DisplayResults(
     profileViewModel: ProfileViewModel? = null,
     navigationActions: NavigationActions? = null,
     friendRequestViewModel: FriendRequestViewModel? = null,
+    spotifyApiViewModel: SpotifyApiViewModel? = null,
     onClearQuery: (() -> Unit)? = null
 ) {
   if (profileViewModel != null && navigationActions != null) {
@@ -60,7 +62,9 @@ fun DisplayResults(
             TrackPlaylistItem(
                 track = track, playlistViewModel = playlistViewModel, onClearQuery = onClearQuery)
           } else {
-            TrackItem(track = track)
+            if (spotifyApiViewModel != null) {
+              TrackItem(track = track, spotifyApiViewModel = spotifyApiViewModel)
+            }
           }
         }
       }
