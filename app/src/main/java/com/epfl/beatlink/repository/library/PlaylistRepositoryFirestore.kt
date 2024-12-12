@@ -148,7 +148,7 @@ class PlaylistRepositoryFirestore(
             val playlistData = playlistToMap(playlist)
 
             // Update the playlist document
-            transaction.set(playlistDocRef,  playlistData)
+            transaction.set(playlistDocRef, playlistData)
           }
           .addOnSuccessListener { onSuccess() }
           .addOnFailureListener { e ->
