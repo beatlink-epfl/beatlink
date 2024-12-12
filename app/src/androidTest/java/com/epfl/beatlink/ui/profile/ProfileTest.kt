@@ -68,7 +68,7 @@ class ProfileTest {
           bio = null,
           links = 0,
           profilePicture = null,
-          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"))
+          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz"))
 
   private var topSongs =
       listOf(
@@ -204,9 +204,12 @@ class ProfileTest {
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+
     // Check that music genres are displayed
+    composeTestRule.onNodeWithTag("favoriteMusicGenresRow").assertIsDisplayed()
+
     profileData.favoriteMusicGenres.forEach { genre ->
-      composeTestRule.onNodeWithText(genre).assertExists()
+      composeTestRule.onNodeWithText(genre).performScrollTo().assertIsDisplayed()
     }
   }
 
