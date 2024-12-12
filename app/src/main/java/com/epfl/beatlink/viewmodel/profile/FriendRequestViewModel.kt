@@ -32,6 +32,10 @@ open class FriendRequestViewModel(
   val allFriends: LiveData<List<String>>
     get() = _allFriends
 
+  private val _otherProfileAllFriends = MutableLiveData<List<String>>(emptyList())
+  val otherProfileAllFriends: LiveData<List<String>>
+    get() = _otherProfileAllFriends
+
   // Create factory
   companion object {
     val Factory: ViewModelProvider.Factory =
@@ -75,6 +79,7 @@ open class FriendRequestViewModel(
         repository.acceptFriendRequest(receiverId, senderId)
         _friendRequests.postValue(_friendRequests.value.orEmpty().filter { it != senderId })
         _allFriends.postValue(_allFriends.value.orEmpty() + senderId)
+        _otherProfileAllFriends.postValue(_otherProfileAllFriends.value.orEmpty() + receiverId)
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error accepting friend request: ${e.message}")
       }
@@ -111,6 +116,8 @@ open class FriendRequestViewModel(
       try {
         repository.removeFriend(userId, friendToRemove)
         _allFriends.postValue(_allFriends.value.orEmpty().filter { it != friendToRemove })
+        _otherProfileAllFriends.postValue(
+            _otherProfileAllFriends.value.orEmpty().filter { it != userId })
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error removing friend: ${e.message}")
       }
@@ -155,6 +162,20 @@ open class FriendRequestViewModel(
       } catch (e: Exception) {
         Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
         _allFriends.postValue(emptyList())
+      }
+    }
+  }
+
+  /** Fetch the list of all friends for the given user. */
+  fun getOtherProfileAllFriends(otherProfileId: String, onComplete: () -> Unit) {
+    viewModelScope.launch(dispatcher) {
+      try {
+        val friends = repository.getAllFriends(otherProfileId)
+        _otherProfileAllFriends.postValue(friends)
+        onComplete()
+      } catch (e: Exception) {
+        Log.e("FriendRequestViewModel", "Error fetching friends: ${e.message}")
+        _otherProfileAllFriends.postValue(emptyList())
       }
     }
   }

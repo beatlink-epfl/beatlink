@@ -39,6 +39,7 @@ import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
 import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -46,6 +47,7 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 fun CreateNewPlaylistScreen(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
     playlistViewModel: PlaylistViewModel,
 ) {
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
@@ -175,6 +177,10 @@ fun CreateNewPlaylistScreen(
         }
       })
   if (showDialog) {
-    InviteCollaboratorsOverlay(navigationActions, onDismissRequest = { showDialog = false })
+    InviteCollaboratorsOverlay(
+        navigationActions,
+        profileViewModel,
+        friendRequestViewModel,
+        onDismissRequest = { showDialog = false })
   }
 }

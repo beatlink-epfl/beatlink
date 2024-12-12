@@ -23,26 +23,28 @@ import com.epfl.beatlink.ui.components.profile.ProfileColumn
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen.NOTIFICATIONS
 import com.epfl.beatlink.ui.navigation.Screen.SETTINGS
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun ProfileScreen(
     profileViewModel: ProfileViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
-  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
-
   val profileData by profileViewModel.profile.collectAsState()
 
-  // Load profile picture
+  // Load Profile Picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
   }
+
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }
   val topArtistsState = remember { mutableStateOf<List<SpotifyArtist>>(emptyList()) }
   val userPlaylists = remember { mutableStateOf<List<UserPlaylist>>(emptyList()) }
@@ -68,7 +70,7 @@ fun ProfileScreen(
             "titleUsername",
             listOf {
               CornerIcons(
-                  onClick = {},
+                  onClick = { navigationAction.navigateTo(NOTIFICATIONS) },
                   icon = Icons.Filled.Notifications,
                   contentDescription = "Notifications",
                   modifier = Modifier.testTag("profileScreenNotificationsButton"))
@@ -90,15 +92,15 @@ fun ProfileScreen(
       },
       content = { paddingValue ->
         ProfileColumn(
-            profileData = profileData,
-            navigationAction = navigationAction,
+            navigationActions = navigationAction,
+            profileViewModel = profileViewModel,
+            friendRequestViewModel = friendRequestViewModel,
             spotifyApiViewModel = spotifyApiViewModel,
             topSongsState = topSongsState.value,
             topArtistsState = topArtistsState.value,
             userPlaylists = userPlaylists.value,
             paddingValue = paddingValue,
             profilePicture = profileViewModel.profilePicture,
-            ownProfile = true,
-            buttonTestTag = "editProfileButton")
+            ownProfile = true)
       })
 }
