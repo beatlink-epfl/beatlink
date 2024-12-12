@@ -1,7 +1,9 @@
 package com.epfl.beatlink.ui.profile
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
@@ -61,27 +63,16 @@ class LinksScreenTest {
 
   @Test
   fun elementsAreDisplayed() {
-    val friendsList = listOf("user1", "user2")
     val fakeProfileViewModel = FakeProfileViewModel()
     val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
-    fakeProfileViewModel.setFakeProfiles(
-        listOf(
-            ProfileData(
-                username = "user1", links = 1, name = "Test User 1", bio = "Bio for User 1"),
-            ProfileData(
-                username = "user2", links = 1, name = "Test User 2", bio = "Bio for User 2")))
-    fakeFriendRequestViewModel.setAllFriends(friendsList)
+
     composeTestRule.setContent {
       LinksScreen(navigationActions, fakeProfileViewModel, fakeFriendRequestViewModel)
     }
     composeTestRule.waitForIdle()
 
+    composeTestRule.onNodeWithTag("linksScreen").assertIsDisplayed()
     composeTestRule.onNodeWithTag("LinksScreenTitle").assertIsDisplayed()
-
-    // Check if all friends are displayed
-    //   composeTestRule.onNodeWithText("user1", useUnmergedTree = true).assertIsDisplayed()
-    //   composeTestRule.onNodeWithText("user2", useUnmergedTree = true).assertIsDisplayed()
-    //   composeTestRule.onNodeWithTag("emptyLinksPrompt").assertDoesNotExist()
   }
 
   @Test
@@ -97,7 +88,33 @@ class LinksScreenTest {
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
+    composeTestRule.onNodeWithTag("linksScreen").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("LinksScreenTitle").assertIsDisplayed()
+
     composeTestRule.onNodeWithTag("emptyLinksPrompt").assertExists()
     composeTestRule.onNodeWithText("No Links :(").assertExists()
+  }
+
+  @Test
+  fun friendsListDisplaysCorrectly() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+
+    fakeFriendRequestViewModel.setAllFriends(listOf("user1", "user2"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf(
+            "user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123"),
+            "user2" to ProfileData(bio = "", links = 1, name = "Bob", username = "bob123")))
+
+    composeTestRule.setContent {
+      LinksScreen(
+          navigationActions = navigationActions,
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel)
+    }
+
+    composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(2)
+    composeTestRule.onNodeWithText("alice123").assertIsDisplayed()
+    composeTestRule.onNodeWithText("bob123").assertIsDisplayed()
   }
 }

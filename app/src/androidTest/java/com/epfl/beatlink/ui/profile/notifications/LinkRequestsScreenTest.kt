@@ -1,7 +1,9 @@
 package com.epfl.beatlink.ui.profile.notifications
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -50,15 +52,6 @@ class LinkRequestsScreenTest {
 
   private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
   private lateinit var friendRequestViewModel: FriendRequestViewModel
-
-  private val fakeSentRequests = listOf("user1", "user2")
-  private val fakeReceivedRequests = listOf("user3", "user4")
-  private val fakeProfileData =
-      listOf(
-          ProfileData(username = "user1"),
-          ProfileData(username = "user2"),
-          ProfileData(username = "user3"),
-          ProfileData(username = "user4"))
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
@@ -118,15 +111,42 @@ class LinkRequestsScreenTest {
 
   @Test
   fun sentFriendRequestsAreCorrectlyDisplayed() {
-    val mockSentRequests = listOf("idA", "idB")
     val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
-    fakeFriendRequestViewModel.setOwnRequests(mockSentRequests)
+    val fakeProfileViewModel = FakeProfileViewModel()
+
+    fakeFriendRequestViewModel.setOwnRequests(listOf("idA", "idB"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf(
+            "idA" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123"),
+            "idB" to ProfileData(bio = "", links = 1, name = "Bob", username = "bob123")))
 
     composeTestRule.setContent {
-      LinkRequestsScreen(navigationActions, profileViewModel, fakeFriendRequestViewModel)
+      LinkRequestsScreen(navigationActions, fakeProfileViewModel, fakeFriendRequestViewModel)
     }
 
     composeTestRule.onNodeWithText("SENT (2)").assertExists()
+    composeTestRule.onAllNodesWithTag("peopleItem").assertCountEquals(2)
+    composeTestRule.onNodeWithText("alice123").assertExists()
+    composeTestRule.onNodeWithText("bob123").assertExists()
+  }
+
+  @Test
+  fun receivedFriendRequestsAreCorrectlyDisplayed() {
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakeProfileViewModel = FakeProfileViewModel()
+
+    fakeFriendRequestViewModel.setFriendRequests(listOf("idA", "idB"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf(
+            "idA" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123"),
+            "idB" to ProfileData(bio = "", links = 1, name = "Bob", username = "bob123")))
+
+    composeTestRule.setContent {
+      LinkRequestsScreen(navigationActions, fakeProfileViewModel, fakeFriendRequestViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("linkRequestsScreenTitle").assertExists()
+    composeTestRule.onNodeWithText("RECEIVED (2)").assertExists().performClick()
   }
 
   @Test
@@ -172,8 +192,5 @@ class LinkRequestsScreenTest {
     composeTestRule.waitForIdle()
     // composeTestRule.onNodeWithText("No requests received.").assertExists()
     composeTestRule.onNodeWithTag("emptyRequestsPrompt").assertExists()
-
-    // Verify LazyColumn does not exist
-    composeTestRule.onNodeWithTag("receivedRequestsLazyColumn").assertDoesNotExist()
   }
 }

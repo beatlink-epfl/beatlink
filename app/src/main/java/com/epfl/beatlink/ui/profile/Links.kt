@@ -54,6 +54,7 @@ fun LinksScreen(
   }
 
   Scaffold(
+      modifier = Modifier.testTag("linksScreen"),
       topBar = { ScreenTopAppBar("Links", "LinksScreenTitle", navigationActions) },
       content = { innerPadding ->
         Column(

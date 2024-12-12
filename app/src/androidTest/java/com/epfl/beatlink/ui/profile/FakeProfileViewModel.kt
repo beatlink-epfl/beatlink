@@ -55,10 +55,9 @@ class FakeProfileViewModel(
   }
 
   // Adding some fake profiles to return
-  fun setFakeProfileDataById(profiles: List<ProfileData>) {
-    profiles.forEach { profile ->
-      fakeProfileDataById[profile.username] = profile // Assume username is userId
-    }
+  fun setFakeProfileDataById(map: Map<String, ProfileData>) {
+    fakeProfileDataById.clear() // Clear existing data to avoid duplication
+    fakeProfileDataById.putAll(map)
   }
 
   fun setFakeSelectedProfile(selectedProfileData: ProfileData) {
