@@ -148,7 +148,7 @@ class PlaylistRepositoryFirestore(
             val playlistData = playlistToMap(playlist)
 
             // Update the playlist document
-            transaction.set(playlistDocRef, playlistData)
+            transaction[playlistDocRef] = playlistData
           }
           .addOnSuccessListener { onSuccess() }
           .addOnFailureListener { e ->
@@ -254,7 +254,7 @@ class PlaylistRepositoryFirestore(
     val playlistDoc = db.collection(collectionPath).document(playlist.playlistID)
     val playlistData = mapOf("playlistCover" to base64Image)
 
-    playlistDoc.set(playlistData, SetOptions.merge())
+    playlistDoc[playlistData] = SetOptions.merge()
   }
 
   /**
@@ -272,9 +272,9 @@ class PlaylistRepositoryFirestore(
     val userId: String = doc.getString("userId") ?: ""
     val playlistOwner: String = doc.getString("playlistOwner") ?: ""
     val playlistCollaborators: List<String> =
-        doc.get("playlistCollaborators") as? List<String> ?: emptyList()
+        doc["playlistCollaborators"] as? List<String> ?: emptyList()
     val playlistTracks: List<PlaylistTrack> =
-        (doc.get("playlistTracks") as? List<Map<String, Any>>)?.mapNotNull { trackData ->
+        (doc["playlistTracks"] as? List<Map<String, Any>>)?.mapNotNull { trackData ->
           try {
             PlaylistTrack(
                 track =

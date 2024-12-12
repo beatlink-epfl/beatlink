@@ -179,7 +179,7 @@ class MapUsersRepositoryFirestore(
   fun documentToMapUser(document: DocumentSnapshot): MapUser? {
     return try {
       // Get `currentPlayingTrack` data
-      val currentPlayingTrackData = document.get("currentPlayingTrack") as Map<String, Any>
+      val currentPlayingTrackData = document["currentPlayingTrack"] as Map<*, *>
 
       val currentPlayingTrack =
           CurrentPlayingTrack(
@@ -190,7 +190,7 @@ class MapUsersRepositoryFirestore(
               albumCover = currentPlayingTrackData["albumCover"] as String)
 
       // Get `location` data
-      val locationData = document.get("location") as Map<String, Any>
+      val locationData = document["location"] as Map<*, *>
       val location =
           Location(
               latitude = locationData["latitude"] as Double,
@@ -201,7 +201,7 @@ class MapUsersRepositoryFirestore(
           username = document.getString("username") ?: "",
           currentPlayingTrack = currentPlayingTrack,
           location = location,
-          lastUpdated = document.get("lastUpdated") as Timestamp)
+          lastUpdated = document["lastUpdated"] as Timestamp)
     } catch (e: Exception) {
       Log.e("MapUsersRepository", "Error converting document to MapUser", e)
       null
