@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.AddButton
@@ -184,14 +185,18 @@ fun CollaboratorCard(
               Box(modifier = Modifier.size(55.dp).clip(CircleShape).testTag("profilePic")) {
                 ProfilePicture(profilePicture, 55.dp)
               }
-              Column(modifier = Modifier.padding(start = 10.dp)) {
+              Column(modifier = Modifier.padding(start = 10.dp).fillMaxWidth(0.8f)) {
                 Text(
                     text = profileData.name ?: "",
                     style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.primary)
                 Text(
                     text = "@${profileData.username}".uppercase(),
                     style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.primaryContainer)
               }
               Spacer(modifier = Modifier.weight(1f))
