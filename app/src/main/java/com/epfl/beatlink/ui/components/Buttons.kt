@@ -142,21 +142,17 @@ fun VoteButton(
 
 @Composable
 fun ProfileCardLinkButton(buttonText: String, onClick: () -> Unit) {
-  val linkModifier =
+  val linkedModifier =
       Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-          .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .width(100.dp)
           .height(40.dp)
+  val linkModifier =
+      linkedModifier.background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
 
   val acceptModifier =
       Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .width(120.dp)
-          .height(40.dp)
-
-  val linkedModifier =
-      Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-          .width(100.dp)
           .height(40.dp)
 
   Box(
@@ -195,16 +191,13 @@ fun ProfileCardLinkButton(buttonText: String, onClick: () -> Unit) {
 
 @Composable
 fun ProfileLinkButton(buttonText: String, onClick: () -> Unit) {
-  val filledModifier =
-      Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-          .background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
-          .width(233.dp)
-          .height(34.dp)
 
   val outlinedModifier =
       Modifier.border(width = 2.dp, brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
           .width(233.dp)
           .height(34.dp)
+  val filledModifier =
+      outlinedModifier.background(brush = PrimaryGradientBrush, shape = RoundedCornerShape(30.dp))
 
   Box(
       modifier = if (buttonText == "Linked") outlinedModifier else filledModifier,

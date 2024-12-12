@@ -166,6 +166,7 @@ open class FriendRequestViewModel(
     }
   }
 
+  /** Fetch the list of all friends for the given user. */
   fun getOtherProfileAllFriends(otherProfileId: String, onComplete: () -> Unit) {
     viewModelScope.launch(dispatcher) {
       try {

@@ -90,6 +90,7 @@ open class ProfileViewModel(
       unselectSelectedUser() // Clear selection if the stack is empty
     }
   }
+
   /** Clears the selected user and resets the stack. */
   fun unselectSelectedUser() {
     _selectedUserUserId.value = ""
@@ -147,6 +148,13 @@ open class ProfileViewModel(
     }
   }
 
+  /**
+   * Fetches the profile data for a user by their unique ID.
+   *
+   * @param userId The unique ID of the user whose profile is being fetched.
+   * @param onResult A callback function that receives the fetched `ProfileData` if successful, or
+   *   `null` if the operation fails or no data is found.
+   */
   open fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
     viewModelScope.launch {
       try {
@@ -199,6 +207,12 @@ open class ProfileViewModel(
     }
   }
 
+  /**
+   * Updates the number of Links of the current user
+   *
+   * @param profileData The current user's profile data that will be updated.
+   * @param nbLinks The new number of links to set for the current user.
+   */
   open fun updateNbLinks(profileData: ProfileData, nbLinks: Int) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
@@ -215,6 +229,13 @@ open class ProfileViewModel(
     }
   }
 
+  /**
+   * Updates the number of Links of the given user ProfileData and ID
+   *
+   * @param otherProfileData The profile data of the user to be updated.
+   * @param otherProfileUserId The unique ID of the user whose profile is being updated.
+   * @param nbLinks The new number of links to set for the specified user.
+   */
   open fun updateOtherProfileNbLinks(
       otherProfileData: ProfileData,
       otherProfileUserId: String,

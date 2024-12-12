@@ -53,6 +53,26 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 /**
  * Displays a detailed profile view in a vertically scrollable column layout, including user profile
  * information, top songs, top artists, playlists, and favorite music genres.
+ *
+ * @param navigationActions Handles navigation between different screens in the app.
+ * @param profileViewModel Provides profile-related data and actions, such as fetching user profiles
+ *   or handling profile updates.
+ * @param friendRequestViewModel Provides friend request-related data and actions, such as sending
+ *   or receiving friend requests.
+ * @param spotifyApiViewModel Provides Spotify API integration, including retrieving user-specific
+ *   music data such as playlists, top songs, and top artists.
+ * @param topSongsState A list of the user's top Spotify tracks. Each track includes metadata such
+ *   as the title, artist, and album.
+ * @param topArtistsState A list of the user's top Spotify artists. Each artist includes metadata
+ *   such as the name and image.
+ * @param userPlaylists A list of the user's Spotify playlists. Each playlist includes metadata such
+ *   as the playlist name, cover image, and number of tracks.
+ * @param paddingValue The padding applied around the content of the column to ensure proper spacing
+ *   within the layout.
+ * @param profilePicture A mutable state of the user's profile picture represented as a [Bitmap].
+ *   This state is dynamically updated based on the profile data.
+ * @param ownProfile A boolean flag indicating whether the profile being displayed is the user's own
+ *   profile (`true`) or another user's profile (`false`).
  */
 @Composable
 fun ProfileColumn(
@@ -80,19 +100,6 @@ fun ProfileColumn(
   val fetchOtherProfileFriends = remember { mutableStateOf(false) }
   val otherProfileAllFriends by
       friendRequestViewModel.otherProfileAllFriends.observeAsState(emptyList())
-
-  //  val topSongsState =
-  //      if (ownProfile) {
-  //        profileData?.topSongs ?: emptyList()
-  //      } else {
-  //        selectedProfileData?.topSongs ?: emptyList()
-  //      }
-  //  val topArtistsState =
-  //      if (ownProfile) {
-  //        profileData?.topArtists ?: emptyList()
-  //      } else {
-  //        selectedProfileData?.topArtists ?: emptyList()
-  //      }
 
   var requestStatus =
       when (selectedUserUserId) {
@@ -215,7 +222,7 @@ fun ProfileColumn(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                   items(profileData!!.favoriteMusicGenres) { genre ->
                     val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
+                    MusicGenreCard(genre = genre, brush = genreGradient)
                   }
                 }
           }
@@ -230,7 +237,7 @@ fun ProfileColumn(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                   items(profileData!!.favoriteMusicGenres) { genre ->
                     val genreGradient = genreGradients[genre] ?: PrimaryGradientBrush
-                    MusicGenreCard(genre = genre, brush = genreGradient, onClick = {})
+                    MusicGenreCard(genre = genre, brush = genreGradient)
                   }
                 }
           }
