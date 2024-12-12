@@ -11,6 +11,7 @@ import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 
 @Suppress("UNCHECKED_CAST")
@@ -180,7 +181,12 @@ open class ProfileRepositoryFirestore(
             val topArtists = spotifyArtistToMap(profileData)
 
             // Update user profile (excluding incompatible objects for Firestore)
-            transaction[profileDocRef] = profileData
+            transaction.set(
+                profileDocRef,
+                profileData.copy(
+                    topSongs = emptyList(),
+                    topArtists = emptyList()), // Prevent issues with incompatible objects
+                SetOptions.merge())
 
             // Update topSongs and topArtists as separate fields
             transaction.update(profileDocRef, "topSongs", topSongs)
