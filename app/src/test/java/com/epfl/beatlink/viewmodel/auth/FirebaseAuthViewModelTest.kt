@@ -263,4 +263,35 @@ class FirebaseAuthViewModelTest {
         `is`("Sign out failed: Sign out error"))
     verify(firebaseAuthRepository).signOut(any(), any())
   }
+
+  @Test
+  fun verifyPasswordSuccess() = runTest {
+    val currentPassword = "correctPassword"
+
+    // Mock verifyPassword to return success
+    `when`(firebaseAuthRepository.verifyPassword(eq(currentPassword)))
+        .thenReturn(Result.success(Unit))
+
+    val result = firebaseAuthViewModel.verifyPassword(currentPassword)
+
+    // Verify the result is success
+    assertThat(result.isSuccess, `is`(true))
+    verify(firebaseAuthRepository).verifyPassword(eq(currentPassword))
+  }
+
+  @Test
+  fun verifyPasswordFailure() = runTest {
+    val currentPassword = "wrongPassword"
+
+    // Mock verifyPassword to return failure
+    `when`(firebaseAuthRepository.verifyPassword(eq(currentPassword)))
+        .thenReturn(Result.failure(Exception("Verification failed")))
+
+    val result = firebaseAuthViewModel.verifyPassword(currentPassword)
+
+    // Verify the result is failure
+    assertThat(result.isFailure, `is`(true))
+    assertThat(result.exceptionOrNull()?.message, `is`("Verification failed"))
+    verify(firebaseAuthRepository).verifyPassword(eq(currentPassword))
+  }
 }

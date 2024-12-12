@@ -94,13 +94,22 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
   }
 
   /** Delete a user from the database. */
-  fun deleteMapUser() {
-    viewModelScope.launch {
+  fun deleteMapUser(): Boolean {
+    return try {
       repository.deleteMapUser(
-          onSuccess = { /* Optionally refresh users or perform other actions */},
-          onFailure = { /* Handle any failures as needed */})
-      _mapUser.value = null
-      _playbackState.value = null
+          onSuccess = {
+            _mapUser.value = null
+            _playbackState.value = null
+            true
+          },
+          onFailure = {
+            Log.e("MapUserViewModel", "Failed to delete map user")
+            false
+          })
+      true
+    } catch (e: Exception) {
+      Log.e("MapUserViewModel", "Exception while deleting map user: ${e.message}")
+      false
     }
   }
 

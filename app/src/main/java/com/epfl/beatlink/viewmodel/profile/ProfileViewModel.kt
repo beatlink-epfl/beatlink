@@ -150,14 +150,19 @@ open class ProfileViewModel(
     }
   }
 
-  open fun deleteProfile() {
-    val userId = repository.getUserId() ?: return
-    viewModelScope.launch {
+  open suspend fun deleteProfile(): Boolean {
+    val userId = repository.getUserId() ?: return false
+    return try {
       if (repository.deleteProfile(userId)) {
         _profile.value = null
+        true
       } else {
         Log.e("DELETE_PROFILE", "Error deleting profile")
+        false
       }
+    } catch (e: Exception) {
+      Log.e("DELETE_PROFILE", "Exception while deleting profile: ${e.message}")
+      false
     }
   }
 

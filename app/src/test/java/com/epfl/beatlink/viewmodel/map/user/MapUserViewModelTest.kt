@@ -110,10 +110,14 @@ class MapUserViewModelTest {
 
   @Test
   fun `updatePlayback with null track sets playbackState to null and deletes user`() = runTest {
-    // Set _mapUser to a non-null user initially
-    val fakeLocation = mockk<Location>()
-    val currentTrack = CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL")
+    // Mock repository behavior for deleteMapUser
+    coEvery { repository.deleteMapUser(any(), any()) } answers
+        {
+          firstArg<() -> Unit>().invoke() // Invoke success callback
+        }
 
+    // Step 1: Set up playback state and map user
+    val fakeLocation = mockk<Location>()
     val album =
         SpotifyAlbum(
             name = "Album",
@@ -137,47 +141,51 @@ class MapUserViewModelTest {
     val artist =
         SpotifyArtist(name = "Artist", image = "image", genres = listOf("genre"), popularity = 80)
 
+    // Step 2: Set initial playback state
     viewModel.updatePlayback(album, track, artist)
     testDispatcher.scheduler.advanceUntilIdle()
-    // Verify the playback state is set
-    assertEquals(currentTrack, viewModel.playbackState.first())
+    assertEquals(
+        CurrentPlayingTrack("trackId", "Song", "Artist", "Album", "URL"),
+        viewModel.playbackState.first())
 
+    // Step 3: Add map user
     viewModel.addMapUser("user1", fakeLocation)
     testDispatcher.scheduler.advanceUntilIdle()
+    assertEquals("user1", viewModel.mapUser.first()?.username)
 
-    val album2 =
+    // Step 4: Update playback with null track
+    val nullAlbum =
         SpotifyAlbum(
             name = "",
             cover = "",
-            spotifyId = "spotifyId",
-            artist = "artist",
-            year = 2000,
+            spotifyId = "",
+            artist = "",
+            year = 0,
             tracks = emptyList(),
-            size = 120,
+            size = 0,
             genres = emptyList(),
-            popularity = 80)
-    val track2 =
+            popularity = 0)
+    val nullTrack =
         SpotifyTrack(
             name = "",
-            artist = "Artist",
-            trackId = "trackId",
-            cover = "cover",
-            duration = 120,
-            state = State.PLAY,
-            popularity = 80)
-    val artist2 =
-        SpotifyArtist(name = "", image = "image", genres = listOf("genre"), popularity = 80)
+            artist = "",
+            trackId = "",
+            cover = "",
+            duration = 0,
+            state = State.PAUSE,
+            popularity = 0)
+    val nullArtist = SpotifyArtist(name = "", image = "", genres = emptyList(), popularity = 0)
 
-    viewModel.updatePlayback(album2, track2, artist2)
+    viewModel.updatePlayback(nullAlbum, nullTrack, nullArtist)
     testDispatcher.scheduler.advanceUntilIdle()
 
-    // Verify playbackState is null
+    // Step 5: Verify that playback state is null
     assertEquals(null, viewModel.playbackState.first())
 
-    // Verify _mapUser is set to null
+    // Step 6: Verify that the map user is null
     assertEquals(null, viewModel.mapUser.first())
 
-    // Verify deleteMapUser was called
+    // Step 7: Verify that deleteMapUser was called
     coVerify { repository.deleteMapUser(any(), any()) }
   }
 

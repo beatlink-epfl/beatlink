@@ -204,10 +204,22 @@ class PlaylistViewModel(
     ?: emptyList() // Return an empty list if no playlist is selected
   }
 
-  fun deleteOwnedPlaylists() {
-    repository.deleteOwnedPlaylists(
-        onSuccess = { Log.d("PlaylistViewModel", "All playlists deleted successfully") },
-        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlists", e) })
+  fun deleteOwnedPlaylists(): Boolean {
+    return try {
+      repository.deleteOwnedPlaylists(
+          onSuccess = {
+            Log.d("PlaylistViewModel", "All playlists deleted successfully")
+            true
+          },
+          onFailure = { e ->
+            Log.e("PlaylistViewModel", "Failed to delete playlists", e)
+            false
+          })
+      true
+    } catch (e: Exception) {
+      Log.e("PlaylistViewModel", "Exception while deleting playlists: ${e.message}")
+      false
+    }
   }
 
   fun deletePlaylistById(playlistUID: String) {

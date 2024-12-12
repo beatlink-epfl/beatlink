@@ -15,6 +15,7 @@ import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
@@ -40,6 +41,7 @@ class AccountScreenTest {
   private lateinit var spotifyRepository: SpotifyAuthRepository
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var authViewModel: FirebaseAuthViewModel
+  private lateinit var playlistViewModel: PlaylistViewModel
 
   private val testEmail = "user@example.com"
   private val testUsername = "testuser"
@@ -54,6 +56,7 @@ class AccountScreenTest {
     profileViewModel = mockk(relaxed = true)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
+    playlistViewModel = mockk(relaxed = true)
 
     every { navigationActions.currentRoute() } returns Screen.ACCOUNT
     every { profileViewModel.profile } returns
@@ -76,7 +79,8 @@ class AccountScreenTest {
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          playlistViewModel = playlistViewModel)
     }
 
     // Check if title is displayed
@@ -96,7 +100,8 @@ class AccountScreenTest {
           spotifyAuthViewModel = spotifyAuthViewModel,
           profileViewModel = profileViewModel,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
+          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          playlistViewModel = playlistViewModel)
     }
 
     // Test "Username" clickable text box
