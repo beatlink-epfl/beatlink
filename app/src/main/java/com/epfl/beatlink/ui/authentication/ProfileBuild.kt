@@ -77,6 +77,7 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   val currentProfile = profileViewModel.profile.collectAsState()
   val context = LocalContext.current
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  var imageCover by remember { mutableStateOf("") }
 
   // Load profile picture
   LaunchedEffect(Unit) {
@@ -88,8 +89,8 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
         if (imageUri == null) {
           profileViewModel.profilePicture.value = null
         } else {
-          profileViewModel.profilePicture.value =
-              base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
+          imageCover = resizeAndCompressImageFromUri(imageUri, context) ?: ""
+          profileViewModel.profilePicture.value = base64ToBitmap(imageCover)
         }
       }
 
@@ -144,11 +145,8 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
                         username = currentProfile.value?.username ?: "",
                         email = currentProfile.value?.email ?: "",
                         favoriteMusicGenres = favoriteMusicGenres,
-                        profilePicture = "")
+                        profilePicture = imageCover)
                 profileViewModel.updateProfile(updatedProfile)
-                if (imageUri != null) {
-                  profileViewModel.uploadProfilePicture(context, imageUri)
-                }
                 navigationActions.navigateToAndClearAllBackStack(Screen.HOME)
               }
 

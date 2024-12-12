@@ -36,6 +36,34 @@ open class SpotifyApiViewModel(
 
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  fun playPlaylist(playlist: UserPlaylist) {
+    viewModelScope.launch {
+      val body =
+          JSONObject().apply { put("context_uri", "spotify:playlist:${playlist.playlistID}") }
+      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Playlist played successfully")
+        updatePlayer()
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to play playlist")
+      }
+    }
+  }
+
+  fun playTrackAlone(track: SpotifyTrack) {
+    viewModelScope.launch {
+      val body =
+          JSONObject().apply { put("uris", JSONArray(listOf("spotify:track:${track.trackId}"))) }
+      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+      if (result.isSuccess) {
+        Log.d("SpotifyApiViewModel", "Track played successfully")
+        updatePlayer()
+      } else {
+        Log.e("SpotifyApiViewModel", "Failed to play track")
+      }
+    }
+  }
+
   /** Add custom playlist cover image which is a Base64-encoded JPEG string */
   fun addCustomPlaylistCoverImage(playlistID: String, image: String) {
     viewModelScope.launch {

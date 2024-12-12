@@ -49,6 +49,7 @@ import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
 import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.epfl.beatlink.utils.ImageUtils.permissionLauncher
 import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
@@ -74,6 +75,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
             ?: "This is a description. It can be up to $MAX_DESCRIPTION_LENGTH characters long.")
   }
   var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  var imageCover by remember { mutableStateOf(profileData?.profilePicture ?: "") }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
   // Load profile picture
   LaunchedEffect(Unit) {
@@ -86,8 +88,8 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
         if (imageUri == null) {
           // Do nothing
         } else {
-          profileViewModel.profilePicture.value =
-              base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
+          imageCover = resizeAndCompressImageFromUri(imageUri, context) ?: ""
+          profileViewModel.profilePicture.value = base64ToBitmap(imageCover)
         }
       }
   Scaffold(
@@ -161,7 +163,7 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                               bio = description,
                               links = profileData?.links ?: 0,
                               name = name,
-                              profilePicture = profileData?.profilePicture,
+                              profilePicture = imageCover,
                               username = profileData?.username ?: "",
                               email = profileData?.email ?: "",
                               favoriteMusicGenres = profileData?.favoriteMusicGenres ?: emptyList(),
@@ -169,11 +171,8 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                               topArtists = profileData?.topArtists ?: emptyList(),
                               spotifyId = profileData?.spotifyId ?: "")
                       profileViewModel.updateProfile(newData)
-                      if (imageUri != null) {
-                        profileViewModel.uploadProfilePicture(context, imageUri)
-                      }
                       Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
-                      navigationActions.goBack()
+                      navigationActions.navigateToAndClearAllBackStack(Screen.PROFILE)
                     } catch (e: Exception) {
                       e.printStackTrace()
                     }

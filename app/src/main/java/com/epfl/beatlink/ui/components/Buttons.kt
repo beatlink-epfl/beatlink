@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.theme.PositiveGradientBrush
@@ -79,9 +81,14 @@ fun ViewDescriptionButton(onClick: () -> Unit) {
               .testTag("viewDescriptionButton")) {
         Text(
             text = "View Description",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.align(Alignment.CenterVertically))
+            modifier =
+                Modifier.align(Alignment.CenterVertically)
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp))
       }
 }
 
@@ -115,7 +122,13 @@ fun VoteButton(
             modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically) {
-              Icon(painter = painter, contentDescription = "fire", modifier = Modifier.size(24.dp))
+              Icon(
+                  painter = painter,
+                  contentDescription = "fire",
+                  tint =
+                      if (isVoted) MaterialTheme.colorScheme.primaryWhite
+                      else MaterialTheme.colorScheme.primaryRed,
+                  modifier = Modifier.size(24.dp))
               Spacer(modifier = Modifier.width(6.dp))
               Text(
                   text = playlistTrack.likes.toString(),

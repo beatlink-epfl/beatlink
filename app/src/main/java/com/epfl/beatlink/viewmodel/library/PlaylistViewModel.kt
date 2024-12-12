@@ -3,6 +3,7 @@ package com.epfl.beatlink.viewmodel.library
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,8 +15,10 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.repository.library.PlaylistRepositoryFirestore
+import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,6 +83,10 @@ class PlaylistViewModel(
     repository.init(onSuccess = { fetchData() })
   }
 
+  fun resetCoverImage() {
+    coverImage.value = null
+  }
+
   fun getUserId(): String? {
     return repository.getUserId()
   }
@@ -134,22 +141,17 @@ class PlaylistViewModel(
     getOwnedPlaylists()
   }
 
-  fun updateTrackCount(playlist: Playlist, newTrackCount: Int) {
-    repository.updatePlaylistTrackCount(
-        playlist = playlist,
-        newTrackCount = newTrackCount,
-        onSuccess = { selectedPlaylist_.value = playlist },
-        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update track count", e) })
-    getOwnedPlaylists()
-  }
-
   fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     selectedPlaylist_.value?.let { playlist ->
       try {
         val newTrackList = playlist.playlistTracks.toMutableList()
         newTrackList.add(track)
         val updatedPlaylist =
-            playlist.copy(playlistTracks = newTrackList, nbTracks = newTrackList.size)
+            playlist.copy(
+                playlistTracks = newTrackList,
+                nbTracks = newTrackList.size,
+                playlistCover = playlist.playlistCover // Explicitly preserve cover
+                )
 
         updatePlaylist(updatedPlaylist)
         onSuccess()
@@ -202,19 +204,18 @@ class PlaylistViewModel(
     ?: emptyList() // Return an empty list if no playlist is selected
   }
 
-  fun updateCollaborators(playlist: Playlist, newCollabList: List<String>) {
-    repository.updatePlaylistCollaborators(
-        playlist,
-        newCollabList,
-        onSuccess = { selectedPlaylist_.value = playlist },
-        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update collab list", e) })
-    getOwnedPlaylists()
+  fun deleteOwnedPlaylists() {
+    repository.deleteOwnedPlaylists(
+        onSuccess = { Log.d("PlaylistViewModel", "All playlists deleted successfully") },
+        onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlists", e) })
   }
 
-  fun deletePlaylist(playlistUID: String) {
+  fun deletePlaylistById(playlistUID: String) {
     repository.deletePlaylistById(
         playlistUID,
-        onSuccess = {},
+        onSuccess = {
+          resetCoverImage() // Reset the cover image after deletion
+        },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to delete playlist", e) })
     getOwnedPlaylists()
   }
@@ -241,6 +242,7 @@ class PlaylistViewModel(
     tempPlaylistDescription_.value = ""
     tempPlaylistIsPublic_.value = false
     tempPlaylistCollaborators_.value = emptyList()
+    resetCoverImage()
   }
 
   fun preloadTemporaryState(selectedPlaylist: Playlist) {
@@ -271,5 +273,26 @@ class PlaylistViewModel(
       return
     }
     repository.loadPlaylistCover(playlist, onBitmapLoaded)
+  }
+
+  fun preparePlaylistCoverForSpotify(): String? {
+    return try {
+      val cover = selectedPlaylist.value?.playlistCover
+      if (cover == null) {
+        Log.e("PlaylistViewModel", "Playlist cover is null")
+        return null
+      }
+
+      // Decode Base64 to Bitmap and Re-encode the Bitmap to Base64 JPEG
+      val byteArray =
+          ByteArrayOutputStream().use {
+            base64ToBitmap(cover)?.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            it.toByteArray()
+          }
+      Base64.encodeToString(byteArray, Base64.NO_WRAP) // NO_WRAP removes padding
+    } catch (e: Exception) {
+      Log.e("PlaylistViewModel", "Error preparing playlist cover: ${e.message}", e)
+      null
+    }
   }
 }

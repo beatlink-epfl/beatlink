@@ -92,6 +92,7 @@ fun ProfileScreen(
         ProfileColumn(
             profileData = profileData,
             navigationAction = navigationAction,
+            spotifyApiViewModel = spotifyApiViewModel,
             topSongsState = topSongsState.value,
             topArtistsState = topArtistsState.value,
             userPlaylists = userPlaylists.value,

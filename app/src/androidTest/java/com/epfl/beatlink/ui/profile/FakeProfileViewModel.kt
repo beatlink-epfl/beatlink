@@ -1,8 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
@@ -55,9 +53,5 @@ class FakeProfileViewModel(
 
   override fun deleteProfile() {
     // Mocked delete profile
-  }
-
-  override fun uploadProfilePicture(context: Context, uri: Uri) {
-    // Mocked upload profile picture
   }
 }

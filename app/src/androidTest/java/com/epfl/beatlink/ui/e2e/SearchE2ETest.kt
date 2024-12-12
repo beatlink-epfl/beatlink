@@ -14,14 +14,18 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.network.NetworkStatusTracker
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.repository.spotify.auth.SPOTIFY_AUTH_PREFS
 import com.epfl.beatlink.ui.BeatLinkApp
+import com.epfl.beatlink.viewmodel.network.NetworkViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import okhttp3.OkHttpClient
@@ -49,8 +53,12 @@ class SearchE2ETest {
 
     val spotifyAuthViewModel = mock(SpotifyAuthViewModel::class.java)
     val mockSpotifyApiViewModel = MockSpotifyApiViewModel(sharedPreferences)
+    // Mock the network status tracker
+    val mockNetworkViewModel = FakeNetworkViewModel(initialConnectionState = true)
 
-    composeTestRule.setContent { BeatLinkApp(spotifyAuthViewModel, mockSpotifyApiViewModel) }
+    composeTestRule.setContent {
+      BeatLinkApp(spotifyAuthViewModel, mockSpotifyApiViewModel, mockNetworkViewModel)
+    }
   }
 
   @Test
@@ -290,4 +298,11 @@ class MockSpotifyApiViewModel(sharedPreferences: SharedPreferences) :
         genres = genres,
         popularity = artist.getInt("popularity"))
   }
+}
+
+class FakeNetworkViewModel(initialConnectionState: Boolean) :
+    NetworkViewModel(mock(NetworkStatusTracker::class.java)) {
+  // MutableLiveData to allow dynamic changes during tests
+  private val _isConnected = MutableLiveData(initialConnectionState)
+  override val isConnected: LiveData<Boolean> = _isConnected
 }

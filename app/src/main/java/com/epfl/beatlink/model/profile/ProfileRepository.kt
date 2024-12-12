@@ -1,8 +1,6 @@
 package com.epfl.beatlink.model.profile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 
 interface ProfileRepository {
 
@@ -64,15 +62,6 @@ interface ProfileRepository {
    * @return `true` if the profile was successfully deleted, `false` otherwise.
    */
   suspend fun deleteProfile(userId: String): Boolean
-
-  /**
-   * Upload a new profile picture for a specific user.
-   *
-   * @param imageUri The URI of the image to upload.
-   * @param context The application context.
-   * @param userId The unique identifier of the user.
-   */
-  fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String)
 
   /**
    * Load the profile picture of a specific user.

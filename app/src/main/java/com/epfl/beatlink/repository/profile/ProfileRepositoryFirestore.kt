@@ -1,8 +1,6 @@
 package com.epfl.beatlink.repository.profile
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
@@ -10,7 +8,6 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
-import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -210,6 +207,10 @@ open class ProfileRepositoryFirestore(
 
   override suspend fun deleteProfile(userId: String): Boolean {
     return try {
+      // Fetch all the friendRequests documents
+      val friendRequestsCollection = db.collection("friendRequests")
+      val allFriendRequestsSnapshot = friendRequestsCollection.get().await()
+
       db.runTransaction { transaction ->
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
@@ -227,18 +228,17 @@ open class ProfileRepositoryFirestore(
               transaction.delete(usernameDocRef)
             }
 
-            // Delete the friendRequests document for the user
+            // Delete the friendRequests document of the user
             val friendRequestDocRef = db.collection("friendRequests").document(userId)
             transaction.delete(friendRequestDocRef)
-            // Clean up references to this user ID in other users' friendRequests
-            val friendRequestsCollection = db.collection("friendRequests")
-            val allFriendRequestsSnapshot = friendRequestsCollection.get().result
+
+            // Loop through all friend requests and clean up references to the userId
             for (doc in allFriendRequestsSnapshot.documents) {
               val docRef = doc.reference
               val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
               val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
 
-              // Remove userId from ownRequests and friendRequests
+              // Remove userId from ownRequests and friendRequests if they exist
               if (updatedOwnRequests?.containsKey(userId) == true) {
                 transaction.update(docRef, "ownRequests.$userId", FieldValue.delete())
               }
@@ -253,15 +253,6 @@ open class ProfileRepositoryFirestore(
     } catch (e: Exception) {
       Log.e("PROFILE_DELETE_ERROR", "Error deleting profile: ${e.message}")
       false
-    }
-  }
-
-  override fun uploadProfilePicture(imageUri: Uri, context: Context, userId: String) {
-    val base64Image = resizeAndCompressImageFromUri(imageUri, context)
-    if (base64Image != null) {
-      saveProfilePictureBase64(userId, base64Image)
-    } else {
-      Log.e("UPLOAD_PROFILE_PICTURE_ERROR", "Failed to convert image to Base64")
     }
   }
 
@@ -312,19 +303,6 @@ open class ProfileRepositoryFirestore(
       Log.e("SEARCH", "Error searching users: ${e.message}")
       emptyList()
     }
-  }
-
-  /**
-   * Save a Base64-encoded profile picture to the `userProfiles` collection in Firestore.
-   *
-   * @param userId The unique identifier of the user.
-   * @param base64Image The Base64-encoded string representation of the profile picture.
-   */
-  fun saveProfilePictureBase64(userId: String, base64Image: String) {
-    val userDoc = db.collection(collection).document(userId)
-    val profileData = mapOf("profilePicture" to base64Image)
-
-    userDoc.set(profileData, SetOptions.merge())
   }
 
   private fun spotifyTrackToMap(profileData: ProfileData): List<Map<String, Any>> {

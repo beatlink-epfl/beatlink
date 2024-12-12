@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.library
 
 import android.graphics.Bitmap
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -22,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
@@ -60,6 +60,7 @@ import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -131,7 +132,6 @@ fun PlaylistOverviewScreen(
             horizontalAlignment = Alignment.CenterHorizontally) {
               // Playlist Header Section
               Row(
-                  horizontalArrangement = Arrangement.spacedBy(30.dp),
                   modifier =
                       Modifier.padding(horizontal = 30.dp, vertical = 14.dp).height(150.dp)) {
                     // Playlist Cover Image
@@ -141,34 +141,41 @@ fun PlaylistOverviewScreen(
                       PlaylistCover(coverImage, 135.dp)
                     }
 
-                    // Playlist details
-                    Column(
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceBetween) {
-                          Text(
-                              text = selectedPlaylistState.playlistName,
-                              style = TypographyPlaylist.headlineLarge,
-                              color = MaterialTheme.colorScheme.primary,
-                              modifier = Modifier.testTag("playlistTitle"))
-                          Spacer(modifier = Modifier.height(4.dp))
-                          IconWithText(
-                              "@" + selectedPlaylistState.playlistOwner,
-                              "ownerText",
-                              Icons.Outlined.AccountCircle,
-                              TypographyPlaylist.headlineMedium)
-                          IconWithText(
-                              collabUsernames.joinToString(", "),
-                              "collaboratorsText",
-                              collab,
-                              TypographyPlaylist.headlineSmall)
-                          IconWithText(
-                              if (selectedPlaylistState.playlistPublic) "Public" else "Private",
-                              "publicText",
-                              Icons.Outlined.Lock,
-                              TypographyPlaylist.headlineSmall)
-                          Spacer(modifier = Modifier.height(10.dp))
-                          ViewDescriptionButton { showDialogOverlay = true }
-                        }
+                    // Spacer for scaling space dynamically
+                    Spacer(modifier = Modifier.weight(0.1f))
+
+                    Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                      // Playlist details
+                      Column(
+                          modifier = Modifier.fillMaxHeight(),
+                          verticalArrangement = Arrangement.SpaceBetween) {
+                            IconWithText(
+                                "@" + selectedPlaylistState.playlistOwner,
+                                "ownerText",
+                                Icons.Outlined.AccountCircle,
+                                TypographyPlaylist.headlineMedium)
+                            if (collabUsernames.isNotEmpty()) {
+                              IconWithText(
+                                  collabUsernames.joinToString(", "),
+                                  "collaboratorsText",
+                                  collab,
+                                  TypographyPlaylist.headlineSmall)
+                            }
+                            IconWithText(
+                                if (selectedPlaylistState.playlistPublic) "Public" else "Private",
+                                "publicText",
+                                Icons.Outlined.Lock,
+                                TypographyPlaylist.headlineSmall)
+
+                            IconWithText(
+                                "${selectedPlaylistState.nbTracks} tracks",
+                                "nbTracksText",
+                                Icons.Outlined.Star,
+                                TypographyPlaylist.headlineSmall)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            ViewDescriptionButton { showDialogOverlay = true }
+                          }
+                    }
                   }
               Spacer(modifier = Modifier.height(16.dp))
 
@@ -253,37 +260,14 @@ fun PlaylistOverviewScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                coroutineScope.launch {
-                  val finalList = playlistViewModel.getFinalListTracks()
-                  if (finalList.isNotEmpty()) {
-                    spotifyViewModel.createBeatLinkPlaylist(
-                        playlistName = selectedPlaylistState.playlistName,
-                        playlistDescription = selectedPlaylistState.playlistDescription,
-                        tracks = finalList,
-                        onResult = { idSpotify ->
-                          Log.d("Spotify", idSpotify.toString())
-                          if (idSpotify != null) {
-                            // Delete playlist only if creation was successful
-                            playlistViewModel.deletePlaylist(selectedPlaylistState.playlistID)
-                            showDialogExport = false
-                            Toast.makeText(
-                                    context, "Playlist exported successfully", Toast.LENGTH_SHORT)
-                                .show()
-                            navigationActions.navigateToAndPop(
-                                Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
-                          } else {
-                            // Show failure message
-                            Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)
-                                .show()
-                            showDialogExport = false
-                          }
-                        })
-                  } else {
-                    // Handle empty list case
-                    Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
-                    showDialogExport = false
-                  }
-                }
+                exportPlaylist(
+                    context = context,
+                    coroutineScope = coroutineScope,
+                    playlistViewModel = playlistViewModel,
+                    spotifyViewModel = spotifyViewModel,
+                    navigationActions = navigationActions,
+                    selectedPlaylistState = selectedPlaylistState,
+                    onExportCompleted = { showDialogExport = false })
               }) {
                 Text("Confirm")
               }
@@ -294,5 +278,61 @@ fun PlaylistOverviewScreen(
                 Text("Cancel")
               }
         })
+  }
+}
+
+/**
+ * Exports the given playlist to Spotify and removes it from the app upon successful export.
+ *
+ * This function uses a coroutine to perform the export process. It retrieves the final list of
+ * tracks from the playlist, creates a new playlist in Spotify with the same name and description,
+ * and optionally uploads a custom cover image for the playlist. If the operation is successful, the
+ * playlist is deleted from the app's database.
+ *
+ * @param context The context used to display toast messages for success or failure feedback.
+ * @param coroutineScope The CoroutineScope used to launch the export operation.
+ * @param playlistViewModel The ViewModel responsible for playlist-related operations.
+ * @param spotifyViewModel The ViewModel responsible for Spotify-related operations.
+ * @param navigationActions NavigationActions to manage navigation between screens.
+ * @param selectedPlaylistState The current state of the selected playlist to be exported.
+ * @param onExportCompleted A callback to execute after the export process is completed, regardless
+ *   of success or failure.
+ */
+private fun exportPlaylist(
+    context: android.content.Context,
+    coroutineScope: CoroutineScope,
+    playlistViewModel: PlaylistViewModel,
+    spotifyViewModel: SpotifyApiViewModel,
+    navigationActions: NavigationActions,
+    selectedPlaylistState: Playlist,
+    onExportCompleted: () -> Unit
+) {
+  coroutineScope.launch {
+    val finalList = playlistViewModel.getFinalListTracks()
+    if (finalList.isNotEmpty()) {
+      spotifyViewModel.createBeatLinkPlaylist(
+          playlistName = selectedPlaylistState.playlistName,
+          playlistDescription = selectedPlaylistState.playlistDescription,
+          tracks = finalList,
+          onResult = { idSpotify ->
+            if (idSpotify != null) {
+              selectedPlaylistState.playlistCover?.let {
+                playlistViewModel.preparePlaylistCoverForSpotify()?.let { cover ->
+                  spotifyViewModel.addCustomPlaylistCoverImage(idSpotify, cover)
+                }
+              }
+              playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
+              onExportCompleted()
+              Toast.makeText(context, "Playlist exported successfully", Toast.LENGTH_SHORT).show()
+              navigationActions.navigateToAndPop(Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
+            } else {
+              Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT).show()
+              onExportCompleted()
+            }
+          })
+    } else {
+      Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
+      onExportCompleted()
+    }
   }
 }
