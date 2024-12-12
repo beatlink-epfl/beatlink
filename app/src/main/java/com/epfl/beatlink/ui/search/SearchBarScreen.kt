@@ -89,25 +89,25 @@ fun SearchBarScreen(
               // Add category buttons
               CategoryButtons(selectedCategory = selectedCategory)
 
-          // Display results based on the selected category
-          when (selectedCategory.value) {
-            "Songs" -> {
-              DisplayResults(
-                  tracks = results.value.first, spotifyApiViewModel = spotifyApiViewModel)
+              // Display results based on the selected category
+              when (selectedCategory.value) {
+                "Songs" -> {
+                  DisplayResults(
+                      tracks = results.value.first, spotifyApiViewModel = spotifyApiViewModel)
+                }
+                "Artists" -> {
+                  DisplayResults(artists = results.value.second)
+                }
+                "People" -> {
+                  DisplayResults(
+                      people = peopleResult.value,
+                      profileViewModel = profileViewModel,
+                      navigationActions = navigationActions,
+                      friendRequestViewModel = friendRequestViewModel)
+                }
+              }
             }
-            "Artists" -> {
-              DisplayResults(artists = results.value.second)
-            }
-            "People" -> {
-              DisplayResults(
-                  people = peopleResult.value,
-                  profileViewModel = profileViewModel,
-                  navigationActions = navigationActions,
-                  friendRequestViewModel = friendRequestViewModel)
-            }
-          }
-        }
-  }
+      }
 }
 
 @Composable
