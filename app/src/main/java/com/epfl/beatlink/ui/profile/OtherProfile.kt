@@ -31,7 +31,7 @@ fun OtherProfileScreen(
 
   LaunchedEffect(selectedUser) {
     if (selectedUser.isNotEmpty()) {
-      profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+      profileViewModel.loadSelectedUserProfilePicture { profileViewModel.profilePicture.value = it }
     }
   }
 
