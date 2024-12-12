@@ -522,11 +522,7 @@ open class SpotifyApiViewModel(
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Playlists fetched successfully")
         val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
-        val playlists = mutableListOf<UserPlaylist>()
-        for (i in 0 until items.length()) {
-          val playlist = items.optJSONObject(i)
-          handleUserPlaylist(playlist, playlists, i)
-        }
+        val playlists = handleUserPlaylists(items)
         onSuccess(playlists)
       } else {
         Log.e("SpotifyApiViewModel", "Failed to fetch playlists")
@@ -553,11 +549,7 @@ open class SpotifyApiViewModel(
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "User's playlists fetched successfully")
         val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
-        val playlists = mutableListOf<UserPlaylist>()
-        for (i in 0 until items.length()) {
-          val playlist = items.optJSONObject(i)
-          handleUserPlaylist(playlist, playlists, i)
-        }
+        val playlists = handleUserPlaylists(items)
         onSuccess(playlists)
       } else {
         Log.e("SpotifyApiViewModel", "Failed to fetch user's playlists")
@@ -566,26 +558,21 @@ open class SpotifyApiViewModel(
     }
   }
 
-  /**
-   * Handles a user playlist by adding it to the list of playlists if it's public.
-   *
-   * @param playlist The JSON object representing the playlist.
-   * @param playlists The list of user playlists.
-   * @param index The index of the playlist in the JSON array.
-   */
-  private fun handleUserPlaylist(
-      playlist: JSONObject?,
-      playlists: MutableList<UserPlaylist>,
-      index: Int
-  ) {
-    if (playlist != null) {
-      val userPlaylist = createUserPlaylist(playlist)
-      // Only add the playlist if it's public
-      if (userPlaylist.playlistPublic) {
-        playlists.add(userPlaylist)
+  /** Handles a user playlist by adding it to the list of playlists if it's public. */
+  private fun handleUserPlaylists(items: JSONArray): MutableList<UserPlaylist> {
+    val playlists = mutableListOf<UserPlaylist>()
+    for (i in 0 until items.length()) {
+      val playlist = items.optJSONObject(i)
+      if (playlist != null) {
+        val userPlaylist = createUserPlaylist(playlist)
+        // Only add the playlist if it's public
+        if (userPlaylist.playlistPublic) {
+          playlists.add(userPlaylist)
+        }
+      } else {
+        Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
       }
-    } else {
-      Log.w("SpotifyApiViewModel", "Skipping null playlist at index $index")
     }
+    return playlists
   }
 }
