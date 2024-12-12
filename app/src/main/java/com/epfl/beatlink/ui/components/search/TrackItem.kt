@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,9 +25,11 @@ import coil.compose.AsyncImage
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.theme.TypographySongs
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun TrackItem(track: SpotifyTrack) {
+fun TrackItem(track: SpotifyTrack, spotifyApiViewModel: SpotifyApiViewModel) {
+
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
@@ -65,21 +65,13 @@ fun TrackItem(track: SpotifyTrack) {
 
         // Action Icons (Like, Add, More)
         Row(horizontalArrangement = Arrangement.End) {
-          CornerIcons(
-              onClick = {},
-              icon = Icons.Default.Favorite,
-              modifier = Modifier.testTag("favoriteIcon"),
-              contentDescription = "Favorite")
-          CornerIcons(
-              onClick = {},
-              icon = Icons.Default.Add,
-              modifier = Modifier.testTag("addIcon"),
-              contentDescription = "Add")
-          CornerIcons(
-              onClick = {},
-              icon = Icons.Default.MoreVert,
-              modifier = Modifier.testTag("moreIcon"),
-              contentDescription = "More")
+          if (spotifyApiViewModel.playbackActive) {
+            CornerIcons(
+                onClick = { spotifyApiViewModel.playTrackAlone(track) },
+                icon = Icons.Default.PlayArrow,
+                modifier = Modifier.testTag("playIcon"),
+                contentDescription = "Play")
+          }
         }
       }
 }
