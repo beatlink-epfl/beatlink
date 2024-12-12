@@ -126,9 +126,11 @@ fun BeatLinkApp(
               NoInternetScreen(navigationActions)
             }
           }
+
           composable(Screen.OTHER_PROFILE) {
             OtherProfileScreen(
                 profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
+          }
         }
 
         navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
