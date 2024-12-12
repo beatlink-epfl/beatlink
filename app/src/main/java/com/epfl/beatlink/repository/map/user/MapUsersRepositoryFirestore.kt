@@ -124,17 +124,15 @@ class MapUsersRepositoryFirestore(
     }
   }
 
-  override fun deleteMapUser(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-    val uid = auth.currentUser?.uid ?: return
-    db.collection(collectionPath).document(uid).delete().addOnCompleteListener { task ->
-      if (task.isSuccessful) {
-        onSuccess()
-      } else {
-        task.exception?.let { e ->
-          Log.e("MapUsersRepository", "Error deleting MapUser", e)
-          onFailure(e)
-        }
-      }
+  override suspend fun deleteMapUser(): Boolean {
+    val uid = auth.currentUser?.uid ?: return false
+    return try {
+      db.collection(collectionPath).document(uid).delete().await()
+      Log.d("MapUsersRepository", "MapUser deleted successfully")
+      true
+    } catch (e: Exception) {
+      Log.e("MapUsersRepository", "Error deleting MapUser", e)
+      false
     }
   }
 

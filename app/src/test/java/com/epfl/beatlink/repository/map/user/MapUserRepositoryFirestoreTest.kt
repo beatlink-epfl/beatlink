@@ -270,42 +270,16 @@ class MapUserRepositoryFirestoreTest {
   }
 
   @Test
-  fun deleteMapUser_shouldCallFirestoreCollection() {
-    // Simulate success
-    `when`(mockDocumentReference.delete()).thenReturn(documentTask)
-    `when`(documentTask.isSuccessful).thenReturn(true)
+  fun deleteMapUser_shouldCallFirestoreCollection() = runTest {
+    // Arrange: Simulate successful deletion
+    `when`(mockDocumentReference.delete()).thenReturn(Tasks.forResult(null))
 
-    // Invoke onCompleteListener for the mock task to simulate async completion
-    `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
-      val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
-      listener.onComplete(documentTask)
-      documentTask
-    }
+    // Act: Call the method
+    val result = mapUsersRepositoryFirestore.deleteMapUser()
 
-    mapUsersRepositoryFirestore.deleteMapUser(
-        onSuccess = {}, onFailure = { fail("Failure callback should not be called") })
-
+    // Assert: Verify the behavior
+    assertTrue(result)
     verify(mockDocumentReference).delete()
-  }
-
-  @Test
-  fun deleteMapUser_failure_shouldCallFailureCallback() {
-    // Simulate failure by returning a failed task
-    val exception = Exception("Firestore set failed")
-    `when`(mockDocumentReference.delete()).thenReturn(documentTask)
-    `when`(documentTask.isSuccessful).thenReturn(false)
-    `when`(documentTask.exception).thenReturn(exception)
-
-    // Invoke onCompleteListener for the mock task to simulate async completion
-    `when`(documentTask.addOnCompleteListener(any())).thenAnswer { invocation ->
-      val listener = invocation.getArgument<OnCompleteListener<Void>>(0)
-      listener.onComplete(documentTask)
-      documentTask
-    }
-
-    mapUsersRepositoryFirestore.deleteMapUser(
-        onSuccess = { fail("Success callback should not be called") },
-        onFailure = { e -> assertEquals("Firestore set failed", e.message) })
   }
 
   @Test

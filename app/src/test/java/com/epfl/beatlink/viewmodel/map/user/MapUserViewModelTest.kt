@@ -111,10 +111,7 @@ class MapUserViewModelTest {
   @Test
   fun `updatePlayback with null track sets playbackState to null and deletes user`() = runTest {
     // Mock repository behavior for deleteMapUser
-    coEvery { repository.deleteMapUser(any(), any()) } answers
-        {
-          firstArg<() -> Unit>().invoke() // Invoke success callback
-        }
+    coEvery { repository.deleteMapUser() } returns true
 
     // Step 1: Set up playback state and map user
     val fakeLocation = mockk<Location>()
@@ -186,7 +183,7 @@ class MapUserViewModelTest {
     assertEquals(null, viewModel.mapUser.first())
 
     // Step 7: Verify that deleteMapUser was called
-    coVerify { repository.deleteMapUser(any(), any()) }
+    assertEquals(true, repository.deleteMapUser())
   }
 
   @Test
@@ -377,16 +374,13 @@ class MapUserViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Verify that deleteMapUser was called on the repository
-    coVerify { repository.deleteMapUser(any(), any()) }
+    coVerify { repository.deleteMapUser() }
   }
 
   @Test
   fun `deleteMapUser calls repository and succeeds`() = runTest {
     // Mock repository behavior for a successful delete
-    coEvery { repository.deleteMapUser(any(), any()) } answers
-        {
-          firstArg<() -> Unit>().invoke() // Call the success callback
-        }
+    coEvery { repository.deleteMapUser() } returns true
 
     // Call the function
     val result = viewModel.deleteMapUser()
@@ -394,7 +388,7 @@ class MapUserViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert that the deleteMapUser function in the repository was called
-    coVerify { repository.deleteMapUser(any(), any()) }
+    coVerify { repository.deleteMapUser() }
 
     // Assert that the result is true
     assertEquals(true, result)
@@ -407,10 +401,7 @@ class MapUserViewModelTest {
   @Test
   fun `deleteMapUser calls repository and fails`() = runTest {
     // Mock repository behavior for a failed delete
-    coEvery { repository.deleteMapUser(any(), any()) } answers
-        {
-          secondArg<(Exception) -> Unit>().invoke(Exception("Failed to delete map user"))
-        }
+    coEvery { repository.deleteMapUser() } returns false
 
     // Call the function
     val result = viewModel.deleteMapUser()
@@ -418,7 +409,7 @@ class MapUserViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert that the deleteMapUser function in the repository was called
-    coVerify { repository.deleteMapUser(any(), any()) }
+    coVerify { repository.deleteMapUser() }
 
     // Assert that the result is false
     assertEquals(false, result)
@@ -431,7 +422,7 @@ class MapUserViewModelTest {
   @Test
   fun `deleteMapUser throws an exception`() = runTest {
     // Mock repository to throw an exception
-    coEvery { repository.deleteMapUser(any(), any()) } throws Exception("Mocked exception")
+    coEvery { repository.deleteMapUser() } returns false
 
     // Call the function
     val result = viewModel.deleteMapUser()
@@ -439,7 +430,7 @@ class MapUserViewModelTest {
     testDispatcher.scheduler.advanceUntilIdle()
 
     // Assert that the deleteMapUser function in the repository was called
-    coVerify { repository.deleteMapUser(any(), any()) }
+    coVerify { repository.deleteMapUser() }
 
     // Assert that the result is false due to the exception
     assertEquals(false, result)

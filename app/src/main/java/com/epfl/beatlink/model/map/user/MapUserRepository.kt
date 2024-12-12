@@ -47,7 +47,7 @@ interface MapUserRepository {
    * @param onSuccess Callback for successful deletion.
    * @param onFailure Callback that is invoked if an error occurs.
    */
-  fun deleteMapUser(onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
+  suspend fun deleteMapUser(): Boolean
 
   /**
    * Delete expired MapUsers from Firestore.

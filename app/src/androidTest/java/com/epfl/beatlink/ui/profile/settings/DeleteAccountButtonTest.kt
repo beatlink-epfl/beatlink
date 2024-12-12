@@ -104,11 +104,7 @@ class DeleteAccountButtonTest {
           onSuccess()
         }
     coEvery { profileRepository.deleteProfile("testUserId") } returns true
-    coEvery { mapUsersRepository.deleteMapUser(any(), any()) } answers
-        {
-          val onSuccess = firstArg<() -> Unit>()
-          onSuccess() // Call the success callback
-        }
+    coEvery { mapUsersRepository.deleteMapUser() } returns true
     coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers
         {
           val onSuccess = firstArg<() -> Unit>()
@@ -137,7 +133,7 @@ class DeleteAccountButtonTest {
     // Verify sequence of deletions and account removal
     coVerify { authRepository.verifyPassword("testPassword") }
     coVerify { profileRepository.deleteProfile(eq("testUserId")) }
-    coVerify { mapUsersRepository.deleteMapUser(any(), any()) }
+    coVerify { mapUsersRepository.deleteMapUser() }
     coVerify { playlistRepository.deleteOwnedPlaylists(any(), any()) }
     coVerify { authRepository.deleteAccount(eq("testPassword"), any(), any()) }
 
@@ -200,48 +196,6 @@ class DeleteAccountButtonTest {
     verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
   }
 
-  //    @Test
-  //    fun deleteAccountDialog_handlesIncorrectPassword() = runTest {
-  //        // Mock Toast
-  //        mockkStatic(Toast::class)
-  //        val mockToast = mockk<Toast>(relaxed = true)
-  //        every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
-  //
-  //        // Mock password verification failure
-  //        coEvery { authRepository.verifyPassword("wrongPassword") } returns
-  // Result.failure(Exception("Incorrect password"))
-  //
-  //        // Perform click on the delete button
-  //        composeTestRule
-  //            .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
-  //            .performScrollTo()
-  //            .performClick()
-  //
-  //        composeTestRule.waitForIdle()
-  //
-  //        // Ensure dialog is displayed
-  //        composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
-  //
-  //        // Enter incorrect password
-  //        composeTestRule.onNodeWithTag("passwordField").performTextInput("wrongPassword")
-  //
-  //        // Click confirm
-  //        composeTestRule.onNodeWithTag("confirmButton").performClick()
-  //
-  //        composeTestRule.waitForIdle()
-  //
-  //        // Verify no further actions are triggered
-  //        coVerify(exactly = 1) { authRepository.verifyPassword(eq("wrongPassword")) }
-  //        coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
-  //
-  //        // Verify Toast is displayed with the correct error message
-  //        verify { Toast.makeText(any(), "Incorrect password", Toast.LENGTH_SHORT) }
-  //        verify { mockToast.show() }
-  //
-  //        // Verify no navigation occurred
-  //        verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
-  //    }
-
   @Test
   fun deleteAccountDialog_handlesDeleteProfileFailure() = runTest {
     // Mock Toast
@@ -256,7 +210,7 @@ class DeleteAccountButtonTest {
     coEvery { profileRepository.deleteProfile("testUserId") } returns false
 
     // Mock no other operations should proceed
-    coEvery { mapUsersRepository.deleteMapUser(any(), any()) } answers {}
+    coEvery { mapUsersRepository.deleteMapUser() } returns true
     coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers {}
     coEvery { authRepository.deleteAccount(any(), any(), any()) } answers {}
 

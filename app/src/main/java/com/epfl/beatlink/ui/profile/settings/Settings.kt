@@ -33,7 +33,10 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun SettingsScreen(
     navigationActions: NavigationActions,
@@ -99,19 +102,22 @@ fun SettingsScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                profileViewModel.markProfileAsNotUpdated()
-                mapUsersViewModel.deleteMapUser()
-                firebaseAuthViewModel.signOut(
-                    onSuccess = {
-                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
-                      Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
-                      showDialog = false
-                    },
-                    onFailure = {
-                      Toast.makeText(context, "Sign out failed: ${it.message}", Toast.LENGTH_SHORT)
-                          .show()
-                      showDialog = false // Close the dialog on failure
-                    })
+                kotlinx.coroutines.GlobalScope.launch {
+                  profileViewModel.markProfileAsNotUpdated()
+                  mapUsersViewModel.deleteMapUser()
+                  firebaseAuthViewModel.signOut(
+                      onSuccess = {
+                        navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
+                        Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
+                        showDialog = false
+                      },
+                      onFailure = {
+                        Toast.makeText(
+                                context, "Sign out failed: ${it.message}", Toast.LENGTH_SHORT)
+                            .show()
+                        showDialog = false // Close the dialog on failure
+                      })
+                }
               }) {
                 Text("Confirm")
               }
