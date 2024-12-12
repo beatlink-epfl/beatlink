@@ -49,6 +49,8 @@ fun ChangePassword(
   var newPassword by remember { mutableStateOf("") }
   var confirmNewPassword by remember { mutableStateOf("") }
 
+  val enterPassword = "Enter password"
+
   // Handle authentication state
   AuthStateHandler(
       authState = authState,
@@ -85,7 +87,7 @@ fun ChangePassword(
                   value = currentPassword,
                   onValueChange = { currentPassword = it },
                   label = "Current Password",
-                  placeholder = "Enter password",
+                  placeholder = enterPassword,
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   modifier = Modifier.testTag("inputCurrentPassword"))
@@ -95,7 +97,7 @@ fun ChangePassword(
                   value = newPassword,
                   onValueChange = { newPassword = it },
                   label = "New Password",
-                  placeholder = "Enter password",
+                  placeholder = enterPassword,
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
@@ -106,7 +108,7 @@ fun ChangePassword(
                   value = confirmNewPassword,
                   onValueChange = { confirmNewPassword = it },
                   label = "Confirm New Password",
-                  placeholder = "Enter password",
+                  placeholder = enterPassword,
                   keyboardType = KeyboardType.Password,
                   visualTransformation = PasswordVisualTransformation(),
                   supportingText = "6-18 characters",
