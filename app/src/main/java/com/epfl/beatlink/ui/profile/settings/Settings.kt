@@ -104,19 +104,25 @@ fun SettingsScreen(
               onClick = {
                 kotlinx.coroutines.GlobalScope.launch {
                   profileViewModel.markProfileAsNotUpdated()
-                  mapUsersViewModel.deleteMapUser()
-                  firebaseAuthViewModel.signOut(
-                      onSuccess = {
-                        navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
-                        Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT).show()
-                        showDialog = false
-                      },
-                      onFailure = {
-                        Toast.makeText(
-                                context, "Sign out failed: ${it.message}", Toast.LENGTH_SHORT)
-                            .show()
-                        showDialog = false // Close the dialog on failure
-                      })
+                  val result = mapUsersViewModel.deleteMapUser()
+                  if (result) {
+                    firebaseAuthViewModel.signOut(
+                        onSuccess = {
+                          navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
+                          Toast.makeText(context, "Sign out successfully", Toast.LENGTH_SHORT)
+                              .show()
+                          showDialog = false
+                        },
+                        onFailure = {
+                          Toast.makeText(
+                                  context, "Sign out failed: ${it.message}", Toast.LENGTH_SHORT)
+                              .show()
+                          showDialog = false // Close the dialog on failure
+                        })
+                  } else {
+                    Toast.makeText(context, "Sign out failed", Toast.LENGTH_SHORT).show()
+                    showDialog = false // Close the dialog on failure
+                  }
                 }
               }) {
                 Text("Confirm")

@@ -19,6 +19,8 @@ import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import java.io.ByteArrayOutputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -204,18 +206,19 @@ class PlaylistViewModel(
     ?: emptyList() // Return an empty list if no playlist is selected
   }
 
-  fun deleteOwnedPlaylists(): Boolean {
+  suspend fun deleteOwnedPlaylists(): Boolean {
     return try {
-      repository.deleteOwnedPlaylists(
-          onSuccess = {
-            Log.d("PlaylistViewModel", "All playlists deleted successfully")
-            true
-          },
-          onFailure = { e ->
-            Log.e("PlaylistViewModel", "Failed to delete playlists", e)
-            false
-          })
-      true
+      suspendCoroutine { continuation ->
+        repository.deleteOwnedPlaylists(
+            onSuccess = {
+              Log.d("PlaylistViewModel", "All playlists deleted successfully")
+              continuation.resume(true)
+            },
+            onFailure = { e ->
+              Log.e("PlaylistViewModel", "Failed to delete playlists", e)
+              continuation.resume(false)
+            })
+      }
     } catch (e: Exception) {
       Log.e("PlaylistViewModel", "Exception while deleting playlists: ${e.message}")
       false
