@@ -443,7 +443,7 @@ fun MusicPlayerUI(
         modifier =
             Modifier.fillMaxWidth()
                 .height(76.dp)
-                .background(color = lightThemePurple)
+                .background(color = MaterialTheme.colorScheme.tertiary)
                 .testTag("playerContainer")
                 .clickable(onClick = { navigationActions.navigateTo(Screen.PLAY_SCREEN) }),
         verticalAlignment = Alignment.CenterVertically,
@@ -466,11 +466,14 @@ fun MusicPlayerUI(
 
       // Song title and artist/album information
       Column(verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)) {
-        Text(text = spotifyApiViewModel.currentTrack.name, style = TypographySongs.titleLarge)
+        Text(text = spotifyApiViewModel.currentTrack.name,
+            style = TypographySongs.titleLarge,
+            color = MaterialTheme.colorScheme.primary)
         Text(
             text =
                 "${spotifyApiViewModel.currentArtist.name} - ${spotifyApiViewModel.currentAlbum.name}",
-            style = TypographySongs.titleMedium)
+            style = TypographySongs.titleMedium,
+            color = MaterialTheme.colorScheme.primary)
       }
 
       Spacer(modifier = Modifier.width(8.dp))
