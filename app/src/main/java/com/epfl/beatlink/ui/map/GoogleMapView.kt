@@ -35,7 +35,6 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -87,7 +86,7 @@ fun GoogleMapView(
     mapUsers.forEach { user ->
       icons[user.username] =
           coroutineScope
-              .async(Dispatchers.IO) {
+              .async {
                 getBitmapDescriptorFromImageUrlSongPopUp(
                     imageUrl = user.currentPlayingTrack.albumCover,
                     context = context,

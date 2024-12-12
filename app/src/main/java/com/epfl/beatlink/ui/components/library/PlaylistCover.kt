@@ -28,7 +28,7 @@ import com.epfl.beatlink.ui.theme.SecondaryGray
  * Composable that displays the cover image of a playlist.
  *
  * @param coverImage The cover image of the playlist.
- * @param modifier The modifier for the composable.
+ * @param size The size of the cover image.
  * @param isClickable Whether the cover image is clickable.
  * @param onClick The action to perform when the cover image is clicked.
  */
