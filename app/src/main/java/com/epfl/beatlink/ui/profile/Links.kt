@@ -58,7 +58,7 @@ fun LinksScreen(
       topBar = { ScreenTopAppBar("Links", "LinksScreenTitle", navigationActions) },
       content = { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding).padding(16.dp),
+            modifier = Modifier.padding(innerPadding).padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
               if (allFriends.isEmpty()) {

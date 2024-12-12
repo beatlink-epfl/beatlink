@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.library
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,8 +44,6 @@ fun InviteCollaboratorsOverlay(
     friendRequestViewModel: FriendRequestViewModel,
     onDismissRequest: () -> Unit
 ) {
-  val profilePicture = remember { mutableStateOf<Bitmap?>(null) }
-
   val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
   val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
 
@@ -109,13 +106,7 @@ fun InviteCollaboratorsOverlay(
                 items(friendsProfileData.value.size) { i ->
                   val profile = friendsProfileData.value[i]
                   if (profile != null) {
-                    CollaboratorCard(
-                        profile.name,
-                        profile.username,
-                        profilePicture,
-                        false,
-                        onAdd = {},
-                        onRemove = {})
+                    CollaboratorCard(profile, profileViewModel, false, onAdd = {}, onRemove = {})
                   }
                 }
               }

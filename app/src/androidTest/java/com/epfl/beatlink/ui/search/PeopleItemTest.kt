@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.search
 
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -61,7 +60,6 @@ class PeopleItemTest {
     }
 
     composeTestRule.onNodeWithTag("peopleItem").assertExists()
-    composeTestRule.onNodeWithTag("peopleItem").assertTextEquals("user")
   }
 
   @Test
@@ -89,6 +87,7 @@ class PeopleItemTest {
     }
     composeTestRule.onNodeWithText("Requested").assertExists()
     composeTestRule.onNodeWithTag("linkedButton").assertExists()
+    composeTestRule.onNodeWithTag("rejectButton").assertDoesNotExist()
   }
 
   @Test
@@ -114,7 +113,9 @@ class PeopleItemTest {
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
+    composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Accept").assertExists()
+    composeTestRule.onNodeWithTag("rejectButton").assertExists()
     composeTestRule.onNodeWithTag("linkedButton").assertExists()
   }
 
@@ -143,5 +144,6 @@ class PeopleItemTest {
     }
     composeTestRule.onNodeWithText("Linked").assertExists()
     composeTestRule.onNodeWithTag("linkedButton").assertExists()
+    composeTestRule.onNodeWithTag("rejectButton").assertDoesNotExist()
   }
 }

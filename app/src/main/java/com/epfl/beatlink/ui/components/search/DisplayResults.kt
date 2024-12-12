@@ -55,7 +55,7 @@ fun DisplayResults(
         }
   } else {
     // Display tracks or artists
-    LazyColumn(modifier = Modifier.padding(horizontal = 16.dp).testTag("searchResultsColumn")) {
+    LazyColumn(modifier = Modifier.padding(horizontal = 8.dp).testTag("searchResultsColumn")) {
       tracks?.let {
         items(it) { track ->
           if (playlistViewModel != null && onClearQuery != null) {
