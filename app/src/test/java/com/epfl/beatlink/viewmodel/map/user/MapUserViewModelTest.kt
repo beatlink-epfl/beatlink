@@ -380,6 +380,75 @@ class MapUserViewModelTest {
     coVerify { repository.deleteMapUser(any(), any()) }
   }
 
+  @Test
+  fun `deleteMapUser calls repository and succeeds`() = runTest {
+    // Mock repository behavior for a successful delete
+    coEvery { repository.deleteMapUser(any(), any()) } answers
+        {
+          firstArg<() -> Unit>().invoke() // Call the success callback
+        }
+
+    // Call the function
+    val result = viewModel.deleteMapUser()
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert that the deleteMapUser function in the repository was called
+    coVerify { repository.deleteMapUser(any(), any()) }
+
+    // Assert that the result is true
+    assertEquals(true, result)
+
+    // Assert that _mapUser and _playbackState are null
+    assertEquals(null, viewModel.mapUser.first())
+    assertEquals(null, viewModel.playbackState.first())
+  }
+
+  @Test
+  fun `deleteMapUser calls repository and fails`() = runTest {
+    // Mock repository behavior for a failed delete
+    coEvery { repository.deleteMapUser(any(), any()) } answers
+        {
+          secondArg<(Exception) -> Unit>().invoke(Exception("Failed to delete map user"))
+        }
+
+    // Call the function
+    val result = viewModel.deleteMapUser()
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert that the deleteMapUser function in the repository was called
+    coVerify { repository.deleteMapUser(any(), any()) }
+
+    // Assert that the result is false
+    assertEquals(false, result)
+
+    // Ensure _mapUser and _playbackState remain unchanged
+    assertEquals(null, viewModel.mapUser.first())
+    assertEquals(null, viewModel.playbackState.first())
+  }
+
+  @Test
+  fun `deleteMapUser throws an exception`() = runTest {
+    // Mock repository to throw an exception
+    coEvery { repository.deleteMapUser(any(), any()) } throws Exception("Mocked exception")
+
+    // Call the function
+    val result = viewModel.deleteMapUser()
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    // Assert that the deleteMapUser function in the repository was called
+    coVerify { repository.deleteMapUser(any(), any()) }
+
+    // Assert that the result is false due to the exception
+    assertEquals(false, result)
+
+    // Ensure _mapUser and _playbackState remain unchanged
+    assertEquals(null, viewModel.mapUser.first())
+    assertEquals(null, viewModel.playbackState.first())
+  }
+
   @After
   fun tearDown() {
     Dispatchers.resetMain()
