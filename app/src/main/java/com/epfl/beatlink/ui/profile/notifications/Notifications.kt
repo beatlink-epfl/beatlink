@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.profile.LinkRequestsButton
@@ -16,6 +17,7 @@ import com.epfl.beatlink.ui.navigation.Screen.LINK_REQUESTS
 @Composable
 fun NotificationsScreen(navigationActions: NavigationActions) {
   Scaffold(
+      modifier = Modifier.testTag("notificationsScreen"),
       topBar = { ScreenTopAppBar("Notifications", "notificationsScreenTitle", navigationActions) },
       content = { innerPadding ->
         Column(

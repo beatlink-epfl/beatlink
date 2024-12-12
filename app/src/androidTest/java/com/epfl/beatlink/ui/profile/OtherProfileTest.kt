@@ -1,14 +1,15 @@
 package com.epfl.beatlink.ui.profile
 
 import android.app.Application
-import androidx.compose.ui.test.assertContentDescriptionEquals
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
@@ -18,6 +19,8 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.navigation.Screen.EDIT_PROFILE
+import com.epfl.beatlink.ui.navigation.Screen.LINKS
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
@@ -58,10 +61,7 @@ class OtherProfileTest {
 
   private val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
 
-  private val userProfile = ProfileData(username = "user")
-  private val displayedUser1 = ProfileData(username = "username1")
-  private val displayedUser2 = ProfileData(username = "username2")
-  private val displayedUser3 = ProfileData(username = "username3")
+  private val userProfile = ProfileData(bio = "", links = 0, name = "user", username = "user")
 
   private var topSongs =
       listOf(
@@ -90,9 +90,9 @@ class OtherProfileTest {
   private val profileData =
       ProfileData(
           username = "username",
+          links = 0,
           name = null,
           bio = null,
-          links = 0,
           profilePicture = null,
           favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"),
           topSongs = topSongs,
@@ -132,77 +132,155 @@ class OtherProfileTest {
   }
 
   @Test
-  fun elementsAreDisplayed() {
+  fun testInitialUIElements() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+
     composeTestRule.setContent {
       OtherProfileScreen(
-          mockProfileViewModel, mockFriendRequestViewModel, navigationActions, spotifyApiViewModel)
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = spotifyApiViewModel)
     }
 
-    // Check if the icons are displayed
-    composeTestRule
-        .onNodeWithTag("profileScreenMoreVertButton")
-        .assertExists()
-        .assertContentDescriptionEquals("MoreVert")
-
-    // Check if the user's profile picture is displayed
-    composeTestRule
-        .onNodeWithTag("profilePicture")
-        .assertExists()
-        .assertContentDescriptionEquals("Profile Picture")
-
-    // Check if the user's link's count is displayed
-    composeTestRule
-        .onNodeWithTag("linksCount")
-        .assertExists()
-        .assertTextContains("${profileData.links} Links")
-
-    // Check if the edit button is displayed
-    composeTestRule.onNodeWithTag("editProfileButton").assertExists()
-    // Check if the user's name is displayed
+    // Check if the top app bar is displayed
+    composeTestRule.onNodeWithTag("otherProfileScreen").assertExists()
+    composeTestRule.onNodeWithTag("profileScreenMoreVertButton").assertExists()
+    // Verify Profile Picture
+    composeTestRule.onNodeWithTag("profilePicture").assertExists()
+    // Check if links count is displayed
+    composeTestRule.onNodeWithTag("linksCount").assertExists()
+    // Check if the name is displayed
     composeTestRule.onNodeWithTag("name").assertExists()
-    // Check if the user's bio is displayed
+    // Check if the bio is displayed
     composeTestRule.onNodeWithTag("bio").assertExists()
-
-    composeTestRule.onNodeWithTag("editProfileButton").performClick()
-    verify(navigationActions).navigateTo(screen = Screen.EDIT_PROFILE)
   }
 
   @Test
-  fun otherProfileScreenDisplaysOtherProfileDetails() {
+  fun testDynamicContent() {
     val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeSelectedProfile(
+        ProfileData(bio = "Test Bio", links = 3, name = "Test User Name", username = "testuser"))
+
+    composeTestRule.setContent {
+      OtherProfileScreen(
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = spotifyApiViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("titleUsername").assertTextEquals("testuser")
+    composeTestRule.onNodeWithTag("name").assertTextEquals("Test User Name")
+    composeTestRule.onNodeWithTag("bio").assertTextEquals("Test Bio")
+    composeTestRule.onNodeWithTag("linksCount").assertTextContains("3 Links")
+  }
+
+  @Test
+  fun testLinkButtonStates() {
+    fakeFriendRequestViewModel.setOwnRequests(listOf("testUserId"))
+    val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeProfile(userProfile)
+    fakeProfileViewModel.setFakeSelectedId("testUserId")
+    fakeProfileViewModel.setFakeSelectedProfile(profileData)
+
+    composeTestRule.setContent {
+      OtherProfileScreen(
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = spotifyApiViewModel)
+    }
+    composeTestRule.waitForIdle()
+    composeTestRule.waitUntil(5_000) {
+      composeTestRule.onAllNodesWithText("Requested").fetchSemanticsNodes().isNotEmpty()
+    }
+    composeTestRule.onNodeWithText("Requested").assertExists()
+    composeTestRule.onNodeWithText("Requested").performClick()
+  }
+
+  @Test
+  fun testNavigationActionsWhenOwnProfile() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeProfile(userProfile)
+    fakeProfileViewModel.setFakeSelectedProfile(userProfile)
+
+    composeTestRule.setContent {
+      OtherProfileScreen(
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = spotifyApiViewModel)
+    }
+
+    composeTestRule.onNodeWithTag("linksCount").performClick()
+    verify(navigationActions).navigateTo(LINKS)
+
+    composeTestRule.onNodeWithTag("editProfileButton").performClick()
+    verify(navigationActions).navigateTo(EDIT_PROFILE)
+  }
+
+  @Test
+  fun testPlaylistsAreDisplayed() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    val playlists =
+        listOf(
+            UserPlaylist(
+                playlistID = "1",
+                ownerID = "userId",
+                playlistCover = "",
+                playlistName = "Playlist 1",
+                playlistPublic = true,
+                playlistTracks = emptyList(),
+                nbTracks = 0),
+            UserPlaylist(
+                playlistID = "2",
+                ownerID = "userId",
+                playlistCover = "",
+                playlistName = "Playlist 2",
+                playlistPublic = true,
+                playlistTracks = emptyList(),
+                nbTracks = 0),
+        )
+    fakeSpotifyApiViewModel.setUserPlaylists(playlists)
     fakeProfileViewModel.setFakeProfile(profileData)
 
     composeTestRule.setContent {
       OtherProfileScreen(
-          fakeProfileViewModel, mockFriendRequestViewModel, navigationActions, spotifyApiViewModel)
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = fakeSpotifyApiViewModel)
     }
 
-    composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("linkedButton").assertIsDisplayed().assertTextEquals("Link")
+    // composeTestRule.onNodeWithTag("PLAYLISTSTitle").performScrollTo().assertIsDisplayed()
+    // composeTestRule.onNodeWithText("Playlist 1").performScrollTo().assertExists()
+    // composeTestRule.onNodeWithText("Playlist 2").assertExists()
   }
 
-  //    @OptIn(ExperimentalCoroutinesApi::class)
-  //    @Test
-  //    fun linkButtonDisplaysRequest(): Unit = runTest {
-  //        val displayedUserId = "TestId1"
-  //        val ownRequests = listOf("TestId1", "testId2")
-  //        val fakeProfileViewModel = FakeProfileViewModel()
-  //        fakeProfileViewModel.setFakeSelectedProfile(displayedUser1)
-  //        fakeProfileViewModel.setFakeSelectedId(displayedUserId)
-  //
-  //        fakeFriendRequestViewModel.setOwnRequests(ownRequests)
-  //
-  //        composeTestRule.setContent {
-  //            OtherProfileScreen(
-  //                profileViewModel = fakeProfileViewModel,
-  //                friendRequestViewModel = fakeFriendRequestViewModel,
-  //                navigationActions,
-  //                spotifyApiViewModel)
-  //        }
-  //        advanceUntilIdle()
-  //
-  //        composeTestRule.onNodeWithText("Requested").assertExists()
-  //        composeTestRule.onNodeWithTag("linkedButton").assertExists()
-  //    }
+  @Test
+  fun testTopSongsAndArtistsAreDisplayed() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
+    fakeProfileViewModel.setFakeSelectedProfile(
+        ProfileData(
+            topSongs = listOf(SpotifyTrack(name = "Song 1"), SpotifyTrack(name = "Song 2")),
+            topArtists =
+                listOf(SpotifyArtist(name = "Artist 1"), SpotifyArtist(name = "Artist 2"))))
 
+    composeTestRule.setContent {
+      OtherProfileScreen(
+          profileViewModel = fakeProfileViewModel,
+          friendRequestViewModel = fakeFriendRequestViewModel,
+          navigationAction = navigationActions,
+          spotifyApiViewModel = fakeSpotifyApiViewModel)
+    }
+
+    composeTestRule.onNodeWithText("Song 1").assertExists()
+    composeTestRule.onNodeWithText("Song 2").assertExists()
+
+    composeTestRule.onNodeWithText("Artist 1").assertExists()
+    composeTestRule.onNodeWithText("Artist 2").assertExists()
+  }
 }

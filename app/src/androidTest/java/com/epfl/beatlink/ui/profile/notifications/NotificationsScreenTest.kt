@@ -28,6 +28,7 @@ class NotificationsScreenTest {
 
   @Test
   fun everythingIsDisplayed() {
+    composeTestRule.onNodeWithTag("notificationsScreen").assertExists()
     composeTestRule.onNodeWithTag("notificationsScreenTitle").assertExists()
     composeTestRule.onNodeWithText("Notifications").assertExists()
     composeTestRule.onNodeWithTag("linkRequestsButton")

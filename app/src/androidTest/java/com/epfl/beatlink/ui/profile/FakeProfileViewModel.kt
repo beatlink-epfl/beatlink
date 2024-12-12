@@ -15,7 +15,7 @@ class FakeProfileViewModel(
   private val fakeProfiles = mutableListOf<ProfileData>()
   private val fakeProfilePictures = mutableMapOf<String, Bitmap>()
   private var fakeUserIdByUsername = mutableMapOf<String, String>()
-  private val fakeProfileDateById = mutableMapOf<String, ProfileData>()
+  private val fakeProfileDataById = mutableMapOf<String, ProfileData>()
 
   override fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit) {
     val result = fakeProfiles.filter { it.username.contains(query, ignoreCase = true) }
@@ -33,7 +33,7 @@ class FakeProfileViewModel(
 
   override fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
     // Return the fake profile if the userId exists in the map
-    val profile = fakeProfileDateById[userId]
+    val profile = fakeProfileDataById[userId]
     onResult(profile)
   }
 
@@ -55,9 +55,9 @@ class FakeProfileViewModel(
   }
 
   // Adding some fake profiles to return
-  fun setFakeProfileDateById(profiles: List<ProfileData>) {
+  fun setFakeProfileDataById(profiles: List<ProfileData>) {
     profiles.forEach { profile ->
-      fakeProfileDateById[profile.username] = profile // Assume username is userId
+      fakeProfileDataById[profile.username] = profile // Assume username is userId
     }
   }
 

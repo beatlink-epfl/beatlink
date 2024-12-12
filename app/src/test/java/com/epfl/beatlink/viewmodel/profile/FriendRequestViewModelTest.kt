@@ -19,6 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FriendRequestViewModelTest {
@@ -77,6 +78,7 @@ class FriendRequestViewModelTest {
 
     val actualOwnRequests = friendRequestViewModel.ownRequests.value
     assertEquals(newOwnRequests, actualOwnRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -110,7 +112,6 @@ class FriendRequestViewModelTest {
 
     friendRequestViewModel.acceptFriendRequestFrom(senderId)
     advanceUntilIdle()
-
     assertEquals(updatedFriendRequests, friendRequestViewModel.friendRequests.value)
     assertEquals(updatedAllFriends, friendRequestViewModel.allFriends.value)
   }
@@ -149,6 +150,7 @@ class FriendRequestViewModelTest {
 
     val actualFriendRequests = friendRequestViewModel.friendRequests.value
     assertEquals(expectedFriendRequests, actualFriendRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -185,6 +187,7 @@ class FriendRequestViewModelTest {
 
     val actualOwnRequests = friendRequestViewModel.ownRequests.value
     assertEquals(expectedOwnRequests, actualOwnRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -225,6 +228,7 @@ class FriendRequestViewModelTest {
 
     val actualFriends = friendRequestViewModel.allFriends.value
     assertEquals(expectedFriends, actualFriends)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -260,6 +264,7 @@ class FriendRequestViewModelTest {
 
     val actualRequests = friendRequestViewModel.ownRequests.value
     assertEquals(expectedRequests, actualRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -290,6 +295,7 @@ class FriendRequestViewModelTest {
 
     val actualRequests = friendRequestViewModel.friendRequests.value
     assertEquals(expectedRequests, actualRequests)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -320,6 +326,7 @@ class FriendRequestViewModelTest {
 
     val actualFriends = friendRequestViewModel.allFriends.value
     assertEquals(expectedFriends, actualFriends)
+    verify(mockRepository).getUserId()
   }
 
   @Test
@@ -377,5 +384,19 @@ class FriendRequestViewModelTest {
     val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
     assertEquals(expectedFriends, actualFriends)
     assertTrue(onCompleteCalled)
+  }
+
+  @Test
+  fun getOtherProfileAllFriendsFails(): Unit = runTest {
+    val userId = "testUserId"
+
+    `when`(mockRepository.getAllFriends(userId))
+        .thenThrow(RuntimeException("Failed to fetch friends"))
+
+    friendRequestViewModel.getOtherProfileAllFriends(userId) {}
+    advanceUntilIdle() // Wait for coroutine completion
+
+    val actualFriends = friendRequestViewModel.otherProfileAllFriends.value
+    assertEquals(emptyList<String>(), actualFriends)
   }
 }
