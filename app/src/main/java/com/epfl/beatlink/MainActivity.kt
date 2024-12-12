@@ -19,12 +19,14 @@ import androidx.work.WorkManager
 import com.epfl.beatlink.repository.map.user.ExpiredMapUsersWorker
 import com.epfl.beatlink.repository.map.user.MapUsersRepositoryFirestore
 import com.epfl.beatlink.repository.map.user.WorkerFactory
+import com.epfl.beatlink.repository.network.NetworkStatusTracker
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.repository.spotify.auth.SPOTIFY_AUTH_PREFS
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.resources.C
 import com.epfl.beatlink.ui.BeatLinkApp
 import com.epfl.beatlink.ui.theme.BeatLinkAppTheme
+import com.epfl.beatlink.viewmodel.network.NetworkViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModelFactory
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
   // Spotify Auth
   private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
   private val spotifyAuthRepository = SpotifyAuthRepository(client)
+  private lateinit var networkStatusTracker: NetworkStatusTracker
 
   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,19 +55,27 @@ class MainActivity : ComponentActivity() {
     spotifyAuthViewModel =
         ViewModelProvider(this, spotifyAuthFactory)[SpotifyAuthViewModel::class.java]
 
+    networkStatusTracker = NetworkStatusTracker(this)
+
     val sharedPreferences = getSharedPreferences(SPOTIFY_AUTH_PREFS, MODE_PRIVATE)
     val spotifyApiRepository = SpotifyApiRepository(client, sharedPreferences)
     val spotifyApiViewModel = SpotifyApiViewModel(application, spotifyApiRepository)
+    val networkViewModel = NetworkViewModel(networkStatusTracker)
 
     setContent {
       BeatLinkAppTheme(darkTheme = false) {
         // A surface container using the 'background' color from the theme
         Surface(
             modifier = Modifier.fillMaxSize().semantics { testTag = C.Tag.main_screen_container }) {
-              BeatLinkApp(spotifyAuthViewModel, spotifyApiViewModel)
+              BeatLinkApp(spotifyAuthViewModel, spotifyApiViewModel, networkViewModel)
             }
       }
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    networkStatusTracker.unregisterCallback()
   }
 
   // Handle the authorization response from Spotify

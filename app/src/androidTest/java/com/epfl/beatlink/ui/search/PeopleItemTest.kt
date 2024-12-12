@@ -1,14 +1,16 @@
 package com.epfl.beatlink.ui.search
 
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.components.search.PeopleItem
+import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.mockk
@@ -21,6 +23,7 @@ import org.mockito.Mockito.mock
 class PeopleItemTest {
   @get:Rule val composeTestRule = createComposeRule()
 
+  private lateinit var navigationActions: NavigationActions
   private lateinit var mockFriendRequestRepository: FriendRequestRepository
   private lateinit var mockFriendRequestViewModel: FriendRequestViewModel
   private lateinit var mockProfileRepository: ProfileRepository
@@ -39,26 +42,32 @@ class PeopleItemTest {
     mockProfileViewModel = mockk(relaxed = true)
     mockFriendRequestRepository = mock(FriendRequestRepository::class.java)
     mockFriendRequestViewModel = mockk(relaxed = true)
+    navigationActions = mock(NavigationActions::class.java)
   }
 
   @Test
-  fun displayAllComponents(): Unit = runTest {
+  fun testPeopleItemDisplaysCorrectly() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+
+    fakeProfileViewModel.setFakeSelectedProfile(userProfile)
+
     composeTestRule.setContent {
       PeopleItem(
-          people = userProfile,
-          profileViewModel = mockProfileViewModel,
+          selectedProfileData = userProfile,
+          navigationActions = navigationActions,
+          profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
+
     composeTestRule.onNodeWithTag("peopleItem").assertExists()
-    composeTestRule.onNodeWithTag("linkedButton").assertExists()
-    composeTestRule.onNodeWithText("Link").assertExists()
-    composeTestRule.onNodeWithText("Link").performClick()
+    composeTestRule.onNodeWithTag("peopleItem").assertTextEquals("user")
   }
 
   @Test
   fun linkButtonDisplaysRequest(): Unit = runTest {
     val displayedUserId = "TestId1"
-    val ownRequests = listOf("TestId1", "user2")
+    val ownRequests = listOf("TestId1", "testId2")
     val fakeProfileViewModel =
         object : ProfileViewModel(repository = mockProfileRepository) {
           override fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
@@ -73,7 +82,8 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser1,
+          selectedProfileData = displayedUser1,
+          navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -99,7 +109,8 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser2,
+          selectedProfileData = displayedUser2,
+          navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }
@@ -125,7 +136,8 @@ class PeopleItemTest {
 
     composeTestRule.setContent {
       PeopleItem(
-          people = displayedUser3,
+          selectedProfileData = displayedUser3,
+          navigationActions = navigationActions,
           profileViewModel = fakeProfileViewModel,
           friendRequestViewModel = fakeFriendRequestViewModel)
     }

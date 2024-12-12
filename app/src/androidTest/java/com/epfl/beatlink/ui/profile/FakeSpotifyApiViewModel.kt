@@ -15,6 +15,7 @@ open class FakeSpotifyApiViewModel(
   private var topTracks: List<SpotifyTrack> = emptyList()
   private var topArtists: List<SpotifyArtist> = emptyList()
   private var userPlaylists: List<UserPlaylist> = emptyList()
+  private var otherUserPlaylists: List<UserPlaylist> = emptyList()
 
   fun setTopTracks(tracks: List<SpotifyTrack>) {
     topTracks = tracks
@@ -26,6 +27,10 @@ open class FakeSpotifyApiViewModel(
 
   fun setUserPlaylists(playlists: List<UserPlaylist>) {
     userPlaylists = playlists
+  }
+
+  fun setOtherUserPlaylists(playlists: List<UserPlaylist>) {
+    otherUserPlaylists = playlists
   }
 
   override fun getCurrentUserTopTracks(
@@ -61,6 +66,18 @@ open class FakeSpotifyApiViewModel(
     }
   }
 
+  override fun getUserPlaylists(
+      userId: String,
+      onSuccess: (List<UserPlaylist>) -> Unit,
+      onFailure: (List<UserPlaylist>) -> Unit
+  ) {
+    if (userPlaylists.isNotEmpty()) {
+      onSuccess(userPlaylists)
+    } else {
+      onFailure(emptyList())
+    }
+  }
+
   override fun searchArtistsAndTracks(
       query: String,
       onSuccess: (List<SpotifyArtist>, List<SpotifyTrack>) -> Unit,
@@ -85,5 +102,9 @@ open class FakeSpotifyApiViewModel(
       onResult: (String?) -> Unit
   ) {
     onResult("playlistId")
+  }
+
+  override fun updatePlayer() {
+    // Simulate fetching playback state
   }
 }

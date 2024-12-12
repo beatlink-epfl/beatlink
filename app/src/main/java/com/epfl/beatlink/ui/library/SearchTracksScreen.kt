@@ -17,12 +17,14 @@ import com.epfl.beatlink.ui.components.search.HandleSearchQuery
 import com.epfl.beatlink.ui.components.search.SearchScaffold
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
 fun SearchTracksScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    mapUsersViewModel: MapUsersViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
   val searchQuery = remember { mutableStateOf(TextFieldValue("")) }
@@ -36,20 +38,24 @@ fun SearchTracksScreen(
       onFailure = { results.value = Pair(emptyList(), emptyList()) },
       spotifyApiViewModel = spotifyApiViewModel)
 
-  SearchScaffold(navigationActions = navigationActions, searchQuery = searchQuery) { paddingValues
-    ->
-    Column(
-        modifier =
-            Modifier.fillMaxSize()
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.background)) {
-          DisplayResults(
-              tracks = results.value.first,
-              playlistViewModel = playlistViewModel,
-              onClearQuery = {
-                searchQuery.value = TextFieldValue("")
-                results.value = Pair(emptyList(), emptyList())
-              })
-        }
-  }
+  SearchScaffold(
+      navigationActions = navigationActions,
+      spotifyApiViewModel = spotifyApiViewModel,
+      mapUsersViewModel = mapUsersViewModel,
+      backArrowButton = true,
+      searchQuery = searchQuery) { paddingValues ->
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.background)) {
+              DisplayResults(
+                  tracks = results.value.first,
+                  playlistViewModel = playlistViewModel,
+                  onClearQuery = {
+                    searchQuery.value = TextFieldValue("")
+                    results.value = Pair(emptyList(), emptyList())
+                  })
+            }
+      }
 }

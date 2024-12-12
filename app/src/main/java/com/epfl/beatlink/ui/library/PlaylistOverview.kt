@@ -1,7 +1,6 @@
 package com.epfl.beatlink.ui.library
 
 import android.graphics.Bitmap
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.ui.components.EditButton
 import com.epfl.beatlink.ui.components.FilledButton
 import com.epfl.beatlink.ui.components.IconWithText
@@ -60,6 +60,7 @@ import com.epfl.beatlink.ui.theme.TypographyPlaylist
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -259,42 +260,14 @@ fun PlaylistOverviewScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                coroutineScope.launch {
-                  val finalList = playlistViewModel.getFinalListTracks()
-                  if (finalList.isNotEmpty()) {
-                    spotifyViewModel.createBeatLinkPlaylist(
-                        playlistName = selectedPlaylistState.playlistName,
-                        playlistDescription = selectedPlaylistState.playlistDescription,
-                        tracks = finalList,
-                        onResult = { idSpotify ->
-                          Log.d("Spotify", idSpotify.toString())
-                          if (idSpotify != null) {
-                            if (selectedPlaylistState.playlistCover != null) {
-                              playlistViewModel.preparePlaylistCoverForSpotify()?.let {
-                                spotifyViewModel.addCustomPlaylistCoverImage(idSpotify, it)
-                              }
-                            }
-                            // Delete playlist only if creation was successful
-                            playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
-                            showDialogExport = false
-                            Toast.makeText(
-                                    context, "Playlist exported successfully", Toast.LENGTH_SHORT)
-                                .show()
-                            navigationActions.navigateToAndPop(
-                                Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
-                          } else {
-                            // Show failure message
-                            Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT)
-                                .show()
-                            showDialogExport = false
-                          }
-                        })
-                  } else {
-                    // Handle empty list case
-                    Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
-                    showDialogExport = false
-                  }
-                }
+                exportPlaylist(
+                    context = context,
+                    coroutineScope = coroutineScope,
+                    playlistViewModel = playlistViewModel,
+                    spotifyViewModel = spotifyViewModel,
+                    navigationActions = navigationActions,
+                    selectedPlaylistState = selectedPlaylistState,
+                    onExportCompleted = { showDialogExport = false })
               }) {
                 Text("Confirm")
               }
@@ -305,5 +278,61 @@ fun PlaylistOverviewScreen(
                 Text("Cancel")
               }
         })
+  }
+}
+
+/**
+ * Exports the given playlist to Spotify and removes it from the app upon successful export.
+ *
+ * This function uses a coroutine to perform the export process. It retrieves the final list of
+ * tracks from the playlist, creates a new playlist in Spotify with the same name and description,
+ * and optionally uploads a custom cover image for the playlist. If the operation is successful, the
+ * playlist is deleted from the app's database.
+ *
+ * @param context The context used to display toast messages for success or failure feedback.
+ * @param coroutineScope The CoroutineScope used to launch the export operation.
+ * @param playlistViewModel The ViewModel responsible for playlist-related operations.
+ * @param spotifyViewModel The ViewModel responsible for Spotify-related operations.
+ * @param navigationActions NavigationActions to manage navigation between screens.
+ * @param selectedPlaylistState The current state of the selected playlist to be exported.
+ * @param onExportCompleted A callback to execute after the export process is completed, regardless
+ *   of success or failure.
+ */
+private fun exportPlaylist(
+    context: android.content.Context,
+    coroutineScope: CoroutineScope,
+    playlistViewModel: PlaylistViewModel,
+    spotifyViewModel: SpotifyApiViewModel,
+    navigationActions: NavigationActions,
+    selectedPlaylistState: Playlist,
+    onExportCompleted: () -> Unit
+) {
+  coroutineScope.launch {
+    val finalList = playlistViewModel.getFinalListTracks()
+    if (finalList.isNotEmpty()) {
+      spotifyViewModel.createBeatLinkPlaylist(
+          playlistName = selectedPlaylistState.playlistName,
+          playlistDescription = selectedPlaylistState.playlistDescription,
+          tracks = finalList,
+          onResult = { idSpotify ->
+            if (idSpotify != null) {
+              selectedPlaylistState.playlistCover?.let {
+                playlistViewModel.preparePlaylistCoverForSpotify()?.let { cover ->
+                  spotifyViewModel.addCustomPlaylistCoverImage(idSpotify, cover)
+                }
+              }
+              playlistViewModel.deletePlaylistById(selectedPlaylistState.playlistID)
+              onExportCompleted()
+              Toast.makeText(context, "Playlist exported successfully", Toast.LENGTH_SHORT).show()
+              navigationActions.navigateToAndPop(Screen.LIBRARY, Screen.PLAYLIST_OVERVIEW)
+            } else {
+              Toast.makeText(context, "Failed to export playlist", Toast.LENGTH_SHORT).show()
+              onExportCompleted()
+            }
+          })
+    } else {
+      Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
+      onExportCompleted()
+    }
   }
 }

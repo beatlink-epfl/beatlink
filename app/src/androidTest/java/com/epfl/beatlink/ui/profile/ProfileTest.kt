@@ -19,12 +19,14 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.FirebaseApp
@@ -61,6 +63,9 @@ class ProfileTest {
   private lateinit var profileRepositoryFirestore: ProfileRepositoryFirestore
   private lateinit var profileViewModel: ProfileViewModel
 
+  private lateinit var friendRequestRepositoryFirestore: FriendRequestRepositoryFirestore
+  private lateinit var friendRequestViewModel: FriendRequestViewModel
+
   private val profileData =
       ProfileData(
           username = "",
@@ -68,7 +73,7 @@ class ProfileTest {
           bio = null,
           links = 0,
           profilePicture = null,
-          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz", "Classic"))
+          favoriteMusicGenres = listOf("Pop", "Rock", "Jazz"))
 
   private var topSongs =
       listOf(
@@ -111,6 +116,9 @@ class ProfileTest {
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
 
+    friendRequestRepositoryFirestore = mock(FriendRequestRepositoryFirestore::class.java)
+    friendRequestViewModel = FriendRequestViewModel(friendRequestRepositoryFirestore)
+
     spotifyApiRepository = mock(SpotifyApiRepository::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, spotifyApiRepository)
 
@@ -134,6 +142,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -162,11 +171,7 @@ class ProfileTest {
         .assertTextContains("${profileData.links} Links")
 
     // Check if the edit button is displayed
-    composeTestRule.onNodeWithTag("editProfileButtonContainer").assertExists()
-    composeTestRule
-        .onNodeWithTag("editProfileButton")
-        .assertExists()
-        .assertTextContains("Edit Profile")
+    composeTestRule.onNodeWithTag("editProfileButton").assertExists()
 
     // Check if the user's name is displayed
     composeTestRule.onNodeWithTag("name").assertExists()
@@ -180,6 +185,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -199,14 +205,18 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+
     // Check that music genres are displayed
+    composeTestRule.onNodeWithTag("favoriteMusicGenresRow").assertIsDisplayed()
+
     profileData.favoriteMusicGenres.forEach { genre ->
-      composeTestRule.onNodeWithText(genre).assertExists()
+      composeTestRule.onNodeWithText(genre).performScrollTo().assertIsDisplayed()
     }
   }
 
@@ -225,6 +235,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -241,6 +252,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -262,6 +274,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -282,6 +295,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -301,6 +315,7 @@ class ProfileTest {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
@@ -310,15 +325,45 @@ class ProfileTest {
   }
 
   @Test
+  fun notificationsButtonTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          friendRequestViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+    composeTestRule.onNodeWithTag("profileScreenNotificationsButton").performClick()
+    verify(navigationActions).navigateTo(Screen.NOTIFICATIONS)
+  }
+
+  @Test
   fun settingsButtonTriggersNavigation() {
     composeTestRule.setContent {
       ProfileScreen(
           profileViewModel,
+          friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
     verify(navigationActions).navigateTo(Screen.SETTINGS)
+  }
+
+  @Test
+  fun linksTriggersNavigation() {
+    composeTestRule.setContent {
+      ProfileScreen(
+          profileViewModel,
+          friendRequestViewModel,
+          navigationActions,
+          spotifyApiViewModel,
+          viewModel(factory = MapUsersViewModel.Factory))
+    }
+
+    composeTestRule.onNodeWithTag("linksCount").performClick()
+    verify(navigationActions).navigateTo(Screen.LINKS)
   }
 }

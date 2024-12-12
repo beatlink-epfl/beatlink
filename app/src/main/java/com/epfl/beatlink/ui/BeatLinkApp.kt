@@ -3,6 +3,7 @@ package com.epfl.beatlink.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -27,25 +28,25 @@ import com.epfl.beatlink.ui.map.MapScreen
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.offline.NoInternetScreen
 import com.epfl.beatlink.ui.player.PlayScreen
 import com.epfl.beatlink.ui.profile.EditProfileScreen
+import com.epfl.beatlink.ui.profile.LinksScreen
 import com.epfl.beatlink.ui.profile.OtherProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
+import com.epfl.beatlink.ui.profile.notifications.LinkRequestsScreen
+import com.epfl.beatlink.ui.profile.notifications.NotificationsScreen
 import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
 import com.epfl.beatlink.ui.profile.settings.NotificationSettingsScreen
 import com.epfl.beatlink.ui.profile.settings.SettingsScreen
-import com.epfl.beatlink.ui.search.DiscoverPeopleScreen
-import com.epfl.beatlink.ui.search.LiveMusicPartiesScreen
-import com.epfl.beatlink.ui.search.MostMatchedSongsScreen
 import com.epfl.beatlink.ui.search.SearchBarScreen
-import com.epfl.beatlink.ui.search.SearchScreen
-import com.epfl.beatlink.ui.search.TrendingSongsScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.network.NetworkViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
@@ -56,7 +57,8 @@ import com.google.android.gms.location.LocationServices
 @Composable
 fun BeatLinkApp(
     spotifyAuthViewModel: SpotifyAuthViewModel,
-    spotifyApiViewModel: SpotifyApiViewModel
+    spotifyApiViewModel: SpotifyApiViewModel,
+    networkViewModel: NetworkViewModel
 ) {
   val navController = rememberNavController()
   val navigationActions = NavigationActions(navController)
@@ -76,6 +78,7 @@ fun BeatLinkApp(
       viewModel(factory = MapViewModel.provideFactory(mapLocationRepository))
 
   val mapUsersViewModel: MapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory)
+  val isOnline = networkViewModel.isConnected.observeAsState(initial = true)
 
   NavHost(
       navController = navController,
@@ -94,12 +97,16 @@ fun BeatLinkApp(
 
         navigation(startDestination = Screen.HOME, route = Route.HOME) {
           composable(Screen.HOME) {
-            MapScreen(
-                navigationActions,
-                mapViewModel,
-                spotifyApiViewModel,
-                profileViewModel,
-                mapUsersViewModel)
+            if (isOnline.value) {
+              MapScreen(
+                  navigationActions,
+                  mapViewModel,
+                  spotifyApiViewModel,
+                  profileViewModel,
+                  mapUsersViewModel)
+            } else {
+              NoInternetScreen(navigationActions)
+            }
           }
           composable(Screen.PLAY_SCREEN) {
             PlayScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
@@ -108,19 +115,22 @@ fun BeatLinkApp(
 
         navigation(startDestination = Screen.SEARCH, route = Route.SEARCH) {
           composable(Screen.SEARCH) {
-            SearchScreen(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+            if (isOnline.value) {
+              SearchBarScreen(
+                  navigationActions,
+                  spotifyApiViewModel,
+                  mapUsersViewModel,
+                  profileViewModel,
+                  friendRequestViewModel)
+            } else {
+              NoInternetScreen(navigationActions)
+            }
           }
-          composable(Screen.SEARCH_BAR) {
-            SearchBarScreen(
-                navigationActions, spotifyApiViewModel, profileViewModel, friendRequestViewModel)
+
+          composable(Screen.OTHER_PROFILE) {
+            OtherProfileScreen(
+                profileViewModel, friendRequestViewModel, navigationActions, spotifyApiViewModel)
           }
-          composable(Screen.OTHER_PROFILE_SCREEN) {
-            OtherProfileScreen(profileViewModel, navigationActions, spotifyApiViewModel)
-          }
-          composable(Screen.TRENDING_SONGS) { TrendingSongsScreen(navigationActions) }
-          composable(Screen.MOST_MATCHED_SONGS) { MostMatchedSongsScreen(navigationActions) }
-          composable(Screen.LIVE_MUSIC_PARTIES) { LiveMusicPartiesScreen(navigationActions) }
-          composable(Screen.DISCOVER_PEOPLE) { DiscoverPeopleScreen(navigationActions) }
         }
 
         navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
@@ -129,10 +139,12 @@ fun BeatLinkApp(
                 navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
           }
           composable(Screen.CREATE_NEW_PLAYLIST) {
-            CreateNewPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+            CreateNewPlaylistScreen(
+                navigationActions, profileViewModel, friendRequestViewModel, playlistViewModel)
           }
           composable(Screen.EDIT_PLAYLIST) {
-            EditPlaylistScreen(navigationActions, profileViewModel, playlistViewModel)
+            EditPlaylistScreen(
+                navigationActions, profileViewModel, friendRequestViewModel, playlistViewModel)
           }
           composable(Screen.MY_PLAYLISTS) {
             MyPlaylistsScreen(navigationActions, playlistViewModel)
@@ -148,7 +160,8 @@ fun BeatLinkApp(
                 navigationActions, profileViewModel, playlistViewModel, spotifyApiViewModel)
           }
           composable(Screen.ADD_TRACK_TO_PLAYLIST) {
-            SearchTracksScreen(navigationActions, spotifyApiViewModel, playlistViewModel)
+            SearchTracksScreen(
+                navigationActions, spotifyApiViewModel, mapUsersViewModel, playlistViewModel)
           }
           composable(Screen.INVITE_COLLABORATORS) {
             InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel)
@@ -158,16 +171,25 @@ fun BeatLinkApp(
         navigation(startDestination = Screen.PROFILE, route = Route.PROFILE) {
           composable(Screen.PROFILE) {
             ProfileScreen(
-                profileViewModel, navigationActions, spotifyApiViewModel, mapUsersViewModel)
+                profileViewModel,
+                friendRequestViewModel,
+                navigationActions,
+                spotifyApiViewModel,
+                mapUsersViewModel)
+          }
+          composable(Screen.LINKS) {
+            LinksScreen(navigationActions, profileViewModel, friendRequestViewModel)
           }
           composable(Screen.EDIT_PROFILE) { EditProfileScreen(profileViewModel, navigationActions) }
           composable(Screen.CHANGE_PASSWORD) { ChangePassword(navigationActions) }
+          composable(Screen.NOTIFICATIONS) { NotificationsScreen(navigationActions) }
+          composable(Screen.LINK_REQUESTS) {
+            LinkRequestsScreen(navigationActions, profileViewModel, friendRequestViewModel)
+          }
           composable(Screen.SETTINGS) {
             SettingsScreen(
                 navigationActions, firebaseAuthViewModel, mapUsersViewModel, profileViewModel)
           }
-          // composable(Screen.NOTIFICATIONS) { FriendsNotificationsScreen(navigationActions,
-          // friendRequestViewModel) }
           composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
           composable(Screen.ACCOUNT) {
             AccountScreen(

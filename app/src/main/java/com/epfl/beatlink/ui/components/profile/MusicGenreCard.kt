@@ -41,7 +41,7 @@ import com.epfl.beatlink.ui.theme.soul
 import com.epfl.beatlink.ui.theme.techno
 
 @Composable
-fun MusicGenreCard(genre: String, brush: Brush, onClick: () -> Unit) {
+fun MusicGenreCard(genre: String, brush: Brush, onClick: () -> Unit = {}) {
   Box(
       modifier =
           Modifier.height(90.dp)
