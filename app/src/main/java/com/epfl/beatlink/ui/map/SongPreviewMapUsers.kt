@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.map
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -137,9 +136,6 @@ fun SongPreviewMapUsers(
                                         } else {
                                           selectedUserUserId.value = uid
                                           isIdFetched.value = true
-                                          Log.d(
-                                              "SongPreview",
-                                              "selectedUserUserId: ${selectedUserUserId.value}")
                                         }
                                       }
                                     })
