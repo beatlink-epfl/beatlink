@@ -5,16 +5,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,17 +45,22 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 
 @Composable
 fun SelectFavoriteMusicGenres(onGenreSelectionVisibilityChanged: (Boolean) -> Unit) {
-  Box(
+  Button(
+      onClick = { onGenreSelectionVisibilityChanged(true) },
       modifier =
-          Modifier.clickable { onGenreSelectionVisibilityChanged(true) }
-              .padding(16.dp)
+          Modifier.padding(16.dp)
+              .width(320.dp)
+              .height(56.dp)
               .border(
                   width = 1.dp,
                   color = MaterialTheme.colorScheme.primary,
-                  shape = RoundedCornerShape(10.dp))
-              .height(52.dp)
-              .padding(16.dp),
-      contentAlignment = Alignment.Center) {
+                  shape = RoundedCornerShape(10.dp)),
+      shape = RoundedCornerShape(10.dp),
+      colors =
+          ButtonDefaults.buttonColors(
+              containerColor = MaterialTheme.colorScheme.background,
+              contentColor = MaterialTheme.colorScheme.primary),
+      contentPadding = PaddingValues(horizontal = 16.dp)) {
         Text(
             text = "Select your favorite music genres",
             modifier = Modifier.testTag("selectFavoriteGenresText"),
@@ -98,6 +107,7 @@ fun MusicGenreSelectionDialog(
                             contentAlignment = Alignment.Center) {
                               Text(
                                   text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
+                                  modifier = Modifier.testTag("maxGenresSelectedMessage"),
                                   textAlign = TextAlign.Center,
                                   color = MaterialTheme.colorScheme.error,
                                   style = MaterialTheme.typography.bodyMedium)

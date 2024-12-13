@@ -4,23 +4,40 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.firebase.Timestamp
+import java.time.Instant
+import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
 
 class SongPreviewMapUsersTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
+  @Mock lateinit var profileViewModel: ProfileViewModel
+  @Mock lateinit var navigationActions: NavigationActions
+
   private lateinit var testUser: MapUser
 
   @Before
   fun setUp() {
+    // Initialize mocks
+    MockitoAnnotations.openMocks(this)
+
     testUser =
         MapUser(
             username = "leilahammmm",
@@ -37,14 +54,18 @@ class SongPreviewMapUsersTest {
 
   @Test
   fun songPreviewMapUsers_displaysAlbumCover() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule.onNodeWithTag("albumCover").assertIsDisplayed()
   }
 
   @Test
   fun songPreviewMapUsers_displaysCorrectSongName() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule
         .onNodeWithTag("songName")
@@ -54,7 +75,9 @@ class SongPreviewMapUsersTest {
 
   @Test
   fun songPreviewMapUsers_displaysCorrectArtistName() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule
         .onNodeWithTag("artistName")
@@ -64,7 +87,9 @@ class SongPreviewMapUsersTest {
 
   @Test
   fun songPreviewMapUsers_displaysCorrectAlbumName() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule
         .onNodeWithTag("albumName")
@@ -74,7 +99,9 @@ class SongPreviewMapUsersTest {
 
   @Test
   fun songPreviewMapUsers_displaysUsernameWithUppercase() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule
         .onNodeWithTag("username")
@@ -83,22 +110,40 @@ class SongPreviewMapUsersTest {
   }
 
   @Test
+  fun songPreviewMapUsers_displaysTimeSinceLastUpdate() {
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
+
+    composeTestRule
+        .onNodeWithTag("timeSinceLastUpdate")
+        .assertIsDisplayed()
+        .assertTextContains("Just now")
+  }
+
+  @Test
   fun songPreviewMapUsers_displaysShadowBox() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule.onNodeWithTag("shadowbox").assertIsDisplayed()
   }
 
   @Test
   fun songPreviewMapUsers_displaysGradientBrushBox() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     composeTestRule.onNodeWithTag("brushbox").assertIsDisplayed()
   }
 
   @Test
   fun songPreviewMapUsers_layoutCorrectness() {
-    composeTestRule.setContent { SongPreviewMapUsers(mapUser = testUser) }
+    composeTestRule.setContent {
+      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+    }
 
     // Check if elements are displayed within expected structure
     composeTestRule.onNodeWithTag("shadowbox").assertIsDisplayed()
@@ -109,5 +154,41 @@ class SongPreviewMapUsersTest {
     composeTestRule.onNodeWithTag("artistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("albumName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("username").assertIsDisplayed()
+  }
+
+  @Test
+  fun testClickOnUsername() {
+    composeTestRule.setContent {
+      SongPreviewMapUsers(
+          mapUser = testUser,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions)
+    }
+    composeTestRule.onNodeWithTag("username").performClick()
+
+    `when`(profileViewModel.getUserIdByUsername(eq(testUser.username), any())).then { "testUserId" }
+
+    verify(profileViewModel).getUserIdByUsername(eq(testUser.username), any())
+  }
+
+  @Test
+  fun getTimeSinceLastUpdate_shouldReturnJustNow() {
+    val now = Instant.now()
+    val timestamp = Timestamp(now.epochSecond, now.nano)
+
+    val result = getTimeSinceLastUpdate(timestamp)
+
+    assertEquals("Just now", result)
+  }
+
+  @Test
+  fun getTimeSinceLastUpdate_shouldReturnOneMinAgo() {
+    val now = Instant.now()
+    val oneMinuteAgo = now.minusSeconds(60)
+    val timestamp = Timestamp(oneMinuteAgo.epochSecond, oneMinuteAgo.nano)
+
+    val result = getTimeSinceLastUpdate(timestamp)
+
+    assertEquals("1 min ago", result)
   }
 }

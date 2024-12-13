@@ -15,22 +15,32 @@ import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
 class GoogleMapViewTest {
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
+  @Mock lateinit var profileViewModel: ProfileViewModel
+  @Mock lateinit var navigationActions: NavigationActions
+
   private lateinit var testUser: MapUser
 
   @Before
   fun setUp() {
+    // Initialize mocks
+    MockitoAnnotations.openMocks(this)
+
     // Set up a test user with known location and song information
     testUser =
         MapUser(
@@ -60,6 +70,8 @@ class GoogleMapViewTest {
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions,
           locationPermitted = true)
     }
 
@@ -87,6 +99,8 @@ class GoogleMapViewTest {
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions,
           locationPermitted = false)
     }
 
@@ -114,6 +128,8 @@ class GoogleMapViewTest {
           moveToCurrentLocation = moveToCurrentLocation,
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions,
           locationPermitted = true)
     }
 
@@ -141,6 +157,8 @@ class GoogleMapViewTest {
           modifier = Modifier.testTag("MapView"),
           locationPermitted = true,
           mapUsers = mapUsers,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions,
           selectedUser = selectedUser // Pass the test-controlled selectedUser state
           )
     }
@@ -171,6 +189,8 @@ class GoogleMapViewTest {
           modifier = Modifier.testTag("MapView"),
           locationPermitted = true,
           mapUsers = mapUsers,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions,
           selectedUser = selectedUser // Pass controlled selectedUser state
           )
     }

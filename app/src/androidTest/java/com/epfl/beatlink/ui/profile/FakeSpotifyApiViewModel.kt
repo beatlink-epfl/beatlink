@@ -1,8 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum

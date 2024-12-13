@@ -21,7 +21,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.map.defaultLocation
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -45,6 +47,8 @@ fun GoogleMapView(
     modifier: Modifier,
     locationPermitted: Boolean,
     mapUsers: List<MapUser>,
+    profileViewModel: ProfileViewModel,
+    navigationActions: NavigationActions,
     selectedUser: MutableState<MapUser?> = remember { mutableStateOf(null) }
 ) {
   // Create a coroutine scope for launching coroutines
@@ -143,6 +147,7 @@ fun GoogleMapView(
                 })
           }
         }
+
     // Button to center the map on the current location
     Box(modifier = Modifier.align(Alignment.TopEnd).testTag("currentLocationButton")) {
       CurrentLocationCenterButton(currentPosition.value, cameraPositionState)
@@ -169,7 +174,7 @@ fun GoogleMapView(
                   .pointerInput(Unit) {
                     detectTapGestures {} // Consume clicks within SongPreviewMapUsers
                   }) {
-            SongPreviewMapUsers(mapUser = user)
+            SongPreviewMapUsers(mapUser = user, profileViewModel, navigationActions)
           }
     }
   }
