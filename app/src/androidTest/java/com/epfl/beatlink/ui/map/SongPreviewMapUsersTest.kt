@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.map
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,6 +10,7 @@ import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.navigation.NavigationActions
+import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.google.firebase.Timestamp
 import java.time.Instant
@@ -18,6 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.verify
 
 class SongPreviewMapUsersTest {
 
@@ -149,6 +152,28 @@ class SongPreviewMapUsersTest {
     composeTestRule.onNodeWithTag("artistName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("albumName").assertIsDisplayed()
     composeTestRule.onNodeWithTag("username").assertIsDisplayed()
+  }
+
+  @Test
+  fun testLaunchedEffectTriggersProfileViewModelAndNavigation() {
+    // Arrange: Set initial values for selectedUserUserId and isIdFetched
+    val selectedUserUserId = mutableStateOf("testUserId")
+    val isIdFetched = mutableStateOf(false)
+
+    composeTestRule.setContent {
+      SongPreviewMapUsers(
+          mapUser = testUser,
+          profileViewModel = profileViewModel,
+          navigationActions = navigationActions)
+    }
+
+    // Act: Change the state to trigger the LaunchedEffect
+    isIdFetched.value = true
+
+    // Assert: Verify that the view model methods and navigation were called
+    verify(profileViewModel).selectSelectedUser(selectedUserUserId.value)
+    verify(profileViewModel).fetchUserProfile()
+    verify(navigationActions).navigateTo(Screen.OTHER_PROFILE)
   }
 
   @Test
