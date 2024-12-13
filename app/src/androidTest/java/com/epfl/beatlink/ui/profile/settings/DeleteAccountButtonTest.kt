@@ -197,53 +197,61 @@ class DeleteAccountButtonTest {
   }
 
   @Test
-  fun deleteAccountDialog_handlesDeleteProfileFailure() = runTest {
-    // Mock Toast
-    mockkStatic(Toast::class)
-    val mockToast = mockk<Toast>(relaxed = true)
-    every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
+  fun deleteAccountDialog_handlesDeleteProfileFailure() =
+      runTest() {
+        // Mock Toast
+        mockkStatic(Toast::class)
+        val mockToast = mockk<Toast>(relaxed = true)
+        every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
 
-    // Mock password verification success
-    coEvery { authRepository.verifyPassword("testPassword") } returns Result.success(Unit)
+        // Mock password verification success
+        coEvery { authRepository.verifyPassword("testPassword") } returns Result.success(Unit)
 
-    // Mock `deleteProfile` failure
-    coEvery { profileRepository.deleteProfile("testUserId") } returns false
+        // Mock `deleteProfile` failure
+        coEvery { profileRepository.deleteProfile("testUserId") } returns false
 
-    // Mock no other operations should proceed
-    coEvery { mapUsersRepository.deleteMapUser() } returns true
-    coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers {}
-    coEvery { authRepository.deleteAccount(any(), any(), any()) } answers {}
+        // Mock no other operations should proceed
+        coEvery { mapUsersRepository.deleteMapUser() } returns false
+        coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers
+            {
+              val onFailure = secondArg<() -> Unit>()
+              onFailure()
+            }
+        coEvery { authRepository.deleteAccount(any(), any(), any()) } answers {}
 
-    // Perform click on the delete button
-    composeTestRule
-        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
-        .performScrollTo()
-        .performClick()
+        // Perform click on the delete button
+        composeTestRule
+            .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
 
-    composeTestRule.waitForIdle()
+        composeTestRule.waitForIdle()
 
-    // Ensure dialog is displayed
-    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+        // Ensure dialog is displayed
+        composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
 
-    // Enter correct password
-    composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
+        // Enter correct password
+        composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
 
-    // Click confirm
-    composeTestRule.onNodeWithTag("confirmButton").performClick()
+        // Click confirm
+        composeTestRule.onNodeWithTag("confirmButton").performClick()
 
-    composeTestRule.waitForIdle()
+        // Wait for coroutines to complete
+        composeTestRule.waitForIdle()
 
-    // Verify Toast is displayed with the correct error message
-    verify { Toast.makeText(any(), "Failed to delete all associated data.", Toast.LENGTH_SHORT) }
-    verify { mockToast.show() }
+        // Verify Toast is displayed with the correct error message
+        verify {
+          Toast.makeText(any(), "Failed to delete all associated data.", Toast.LENGTH_SHORT)
+        }
+        verify { mockToast.show() }
 
-    // Verify that deleteProfile was called and returned failure
-    coVerify(exactly = 1) { profileRepository.deleteProfile("testUserId") }
+        // Verify that deleteProfile was called and returned failure
+        coVerify(exactly = 1) { profileRepository.deleteProfile("testUserId") }
 
-    // Verify no further operations are triggered
-    coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
+        // Verify no further operations are triggered
+        coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
 
-    // Verify no navigation occurred
-    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
-  }
+        // Verify no navigation occurred
+        verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
+      }
 }
