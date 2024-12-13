@@ -51,13 +51,13 @@ class InviteCollaboratorsScreenTest {
     playlistViewModel = PlaylistViewModel(playlistRepository)
 
     val fakeProfileViewModel = FakeProfileViewModel()
-    fakeProfileViewModel.setFakeProfiles(profiles)
-
+    fakeProfileViewModel.setFakeProfile(profile)
     fakeProfileViewModel.setFakeProfiles(profiles)
 
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.INVITE_COLLABORATORS)
+
     composeTestRule.setContent {
       InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
     }
@@ -89,6 +89,13 @@ class InviteCollaboratorsScreenTest {
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("username")
     composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(profiles.size)
+  }
+
+  @Test
+  fun searchResultsDoesNotDisplayCurrentProfile() {
+    composeTestRule.onNodeWithTag("writableSearchBar").performClick()
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("TestUser")
+    composeTestRule.onNodeWithTag("CollabCard").assertDoesNotExist()
   }
 
   @Test

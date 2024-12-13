@@ -13,6 +13,7 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import org.junit.Before
@@ -38,7 +39,7 @@ class InviteCollaboratorsOverlayTest {
           navigationActions,
           viewModel(factory = ProfileViewModel.Factory),
           viewModel(factory = FriendRequestViewModel.Factory),
-      ) {}
+          viewModel(factory = PlaylistViewModel.Factory)) {}
     }
     composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
     composeTestRule.onNodeWithTag("searchBar").assertIsDisplayed()
@@ -51,7 +52,7 @@ class InviteCollaboratorsOverlayTest {
           navigationActions,
           viewModel(factory = ProfileViewModel.Factory),
           viewModel(factory = FriendRequestViewModel.Factory),
-      ) {}
+          viewModel(factory = PlaylistViewModel.Factory)) {}
     }
     composeTestRule.onNodeWithTag("searchBar").performClick()
     verify(navigationActions).navigateTo(INVITE_COLLABORATORS)
@@ -72,7 +73,7 @@ class InviteCollaboratorsOverlayTest {
           navigationActions,
           fakeProfileViewModel,
           fakeFriendRequestViewModel,
-      ) {}
+          viewModel(factory = PlaylistViewModel.Factory)) {}
     }
     composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(2)
     composeTestRule.onNodeWithText("Alice").assertExists()

@@ -34,6 +34,8 @@ fun InviteCollaboratorsScreen(
     profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
+  val profileData by profileViewModel.profile.collectAsState()
+  // list of collaborators ID
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState()
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -54,7 +56,9 @@ fun InviteCollaboratorsScreen(
   LaunchedEffect(searchQuery.value.text) {
     if (searchQuery.value.text.isNotEmpty()) {
       profileViewModel.searchUsers(query = searchQuery.value.text) { fetchedResults ->
-        results.value = fetchedResults
+        profileData?.let { currentProfile ->
+          results.value = fetchedResults.filter { userProfile -> userProfile != currentProfile }
+        }
       }
     }
   }
@@ -66,7 +70,8 @@ fun InviteCollaboratorsScreen(
             navigationActions = navigationActions,
             backArrowButton = true,
             searchQuery = searchQuery.value,
-            onQueryChange = { newQuery -> searchQuery.value = newQuery })
+            onQueryChange = { newQuery -> searchQuery.value = newQuery },
+            placeholder = "Search people to collaborate")
       },
       bottomBar = {
         BottomNavigationMenu(

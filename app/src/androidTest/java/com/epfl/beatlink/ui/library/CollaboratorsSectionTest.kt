@@ -26,7 +26,7 @@ class CollaboratorsSectionTest {
 
   @Test
   fun collabList_showsEmptyState_whenNoCollaborators() {
-    composeTestRule.setContent { CollabList(collaborators = emptyList(), onRemove = {}) }
+    composeTestRule.setContent { CollabList(emptyList(), emptyList(), onRemove = {}) }
 
     // Verify the empty state message is displayed
     composeTestRule.onNodeWithTag("emptyCollab").assertIsDisplayed()
@@ -35,23 +35,31 @@ class CollaboratorsSectionTest {
 
   @Test
   fun collabList_displaysCollaborators() {
-    val collaborators = listOf("Alice", "Bob", "Charlie")
+    val collaboratorsUsernames = listOf("alice", "bob", "charlie")
+    val collaboratorsProfileData =
+        listOf(
+            ProfileData(name = "Alice", username = "alice"),
+            ProfileData(name = "Bob", username = "bob"),
+            ProfileData(name = "Charlie", username = "charlie"))
 
-    composeTestRule.setContent { CollabList(collaborators = collaborators, onRemove = {}) }
+    composeTestRule.setContent {
+      CollabList(collaboratorsUsernames, collaboratorsProfileData, onRemove = {})
+    }
 
     // Verify each collaborator is displayed
-    collaborators.forEach { collaborator ->
-      composeTestRule.onNodeWithText("@$collaborator").assertIsDisplayed()
+    collaboratorsProfileData.forEach { profile ->
+      composeTestRule.onNodeWithText("${profile.name} @${profile.username}").assertExists()
     }
   }
 
   @Test
   fun collabList_triggersOnRemove_whenCloseButtonClicked() {
-    val collaborators = listOf("Alice")
+    val collaborators = listOf("alice")
+    val collaboratorsProfileData = listOf(ProfileData(name = "Alice", username = "alice"))
     var removedCollaborator: String? = null
 
     composeTestRule.setContent {
-      CollabList(collaborators = collaborators, onRemove = { removedCollaborator = it })
+      CollabList(collaborators, collaboratorsProfileData, onRemove = { removedCollaborator = it })
     }
 
     // Click the remove button for Alice
@@ -61,7 +69,7 @@ class CollaboratorsSectionTest {
         .performClick()
 
     // Verify the correct collaborator was removed
-    assertEquals("Alice", removedCollaborator)
+    assertEquals("alice", removedCollaborator)
   }
 
   @Test
