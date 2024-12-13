@@ -77,7 +77,8 @@ class FakeProfileViewModel(
     // Mocked fetch profile
   }
 
-  override fun deleteProfile() {
+  override suspend fun deleteProfile(): Boolean {
     // Mocked delete profile
+    return true
   }
 }

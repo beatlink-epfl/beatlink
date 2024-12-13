@@ -41,9 +41,14 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AccountScreen(
@@ -51,7 +56,8 @@ fun AccountScreen(
     spotifyAuthViewModel: SpotifyAuthViewModel,
     profileViewModel: ProfileViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel,
-    mapUsersViewModel: MapUsersViewModel
+    mapUsersViewModel: MapUsersViewModel,
+    playlistViewModel: PlaylistViewModel
 ) {
   val context = LocalContext.current
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
@@ -124,30 +130,23 @@ fun AccountScreen(
           TextButton(
               modifier = Modifier.testTag("confirmButton"),
               onClick = {
-                if (password.isEmpty()) {
-                  Toast.makeText(context, "Please enter your password", Toast.LENGTH_SHORT).show()
-                  return@TextButton
-                }
-                val currentProfile = profileData
-                profileViewModel.markProfileAsNotUpdated()
-                profileViewModel.deleteProfile()
-                mapUsersViewModel.deleteMapUser()
-                firebaseAuthViewModel.deleteAccount(
-                    currentPassword = password,
-                    onSuccess = {
-                      navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
+                deleteAccount(
+                    password = password,
+                    profileViewModel = profileViewModel,
+                    mapUsersViewModel = mapUsersViewModel,
+                    playlistViewModel = playlistViewModel,
+                    firebaseAuthViewModel = firebaseAuthViewModel,
+                    navigationActions = navigationActions,
+                    onDeletionFailed = { errorMessage ->
+                      Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                      showDialog = false
+                      password = ""
+                    },
+                    onDeletionSuccess = {
                       Toast.makeText(context, "Account deleted successfully", Toast.LENGTH_SHORT)
                           .show()
-                      password = ""
                       showDialog = false
-                    },
-                    onFailure = {
-                      profileViewModel.addProfile(currentProfile!!)
-                      Toast.makeText(
-                              context, "Account deletion failed: ${it.message}", Toast.LENGTH_SHORT)
-                          .show()
                       password = ""
-                      showDialog = false
                     })
               }) {
                 Text("Confirm")
@@ -159,5 +158,65 @@ fun AccountScreen(
                 Text("Cancel")
               }
         })
+  }
+}
+
+/**
+ * Handles account deletion by deleting the user's profile, map user data, and Firebase account.
+ *
+ * @param password The user's password used for authentication before account deletion.
+ * @param profileViewModel The ViewModel responsible for managing the user's profile.
+ * @param mapUsersViewModel The ViewModel responsible for managing map-related user data.
+ * @param firebaseAuthViewModel The ViewModel responsible for Firebase authentication operations.
+ * @param navigationActions Used to navigate to different screens after the account deletion.
+ * @param onDeletionFailed A callback executed when the account deletion fails.
+ * @param onDeletionSuccess A callback executed when the account deletion succeeds.
+ */
+@OptIn(DelicateCoroutinesApi::class)
+private fun deleteAccount(
+    password: String,
+    profileViewModel: ProfileViewModel,
+    mapUsersViewModel: MapUsersViewModel,
+    playlistViewModel: PlaylistViewModel,
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    navigationActions: NavigationActions,
+    onDeletionFailed: (String) -> Unit,
+    onDeletionSuccess: () -> Unit
+) {
+  if (password.isEmpty()) {
+    onDeletionFailed("Please enter your password")
+    return
+  }
+
+  kotlinx.coroutines.GlobalScope.launch {
+    try {
+      // Step 1: Verify the password
+      val verificationResult = firebaseAuthViewModel.verifyPassword(password)
+      if (!verificationResult.isSuccess) {
+        withContext(Dispatchers.Main) { onDeletionFailed("Incorrect password") }
+        return@launch
+      }
+
+      // Step 2: Delete Firestore data
+      val deleteProfileResult = profileViewModel.deleteProfile()
+      val deleteMapUserResult = mapUsersViewModel.deleteMapUser()
+      val deletePlaylistsResult = playlistViewModel.deleteOwnedPlaylists()
+
+      if (!deleteProfileResult || !deleteMapUserResult || !deletePlaylistsResult) {
+        withContext(Dispatchers.Main) { onDeletionFailed("Failed to delete all associated data.") }
+        return@launch
+      }
+
+      // Step 3: Delete Firebase Authentication account
+      firebaseAuthViewModel.deleteAccount(
+          currentPassword = password,
+          onSuccess = {
+            navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME)
+            onDeletionSuccess()
+          },
+          onFailure = { error -> onDeletionFailed("Account deletion failed: ${error.message}") })
+    } catch (e: Exception) {
+      withContext(Dispatchers.Main) { onDeletionFailed("An error occurred: ${e.message}") }
+    }
   }
 }

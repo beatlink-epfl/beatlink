@@ -94,17 +94,23 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
   }
 
   /** Delete a user from the database. */
-  fun deleteMapUser() {
-    viewModelScope.launch {
-      repository.deleteMapUser(
-          onSuccess = { /* Optionally refresh users or perform other actions */},
-          onFailure = { /* Handle any failures as needed */})
-      _mapUser.value = null
-      _playbackState.value = null
+  suspend fun deleteMapUser(): Boolean {
+    return try {
+      if (repository.deleteMapUser()) {
+        _mapUser.value = null
+        _playbackState.value = null
+        return true
+      } else {
+        Log.e("MapUserViewModel", "Failed to delete map user")
+        return false
+      }
+    } catch (e: Exception) {
+      Log.e("MapUserViewModel", "Exception while deleting map user: ${e.message}")
+      return false
     }
   }
 
-  fun updatePlayback(album: SpotifyAlbum, track: SpotifyTrack, artist: SpotifyArtist) {
+  suspend fun updatePlayback(album: SpotifyAlbum, track: SpotifyTrack, artist: SpotifyArtist) {
     if (_authState.value) {
       _playbackState.value =
           CurrentPlayingTrack(

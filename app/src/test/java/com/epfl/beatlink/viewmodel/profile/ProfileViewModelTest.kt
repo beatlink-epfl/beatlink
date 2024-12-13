@@ -901,6 +901,25 @@ class ProfileViewModelTest {
     // Assert
     assertEquals(null, profileViewModel.selectedUserProfile.value)
   }
+
+  @Test
+  fun `deleteProfile returns false and logs error on exception`() = runTest {
+    // Arrange
+    val userId = "testUserId"
+    val exception = RuntimeException("Mocked exception")
+
+    // Mock repository behavior
+    `when`(mockRepository.getUserId()).thenReturn(userId)
+    `when`(mockRepository.deleteProfile(userId)).thenThrow(exception)
+
+    // Act
+    val result = profileViewModel.deleteProfile()
+
+    // Assert
+    assertEquals(false, result) // The method should return false
+    assertEquals(userId, mockRepository.getUserId()) // Ensure correct user ID retrieval
+    verify(mockRepository).deleteProfile(userId) // Ensure deleteProfile was called
+  }
 }
 
 fun <T> LiveData<T>.getOrAwaitValue(): T {

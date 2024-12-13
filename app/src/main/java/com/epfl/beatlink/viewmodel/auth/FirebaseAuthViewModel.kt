@@ -61,6 +61,11 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  suspend fun verifyPassword(currentPassword: String): Result<Unit> {
+    val verificationResult = authRepository.verifyPassword(currentPassword)
+    return verificationResult
+  }
+
   fun deleteAccount(
       currentPassword: String,
       onSuccess: () -> Unit,
@@ -68,7 +73,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
   ) {
     viewModelScope.launch {
       authRepository.deleteAccount(
-          currentPassword = currentPassword,
+          currentPassword,
           onSuccess = {
             resetState()
             onSuccess() // Trigger the success callback

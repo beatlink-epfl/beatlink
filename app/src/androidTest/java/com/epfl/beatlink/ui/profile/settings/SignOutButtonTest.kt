@@ -8,16 +8,18 @@ import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,6 +40,8 @@ class SignOutButtonTest {
   private lateinit var authRepository: FirebaseAuthRepository
   private lateinit var profileRepository: ProfileRepository
   private lateinit var profileViewModel: ProfileViewModel
+  private lateinit var mapUsersViewModel: MapUsersViewModel
+  private lateinit var mapUsersRepository: MapUserRepository
 
   @Before
   fun setUp() {
@@ -46,13 +50,15 @@ class SignOutButtonTest {
     authViewModel = FirebaseAuthViewModel(authRepository)
     profileRepository = mock(ProfileRepository::class.java)
     profileViewModel = ProfileViewModel(profileRepository)
+    mapUsersRepository = mockk(relaxed = true)
+    mapUsersViewModel = MapUsersViewModel(mapUsersRepository)
 
     // Set the composable for testing
     composeTestRule.setContent {
       SettingsScreen(
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
-          mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
+          mapUsersViewModel = mapUsersViewModel,
           profileViewModel)
     }
   }
@@ -85,7 +91,8 @@ class SignOutButtonTest {
   }
 
   @Test
-  fun signOutDialog_performsSignOutAndNavigation() {
+  fun signOutDialog_performsSignOutAndNavigation() = runTest {
+    coEvery { mapUsersRepository.deleteMapUser() } returns true
     // Mock the signOut method to simulate a successful callback
     doAnswer { invocation ->
           val onSuccess = invocation.getArgument<() -> Unit>(0)
@@ -107,6 +114,7 @@ class SignOutButtonTest {
     // Click the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
+    composeTestRule.waitForIdle()
     // Verify that signOut is called on the repository
     verify(authRepository).signOut(any(), any())
 
