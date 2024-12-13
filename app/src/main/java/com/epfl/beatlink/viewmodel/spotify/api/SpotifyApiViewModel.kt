@@ -24,23 +24,26 @@ open class SpotifyApiViewModel(
     private val apiRepository: SpotifyApiRepository
 ) : AndroidViewModel(application) {
 
+  companion object {
+    const val PLAY_ENDPOINT = "me/player/play"
+    const val PAUSE_ENDPOINT = "me/player/pause"
+    const val NEXT_ENDPOINT = "me/player/next"
+    const val PREVIOUS_ENDPOINT = "me/player/previous"
+    const val PLAYER_ENDPOINT = "me/player"
+  }
+
   var playbackActive by mutableStateOf(false)
-
   var isPlaying by mutableStateOf(false)
-
   var currentTrack by mutableStateOf(SpotifyTrack("", "", "", "", 0, 0, State.PAUSE))
-
   var currentAlbum by mutableStateOf(SpotifyAlbum("", "", "", "", 0, listOf(), 0, listOf(), 0))
-
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
-
   var queue = mutableStateListOf<SpotifyTrack>()
 
   fun playPlaylist(playlist: UserPlaylist) {
     viewModelScope.launch {
       val body =
           JSONObject().apply { put("context_uri", "spotify:playlist:${playlist.playlistID}") }
-      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+      val result = apiRepository.put(PLAY_ENDPOINT, body.toString().toRequestBody())
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Playlist played successfully")
         updatePlayer()
@@ -54,7 +57,7 @@ open class SpotifyApiViewModel(
     viewModelScope.launch {
       val body =
           JSONObject().apply { put("uris", JSONArray(listOf("spotify:track:${track.trackId}"))) }
-      val result = apiRepository.put("me/player/play", body.toString().toRequestBody())
+      val result = apiRepository.put(PLAY_ENDPOINT, body.toString().toRequestBody())
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Track played successfully")
         updatePlayer()
@@ -271,7 +274,7 @@ open class SpotifyApiViewModel(
   fun pausePlayback() {
     viewModelScope.launch {
       if (isPlaying) {
-        apiRepository.put("me/player/pause")
+        apiRepository.put(PAUSE_ENDPOINT)
         Log.d("SpotifyApiViewModel", "Playback paused")
         isPlaying = false
       } else {
@@ -284,7 +287,7 @@ open class SpotifyApiViewModel(
   fun playPlayback() {
     viewModelScope.launch {
       if (!isPlaying) {
-        apiRepository.put("me/player/play")
+        apiRepository.put(PLAY_ENDPOINT)
         Log.d("SpotifyApiViewModel", "Playback resumed")
         isPlaying = true
       } else {
@@ -296,7 +299,7 @@ open class SpotifyApiViewModel(
   /** Fetches the current playback state. */
   private fun getPlaybackState(onSuccess: (JSONObject) -> Unit, onFailure: () -> Unit) {
     viewModelScope.launch {
-      val result = apiRepository.get("me/player")
+      val result = apiRepository.get(PLAYER_ENDPOINT)
       if (result.isSuccess) {
         if (result.getOrNull()!!.has("is_playing")) {
           onSuccess(result.getOrNull()!!)
@@ -314,7 +317,7 @@ open class SpotifyApiViewModel(
   fun skipSong() {
     viewModelScope.launch {
       if (playbackActive) {
-        apiRepository.post("me/player/next", "".toRequestBody())
+        apiRepository.post(NEXT_ENDPOINT, "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Song skipped")
         updatePlayer()
       } else {
@@ -327,7 +330,7 @@ open class SpotifyApiViewModel(
   fun previousSong() {
     viewModelScope.launch {
       if (playbackActive) {
-        apiRepository.post("me/player/previous", "".toRequestBody())
+        apiRepository.post(PREVIOUS_ENDPOINT, "".toRequestBody())
         Log.d("SpotifyApiViewModel", "Previous song played")
         updatePlayer()
       } else {
@@ -491,7 +494,7 @@ open class SpotifyApiViewModel(
             imagesArray.getJSONObject(0).getString("url")
         else ""
     val nbTracks = playlist.getJSONObject("tracks").getInt("total")
-    val tracks = mutableListOf<SpotifyTrack>()
+    val tracks = listOf<SpotifyTrack>()
 
     return UserPlaylist(
         playlistID = id,
@@ -519,19 +522,7 @@ open class SpotifyApiViewModel(
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "Playlists fetched successfully")
         val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
-        val playlists = mutableListOf<UserPlaylist>()
-        for (i in 0 until items.length()) {
-          val playlist = items.optJSONObject(i)
-          if (playlist != null) {
-            val userPlaylist = createUserPlaylist(playlist)
-            // Only add the playlist if it's public
-            if (userPlaylist.playlistPublic) {
-              playlists.add(userPlaylist)
-            }
-          } else {
-            Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
-          }
-        }
+        val playlists = handleUserPlaylists(items)
         onSuccess(playlists)
       } else {
         Log.e("SpotifyApiViewModel", "Failed to fetch playlists")
@@ -558,24 +549,30 @@ open class SpotifyApiViewModel(
       if (result.isSuccess) {
         Log.d("SpotifyApiViewModel", "User's playlists fetched successfully")
         val items = result.getOrNull()?.getJSONArray("items") ?: return@launch
-        val playlists = mutableListOf<UserPlaylist>()
-        for (i in 0 until items.length()) {
-          val playlist = items.optJSONObject(i)
-          if (playlist != null) {
-            val userPlaylist = createUserPlaylist(playlist)
-            // Only add the playlist if it's public
-            if (userPlaylist.playlistPublic) {
-              playlists.add(userPlaylist)
-            }
-          } else {
-            Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
-          }
-        }
+        val playlists = handleUserPlaylists(items)
         onSuccess(playlists)
       } else {
         Log.e("SpotifyApiViewModel", "Failed to fetch user's playlists")
         onFailure(emptyList())
       }
     }
+  }
+
+  /** Handles a user playlist by adding it to the list of playlists if it's public. */
+  private fun handleUserPlaylists(items: JSONArray): MutableList<UserPlaylist> {
+    val playlists = mutableListOf<UserPlaylist>()
+    for (i in 0 until items.length()) {
+      val playlist = items.optJSONObject(i)
+      if (playlist != null) {
+        val userPlaylist = createUserPlaylist(playlist)
+        // Only add the playlist if it's public
+        if (userPlaylist.playlistPublic) {
+          playlists.add(userPlaylist)
+        }
+      } else {
+        Log.w("SpotifyApiViewModel", "Skipping null playlist at index $i")
+      }
+    }
+    return playlists
   }
 }

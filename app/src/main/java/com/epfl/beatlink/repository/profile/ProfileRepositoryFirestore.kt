@@ -61,7 +61,7 @@ open class ProfileRepositoryFirestore(
       val snapshot = db.collection(collection).document(userId).get().await()
 
       val topSongs =
-          (snapshot.get("topSongs") as? List<Map<String, Any>>)?.map {
+          (snapshot["topSongs"] as? List<Map<String, Any>>)?.map {
             SpotifyTrack(
                 name = it["name"] as String,
                 artist = it["artist"] as String,
@@ -73,7 +73,7 @@ open class ProfileRepositoryFirestore(
           } ?: emptyList()
 
       val topArtists =
-          (snapshot.get("topArtists") as? List<Map<String, Any>>)?.map {
+          (snapshot["topArtists"] as? List<Map<String, Any>>)?.map {
             SpotifyArtist(
                 image = it["image"] as String,
                 name = it["name"] as String,
@@ -89,8 +89,7 @@ open class ProfileRepositoryFirestore(
               profilePicture = snapshot.getString("profilePicture"),
               username = snapshot.getString("username") ?: "",
               email = snapshot.getString("email") ?: "",
-              favoriteMusicGenres =
-                  snapshot.get("favoriteMusicGenres") as? List<String> ?: emptyList(),
+              favoriteMusicGenres = snapshot["favoriteMusicGenres"] as? List<String> ?: emptyList(),
               topSongs = topSongs,
               topArtists = topArtists,
               spotifyId = snapshot.getString("spotifyId") ?: "")
@@ -108,7 +107,7 @@ open class ProfileRepositoryFirestore(
 
             // Check if the username is already taken
             val usernameDocRef = db.collection("usernames").document(profileData.username)
-            val usernameSnapshot = transaction.get(usernameDocRef)
+            val usernameSnapshot = transaction[usernameDocRef]
 
             if (usernameSnapshot.exists()) {
               throw Exception("Username is already taken.")
@@ -121,26 +120,23 @@ open class ProfileRepositoryFirestore(
 
             // Add profile to `userProfiles` collection
             val profileDoc = db.collection(collection).document(userId)
-            transaction.set(
-                profileDoc,
+            transaction[profileDoc] =
                 profileData.copy(
                     topSongs = emptyList(),
                     topArtists = emptyList()) // Prevent issues with incompatible objects
-                )
             transaction.update(profileDoc, "topSongs", topSongs)
             transaction.update(profileDoc, "topArtists", topArtists)
 
             // Add the username to the `usernames` collection
-            transaction.set(usernameDocRef, mapOf<String, Any>())
+            transaction[usernameDocRef] = mapOf<String, Any>()
 
             // Add an empty document in the `friendRequests` collection for the user
             val requestsDocRef = db.collection("friendRequests").document(userId)
-            transaction.set(
-                requestsDocRef,
+            transaction[requestsDocRef] =
                 mapOf(
                     "ownRequests" to mapOf<String, Boolean>(),
                     "friendRequests" to mapOf<String, Boolean>(),
-                    "allFriends" to mapOf<String, String>()))
+                    "allFriends" to mapOf<String, String>())
           }
           .await()
       Log.d("PROFILE_ADD", "Profile and username added successfully for user: $userId")
@@ -154,27 +150,36 @@ open class ProfileRepositoryFirestore(
   override suspend fun updateProfile(userId: String, profileData: ProfileData): Boolean {
     return try {
       db.runTransaction { transaction ->
+
             // Reference to the profile document
             val profileDocRef = db.collection(collection).document(userId)
+
             // Read the current profile
-            val userSnapshot = transaction.get(profileDocRef)
+            val userSnapshot = transaction[profileDocRef]
             val currentUsername = userSnapshot.getString("username")
+
             // Check if the username has changed
             if (currentUsername != null && currentUsername != profileData.username) {
               // Ensure the new username is available
               val newUsernameDocRef = db.collection("usernames").document(profileData.username)
-              val newUsernameSnapshot = transaction.get(newUsernameDocRef)
+              val newUsernameSnapshot = transaction[newUsernameDocRef]
+
               if (newUsernameSnapshot.exists()) {
                 throw Exception("Username is already taken.")
               }
+
               // Delete the current username
               transaction.delete(db.collection("usernames").document(currentUsername))
+
               // Add the new username
-              transaction.set(newUsernameDocRef, mapOf<String, Any>())
+              transaction[newUsernameDocRef] = mapOf<String, Any>()
             }
+
             // Serialize topSongs and topArtists to Firestore-compatible format
             val topSongs = spotifyTrackToMap(profileData)
+
             val topArtists = spotifyArtistToMap(profileData)
+
             // Update user profile (excluding incompatible objects for Firestore)
             transaction.set(
                 profileDocRef,
@@ -182,6 +187,7 @@ open class ProfileRepositoryFirestore(
                     topSongs = emptyList(),
                     topArtists = emptyList()), // Prevent issues with incompatible objects
                 SetOptions.merge())
+
             // Update topSongs and topArtists as separate fields
             transaction.update(profileDocRef, "topSongs", topSongs)
             transaction.update(profileDocRef, "topArtists", topArtists)
@@ -206,7 +212,7 @@ open class ProfileRepositoryFirestore(
             val profileDocRef = db.collection(collection).document(userId)
 
             // Fetch the username from the profile
-            val userSnapshot = transaction.get(profileDocRef)
+            val userSnapshot = transaction[profileDocRef]
             val username = userSnapshot.getString("username")
 
             // Delete the user profile
@@ -225,8 +231,8 @@ open class ProfileRepositoryFirestore(
             // Loop through all friend requests and clean up references to the userId
             for (doc in allFriendRequestsSnapshot.documents) {
               val docRef = doc.reference
-              val updatedOwnRequests = doc.get("ownRequests") as? Map<String, Boolean>
-              val updatedFriendRequests = doc.get("friendRequests") as? Map<String, Boolean>
+              val updatedOwnRequests = doc["ownRequests"] as? Map<String, Boolean>
+              val updatedFriendRequests = doc["friendRequests"] as? Map<String, Boolean>
 
               // Remove userId from ownRequests and friendRequests if they exist
               if (updatedOwnRequests?.containsKey(userId) == true) {
