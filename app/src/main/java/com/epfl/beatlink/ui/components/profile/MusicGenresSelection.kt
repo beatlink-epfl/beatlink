@@ -107,6 +107,7 @@ fun MusicGenreSelectionDialog(
                             contentAlignment = Alignment.Center) {
                               Text(
                                   text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
+                                  modifier = Modifier.testTag("maxGenresSelectedMessage"),
                                   textAlign = TextAlign.Center,
                                   color = MaterialTheme.colorScheme.error,
                                   style = MaterialTheme.typography.bodyMedium)

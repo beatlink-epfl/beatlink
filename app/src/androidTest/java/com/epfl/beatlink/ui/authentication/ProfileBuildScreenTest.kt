@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.profile.MusicGenre.Companion.MAX_SELECTABLE_GENRES
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -125,6 +126,36 @@ class ProfileBuildScreenTest {
     // Verify the button is rightly displayed when confirming the selection
     composeTestRule
         .onNodeWithTag("selectFavoriteGenresText", useUnmergedTree = true)
+        .assertIsDisplayed()
+  }
+
+  @Test
+  fun showMessageWhenMaxGenresSelected() {
+    // Define the music genres
+    val musicGenres = listOf("Pop", "Rock", "Jazz", "Classical", "Hip Hop")
+
+    // Open the music genre selection dialog
+    composeTestRule
+        .onNodeWithTag("selectFavoriteGenresText", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
+
+    composeTestRule.onNodeWithTag("musicGenreSelectionDialog").assertIsDisplayed()
+
+    // Simulate selecting genres until the maximum limit is reached
+    musicGenres.forEachIndexed { index, genre ->
+      if (index < MAX_SELECTABLE_GENRES) {
+        composeTestRule
+            .onNodeWithTag("genreCheckbox_$genre", useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
+      }
+    }
+
+    // Ensure that the message is displayed when the maximum genres are selected
+    composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("maxGenresSelectedMessage", useUnmergedTree = true)
         .assertIsDisplayed()
   }
 
