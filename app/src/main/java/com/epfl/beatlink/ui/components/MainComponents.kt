@@ -562,7 +562,8 @@ fun IconWithText(
     textTag: String,
     icon: ImageVector,
     style: TextStyle,
-    maxLines: Int = 1) {
+    maxLines: Int = 1
+) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
   ) {
