@@ -96,7 +96,8 @@ fun ShortSearchBar(
         Text(
             text = placeholder,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primaryContainer)
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.testTag("searchBarPlaceholder"))
       },
       colors =
           OutlinedTextFieldDefaults.colors(

@@ -8,6 +8,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.epfl.beatlink.model.library.Playlist
+import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
@@ -19,20 +21,29 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 
 class InviteCollaboratorsOverlayTest {
   private lateinit var navigationActions: NavigationActions
+
+  private lateinit var playlistRepository: PlaylistRepository
+  private lateinit var playlistViewModel: PlaylistViewModel
 
   @get:Rule val composeTestRule = createComposeRule()
 
   @Before
   fun setUp() {
     navigationActions = mock(NavigationActions::class.java)
+
+    playlistRepository = mock(PlaylistRepository::class.java)
+    `when`(playlistRepository.getUserId()).thenReturn("testUserId")
+    playlistViewModel = PlaylistViewModel(playlistRepository)
   }
 
   @Test
@@ -60,6 +71,107 @@ class InviteCollaboratorsOverlayTest {
     composeTestRule.onNodeWithTag("searchBar").performClick()
     verify(navigationActions).navigateTo(INVITE_COLLABORATORS)
   }
+
+  @Test
+  fun overlayCorrectlyAddsCollaborators() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+    val friendsIds = listOf("user1")
+
+    fakeFriendRequestViewModel.setAllFriends(friendsIds)
+
+    val playlist =
+        Playlist(
+            playlistID = "2",
+            playlistCover = "",
+            playlistName = "Empty Playlist",
+            playlistDescription = "No tracks here",
+            playlistPublic = true,
+            userId = "testUserId",
+            playlistOwner = "testOwner",
+            playlistCollaborators = emptyList(),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+
+    fakePlaylistViewModel.selectPlaylist(playlist)
+    fakeProfileViewModel.setFakeUserIdByUsername(mapOf("alice123" to "user1"))
+    fakeProfileViewModel.setFakeUsernameById(mapOf("user1" to "alice123"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf("user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
+
+    composeTestRule.setContent {
+      InviteCollaboratorsOverlay(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel) {}
+    }
+
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("CollabCard").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("addButton").performClick() // Add collaborator via UI interaction
+
+    val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+    assertEquals(listOf("user1"), updatedCollaborators)
+    composeTestRule.onNodeWithTag("checkButton").assertIsDisplayed()
+  }
+
+  /*
+  @Test
+  fun overlayCorrectlyRemovesCollaborators() {
+      val fakeProfileViewModel = FakeProfileViewModel()
+      val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+      val fakePlaylistViewModel = FakePlaylistViewModel()
+      val friendsIds = listOf("user1")
+
+      fakeFriendRequestViewModel.setAllFriends(friendsIds)
+
+      val playlist =
+          Playlist(
+              playlistID = "2",
+              playlistCover = "",
+              playlistName = "Empty Playlist",
+              playlistDescription = "No tracks here",
+              playlistPublic = true,
+              userId = "testUserId",
+              playlistOwner = "testOwner",
+              playlistCollaborators = listOf("user1"),
+              playlistTracks = emptyList(),
+              nbTracks = 0)
+
+      fakePlaylistViewModel.selectPlaylist(playlist)
+      fakeProfileViewModel.setFakeUserIdByUsername(
+          mapOf(
+              "alice123" to "user1"
+          )
+      )
+      fakeProfileViewModel.setFakeUsernameById(
+          mapOf(
+              "user1" to "alice123"
+          ))
+      fakeProfileViewModel.setFakeProfileDataById(
+          mapOf(
+              "user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
+
+      composeTestRule.setContent {
+          InviteCollaboratorsOverlay(
+              navigationActions,
+              fakeProfileViewModel,
+              fakeFriendRequestViewModel,
+              fakePlaylistViewModel) {}
+      }
+      // Simulate adding a collaborator
+      composeTestRule.onNodeWithTag("CollabCard").assertIsDisplayed()
+      composeTestRule.waitForIdle()
+      composeTestRule.onNodeWithTag("checkButton").performClick() // Remove collaborator via UI interaction
+
+      val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+      assertEquals(emptyList<String>(), updatedCollaborators)
+      composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
+  }
+
+   */
 
   @Test
   fun overlayCorrectlyDisplaysListOfFriends() {

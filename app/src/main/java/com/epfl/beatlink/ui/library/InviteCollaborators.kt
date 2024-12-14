@@ -21,8 +21,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
@@ -72,12 +70,6 @@ fun InviteCollaboratorsScreen(
             searchQuery = searchQuery.value,
             onQueryChange = { newQuery -> searchQuery.value = newQuery },
             placeholder = "Search people to collaborate")
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
       },
       content = { paddingValues ->
         LazyColumn(

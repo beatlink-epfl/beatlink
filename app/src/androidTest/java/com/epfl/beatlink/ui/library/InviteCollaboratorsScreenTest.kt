@@ -8,11 +8,11 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
@@ -20,6 +20,7 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,6 +31,7 @@ class InviteCollaboratorsScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
+  private lateinit var fakeProfileViewModel: FakeProfileViewModel
 
   private val profiles =
       listOf(ProfileData(username = "username1"), ProfileData(username = "username2"))
@@ -55,42 +57,48 @@ class InviteCollaboratorsScreenTest {
                 .java) // Use relaxed if you don't want to manually mock every behavior
     playlistViewModel = PlaylistViewModel(playlistRepository)
 
-    val fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel = FakeProfileViewModel()
     fakeProfileViewModel.setFakeProfile(profile)
     fakeProfileViewModel.setFakeProfiles(profiles)
 
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.INVITE_COLLABORATORS)
-
-    composeTestRule.setContent {
-      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
-    }
   }
 
   @Test
   fun inviteCollaboratorsScreen_initialRender_displaysComponents() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("inviteCollaboratorsScreen").assertIsDisplayed()
-    // Verify the ShortSearchBarLayout is displayed
+
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertExists()
-    // Verify the BottomNavigationMenu is displayed
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertExists()
   }
 
   @Test
   fun testBackNavigation() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("goBackButton").performClick()
     org.mockito.kotlin.verify(navigationActions).goBack()
   }
 
   @Test
   fun testSearchBarInteraction() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("John Doe")
     composeTestRule.onNodeWithTag("writableSearchBar").assertTextEquals("John Doe")
   }
 
   @Test
   fun searchResultsDisplayPeopleWhenSearching() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("username")
     composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(profiles.size)
@@ -98,6 +106,9 @@ class InviteCollaboratorsScreenTest {
 
   @Test
   fun searchResultsDoesNotDisplayCurrentProfile() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("TestUser")
     composeTestRule.onNodeWithTag("CollabCard").assertDoesNotExist()
@@ -149,20 +160,48 @@ class InviteCollaboratorsScreenTest {
   }
 
   @Test
-  fun testNavigation() {
-    composeTestRule.onNodeWithTag("Home").performClick()
-    org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-    composeTestRule.onNodeWithTag("Search").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.SEARCH)
-    composeTestRule.onNodeWithTag("Library").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.LIBRARY)
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.PROFILE)
+  fun inviteCollaborators_addsCollaborators() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+
+    val playlist =
+        Playlist(
+            playlistID = "2",
+            playlistCover = "",
+            playlistName = "Empty Playlist",
+            playlistDescription = "No tracks here",
+            playlistPublic = true,
+            userId = "testUserId",
+            playlistOwner = "testOwner",
+            playlistCollaborators = emptyList(),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+    val aliceProfileData = ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")
+    val profiles = listOf(aliceProfileData)
+
+    fakeProfileViewModel.setFakeProfile(profile)
+    fakeProfileViewModel.setFakeProfiles(profiles)
+
+    fakePlaylistViewModel.selectPlaylist(playlist)
+    fakeProfileViewModel.setFakeUserIdByUsername(mapOf("alice123" to "user1"))
+    fakeProfileViewModel.setFakeUsernameById(mapOf("user1" to "alice123"))
+    fakeProfileViewModel.setFakeProfileDataById(mapOf("user1" to aliceProfileData))
+
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, fakePlaylistViewModel)
+    }
+    // Look for alice123
+    composeTestRule.onNodeWithTag("writableSearchBar").performClick()
+    composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("alice123")
+
+    composeTestRule.waitForIdle()
+
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("CollabCard").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("addButton").performClick() // Add collaborator via UI interaction
+
+    val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+    assertEquals(listOf("user1"), updatedCollaborators)
+    composeTestRule.onNodeWithTag("checkButton").assertIsDisplayed()
   }
 }
