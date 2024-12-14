@@ -15,6 +15,11 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
+import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -96,6 +101,51 @@ class InviteCollaboratorsScreenTest {
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("TestUser")
     composeTestRule.onNodeWithTag("CollabCard").assertDoesNotExist()
+  }
+
+  @Test
+  fun inviteCollaborators_addsAndRemovesCollaborators() {
+    val profileViewModel = mockk<ProfileViewModel>(relaxed = true)
+    val friendRequestViewModel = mockk<FriendRequestViewModel>(relaxed = true)
+    val playlistViewModel = mockk<PlaylistViewModel>(relaxed = true)
+
+    // Mock data
+    val collabIds = mutableListOf("friend2")
+    val friendsProfileData =
+        listOf(
+            ProfileData(username = "friend1"),
+            ProfileData(username = "friend2"),
+            ProfileData(username = "friend3"))
+
+    every { profileViewModel.getUserIdByUsername("friend1", any()) } answers
+        {
+          val callback = secondArg<(String?) -> Unit>()
+          callback("friend1")
+        }
+    every { profileViewModel.getUserIdByUsername("friend3", any()) } answers
+        {
+          val callback = secondArg<(String?) -> Unit>()
+          callback("friend3")
+        }
+    every { playlistViewModel.updateTemporallyCollaborators(any()) } answers
+        {
+          collabIds.clear()
+          collabIds.addAll(firstArg<List<String>>())
+        }
+
+    // Test adding a collaborator
+    val onAddCallback = slot<() -> Unit>()
+    profileViewModel.getUserIdByUsername("friend1") { userId ->
+      playlistViewModel.updateTemporallyCollaborators(collabIds + userId!!)
+    }
+
+    assert(collabIds.contains("friend1"))
+
+    // Test removing a collaborator
+    profileViewModel.getUserIdByUsername("friend1") { userId ->
+      playlistViewModel.updateTemporallyCollaborators(collabIds.filter { it != userId })
+    }
+    assert(!collabIds.contains("friend1"))
   }
 
   @Test
