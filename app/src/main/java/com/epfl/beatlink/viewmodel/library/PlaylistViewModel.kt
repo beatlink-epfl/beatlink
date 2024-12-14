@@ -243,7 +243,7 @@ open class PlaylistViewModel(
     tempPlaylistDescription_.value = description
   }
 
-  fun updateTemporallyIsPublic(isPublic: Boolean) {
+  open fun updateTemporallyIsPublic(isPublic: Boolean) {
     tempPlaylistIsPublic_.value = isPublic
   }
 

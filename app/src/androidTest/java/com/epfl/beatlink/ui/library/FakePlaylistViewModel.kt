@@ -14,6 +14,10 @@ class FakePlaylistViewModel(
     (tempPlaylistCollaborators as MutableStateFlow).value = collaborators
   }
 
+  override fun updateTemporallyIsPublic(isPublic: Boolean) {
+    (tempPlaylistIsPublic as MutableStateFlow).value = isPublic
+  }
+
   override fun selectPlaylist(playlist: Playlist) {
     (selectedPlaylist as MutableStateFlow).value = playlist
   }

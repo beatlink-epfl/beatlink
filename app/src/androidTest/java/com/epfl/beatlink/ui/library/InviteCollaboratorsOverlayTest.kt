@@ -117,61 +117,54 @@ class InviteCollaboratorsOverlayTest {
     composeTestRule.onNodeWithTag("checkButton").assertIsDisplayed()
   }
 
-  /*
   @Test
   fun overlayCorrectlyRemovesCollaborators() {
-      val fakeProfileViewModel = FakeProfileViewModel()
-      val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
-      val fakePlaylistViewModel = FakePlaylistViewModel()
-      val friendsIds = listOf("user1")
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+    val friendsIds = listOf("user1")
 
-      fakeFriendRequestViewModel.setAllFriends(friendsIds)
+    fakeFriendRequestViewModel.setAllFriends(friendsIds)
 
-      val playlist =
-          Playlist(
-              playlistID = "2",
-              playlistCover = "",
-              playlistName = "Empty Playlist",
-              playlistDescription = "No tracks here",
-              playlistPublic = true,
-              userId = "testUserId",
-              playlistOwner = "testOwner",
-              playlistCollaborators = listOf("user1"),
-              playlistTracks = emptyList(),
-              nbTracks = 0)
+    val playlist =
+        Playlist(
+            playlistID = "2",
+            playlistCover = "",
+            playlistName = "Empty Playlist",
+            playlistDescription = "No tracks here",
+            playlistPublic = true,
+            userId = "testUserId",
+            playlistOwner = "testOwner",
+            playlistCollaborators = listOf("user1"),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
 
-      fakePlaylistViewModel.selectPlaylist(playlist)
-      fakeProfileViewModel.setFakeUserIdByUsername(
-          mapOf(
-              "alice123" to "user1"
-          )
-      )
-      fakeProfileViewModel.setFakeUsernameById(
-          mapOf(
-              "user1" to "alice123"
-          ))
-      fakeProfileViewModel.setFakeProfileDataById(
-          mapOf(
-              "user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
+    fakePlaylistViewModel.selectPlaylist(playlist)
+    fakeProfileViewModel.setFakeUserIdByUsername(mapOf("alice123" to "user1"))
+    fakeProfileViewModel.setFakeUsernameById(mapOf("user1" to "alice123"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf("user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
 
-      composeTestRule.setContent {
-          InviteCollaboratorsOverlay(
-              navigationActions,
-              fakeProfileViewModel,
-              fakeFriendRequestViewModel,
-              fakePlaylistViewModel) {}
-      }
-      // Simulate adding a collaborator
-      composeTestRule.onNodeWithTag("CollabCard").assertIsDisplayed()
-      composeTestRule.waitForIdle()
-      composeTestRule.onNodeWithTag("checkButton").performClick() // Remove collaborator via UI interaction
+    fakePlaylistViewModel.updateTemporallyCollaborators(listOf("user1"))
 
-      val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
-      assertEquals(emptyList<String>(), updatedCollaborators)
-      composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
+    composeTestRule.setContent {
+      InviteCollaboratorsOverlay(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel) {}
+    }
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("CollabCard").assertIsDisplayed()
+    composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("checkButton")
+        .performClick() // Remove collaborator via UI interaction
+
+    val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+    assertEquals(emptyList<String>(), updatedCollaborators)
+    composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
   }
-
-   */
 
   @Test
   fun overlayCorrectlyDisplaysListOfFriends() {
