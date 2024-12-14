@@ -557,7 +557,12 @@ fun ProfilePicture(id: MutableState<Bitmap?>, size: Dp = 100.dp) {
 }
 
 @Composable
-fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextStyle) {
+fun IconWithText(
+    text: String,
+    textTag: String,
+    icon: ImageVector,
+    style: TextStyle,
+    maxLines: Int = 1) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
   ) {
@@ -572,7 +577,7 @@ fun IconWithText(text: String, textTag: String, icon: ImageVector, style: TextSt
         text = text,
         style = style,
         color = MaterialTheme.colorScheme.primary,
-        maxLines = 2,
+        maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.testTag(textTag))
   }
