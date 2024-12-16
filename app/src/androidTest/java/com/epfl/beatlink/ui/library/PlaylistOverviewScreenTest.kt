@@ -203,6 +203,12 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Check that the tracks dialog is displayed
+    composeTestRule.onNodeWithTag("trackSelectionDialog").assertIsDisplayed()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Check that the export dialog is displayed
     composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("cancelButton").assertIsDisplayed()
@@ -263,6 +269,9 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
@@ -292,6 +301,9 @@ class PlaylistOverviewScreenTest {
 
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
 
     // Perform click on the cancel button
     composeTestRule.onNodeWithTag("cancelButton").performClick()
@@ -325,6 +337,9 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
@@ -350,6 +365,9 @@ class PlaylistOverviewScreenTest {
 
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
 
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
