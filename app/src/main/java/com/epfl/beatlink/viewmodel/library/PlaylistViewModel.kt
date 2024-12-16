@@ -260,12 +260,12 @@ open class PlaylistViewModel(
     tempPlaylistDescription_.value = description
   }
 
-	// Update the playlist visibility
+  // Update the playlist visibility
   open fun updateTemporallyIsPublic(isPublic: Boolean) {
     tempPlaylistIsPublic_.value = isPublic
   }
 
-	// Update the playlist collaborators
+  // Update the playlist collaborators
   open fun updateTemporallyCollaborators(collaborators: List<String>) {
     tempPlaylistCollaborators_.value = collaborators
   }
