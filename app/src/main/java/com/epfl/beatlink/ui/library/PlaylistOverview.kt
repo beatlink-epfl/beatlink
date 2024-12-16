@@ -319,62 +319,61 @@ fun PlaylistTracksSelectionDialog(
 ) {
   androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest) {
     Surface(
-        modifier = Modifier.fillMaxHeight(0.5F),
+        modifier = Modifier.fillMaxHeight(0.5F).testTag("trackSelectionDialog"),
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 4.dp,
         border = BorderStroke(2.dp, PrimaryGradientBrush)) {
           Scaffold(
               topBar = {
-                  TopAppBar(title = {
-                      Text(text = "How many tracks ?",
+                TopAppBar(
+                    title = {
+                      Text(
+                          text = "How many tracks ?",
                           style = MaterialTheme.typography.headlineLarge,
                           modifier =
-                          Modifier.graphicsLayer(alpha = 0.99f)
-                              .drawWithCache {
-                                  onDrawWithContent {
-                                      drawContent()
-                                      drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                                  }
+                              Modifier.graphicsLayer(alpha = 0.99f).drawWithCache {
+                                onDrawWithContent {
+                                  drawContent()
+                                  drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
+                                }
                               })
-                  })
+                    })
               },
               content = {
-                  Column(
-                      modifier = Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
-                      verticalArrangement = Arrangement.spacedBy(8.dp),
-                      horizontalAlignment = Alignment.CenterHorizontally
-                  ) {
+                Column(
+                    modifier = Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                       Text("Select the number of tracks you want to export to Spotify")
                       val maxIteration = if (tracksNumber < 50) tracksNumber else 50
                       for (i in 1..maxIteration) {
-                          if (i % 10 == 0) {
-                              PrincipalButton(
-                                  buttonText = i.toString(),
-                                  buttonTag = "${i}TrackSelectedButton",
-                                  onClick = { onNumberSelected(i) })
-                          }
+                        if (i % 10 == 0) {
+                          PrincipalButton(
+                              buttonText = i.toString(),
+                              buttonTag = "${i}TrackSelectedButton",
+                              onClick = { onNumberSelected(i) })
+                        }
                       }
                       if (maxIteration % 10 != 0) {
-                          PrincipalButton(
-                              buttonText = "All (${maxIteration})",
-                              buttonTag = "AllTracksSelectedButton",
-                              onClick = { onNumberSelected(tracksNumber) })
+                        PrincipalButton(
+                            buttonText = "All (${maxIteration})",
+                            buttonTag = "AllTracksSelectedButton",
+                            onClick = { onNumberSelected(tracksNumber) })
                       }
-                  }
+                    }
               },
               bottomBar = {
-                    BottomAppBar(
-                        content = {
-                            Text(text = "Select how many tracks you want to export to Spotify",
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(16.dp),
-                                color = PrimaryPurple)
-                        },
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-              }
-          )
-      }
+                BottomAppBar(
+                    content = {
+                      Text(
+                          text = "Select how many tracks you want to export to Spotify",
+                          style = MaterialTheme.typography.bodySmall,
+                          modifier = Modifier.padding(16.dp),
+                          color = PrimaryPurple)
+                    },
+                    containerColor = MaterialTheme.colorScheme.surface)
+              })
+        }
   }
 }
 
