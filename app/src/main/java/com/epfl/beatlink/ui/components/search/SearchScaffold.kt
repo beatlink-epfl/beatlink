@@ -34,16 +34,15 @@ fun SearchScaffold(
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },
       bottomBar = {
-          if(isTLDScreen) {
-              Column {
-                  MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-                  BottomNavigationMenu(
-                      onTabSelect = { route -> navigationActions.navigateTo(route) },
-                      tabList = LIST_TOP_LEVEL_DESTINATION,
-                      selectedItem = navigationActions.currentRoute()
-                  )
-              }
+        if (isTLDScreen) {
+          Column {
+            MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+            BottomNavigationMenu(
+                onTabSelect = { route -> navigationActions.navigateTo(route) },
+                tabList = LIST_TOP_LEVEL_DESTINATION,
+                selectedItem = navigationActions.currentRoute())
           }
+        }
       },
       modifier = Modifier.testTag("searchScaffold"),
       content = content)
