@@ -70,6 +70,7 @@ open class ProfileViewModel(
   val selectedUserProfile: StateFlow<ProfileData?>
     get() = _selectedUserProfile
 
+  // selects a user profile
   fun selectSelectedUser(userId: String) {
     if (_selectedUserUserId.value.isNotEmpty()) {
       userStack.add(_selectedUserUserId.value) // Push current user to the stack
@@ -97,6 +98,7 @@ open class ProfileViewModel(
     userStack.clear()
   }
 
+  // Function to set the profileReady flag to false
   fun unreadyProfile() {
     _profileReady.value = false
   }
@@ -111,11 +113,13 @@ open class ProfileViewModel(
     _isProfileUpdated.value = false
   }
 
+  /** Function that clears the selected user */
   fun clearSelectedUser() {
     _selectedUserUserId.value = ""
     _selectedUserProfile.value = null
   }
 
+  // Gets the username of a user given their user ID
   open fun getUsername(userId: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {
@@ -128,6 +132,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Gets the user ID of a user given their username
   open fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
     viewModelScope.launch {
       try {
@@ -140,6 +145,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Fetches the profile data for the current user
   open fun fetchProfile() {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
@@ -167,6 +173,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Fetches the profile data for a user by their username
   open fun fetchUserProfile() {
     _profileReady.value = false
     viewModelScope.launch {
@@ -176,6 +183,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Adds a new profile to the database
   open fun addProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
@@ -186,6 +194,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Updates the profile data for the current user
   open fun updateProfile(profileData: ProfileData) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch {
@@ -196,6 +205,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Deletes the profile of the current user
   open suspend fun deleteProfile(): Boolean {
     val userId = repository.getUserId() ?: return false
     return try {
@@ -260,6 +270,7 @@ open class ProfileViewModel(
     }
   }
 
+  // Loads the profile picture of the current user
   open fun loadProfilePicture(
       userId: String? = repository.getUserId(),
       onBitmapLoaded: (Bitmap?) -> Unit
@@ -270,6 +281,7 @@ open class ProfileViewModel(
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
+  // Loads the profile picture of the selected user
   open fun loadSelectedUserProfilePicture(
       userId: String? = _selectedUserUserId.value,
       onBitmapLoaded: (Bitmap?) -> Unit
@@ -280,6 +292,7 @@ open class ProfileViewModel(
     return repository.loadProfilePicture(userId, onBitmapLoaded)
   }
 
+  // Searches for users based on a query
   open fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit = {}) {
     viewModelScope.launch {
       try {
