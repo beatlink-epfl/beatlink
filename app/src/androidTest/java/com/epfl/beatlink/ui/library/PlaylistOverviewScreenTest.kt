@@ -15,7 +15,6 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -186,32 +185,6 @@ class PlaylistOverviewScreenTest {
     composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("viewDescriptionButton").performScrollTo().performClick()
-  }
-
-  @Test
-  fun navigationButtons_workCorrectly() {
-    playlistViewModel.selectPlaylist(playlistWithTracks)
-
-    composeTestRule.setContent {
-      PlaylistOverviewScreen(
-          navigationActions = navigationActions,
-          profileViewModel = mock(ProfileViewModel::class.java),
-          playlistViewModel = playlistViewModel,
-          spotifyViewModel = fakeSpotifyApiViewModel)
-    }
-
-    // Navigate to Home
-    composeTestRule.onNodeWithTag("Home").performClick()
-    verify(navigationActions).navigateTo(TopLevelDestinations.HOME)
-    // Navigate to Search
-    composeTestRule.onNodeWithTag("Search").performClick()
-    verify(navigationActions).navigateTo(TopLevelDestinations.SEARCH)
-    // Navigate to Library
-    composeTestRule.onNodeWithTag("Library").performClick()
-    verify(navigationActions).navigateTo(TopLevelDestinations.LIBRARY)
-    // Navigate to Profile
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    verify(navigationActions).navigateTo(TopLevelDestinations.PROFILE)
   }
 
   @Test

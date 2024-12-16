@@ -12,7 +12,6 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import org.junit.Before
@@ -68,8 +67,6 @@ class InviteCollaboratorsScreenTest {
     composeTestRule.onNodeWithTag("inviteCollaboratorsScreen").assertIsDisplayed()
     // Verify the ShortSearchBarLayout is displayed
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertExists()
-    // Verify the BottomNavigationMenu is displayed
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertExists()
   }
 
   @Test
@@ -89,23 +86,5 @@ class InviteCollaboratorsScreenTest {
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("username")
     composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(profiles.size)
-  }
-
-  @Test
-  fun testNavigation() {
-    composeTestRule.onNodeWithTag("Home").performClick()
-    org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-    composeTestRule.onNodeWithTag("Search").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.SEARCH)
-    composeTestRule.onNodeWithTag("Library").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.LIBRARY)
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }
