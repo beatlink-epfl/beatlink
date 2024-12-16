@@ -50,8 +50,6 @@ import com.epfl.beatlink.ui.components.library.GrayBox
 import com.epfl.beatlink.ui.components.library.PlaylistCover
 import com.epfl.beatlink.ui.components.library.TrackVoteCard
 import com.epfl.beatlink.ui.navigation.AppIcons.collab
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.ADD_TRACK_TO_PLAYLIST
@@ -116,12 +114,6 @@ fun PlaylistOverviewScreen(
             "playlistName",
             navigationActions,
             listOf { if (isOwner) EditButton { navigationActions.navigateTo(EDIT_PLAYLIST) } })
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
       },
       content = { innerPadding ->
         Column(
