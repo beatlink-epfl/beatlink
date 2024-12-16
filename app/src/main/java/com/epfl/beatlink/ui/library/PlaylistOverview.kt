@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.library
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -16,20 +17,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -82,6 +88,10 @@ fun PlaylistOverviewScreen(
 
   // Export Playlist Dialog
   var showDialogExport by remember { mutableStateOf(false) }
+
+  // Track Selection Dialog
+  var showTrackSelectionDialog by remember { mutableStateOf(false) }
+  var selectedTracksNumber by remember { mutableIntStateOf(0) }
 
   // Determine if the user is the owner or a collaborator
   val currentUserId = playlistViewModel.getUserId()
@@ -191,7 +201,7 @@ fun PlaylistOverviewScreen(
               if (isOwner) {
                 PrincipalButton("Export this playlist", "exportButton") {
                   if (selectedPlaylistState.nbTracks > 0) {
-                    showDialogExport = true
+                    showTrackSelectionDialog = true
                   } else {
                     Toast.makeText(context, "No songs added to playlist", Toast.LENGTH_SHORT).show()
                   }
@@ -240,6 +250,16 @@ fun PlaylistOverviewScreen(
         onDismissRequest = { showDialogOverlay = false },
         description = selectedPlaylistState.playlistDescription)
   }
+  if (showTrackSelectionDialog) {
+    PlaylistTracksSelectionDialog(
+        tracksNumber = selectedPlaylistState.nbTracks,
+        onDismissRequest = { showTrackSelectionDialog = false },
+        onNumberSelected = {
+          selectedTracksNumber = it
+          showTrackSelectionDialog = false
+          showDialogExport = true
+        })
+  }
   /** Show the alert dialog for confirmation of the export of the playlist */
   if (showDialogExport) {
     AlertDialog(
@@ -267,6 +287,7 @@ fun PlaylistOverviewScreen(
                     spotifyViewModel = spotifyViewModel,
                     navigationActions = navigationActions,
                     selectedPlaylistState = selectedPlaylistState,
+                    numberOfTracks = selectedTracksNumber,
                     onExportCompleted = { showDialogExport = false })
               }) {
                 Text("Confirm")
@@ -278,6 +299,50 @@ fun PlaylistOverviewScreen(
                 Text("Cancel")
               }
         })
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun PlaylistTracksSelectionDialog(
+    tracksNumber: Int,
+    onDismissRequest: () -> Unit,
+    onNumberSelected: (Int) -> Unit
+) {
+  androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest) {
+    Surface(
+        modifier = Modifier.fillMaxHeight(0.6F),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp) {
+          Scaffold(
+              topBar = {
+                TopAppBar(title = { Text("Select the number of tracks you want to export") })
+              },
+              content = {
+                Column(
+                    modifier = Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                      Text("Select the number of tracks you want to export to Spotify")
+                      val maxIteration = if (tracksNumber < 50) tracksNumber else 50
+                      for (i in 1..maxIteration) {
+                        if (i % 10 == 0) {
+                          FilledButton(
+                              buttonText = i.toString(),
+                              buttonTag = "${i}TrackSelectedButton",
+                              onClick = { onNumberSelected(i) })
+                        }
+                      }
+                      if (maxIteration % 10 != 0) {
+                        FilledButton(
+                            buttonText = "All (${maxIteration})",
+                            buttonTag = "AllTracksSelectedButton",
+                            onClick = { onNumberSelected(tracksNumber) })
+                      }
+                    }
+              })
+        }
   }
 }
 
@@ -305,10 +370,11 @@ private fun exportPlaylist(
     spotifyViewModel: SpotifyApiViewModel,
     navigationActions: NavigationActions,
     selectedPlaylistState: Playlist,
+    numberOfTracks: Int,
     onExportCompleted: () -> Unit
 ) {
   coroutineScope.launch {
-    val finalList = playlistViewModel.getFinalListTracks()
+    val finalList = playlistViewModel.getFinalListTracks().subList(0, numberOfTracks)
     if (finalList.isNotEmpty()) {
       spotifyViewModel.createBeatLinkPlaylist(
           playlistName = selectedPlaylistState.playlistName,
