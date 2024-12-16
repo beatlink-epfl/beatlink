@@ -21,7 +21,7 @@ fun SearchScaffold(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
     mapUsersViewModel: MapUsersViewModel,
-    backArrowButton: Boolean,
+    isTLDScreen: Boolean,
     searchQuery: MutableState<TextFieldValue>,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -29,18 +29,21 @@ fun SearchScaffold(
       topBar = {
         ShortSearchBarLayout(
             navigationActions = navigationActions,
-            backArrowButton = backArrowButton,
+            backArrowButton = !isTLDScreen,
             searchQuery = searchQuery.value,
             onQueryChange = { newQuery -> searchQuery.value = newQuery })
       },
       bottomBar = {
-        Column {
-          MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
-          BottomNavigationMenu(
-              onTabSelect = { route -> navigationActions.navigateTo(route) },
-              tabList = LIST_TOP_LEVEL_DESTINATION,
-              selectedItem = navigationActions.currentRoute())
-        }
+          if(isTLDScreen) {
+              Column {
+                  MusicPlayerUI(navigationActions, spotifyApiViewModel, mapUsersViewModel)
+                  BottomNavigationMenu(
+                      onTabSelect = { route -> navigationActions.navigateTo(route) },
+                      tabList = LIST_TOP_LEVEL_DESTINATION,
+                      selectedItem = navigationActions.currentRoute()
+                  )
+              }
+          }
       },
       modifier = Modifier.testTag("searchScaffold"),
       content = content)
