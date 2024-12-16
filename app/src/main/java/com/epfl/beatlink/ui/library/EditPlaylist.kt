@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_TITLE_LENGTH
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.DeleteButton
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -101,6 +102,20 @@ fun EditPlaylistScreen(
     }
   }
 
+  val fetchedProfileData = mutableListOf<ProfileData>()
+  var collabProfileData by remember { mutableStateOf<List<ProfileData>>(emptyList()) }
+
+  fetchedProfileData.clear()
+  playlistCollab.forEach { userId ->
+    profileViewModel.fetchProfileById(userId) { profile ->
+      if (profile != null) {
+        fetchedProfileData.add(profile)
+        // Update the state after all additions to avoid unnecessary recompositions
+        collabProfileData = fetchedProfileData.toList()
+      }
+    }
+  }
+
   DisposableEffect(Unit) {
     onDispose {
       if (navigationActions.currentRoute() !in listOf(EDIT_PLAYLIST, INVITE_COLLABORATORS)) {
@@ -168,6 +183,7 @@ fun EditPlaylistScreen(
 
           CollaboratorsSection(
               collabUsernames,
+              collabProfileData,
               onClick = { showDialog = true },
               onRemove = { usernameToRemove ->
                 profileViewModel.getUserIdByUsername(
@@ -214,6 +230,7 @@ fun EditPlaylistScreen(
         navigationActions,
         profileViewModel,
         friendRequestViewModel,
+        playlistViewModel,
         onDismissRequest = { showDialog = false })
   }
 }

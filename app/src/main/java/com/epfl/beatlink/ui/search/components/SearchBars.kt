@@ -41,7 +41,8 @@ fun ShortSearchBarLayout(
     backArrowButton: Boolean,
     navigationActions: NavigationActions,
     searchQuery: TextFieldValue = TextFieldValue(""),
-    onQueryChange: (TextFieldValue) -> Unit = {}
+    onQueryChange: (TextFieldValue) -> Unit = {},
+    placeholder: String = "Search songs, artists or people"
 ) {
   Row(
       verticalAlignment = Alignment.CenterVertically,
@@ -67,12 +68,16 @@ fun ShortSearchBarLayout(
         }
 
         // Search Bar
-        ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange)
+        ShortSearchBar(searchQuery = searchQuery, onQueryChange = onQueryChange, placeholder)
       }
 }
 
 @Composable
-fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) -> Unit) {
+fun ShortSearchBar(
+    searchQuery: TextFieldValue,
+    onQueryChange: (TextFieldValue) -> Unit,
+    placeholder: String = "Search songs, artists or people"
+) {
   val focusRequester = remember { FocusRequester() }
 
   OutlinedTextField(
@@ -89,9 +94,10 @@ fun ShortSearchBar(searchQuery: TextFieldValue, onQueryChange: (TextFieldValue) 
       },
       placeholder = {
         Text(
-            text = "Search songs, artists or people",
+            text = placeholder,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primaryContainer)
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.testTag("searchBarPlaceholder"))
       },
       colors =
           OutlinedTextFieldDefaults.colors(

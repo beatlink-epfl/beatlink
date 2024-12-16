@@ -1,8 +1,10 @@
 package com.epfl.beatlink.ui.library
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,20 +22,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.ui.components.GradientTitle
 import com.epfl.beatlink.ui.components.ReusableOverlay
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
 import com.epfl.beatlink.ui.components.topAppBarModifier
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.INVITE_COLLABORATORS
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 
@@ -42,10 +48,25 @@ fun InviteCollaboratorsOverlay(
     navigationActions: NavigationActions,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
+    playlistViewModel: PlaylistViewModel,
     onDismissRequest: () -> Unit
 ) {
   val friends by friendRequestViewModel.allFriends.observeAsState(emptyList())
   val friendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
+
+  // list of collaborators ID of the playlist
+  val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState()
+  val fetchedUsernames = mutableListOf<String>()
+  var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
+
+  playlistCollab.forEach { userId ->
+    profileViewModel.getUsername(userId) { username ->
+      if (username != null) {
+        fetchedUsernames.add(username)
+      }
+      collabUsernames = fetchedUsernames.toList()
+    }
+  }
 
   LaunchedEffect(friends) {
     val profiles = mutableSetOf<ProfileData?>()
@@ -95,18 +116,54 @@ fun InviteCollaboratorsOverlay(
                                   .size(30.dp)
                                   .padding(start = 5.dp))
                       Text(
-                          text = "Search friends to collaborate",
+                          text = "Search people to collaborate",
                           style = MaterialTheme.typography.bodyMedium,
                           color = MaterialTheme.colorScheme.primaryContainer)
                     }
               }
+          Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            GradientTitle("LINKED FRIENDS")
+          }
+
           LazyColumn(
-              modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 10.dp),
+              modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 4.dp),
               verticalArrangement = Arrangement.spacedBy(11.dp)) {
                 items(friendsProfileData.value.size) { i ->
                   val profile = friendsProfileData.value[i]
+                  val isCollaborator = collabUsernames.contains(profile?.username)
                   if (profile != null) {
-                    CollaboratorCard(profile, profileViewModel, false, onAdd = {}, onRemove = {})
+                    CollaboratorCard(
+                        profile,
+                        profileViewModel,
+                        isCollaborator,
+                        onAdd = {
+                          profileViewModel.getUserIdByUsername(
+                              username = profile.username,
+                              onResult = { userIdToAdd ->
+                                if (userIdToAdd != null) {
+                                  val updatedCollabList = playlistCollab + userIdToAdd
+                                  playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                                  collabUsernames = collabUsernames + profile.username
+                                } else {
+                                  Log.e("ERROR", "Failed to get userId for username: $userIdToAdd")
+                                }
+                              })
+                        },
+                        onRemove = {
+                          profileViewModel.getUserIdByUsername(
+                              username = profile.username,
+                              onResult = { userIdToRemove ->
+                                if (userIdToRemove != null) {
+                                  val updatedCollabList =
+                                      playlistCollab.filter { it != userIdToRemove }
+                                  playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
+                                  collabUsernames =
+                                      collabUsernames.filter { it != profile.username }
+                                } else {
+                                  Log.e("ERROR", "Failed to get userId for username")
+                                }
+                              })
+                        })
                   }
                 }
               }

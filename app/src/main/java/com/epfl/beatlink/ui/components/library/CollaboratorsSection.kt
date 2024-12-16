@@ -33,7 +33,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.AddButton
@@ -49,6 +52,7 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 @Composable
 fun CollaboratorsSection(
     collabUsernames: List<String>,
+    collabProfileData: List<ProfileData>,
     onClick: () -> Unit,
     onRemove: (String) -> Unit
 ) {
@@ -64,7 +68,7 @@ fun CollaboratorsSection(
             modifier = Modifier.testTag("collaboratorsTitle"))
         CollabButton { onClick() }
       }
-  CollabList(collaborators = collabUsernames, onRemove)
+  CollabList(collabUsernames, collabProfileData, onRemove)
   Spacer(modifier = Modifier.height(10.dp))
 }
 
@@ -101,7 +105,11 @@ fun CollabButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
+fun CollabList(
+    collabUsernames: List<String>,
+    collabProfileData: List<ProfileData>,
+    onRemove: (String) -> Unit
+) {
   Box(
       modifier =
           Modifier.border(
@@ -114,7 +122,7 @@ fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
                   color = MaterialTheme.colorScheme.surfaceVariant,
                   shape = RoundedCornerShape(size = 5.dp))
               .testTag("collabBox")) {
-        if (collaborators.isEmpty()) {
+        if (collabUsernames.isEmpty()) {
           Text(
               text = "NO COLLABORATORS",
               color = PrimaryGray,
@@ -122,8 +130,10 @@ fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
               modifier = Modifier.align(Alignment.Center).testTag("emptyCollab"))
         } else {
           LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(collaborators.size) { i ->
-              MiniCollabCard(collaborators[i]) { onRemove(collaborators[i]) }
+            items(collabUsernames.size) { i ->
+              MiniCollabCard(collabUsernames[i], collabProfileData[i]) {
+                onRemove(collabUsernames[i])
+              }
             }
           }
         }
@@ -132,7 +142,22 @@ fun CollabList(collaborators: List<String>, onRemove: (String) -> Unit) {
 
 /** Collaborator card in the Collaborator List with cross button */
 @Composable
-fun MiniCollabCard(username: String, onRemove: () -> Unit) {
+fun MiniCollabCard(
+    collaboratorUsername: String,
+    collaboratorProfileData: ProfileData,
+    onRemove: () -> Unit
+) {
+
+  val nameUsername = buildAnnotatedString {
+    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+      append(collaboratorProfileData.name)
+    }
+    append(" @")
+    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primaryGray)) {
+      append(collaboratorUsername)
+    }
+  }
+
   Card(
       modifier = Modifier.fillMaxWidth().testTag("collabCard"),
       shape = RoundedCornerShape(size = 5.dp),
@@ -145,9 +170,11 @@ fun MiniCollabCard(username: String, onRemove: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween) {
           Text(
-              text = "@${username}",
-              color = MaterialTheme.colorScheme.primaryGray,
-              style = MaterialTheme.typography.bodyLarge)
+              text = nameUsername,
+              modifier = Modifier.width(260.dp),
+              style = MaterialTheme.typography.bodyLarge,
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis)
           CloseButton { onRemove() }
         }
   }
