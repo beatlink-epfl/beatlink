@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PlaylistViewModel(
+open class PlaylistViewModel(
     private val repository: PlaylistRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
@@ -133,7 +133,7 @@ class PlaylistViewModel(
   }
 
   // Select a playlist
-  fun selectPlaylist(playlist: Playlist) {
+  open fun selectPlaylist(playlist: Playlist) {
     selectedPlaylist_.value = playlist
   }
 
@@ -260,13 +260,13 @@ class PlaylistViewModel(
     tempPlaylistDescription_.value = description
   }
 
-  // Update the playlist visibility
-  fun updateTemporallyIsPublic(isPublic: Boolean) {
+	// Update the playlist visibility
+  open fun updateTemporallyIsPublic(isPublic: Boolean) {
     tempPlaylistIsPublic_.value = isPublic
   }
 
-  // Update the playlist collaborators
-  fun updateTemporallyCollaborators(collaborators: List<String>) {
+	// Update the playlist collaborators
+  open fun updateTemporallyCollaborators(collaborators: List<String>) {
     tempPlaylistCollaborators_.value = collaborators
   }
 

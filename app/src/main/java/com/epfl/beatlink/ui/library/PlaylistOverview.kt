@@ -176,7 +176,8 @@ fun PlaylistOverviewScreen(
                                   collabUsernames.joinToString(", "),
                                   "collaboratorsText",
                                   collab,
-                                  TypographyPlaylist.headlineSmall)
+                                  TypographyPlaylist.headlineSmall,
+                                  2)
                             }
                             IconWithText(
                                 if (selectedPlaylistState.playlistPublic) "Public" else "Private",

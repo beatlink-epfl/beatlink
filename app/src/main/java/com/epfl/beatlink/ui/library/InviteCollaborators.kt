@@ -21,8 +21,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.library.CollaboratorCard
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.search.components.ShortSearchBarLayout
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
@@ -34,6 +32,8 @@ fun InviteCollaboratorsScreen(
     profileViewModel: ProfileViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
+  val profileData by profileViewModel.profile.collectAsState()
+  // list of collaborators ID
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState()
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -54,7 +54,9 @@ fun InviteCollaboratorsScreen(
   LaunchedEffect(searchQuery.value.text) {
     if (searchQuery.value.text.isNotEmpty()) {
       profileViewModel.searchUsers(query = searchQuery.value.text) { fetchedResults ->
-        results.value = fetchedResults
+        profileData?.let { currentProfile ->
+          results.value = fetchedResults.filter { userProfile -> userProfile != currentProfile }
+        }
       }
     }
   }
@@ -66,13 +68,8 @@ fun InviteCollaboratorsScreen(
             navigationActions = navigationActions,
             backArrowButton = true,
             searchQuery = searchQuery.value,
-            onQueryChange = { newQuery -> searchQuery.value = newQuery })
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
+            onQueryChange = { newQuery -> searchQuery.value = newQuery },
+            placeholder = "Search people to collaborate")
       },
       content = { paddingValues ->
         LazyColumn(
