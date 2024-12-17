@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.search
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -41,11 +43,13 @@ import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun SearchBarScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     mapUsersViewModel: MapUsersViewModel,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
@@ -56,10 +60,17 @@ fun SearchBarScreen(
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
   val peopleResult = remember { mutableStateOf(emptyList<ProfileData?>()) }
+
+  val context = LocalContext.current
+
   LaunchedEffect(Unit) {
     // Resets selected users in people searching
     profileViewModel.unselectSelectedUser()
     profileViewModel.unreadyProfile()
+    if (spotifyAuthViewModel.isRefreshNeeded()) {
+      Log.d("SPOTIFY AUTH", "Refreshing access token.")
+      spotifyAuthViewModel.refreshAccessToken(context)
+    }
   }
 
   if (selectedCategory.value == "People") {

@@ -102,6 +102,7 @@ fun BeatLinkApp(
                   navigationActions,
                   mapViewModel,
                   spotifyApiViewModel,
+                  spotifyAuthViewModel,
                   profileViewModel,
                   mapUsersViewModel)
             } else {
@@ -119,6 +120,7 @@ fun BeatLinkApp(
               SearchBarScreen(
                   navigationActions,
                   spotifyApiViewModel,
+                  spotifyAuthViewModel,
                   mapUsersViewModel,
                   profileViewModel,
                   friendRequestViewModel)
@@ -136,7 +138,11 @@ fun BeatLinkApp(
         navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
           composable(Screen.LIBRARY) {
             LibraryScreen(
-                navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
+                navigationActions,
+                playlistViewModel,
+                spotifyApiViewModel,
+                spotifyAuthViewModel,
+                mapUsersViewModel)
           }
           composable(Screen.CREATE_NEW_PLAYLIST) {
             CreateNewPlaylistScreen(
@@ -175,6 +181,7 @@ fun BeatLinkApp(
                 friendRequestViewModel,
                 navigationActions,
                 spotifyApiViewModel,
+                spotifyAuthViewModel,
                 mapUsersViewModel)
           }
           composable(Screen.LINKS) {

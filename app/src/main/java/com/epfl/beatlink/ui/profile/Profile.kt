@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -12,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import com.epfl.beatlink.model.library.UserPlaylist
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
@@ -29,6 +31,7 @@ import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun ProfileScreen(
@@ -36,13 +39,20 @@ fun ProfileScreen(
     friendRequestViewModel: FriendRequestViewModel,
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
   val profileData by profileViewModel.profile.collectAsState()
 
+  val context = LocalContext.current
+
   // Load Profile Picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+    if (spotifyAuthViewModel.isRefreshNeeded()) {
+      Log.d("SPOTIFY AUTH", "Refreshing access token.")
+      spotifyAuthViewModel.refreshAccessToken(context)
+    }
   }
 
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }

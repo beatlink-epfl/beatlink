@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,10 @@ open class SpotifyAuthViewModel(
     loadTokens(application)
     loadAuthState()
     if (doesTokenExist() && !isTokenValid()) refreshAccessToken(application)
+  }
+
+  fun isRefreshNeeded(): Boolean {
+    return doesTokenExist() && !isTokenValid()
   }
 
   /** Updates the data values in the view model */
@@ -117,12 +122,17 @@ open class SpotifyAuthViewModel(
         if (result.isSuccess) {
           loadTokens(context) // load the new tokens
           _authState.value = AuthState.Authenticated
+          Log.d("SpotifyAuthViewModel", "Access token refreshed.")
         } else {
+          Log.d(
+              "SpotifyAuthViewModel",
+              "Failed to refresh access token : ${result.exceptionOrNull()}")
           _authState.value = AuthState.Idle
         }
       }
     } else {
       _authState.value = AuthState.Idle
+      Log.d("SpotifyAuthViewModel", "Failed to refresh access token : no refresh token found.")
     }
   }
 }
