@@ -207,7 +207,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     ?: emptyList() // Return an empty list if no playlist is selected
   }
 
-  // Delete a playlist owned by the user
+  // Delete all playlists owned by the user
   suspend fun deleteOwnedPlaylists(): Boolean {
     return try {
       suspendCoroutine { continuation ->
