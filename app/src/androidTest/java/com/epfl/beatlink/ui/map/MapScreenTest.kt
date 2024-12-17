@@ -8,13 +8,17 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.google.android.gms.maps.model.LatLng
+import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -31,8 +35,10 @@ class MapScreenTest {
   @Mock private lateinit var mockApplication: Application
 
   @Mock private lateinit var mockApiRepository: SpotifyApiRepository
-
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
+
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
 
   private lateinit var fakeMapLocationRepository: FakeMapLocationRepository
   private lateinit var mapViewModel: MapViewModel
@@ -40,6 +46,13 @@ class MapScreenTest {
   @Before
   fun setUp() {
     MockitoAnnotations.openMocks(this)
+
+    val client = OkHttpClient()
+    val application = ApplicationProvider.getApplicationContext<Application>()
+
+    spotifyAuthRepository = SpotifyAuthRepository(client)
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyAuthRepository)
+
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
     mockApiRepository.stub {
       onBlocking { get("me/player") } doReturn Result.success(JSONObject())
@@ -94,6 +107,7 @@ class MapScreenTest {
           navigationActions = NavigationActions(rememberNavController()),
           mapViewModel = mapViewModel,
           spotifyApiViewModel = spotifyApiViewModel,
+          spotifyAuthViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
@@ -118,6 +132,7 @@ class MapScreenTest {
           navigationActions = NavigationActions(rememberNavController()),
           mapViewModel = mapViewModel,
           spotifyApiViewModel = spotifyApiViewModel,
+          spotifyAuthViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
@@ -142,6 +157,7 @@ class MapScreenTest {
           navigationActions = NavigationActions(rememberNavController()),
           mapViewModel = mapViewModel,
           spotifyApiViewModel = spotifyApiViewModel,
+          spotifyAuthViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
@@ -157,6 +173,7 @@ class MapScreenTest {
           navigationActions = NavigationActions(rememberNavController()),
           mapViewModel = mapViewModel,
           spotifyApiViewModel = spotifyApiViewModel,
+          spotifyAuthViewModel,
           profileViewModel = viewModel(factory = ProfileViewModel.Factory),
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory))
     }
