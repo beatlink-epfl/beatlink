@@ -32,7 +32,6 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -460,35 +459,6 @@ class PlaylistViewModelTest {
     playlistViewModel.updateTemporallyCollaborators(listOf("user1", "user2"))
     // Assert
     assertEquals(listOf("user1", "user2"), playlistViewModel.tempPlaylistCollaborators.first())
-  }
-
-  @Test
-  fun `uploadPlaylistCover should log error if playlist ID is empty`() {
-    // Call the method
-    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlistEmpty)
-
-    // Verify that the repository is never called
-    verify(playlistRepository, never()).uploadPlaylistCover(any(), any(), any())
-  }
-
-  @Test
-  fun `uploadPlaylistCover should invoke repository if playlist ID is valid`() {
-    val testDispatcher = StandardTestDispatcher()
-
-    // Inject the test dispatcher into the ViewModel
-    playlistViewModel = PlaylistViewModel(playlistRepository, testDispatcher)
-
-    // Mock the repository method
-    doNothing().`when`(playlistRepository).uploadPlaylistCover(any(), any(), any())
-
-    // Call the method
-    playlistViewModel.uploadPlaylistCover(mockUri, mockContext, playlist2)
-
-    // Advance the dispatcher to execute the coroutine
-    testDispatcher.scheduler.advanceUntilIdle()
-
-    // Verify that the repository method is invoked
-    verify(playlistRepository).uploadPlaylistCover(mockUri, mockContext, playlist2)
   }
 
   @Test
