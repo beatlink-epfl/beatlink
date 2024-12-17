@@ -1,8 +1,6 @@
 package com.epfl.beatlink.viewmodel.library
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
