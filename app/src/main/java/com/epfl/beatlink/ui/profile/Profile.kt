@@ -49,6 +49,8 @@ fun ProfileScreen(
   // Load Profile Picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+    friendRequestViewModel.getFriendRequests()
+    friendRequestViewModel.getAllFriends()
     if (spotifyAuthViewModel.isRefreshNeeded()) {
       Log.d("SPOTIFY AUTH", "Refreshing access token.")
       spotifyAuthViewModel.refreshAccessToken(context)

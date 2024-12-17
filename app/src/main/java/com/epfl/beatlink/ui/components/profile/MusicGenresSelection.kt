@@ -21,27 +21,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.profile.MusicGenre.Companion.MAX_SELECTABLE_GENRES
-import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
+import com.epfl.beatlink.ui.components.GradientTitle
 
 @Composable
 fun SelectFavoriteMusicGenres(onGenreSelectionVisibilityChanged: (Boolean) -> Unit) {
@@ -68,7 +63,6 @@ fun SelectFavoriteMusicGenres(onGenreSelectionVisibilityChanged: (Boolean) -> Un
       }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MusicGenreSelectionDialog(
     musicGenres: List<String>,
@@ -94,33 +88,30 @@ fun MusicGenreSelectionDialog(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 4.dp) {
           Scaffold(
-              topBar = { TopAppBar(title = { MusicGenreSelectionDialogTitle() }) },
+              topBar = {
+                Column(modifier = Modifier.padding(16.dp)) { GradientTitle("MUSIC GENRES") }
+              },
               bottomBar = {
-                Column(
-                    modifier =
-                        Modifier.background(MaterialTheme.colorScheme.surface)
-                            .padding(bottom = 16.dp)) {
-                      // Show message when the set limit of music genres are selected
-                      if (selectedCount >= MAX_SELECTABLE_GENRES) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            contentAlignment = Alignment.Center) {
-                              Text(
-                                  text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
-                                  modifier = Modifier.testTag("maxGenresSelectedMessage"),
-                                  textAlign = TextAlign.Center,
-                                  color = MaterialTheme.colorScheme.error,
-                                  style = MaterialTheme.typography.bodyMedium)
-                            }
-                      }
-                      MusicGenreSelectionDialogButtons(
-                          onDismissRequest = onDismissRequest,
-                          onGenresSelected = {
-                            onGenresSelected(
-                                genreCheckedStates.filter { it.value }.keys.toMutableList())
-                          },
-                          modifier = Modifier.testTag("dialogButtonRow"))
-                    }
+                Column(modifier = Modifier.padding(16.dp)) {
+                  // Show message if the genre selection limit is reached
+                  if (selectedCount >= MAX_SELECTABLE_GENRES) {
+                    Text(
+                        text = "You can select up to $MAX_SELECTABLE_GENRES genres only",
+                        modifier = Modifier.testTag("maxGenresSelectedMessage"),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium)
+                  }
+
+                  // Buttons
+                  MusicGenreSelectionDialogButtons(
+                      onDismissRequest = onDismissRequest,
+                      onGenresSelected = {
+                        onGenresSelected(
+                            genreCheckedStates.filter { it.value }.keys.toMutableList())
+                      },
+                      modifier = Modifier.testTag("dialogButtonRow"))
+                }
               },
               content = { padding ->
                 Box(
@@ -155,24 +146,6 @@ fun MusicGenreSelectionDialog(
                     }
               })
         }
-  }
-}
-
-@Composable
-fun MusicGenreSelectionDialogTitle() {
-  Column {
-    Text(
-        text = "MUSIC GENRES",
-        style = MaterialTheme.typography.headlineLarge,
-        modifier =
-            Modifier.graphicsLayer(alpha = 0.99f)
-                .drawWithCache {
-                  onDrawWithContent {
-                    drawContent()
-                    drawRect(PrimaryGradientBrush, blendMode = BlendMode.SrcAtop)
-                  }
-                }
-                .testTag("dialogTitle"))
   }
 }
 
@@ -227,16 +200,20 @@ fun MusicGenreSelectionDialogButtons(
     // Cancel Button
     Text(
         text = "CANCEL",
-        modifier = Modifier.clickable { onDismissRequest() }.testTag("cancelButton"),
+        modifier =
+            Modifier.padding(horizontal = 5.dp)
+                .clickable { onDismissRequest() }
+                .testTag("cancelButton"),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.primary)
 
+    Spacer(Modifier.width(16.dp))
     // Ok Button
     Text(
         text = "OK",
         modifier =
-            Modifier.clickable { onGenresSelected() }
-                .padding(start = 32.dp, end = 8.dp)
+            Modifier.padding(horizontal = 5.dp)
+                .clickable { onGenresSelected() }
                 .testTag("okButton"),
         style = MaterialTheme.typography.bodyLarge,
         color = MaterialTheme.colorScheme.primary)

@@ -27,6 +27,12 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
+  // Updates the sent/received friend requests instantly by reloading the screen
+  LaunchedEffect(Unit) {
+    friendRequestViewModel.getFriendRequests()
+    friendRequestViewModel.getAllFriends()
+  }
+
   val profileData by profileViewModel.profile.collectAsState()
 
   val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
