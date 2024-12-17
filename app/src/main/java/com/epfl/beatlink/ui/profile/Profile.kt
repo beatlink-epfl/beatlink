@@ -1,6 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
