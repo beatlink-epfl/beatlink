@@ -41,11 +41,13 @@ import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun SearchBarScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     mapUsersViewModel: MapUsersViewModel,
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
@@ -72,7 +74,8 @@ fun SearchBarScreen(
         query = searchQuery.value.text,
         onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
         onFailure = { results.value = Pair(emptyList(), emptyList()) },
-        spotifyApiViewModel = spotifyApiViewModel)
+        spotifyApiViewModel = spotifyApiViewModel,
+        spotifyAuthViewModel = spotifyAuthViewModel)
   }
 
   SearchScaffold(

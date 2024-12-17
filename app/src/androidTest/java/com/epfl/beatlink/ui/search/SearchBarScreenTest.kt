@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.search
 
+import android.app.Application
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -14,13 +15,16 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
+import com.epfl.beatlink.ui.spotify.FakeSpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,6 +37,9 @@ class SearchBarScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+  private lateinit var application: Application
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
+  private lateinit var spotifyAuthViewModel: FakeSpotifyAuthViewModel
 
   private var topSongs =
       listOf(
@@ -86,10 +93,17 @@ class SearchBarScreenTest {
 
     fakeSpotifyApiViewModel.updatePlayer()
 
+    application = mockk<Application>(relaxed = true)
+    spotifyAuthRepository = mockk<SpotifyAuthRepository>(relaxed = true)
+
+    spotifyAuthViewModel =
+        FakeSpotifyAuthViewModel(application = application, repository = spotifyAuthRepository)
+
     composeTestRule.setContent {
       SearchBarScreen(
           navigationActions,
           fakeSpotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory),
           fakeProfileViewModel,
           fakeFriendRequestViewModel)

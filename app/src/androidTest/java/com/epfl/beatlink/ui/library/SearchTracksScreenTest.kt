@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.library
 
+import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,12 +12,15 @@ import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
+import com.epfl.beatlink.ui.spotify.FakeSpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,6 +29,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 
+@Suppress("Unchecked_cast")
 class SearchTracksScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
@@ -33,6 +38,11 @@ class SearchTracksScreenTest {
   private lateinit var fakeSpotifyApiViewModel: FakeSpotifyApiViewModel
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
+
+  private lateinit var application: Application
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
+
+  private lateinit var spotifyAuthViewModel: FakeSpotifyAuthViewModel
 
   private val topSongs =
       listOf(
@@ -61,6 +71,12 @@ class SearchTracksScreenTest {
     fakeSpotifyApiViewModel = FakeSpotifyApiViewModel()
     fakeSpotifyApiViewModel.setTopTracks(topSongs)
 
+    application = mockk<Application>(relaxed = true)
+    spotifyAuthRepository = mockk<SpotifyAuthRepository>(relaxed = true)
+
+    spotifyAuthViewModel =
+        FakeSpotifyAuthViewModel(application = application, repository = spotifyAuthRepository)
+
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
 
@@ -68,6 +84,7 @@ class SearchTracksScreenTest {
       SearchTracksScreen(
           navigationActions = navigationActions,
           spotifyApiViewModel = fakeSpotifyApiViewModel,
+          spotifyAuthViewModel = spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory),
           playlistViewModel = playlistViewModel)
     }
