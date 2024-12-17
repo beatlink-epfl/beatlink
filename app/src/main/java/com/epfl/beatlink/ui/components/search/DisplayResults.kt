@@ -55,38 +55,46 @@ fun DisplayResults(
         }
   } else {
     // Display tracks or artists
-    LazyColumn(modifier = Modifier.padding(horizontal = 8.dp).testTag("searchResultsColumn")) {
-      tracks?.let {
-        items(it) { track ->
-          if (playlistViewModel != null && onClearQuery != null) {
-            TrackPlaylistItem(
-                track = track, playlistViewModel = playlistViewModel, onClearQuery = onClearQuery)
-          } else {
-            if (spotifyApiViewModel != null) {
-              TrackItem(track = track, spotifyApiViewModel = spotifyApiViewModel)
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp).testTag("searchResultsColumn")) {
+          tracks?.let {
+            items(it) { track ->
+              if (playlistViewModel != null && onClearQuery != null) {
+                TrackPlaylistItem(
+                    track = track,
+                    playlistViewModel = playlistViewModel,
+                    onClearQuery = onClearQuery)
+              } else {
+                if (spotifyApiViewModel != null) {
+                  // Check if the track is currently playing
+                  if (spotifyApiViewModel.currentTrack.trackId == track.trackId) {
+                    TrackItem(
+                        track = track, spotifyApiViewModel = spotifyApiViewModel, isPlaying = true)
+                  } else TrackItem(track = track, spotifyApiViewModel = spotifyApiViewModel)
+                }
+              }
+            }
+          }
+          artists?.let {
+            items(it) { artist ->
+              ArtistItem(artist = artist)
+              Spacer(modifier = Modifier.height(16.dp))
+            }
+          }
+          people?.let {
+            items(it) { person ->
+              if (profileViewModel != null &&
+                  navigationActions != null &&
+                  friendRequestViewModel != null) {
+                PeopleItem(
+                    person,
+                    navigationActions = navigationActions,
+                    profileViewModel = profileViewModel,
+                    friendRequestViewModel = friendRequestViewModel)
+              }
             }
           }
         }
-      }
-      artists?.let {
-        items(it) { artist ->
-          ArtistItem(artist = artist)
-          Spacer(modifier = Modifier.height(16.dp))
-        }
-      }
-      people?.let {
-        items(it) { person ->
-          if (profileViewModel != null &&
-              navigationActions != null &&
-              friendRequestViewModel != null) {
-            PeopleItem(
-                person,
-                navigationActions = navigationActions,
-                profileViewModel = profileViewModel,
-                friendRequestViewModel = friendRequestViewModel)
-          }
-        }
-      }
-    }
   }
 }

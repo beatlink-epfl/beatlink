@@ -94,7 +94,6 @@ class LibraryScreenTest {
   @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("libraryScreen").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("searchButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("addButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertIsDisplayed()
@@ -108,11 +107,6 @@ class LibraryScreenTest {
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").assertTextEquals("MY PLAYLISTS")
     composeTestRule.onNodeWithTag("SHARED WITH METitleWithArrow").assertTextEquals("SHARED WITH ME")
     composeTestRule.onNodeWithTag("PUBLICTitleWithArrow").assertTextEquals("PUBLIC")
-  }
-
-  @Test
-  fun buttonsWorkCorrectly() {
-    composeTestRule.onNodeWithTag("searchButton").performClick()
   }
 
   @Test

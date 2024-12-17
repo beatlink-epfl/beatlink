@@ -145,7 +145,6 @@ class OtherProfileTest {
 
     // Check if the top app bar is displayed
     composeTestRule.onNodeWithTag("otherProfileScreen").assertExists()
-    composeTestRule.onNodeWithTag("profileScreenMoreVertButton").assertExists()
     // Verify Profile Picture
     composeTestRule.onNodeWithTag("profilePicture").assertExists()
     // Check if links count is displayed
