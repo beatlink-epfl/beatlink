@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.ui.components.MoreOptionsButton
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
 import com.epfl.beatlink.ui.theme.TypographyPlaylist
@@ -72,9 +71,6 @@ fun PlaylistCard(
                 style = TypographyPlaylist.titleSmall,
             )
           }
-
-          MoreOptionsButton {}
-          Spacer(Modifier.width(12.dp))
         }
       }
 }

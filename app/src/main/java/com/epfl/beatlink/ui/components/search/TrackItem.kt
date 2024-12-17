@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,19 +25,27 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.components.CornerIcons
+import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 
 @Composable
-fun TrackItem(track: SpotifyTrack, spotifyApiViewModel: SpotifyApiViewModel) {
+fun TrackItem(
+    track: SpotifyTrack,
+    spotifyApiViewModel: SpotifyApiViewModel,
+    isPlaying: Boolean = false
+) {
 
   Row(
       verticalAlignment = Alignment.CenterVertically,
       modifier =
           Modifier.fillMaxWidth()
-              .padding(vertical = 8.dp)
-              .background(MaterialTheme.colorScheme.background, RoundedCornerShape(8.dp))
-              .padding(horizontal = 8.dp)
+              .height(65.dp)
+              .background(
+                  if (isPlaying) MaterialTheme.colorScheme.tertiary
+                  else MaterialTheme.colorScheme.background,
+                  RoundedCornerShape(8.dp))
+              .padding(horizontal = 5.dp)
               .testTag("trackItem")) {
         // Album cover
         Card(
@@ -60,6 +69,7 @@ fun TrackItem(track: SpotifyTrack, spotifyApiViewModel: SpotifyApiViewModel) {
           Text(
               text = track.artist,
               modifier = Modifier.testTag(track.artist),
+              color = SecondaryPurple,
               style = TypographySongs.titleSmall)
         }
 
