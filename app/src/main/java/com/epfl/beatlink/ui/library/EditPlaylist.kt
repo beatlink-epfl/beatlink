@@ -70,7 +70,7 @@ fun EditPlaylistScreen(
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
 
   // Load Playlist Cover
-  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  var playlistCover by remember { mutableStateOf(selectedPlaylistState.playlistCover ?: "") }
   LaunchedEffect(Unit) {
     playlistViewModel.loadPlaylistCover(selectedPlaylistState) {
       playlistViewModel.coverImage.value = it
@@ -80,9 +80,12 @@ fun EditPlaylistScreen(
   // Permission Launcher
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri ?: Uri.EMPTY
-        playlistViewModel.coverImage.value =
-            base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
+        if (uri == null) {
+          // Do nothing
+        } else {
+          playlistCover = resizeAndCompressImageFromUri(uri, context) ?: ""
+          playlistViewModel.coverImage.value = base64ToBitmap(playlistCover)
+        }
       }
 
   var titleError by remember { mutableStateOf(false) }
@@ -206,7 +209,7 @@ fun EditPlaylistScreen(
               val updatedPlaylist =
                   Playlist(
                       playlistID = selectedPlaylistState.playlistID,
-                      playlistCover = selectedPlaylistState.playlistCover,
+                      playlistCover = playlistCover,
                       playlistName = playlistTitle,
                       playlistDescription = playlistDescription,
                       playlistPublic = playlistIsPublic,
@@ -217,9 +220,6 @@ fun EditPlaylistScreen(
                       nbTracks = selectedPlaylistState.nbTracks)
               playlistViewModel.updatePlaylist(updatedPlaylist)
               playlistViewModel.selectPlaylist(updatedPlaylist)
-              if (imageUri != Uri.EMPTY && imageUri != null) {
-                playlistViewModel.uploadPlaylistCover(imageUri, context, updatedPlaylist)
-              }
               navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
             }
           }
