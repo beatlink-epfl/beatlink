@@ -49,9 +49,9 @@ import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.joinAll
 
 @Composable
 fun AccountScreen(
@@ -71,7 +71,7 @@ fun AccountScreen(
   val scrollState = rememberScrollState()
   var showDialog by remember { mutableStateOf(false) }
   var password by remember { mutableStateOf("") }
-    val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
+  val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
   Scaffold(
       topBar = { ScreenTopAppBar("Account", "accountScreenTitle", navigationActions) },
@@ -84,11 +84,10 @@ fun AccountScreen(
       content = { paddingValue ->
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(paddingValue)
-                .verticalScroll(scrollState)
-                .testTag("accountScreenContent"),
+                Modifier.fillMaxSize()
+                    .padding(paddingValue)
+                    .verticalScroll(scrollState)
+                    .testTag("accountScreenContent"),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.height(53.dp))
               TextInBox("E-mail: $email")
@@ -129,9 +128,7 @@ fun AccountScreen(
                 label = { Text("Enter Password") },
                 placeholder = { Text("Your current password") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("passwordField"))
+                modifier = Modifier.fillMaxWidth().testTag("passwordField"))
           }
         },
         confirmButton = {
@@ -211,12 +208,9 @@ private fun deleteAccount(
 
       // Step 2: Delete Firestore data
 
-        val jobs = allFriends.map{ friend ->
-            launch { friendRequestViewModel.removeFriend(friend) }
-        }
+      val jobs = allFriends.map { friend -> launch { friendRequestViewModel.removeFriend(friend) } }
 
-        jobs.joinAll()
-
+      jobs.joinAll()
 
       val deleteProfileResult = profileViewModel.deleteProfile()
       val deleteMapUserResult = mapUsersViewModel.deleteMapUser()
