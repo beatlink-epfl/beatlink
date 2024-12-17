@@ -28,7 +28,10 @@ import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 fun ViewDescriptionOverlay(onDismissRequest: () -> Unit, description: String) {
 
   ReusableOverlay(
-      onDismissRequest = onDismissRequest, modifier = Modifier.heightIn(min = 0.dp, max = 300.dp)) {
+      onDismissRequest = onDismissRequest,
+      modifier =
+          Modifier.heightIn(min = 0.dp, max = 300.dp)
+              .padding(bottom = 11.dp, start = 16.dp, end = 16.dp)) {
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,7 +40,9 @@ fun ViewDescriptionOverlay(onDismissRequest: () -> Unit, description: String) {
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(10.dp))) {
               Row(
-                  modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                  modifier =
+                      Modifier.fillMaxWidth()
+                          .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
                   horizontalArrangement = Arrangement.SpaceBetween,
                   verticalAlignment = Alignment.CenterVertically) {
                     Text(

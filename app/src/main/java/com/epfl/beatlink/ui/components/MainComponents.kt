@@ -165,7 +165,8 @@ fun PageTitle(mainTitle: String, mainTitleTag: String) {
 @Composable
 fun ReusableOverlay(
     onDismissRequest: () -> Unit,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.BottomCenter,
     overlayContent: @Composable () -> Unit
 ) {
   // Semi-transparent background overlay
@@ -175,13 +176,12 @@ fun ReusableOverlay(
               .fillMaxSize()
               .background(Color.Black.copy(alpha = 0.4f))
               .pointerInput(Unit) { detectTapGestures(onTap = { onDismissRequest() }) },
-      contentAlignment = Alignment.BottomCenter) {
+      contentAlignment = alignment) {
         // Inner box to hold the overlay content
         Box(
             modifier =
                 modifier
-                    .width(384.dp)
-                    .padding(bottom = 11.dp)
+                    .fillMaxWidth()
                     .border(
                         width = 2.dp,
                         brush = PrimaryGradientBrush,
