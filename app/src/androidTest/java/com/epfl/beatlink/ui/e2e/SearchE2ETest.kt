@@ -24,10 +24,12 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.network.NetworkStatusTracker
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.repository.spotify.auth.SPOTIFY_AUTH_PREFS
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.BeatLinkApp
+import com.epfl.beatlink.ui.spotify.FakeSpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.network.NetworkViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
-import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import io.mockk.mockk
 import okhttp3.OkHttpClient
 import okhttp3.internal.immutableListOf
 import org.json.JSONObject
@@ -50,8 +52,9 @@ class SearchE2ETest {
   fun setUp() {
     application = ApplicationProvider.getApplicationContext()
     val sharedPreferences = application.getSharedPreferences(SPOTIFY_AUTH_PREFS, MODE_PRIVATE)
+    val spotifyAuthRepository = mockk<SpotifyAuthRepository>(relaxed = true)
 
-    val spotifyAuthViewModel = mock(SpotifyAuthViewModel::class.java)
+    val spotifyAuthViewModel = FakeSpotifyAuthViewModel(application, spotifyAuthRepository)
     val mockSpotifyApiViewModel = MockSpotifyApiViewModel(sharedPreferences)
     // Mock the network status tracker
     val mockNetworkViewModel = FakeNetworkViewModel(initialConnectionState = true)
