@@ -50,16 +50,19 @@ open class FriendRequestViewModel(
         }
   }
 
+  // Initialize the repository and fetch initial data
   init {
     repository.init(onSuccess = { fetchInitialData() })
   }
 
+  // Fetch initial data
   private fun fetchInitialData() {
     getOwnRequests()
     getFriendRequests()
     getAllFriends()
   }
 
+  // Send a friend request to the given user
   open fun sendFriendRequestTo(receiverId: String) {
     val senderId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {
@@ -72,6 +75,7 @@ open class FriendRequestViewModel(
     }
   }
 
+  // Accept a friend request from the given user
   open fun acceptFriendRequestFrom(senderId: String) {
     val receiverId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {
@@ -86,6 +90,7 @@ open class FriendRequestViewModel(
     }
   }
 
+  // Reject a friend request from the given user
   open fun rejectFriendRequestFrom(senderId: String) {
     val receiverId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {
@@ -98,6 +103,7 @@ open class FriendRequestViewModel(
     }
   }
 
+  // Cancel a friend request to the given user
   open fun cancelFriendRequestTo(receiverId: String) {
     val senderId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {
@@ -110,6 +116,7 @@ open class FriendRequestViewModel(
     }
   }
 
+  // Remove a friend from the list of friends
   open fun removeFriend(friendToRemove: String) {
     val userId = repository.getUserId() ?: return
     viewModelScope.launch(dispatcher) {

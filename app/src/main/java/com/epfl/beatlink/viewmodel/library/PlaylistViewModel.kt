@@ -72,50 +72,60 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
         }
   }
 
+  // Initialize the repository
   init {
     repository.init(onSuccess = { fetchData() })
   }
 
+  // Resets the cover image
   private fun resetCoverImage() {
     coverImage.value = null
   }
 
+  // Get the user ID
   fun getUserId(): String? {
     return repository.getUserId()
   }
 
+  // Fetch the user's playlist data
   fun fetchData() {
     getOwnedPlaylists()
     getSharedPlaylists()
     getPublicPlaylists()
   }
 
+  // Fetch the user's owned playlists
   fun getOwnedPlaylists() {
     repository.getOwnedPlaylists(
         onSuccess = { _ownedPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch user playlists", it) })
   }
 
+  // Fetch the user's shared playlists
   fun getSharedPlaylists() {
     repository.getSharedPlaylists(
         onSuccess = { _sharedPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch shared playlists", it) })
   }
 
+  // Fetch the user's public playlists
   fun getPublicPlaylists() {
     repository.getPublicPlaylists(
         onSuccess = { _publicPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch public playlists", it) })
   }
 
+  // Get a new UID
   fun getNewUid(): String {
     return repository.getNewUid()
   }
 
+  // Select a playlist
   open fun selectPlaylist(playlist: Playlist) {
     _selectedPlaylist.value = playlist
   }
 
+  // Create a new playlist
   fun addPlaylist(playlist: Playlist) {
     repository.addPlaylist(
         playlist,
@@ -123,6 +133,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to add playlist", e) })
   }
 
+  // Update a playlist
   fun updatePlaylist(playlist: Playlist) {
     repository.updatePlaylist(
         playlist,
@@ -131,6 +142,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     getOwnedPlaylists()
   }
 
+  // Add a track to the selected playlist
   fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     _selectedPlaylist.value?.let { playlist ->
       try {
@@ -151,6 +163,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     } ?: run { onFailure(IllegalStateException("No playlist selected")) }
   }
 
+  // Updates the amount of likes of a track
   fun updateTrackLikes(trackId: String, userId: String) {
     _selectedPlaylist.value?.let { playlist ->
       // Update the tracks in the playlist
@@ -194,6 +207,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     ?: emptyList() // Return an empty list if no playlist is selected
   }
 
+  // Delete all playlists owned by the user
   suspend fun deleteOwnedPlaylists(): Boolean {
     return try {
       suspendCoroutine { continuation ->
@@ -213,6 +227,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     }
   }
 
+  // Delete a playlist by ID
   fun deletePlaylistById(playlistUID: String) {
     repository.deletePlaylistById(
         playlistUID,
@@ -223,22 +238,27 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     getOwnedPlaylists()
   }
 
+  // Update the playlist title
   fun updateTemporallyTitle(title: String) {
     _tempPlaylistTitle.value = title
   }
 
+  // Update the playlist description
   fun updateTemporallyDescription(description: String) {
     _tempPlaylistDescription.value = description
   }
 
+  // Update the playlist visibility
   open fun updateTemporallyIsPublic(isPublic: Boolean) {
     _tempPlaylistIsPublic.value = isPublic
   }
 
+  // Update the playlist collaborators
   open fun updateTemporallyCollaborators(collaborators: List<String>) {
     _tempPlaylistCollaborators.value = collaborators
   }
 
+  // Reset the temporary state
   fun resetTemporaryState() {
     _isTempStateInitialized.value = false
     _tempPlaylistTitle.value = ""
@@ -248,6 +268,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     resetCoverImage()
   }
 
+  // Preload the temporary state
   fun preloadTemporaryState(selectedPlaylist: Playlist) {
     if (!_isTempStateInitialized.value) {
       _tempPlaylistTitle.value = selectedPlaylist.playlistName
@@ -258,7 +279,7 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     }
   }
 
-  // Playlist cover image
+  // Load a playlist cover image
   fun loadPlaylistCover(playlist: Playlist, onBitmapLoaded: (Bitmap?) -> Unit) {
     if (playlist.playlistID.isEmpty()) {
       Log.e("PlaylistViewModel", "Playlist ID is empty, load failed")
@@ -267,6 +288,8 @@ open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewM
     repository.loadPlaylistCover(playlist, onBitmapLoaded)
   }
 
+  // Prepare the playlist cover for Spotify
+  // Returns the base64 encoding for the JPEG format of the playlist cover
   fun preparePlaylistCoverForSpotify(): String? {
     return try {
       val cover = selectedPlaylist.value?.playlistCover

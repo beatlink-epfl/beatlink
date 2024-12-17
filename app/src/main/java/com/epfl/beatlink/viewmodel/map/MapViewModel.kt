@@ -22,6 +22,7 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
   val moveToCurrentLocation: MutableState<CameraAction> = mutableStateOf(CameraAction.NO_ACTION)
   val permissionRequired: MutableState<Boolean> = mutableStateOf(true)
 
+  // Check if location permission is granted and request it if not
   fun checkAndRequestLocationPermission() {
     viewModelScope.launch {
       if (!mapLocationRepository.isLocationPermissionGranted()) {
@@ -35,10 +36,12 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
     startLocationUpdates()
   }
 
+  // Set the location permission status
   fun setLocationPermissionGranted(granted: Boolean) {
     locationPermitted.value = granted
   }
 
+  // Start location updates
   fun startLocationUpdates() {
     if (!locationPermitted.value) {
       isMapLoaded.value = true
@@ -66,11 +69,13 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
     }
   }
 
+  // Stop location updates
   public override fun onCleared() {
     super.onCleared()
     mapLocationRepository.stopLocationUpdates()
   }
 
+  // Handle the result of the location permission request
   fun onPermissionResult(granted: Boolean) {
     if (granted) {
       permissionRequired.value = false
@@ -81,6 +86,7 @@ open class MapViewModel(val mapLocationRepository: LocationRepository) : ViewMod
     }
   }
 
+  // Factory for creating the ViewModel
   companion object {
     fun provideFactory(mapLocationRepository: MapLocationRepository): ViewModelProvider.Factory =
         object : ViewModelProvider.Factory {
