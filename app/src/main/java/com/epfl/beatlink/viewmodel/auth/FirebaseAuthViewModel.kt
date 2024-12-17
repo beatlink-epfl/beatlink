@@ -17,6 +17,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
   private val _authState = MutableStateFlow<AuthState>(AuthState.Idle) // Start with Idle state
   val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
+  // Signs up the user with the given email and password
   fun signUp(email: String, password: String) {
     viewModelScope.launch {
       authRepository.signUp(
@@ -30,6 +31,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  // Logs in the user with the given email and password
   fun login(email: String, password: String) {
     viewModelScope.launch {
       authRepository.login(
@@ -43,6 +45,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  // Changes the password of the current user
   fun verifyAndChangePassword(currentPassword: String, newPassword: String) {
     viewModelScope.launch {
       val verificationResult = authRepository.verifyPassword(currentPassword)
@@ -61,11 +64,13 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  // Verifies the current password
   suspend fun verifyPassword(currentPassword: String): Result<Unit> {
     val verificationResult = authRepository.verifyPassword(currentPassword)
     return verificationResult
   }
 
+  // Deletes the account of the current user
   fun deleteAccount(
       currentPassword: String,
       onSuccess: () -> Unit,
@@ -85,6 +90,7 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  // Signs out the current user
   fun signOut(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     viewModelScope.launch {
       authRepository.signOut(
@@ -99,10 +105,12 @@ class FirebaseAuthViewModel(private val authRepository: FirebaseAuthRepository) 
     }
   }
 
+  // Resets the state of the view model
   fun resetState() {
     _authState.value = AuthState.Idle
   }
 
+  // Checks if the user is signed in
   fun isSignedIn(): Boolean {
     return authRepository.isUserSignedIn()
   }

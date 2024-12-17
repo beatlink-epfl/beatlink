@@ -1,8 +1,6 @@
 package com.epfl.beatlink.model.library
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 
 interface PlaylistRepository {
   /**
@@ -84,15 +82,6 @@ interface PlaylistRepository {
    * @param onFailure Callback that is invoked with an exception upon failure.
    */
   fun deletePlaylistById(id: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit)
-
-  /**
-   * Upload a playlist cover image.
-   *
-   * @param imageUri The URI of the image to be uploaded.
-   * @param context The context in which the function is called.
-   * @param playlist The Playlist object to which the cover image belongs.
-   */
-  fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist)
 
   /**
    * Load a playlist cover image.

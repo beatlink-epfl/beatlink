@@ -84,7 +84,7 @@ class DeleteAccountButtonTest {
 
     // Set the composable for testing
     composeTestRule.setContent {
-      AccountScreen(
+      SettingsScreen(
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
           profileViewModel = profileViewModel,

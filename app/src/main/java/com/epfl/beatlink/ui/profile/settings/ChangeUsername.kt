@@ -25,8 +25,6 @@ import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -40,12 +38,6 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
   Scaffold(
       topBar = {
         ScreenTopAppBar("Change Username", "changeUsernameScreenTitle", navigationActions)
-      },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
       },
       content = { paddingValue ->
         Column(

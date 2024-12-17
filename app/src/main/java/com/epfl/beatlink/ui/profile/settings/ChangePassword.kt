@@ -30,8 +30,6 @@ import com.epfl.beatlink.ui.authentication.AuthStateHandler
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
-import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
-import com.epfl.beatlink.ui.navigation.LIST_TOP_LEVEL_DESTINATION
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
@@ -61,13 +59,8 @@ fun ChangePassword(
 
   Scaffold(
       modifier = Modifier.testTag("changePasswordScreen"),
-      topBar = { ScreenTopAppBar("Change password", "changePasswordTitle", navigationActions) },
-      bottomBar = {
-        BottomNavigationMenu(
-            onTabSelect = { route -> navigationActions.navigateTo(route) },
-            tabList = LIST_TOP_LEVEL_DESTINATION,
-            selectedItem = navigationActions.currentRoute())
-      }) { paddingValues ->
+      topBar = { ScreenTopAppBar("Change password", "changePasswordTitle", navigationActions) }) {
+          paddingValues ->
         Column(
             modifier =
                 Modifier.padding(paddingValues)

@@ -39,6 +39,7 @@ open class SpotifyApiViewModel(
   var currentArtist by mutableStateOf(SpotifyArtist("", "", listOf(), 0))
   var queue = mutableStateListOf<SpotifyTrack>()
 
+  /** Plays a playlist. */
   fun playPlaylist(playlist: UserPlaylist) {
     viewModelScope.launch {
       val body =
@@ -53,6 +54,7 @@ open class SpotifyApiViewModel(
     }
   }
 
+  /** Plays a track alone, that is without context */
   fun playTrackAlone(track: SpotifyTrack) {
     viewModelScope.launch {
       val body =
@@ -156,6 +158,7 @@ open class SpotifyApiViewModel(
     }
   }
 
+  /** Fetches the tracks of a Spotify playlist. */
   fun getPlaylistTracks(
       playlistID: String,
       onSuccess: (List<SpotifyTrack>) -> Unit,
@@ -422,6 +425,7 @@ open class SpotifyApiViewModel(
     return retArtist
   }
 
+  /** Fetches the current user's playback queue and builds a sub-list of 5 elements from it */
   fun buildQueue() {
     viewModelScope.launch {
       val queueResponse = apiRepository.get("me/player/queue")
