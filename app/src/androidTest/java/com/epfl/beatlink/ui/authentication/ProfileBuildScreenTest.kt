@@ -111,8 +111,8 @@ class ProfileBuildScreenTest {
 
     composeTestRule.onNodeWithTag("musicGenreSelectionDialog").assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("dialogTitle").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("dialogTitle").assertTextEquals("MUSIC GENRES")
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertTextEquals("MUSIC GENRES")
 
     // Select Pop genre using `useUnmergedTree = true`
     composeTestRule

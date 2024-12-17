@@ -38,27 +38,27 @@ data class ProfileData(
 }
 
 enum class MusicGenre(val displayName: String) {
-  POP("Pop"),
-  RAP("Rap"),
-  RANDB("R&B"),
-  ROCK("Rock"),
-  COUNTRY("Country"),
-  SOUL("Soul"),
-  PUNK("Punk"),
-  JAZZ("Jazz"),
-  ELECTRO("Electro"),
   CLASSICAL("Classical"),
-  HIP_HOP("Hip Hop"),
+  COUNTRY("Country"),
+  DNB("Drum and Bass"),
   EDM("EDM"),
+  ELECTRO("Electro"),
+  HIP_HOP("Hip Hop"),
+  HOUSE("House"),
+  JAZZ("Jazz"),
+  JPOP("J-Pop"),
+  KPOP("K-Pop"),
+  LOFI("Lo-Fi"),
+  METAL("Metal"),
+  POP("Pop"),
+  PUNK("Punk"),
+  RANDB("R&B"),
+  RAP("Rap"),
   REGGAE("Reggae"),
   REGGAETON("Reggaeton"),
-  METAL("Metal"),
-  KPOP("K-Pop"),
-  JPOP("J-Pop"),
-  HOUSE("House"),
-  TECHNO("Techno"),
-  DNB("Drum and Bass"),
-  LOFI("Lo-Fi");
+  ROCK("Rock"),
+  SOUL("Soul"),
+  TECHNO("Techno");
 
   companion object {
     const val MAX_SELECTABLE_GENRES = 4
