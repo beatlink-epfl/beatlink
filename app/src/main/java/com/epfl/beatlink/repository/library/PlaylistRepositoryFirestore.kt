@@ -1,9 +1,7 @@
 package com.epfl.beatlink.repository.library
 
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
@@ -11,7 +9,6 @@ import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.utils.ImageUtils.base64ToBitmap
-import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -216,15 +213,6 @@ class PlaylistRepositoryFirestore(
     } catch (e: Exception) {
       Log.e(TAG, "Unexpected error in deletePlaylist", e)
       onFailure(e)
-    }
-  }
-
-  override fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist) {
-    val base64Image = resizeAndCompressImageFromUri(imageUri, context)
-    if (base64Image != null) {
-      savePlaylistCoverBase64(playlist, base64Image)
-    } else {
-      Log.e("UPLOAD_PLAYLIST_COVER_ERROR", "Failed to convert image to Base64")
     }
   }
 
