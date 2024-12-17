@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
@@ -29,6 +30,7 @@ import com.epfl.beatlink.viewmodel.map.MapViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 const val defaultZoom = 16f
 const val radius = 200.0
@@ -43,6 +45,7 @@ fun MapScreen(
     navigationActions: NavigationActions,
     mapViewModel: MapViewModel,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     profileViewModel: ProfileViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
@@ -53,8 +56,15 @@ fun MapScreen(
   val profileData by profileViewModel.profile.collectAsState()
   val isProfileUpdated by profileViewModel.isProfileUpdated.collectAsState()
 
+  val context = LocalContext.current
+
   // Fetch the profile when the screen loads
-  LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
+  LaunchedEffect(Unit) {
+    profileViewModel.fetchProfile()
+    if (spotifyAuthViewModel.isRefreshNeeded()) {
+      spotifyAuthViewModel.refreshAccessToken(context)
+    }
+  }
 
   // Fetch the user's top songs and artists
   LaunchedEffect(isProfileUpdated) {

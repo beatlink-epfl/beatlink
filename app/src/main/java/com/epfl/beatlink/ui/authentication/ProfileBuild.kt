@@ -59,7 +59,6 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
   val currentProfile = profileViewModel.profile.collectAsState()
   val context = LocalContext.current
-  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
   var imageCover by remember { mutableStateOf("") }
 
   // Load profile picture
@@ -68,11 +67,10 @@ fun ProfileBuildScreen(navigationActions: NavigationActions, profileViewModel: P
   }
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri
-        if (imageUri == null) {
+        if (uri == null) {
           profileViewModel.profilePicture.value = null
         } else {
-          imageCover = resizeAndCompressImageFromUri(imageUri, context) ?: ""
+          imageCover = resizeAndCompressImageFromUri(uri, context) ?: ""
           profileViewModel.profilePicture.value = base64ToBitmap(imageCover)
         }
       }

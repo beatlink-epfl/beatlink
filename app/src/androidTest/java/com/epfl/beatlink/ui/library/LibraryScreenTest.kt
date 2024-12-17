@@ -8,9 +8,11 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
@@ -19,6 +21,8 @@ import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import okhttp3.OkHttpClient
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -43,6 +47,9 @@ class LibraryScreenTest {
   @Mock private lateinit var mockApiRepository: SpotifyApiRepository
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
+
   private val playlist =
       Playlist(
           playlistID = "1",
@@ -60,10 +67,17 @@ class LibraryScreenTest {
   fun setUp() {
     MockitoAnnotations.openMocks(this)
 
+    val client = OkHttpClient()
+    val application = ApplicationProvider.getApplicationContext<Application>()
+
     playlistRepository = mock(PlaylistRepository::class.java)
     playlistViewModel = PlaylistViewModel(playlistRepository)
     navigationActions = mock(NavigationActions::class.java)
     spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
+
+    spotifyAuthRepository = SpotifyAuthRepository(client)
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyAuthRepository)
+
     mockApiRepository.stub { onBlocking { get("me/player") } doReturn Result.success(JSONObject()) }
     `when`(navigationActions.currentRoute()).thenReturn(Route.LIBRARY)
 
@@ -72,6 +86,7 @@ class LibraryScreenTest {
           navigationActions,
           playlistViewModel,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
   }

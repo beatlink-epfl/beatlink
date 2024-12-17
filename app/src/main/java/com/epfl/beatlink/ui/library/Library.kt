@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.AddButton
@@ -29,20 +30,28 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun LibraryScreen(
     navigationActions: NavigationActions,
     playlistViewModel: PlaylistViewModel,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     mapUsersViewModel: MapUsersViewModel
 ) {
-
-  LaunchedEffect(Unit) { playlistViewModel.fetchData() }
-
   val playlistListFlow by playlistViewModel.ownedPlaylistList.collectAsState()
   val sharedPlaylistListFlow by playlistViewModel.sharedPlaylistList.collectAsState()
   val publicPlaylistListFlow by playlistViewModel.publicPlaylistList.collectAsState()
+
+  val context = LocalContext.current
+
+  LaunchedEffect(Unit) {
+    playlistViewModel.fetchData()
+    if (spotifyAuthViewModel.isRefreshNeeded()) {
+      spotifyAuthViewModel.refreshAccessToken(context)
+    }
+  }
 
   Scaffold(
       modifier = Modifier.testTag("libraryScreen"),

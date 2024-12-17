@@ -22,6 +22,7 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Route
 import com.epfl.beatlink.ui.navigation.Screen
@@ -29,12 +30,14 @@ import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import okhttp3.OkHttpClient
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -56,6 +59,9 @@ class ProfileTest {
   private lateinit var navigationActions: NavigationActions
 
   @Mock lateinit var mockApplication: Application
+
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   private lateinit var spotifyApiRepository: SpotifyApiRepository
   private lateinit var spotifyApiViewModel: SpotifyApiViewModel
@@ -112,6 +118,12 @@ class ProfileTest {
     MockitoAnnotations.openMocks(this)
     Dispatchers.setMain(testDispatcher)
 
+    val client = OkHttpClient()
+    val application = ApplicationProvider.getApplicationContext<Application>()
+
+    spotifyAuthRepository = SpotifyAuthRepository(client)
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyAuthRepository)
+
     profileRepositoryFirestore = mock(ProfileRepositoryFirestore::class.java)
     profileViewModel =
         ProfileViewModel(repository = profileRepositoryFirestore, initialProfile = profileData)
@@ -145,6 +157,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
@@ -188,6 +201,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     // Perform click action on the notifications button
@@ -208,6 +222,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("MUSIC GENRESTitle").assertIsDisplayed()
@@ -238,6 +253,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
@@ -255,6 +271,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("TOP SONGSTitle").assertIsDisplayed()
@@ -277,6 +294,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
@@ -298,6 +316,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           fakeSpotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
@@ -318,6 +337,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
@@ -332,6 +352,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("profileScreenNotificationsButton").performClick()
@@ -346,6 +367,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
     composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
@@ -360,6 +382,7 @@ class ProfileTest {
           friendRequestViewModel,
           navigationActions,
           spotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory))
     }
 
