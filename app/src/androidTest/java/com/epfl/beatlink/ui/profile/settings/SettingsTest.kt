@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -92,11 +93,11 @@ class SettingsScreenTest {
     // Check if buttons are displayed
     composeTestRule.onNodeWithTag("settingScreenContent").assertIsDisplayed()
     // Check if email and username are displayed
-    composeTestRule.onNodeWithText("E-mail: $testEmail").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Username: $testUsername").assertIsDisplayed()
+    composeTestRule.onNodeWithText("E-mail: $testEmail").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithText("Username: $testUsername").performScrollTo().assertIsDisplayed()
 
-    composeTestRule.onNodeWithTag("signOutButton").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("deleteAccountButton").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("signOutButton").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("deleteAccountButton").performScrollTo().assertIsDisplayed()
   }
 
   @Test
@@ -112,11 +113,11 @@ class SettingsScreenTest {
     }
 
     // Test "Username" clickable text box
-    composeTestRule.onNodeWithText("Username: $testUsername").performClick()
+    composeTestRule.onNodeWithText("Username: $testUsername").performScrollTo().performClick()
     verify { navigationActions.navigateTo(Screen.CHANGE_USERNAME) }
 
     // Test "Change password" clickable text box
-    composeTestRule.onNodeWithText("Change password").performClick()
+    composeTestRule.onNodeWithText("Change password").performScrollTo().performClick()
     verify { navigationActions.navigateTo(Screen.CHANGE_PASSWORD) }
   }
 }
