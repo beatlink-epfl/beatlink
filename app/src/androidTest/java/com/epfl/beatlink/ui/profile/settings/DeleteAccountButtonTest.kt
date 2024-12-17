@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
@@ -21,6 +22,7 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.coEvery
@@ -88,7 +90,8 @@ class DeleteAccountButtonTest {
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
           mapUsersViewModel = mapUsersViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
   }
 
@@ -197,61 +200,58 @@ class DeleteAccountButtonTest {
   }
 
   @Test
-  fun deleteAccountDialog_handlesDeleteProfileFailure() =
-      runTest() {
-        // Mock Toast
-        mockkStatic(Toast::class)
-        val mockToast = mockk<Toast>(relaxed = true)
-        every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
+  fun deleteAccountDialog_handlesDeleteProfileFailure() = runTest {
+    // Mock Toast
+    mockkStatic(Toast::class)
+    val mockToast = mockk<Toast>(relaxed = true)
+    every { Toast.makeText(any(), any<String>(), any()) } returns mockToast
 
-        // Mock password verification success
-        coEvery { authRepository.verifyPassword("testPassword") } returns Result.success(Unit)
+    // Mock password verification success
+    coEvery { authRepository.verifyPassword("testPassword") } returns Result.success(Unit)
 
-        // Mock `deleteProfile` failure
-        coEvery { profileRepository.deleteProfile("testUserId") } returns false
+    // Mock `deleteProfile` failure
+    coEvery { profileRepository.deleteProfile("testUserId") } returns false
 
-        // Mock no other operations should proceed
-        coEvery { mapUsersRepository.deleteMapUser() } returns false
-        coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers
-            {
-              val onFailure = secondArg<() -> Unit>()
-              onFailure()
-            }
-        coEvery { authRepository.deleteAccount(any(), any(), any()) } answers {}
-
-        // Perform click on the delete button
-        composeTestRule
-            .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
-            .performScrollTo()
-            .performClick()
-
-        composeTestRule.waitForIdle()
-
-        // Ensure dialog is displayed
-        composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
-
-        // Enter correct password
-        composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
-
-        // Click confirm
-        composeTestRule.onNodeWithTag("confirmButton").performClick()
-
-        // Wait for coroutines to complete
-        composeTestRule.waitForIdle()
-
-        // Verify Toast is displayed with the correct error message
-        verify {
-          Toast.makeText(any(), "Failed to delete all associated data.", Toast.LENGTH_SHORT)
+    // Mock no other operations should proceed
+    coEvery { mapUsersRepository.deleteMapUser() } returns false
+    coEvery { playlistRepository.deleteOwnedPlaylists(any(), any()) } answers
+        {
+          val onFailure = secondArg<() -> Unit>()
+          onFailure()
         }
-        verify { mockToast.show() }
+    coEvery { authRepository.deleteAccount(any(), any(), any()) } answers {}
 
-        // Verify that deleteProfile was called and returned failure
-        coVerify(exactly = 1) { profileRepository.deleteProfile("testUserId") }
+    // Perform click on the delete button
+    composeTestRule
+        .onNodeWithTag("deleteAccountButton", useUnmergedTree = true)
+        .performScrollTo()
+        .performClick()
 
-        // Verify no further operations are triggered
-        coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
+    composeTestRule.waitForIdle()
 
-        // Verify no navigation occurred
-        verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
-      }
+    // Ensure dialog is displayed
+    composeTestRule.onNodeWithTag("passwordField").assertIsDisplayed()
+
+    // Enter correct password
+    composeTestRule.onNodeWithTag("passwordField").performTextInput("testPassword")
+
+    // Click confirm
+    composeTestRule.onNodeWithTag("confirmButton").performClick()
+
+    // Wait for coroutines to complete
+    composeTestRule.waitForIdle()
+
+    // Verify Toast is displayed with the correct error message
+    verify { Toast.makeText(any(), "Failed to delete all associated data.", Toast.LENGTH_SHORT) }
+    verify { mockToast.show() }
+
+    // Verify that deleteProfile was called and returned failure
+    coVerify(exactly = 1) { profileRepository.deleteProfile("testUserId") }
+
+    // Verify no further operations are triggered
+    coVerify(exactly = 0) { authRepository.deleteAccount(any(), any(), any()) }
+
+    // Verify no navigation occurred
+    verify(exactly = 0) { navigationActions.navigateToAndClearAllBackStack(Screen.WELCOME) }
+  }
 }
