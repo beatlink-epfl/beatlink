@@ -44,8 +44,6 @@ class PlaylistViewModelTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private val testDispatcher = StandardTestDispatcher()
-  private val mockContext: Context = mock()
-  private val mockUri: Uri = mock()
 
   private val track1 =
       PlaylistTrack(
