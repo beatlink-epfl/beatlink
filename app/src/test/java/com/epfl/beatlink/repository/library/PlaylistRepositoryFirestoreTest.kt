@@ -1,15 +1,12 @@
 package com.epfl.beatlink.repository.library
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
-import com.epfl.beatlink.utils.ImageUtils.resizeAndCompressImageFromUri
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
@@ -70,8 +67,6 @@ class PlaylistRepositoryFirestoreTest {
   @Mock private lateinit var mockTransaction: Transaction
   @Mock private lateinit var mockTransactionTask: Task<Transaction>
 
-  @Mock private lateinit var imageUri: Uri
-  @Mock private lateinit var context: Context
   @Mock private lateinit var mockTask: Task<DocumentSnapshot>
 
   @Mock private lateinit var onSuccess: () -> Unit
@@ -1102,21 +1097,6 @@ class PlaylistRepositoryFirestoreTest {
           // Verify that onFailure is called with the correct exception
           assertTrue(exception.message == "Firestore delete error")
         })
-  }
-
-  @Test
-  fun `uploadPlaylistCover should log error when image processing fails`() {
-    // Mock the resizeAndCompressImageFromUri to return null (image processing failure)
-    whenever(resizeAndCompressImageFromUri(imageUri, context)).thenReturn(null)
-
-    // Call the function under test
-    playlistRepositoryFirestore.uploadPlaylistCover(imageUri, context, playlist)
-
-    // Verify that savePlaylistCoverBase64 was NOT called
-    verify(mockCollectionReference, never()).document(anyString())
-
-    // Check that the error was logged
-    // Assuming there's a logger in place that can be verified
   }
 
   @Test

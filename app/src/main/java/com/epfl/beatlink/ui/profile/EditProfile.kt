@@ -74,7 +74,6 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
         profileData?.bio
             ?: "This is a description. It can be up to $MAX_DESCRIPTION_LENGTH characters long.")
   }
-  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
   var imageCover by remember { mutableStateOf(profileData?.profilePicture ?: "") }
   var isGenreSelectionVisible by remember { mutableStateOf(false) }
 
@@ -85,11 +84,10 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
 
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri
-        if (imageUri == null) {
+        if (uri == null) {
           // Do nothing
         } else {
-          imageCover = resizeAndCompressImageFromUri(imageUri, context) ?: ""
+          imageCover = resizeAndCompressImageFromUri(uri, context) ?: ""
           profileViewModel.profilePicture.value = base64ToBitmap(imageCover)
         }
       }

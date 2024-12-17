@@ -1,14 +1,11 @@
 package com.epfl.beatlink.viewmodel.library
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.library.DEFAULT_TRACK_LIMIT
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
@@ -21,52 +18,46 @@ import com.google.firebase.firestore.firestore
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
-open class PlaylistViewModel(
-    private val repository: PlaylistRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
-) : ViewModel() {
-  private val ownedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
+  private val _ownedPlaylistList = MutableStateFlow<List<Playlist>>(emptyList())
   val ownedPlaylistList: StateFlow<List<Playlist>>
-    get() = ownedPlaylistList_
+    get() = _ownedPlaylistList
 
-  private val sharedPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  private val _sharedPlaylistList = MutableStateFlow<List<Playlist>>(emptyList())
   val sharedPlaylistList: StateFlow<List<Playlist>>
-    get() = sharedPlaylistList_
+    get() = _sharedPlaylistList
 
-  private val publicPlaylistList_ = MutableStateFlow<List<Playlist>>(emptyList())
+  private val _publicPlaylistList = MutableStateFlow<List<Playlist>>(emptyList())
   val publicPlaylistList: StateFlow<List<Playlist>>
-    get() = publicPlaylistList_
+    get() = _publicPlaylistList
 
-  private val selectedPlaylist_ = MutableStateFlow<Playlist?>(null)
+  private val _selectedPlaylist = MutableStateFlow<Playlist?>(null)
   val selectedPlaylist: StateFlow<Playlist?>
-    get() = selectedPlaylist_
+    get() = _selectedPlaylist
 
   // When creating or modifying a playlist
-  private var isTempStateInitialized_ = MutableStateFlow(false)
+  private var _isTempStateInitialized = MutableStateFlow(false)
   val isTempStateInitialized: StateFlow<Boolean>
-    get() = isTempStateInitialized_
+    get() = _isTempStateInitialized
 
-  private val tempPlaylistTitle_ = MutableStateFlow("")
+  private val _tempPlaylistTitle = MutableStateFlow("")
   val tempPlaylistTitle: StateFlow<String>
-    get() = tempPlaylistTitle_
+    get() = _tempPlaylistTitle
 
-  private val tempPlaylistDescription_ = MutableStateFlow("")
+  private val _tempPlaylistDescription = MutableStateFlow("")
   val tempPlaylistDescription: StateFlow<String>
-    get() = tempPlaylistDescription_
+    get() = _tempPlaylistDescription
 
-  private val tempPlaylistIsPublic_ = MutableStateFlow(false)
+  private val _tempPlaylistIsPublic = MutableStateFlow(false)
   val tempPlaylistIsPublic: StateFlow<Boolean>
-    get() = tempPlaylistIsPublic_
+    get() = _tempPlaylistIsPublic
 
-  private val tempPlaylistCollaborators_ = MutableStateFlow<List<String>>(emptyList())
+  private val _tempPlaylistCollaborators = MutableStateFlow<List<String>>(emptyList())
   val tempPlaylistCollaborators: StateFlow<List<String>>
-    get() = tempPlaylistCollaborators_
+    get() = _tempPlaylistCollaborators
 
   val coverImage = mutableStateOf<Bitmap?>(null)
 
@@ -85,7 +76,7 @@ open class PlaylistViewModel(
     repository.init(onSuccess = { fetchData() })
   }
 
-  fun resetCoverImage() {
+  private fun resetCoverImage() {
     coverImage.value = null
   }
 
@@ -100,23 +91,20 @@ open class PlaylistViewModel(
   }
 
   fun getOwnedPlaylists() {
-    Log.d("PlaylistViewModel", "Fetching user playlists...")
     repository.getOwnedPlaylists(
-        onSuccess = { ownedPlaylistList_.value = it },
+        onSuccess = { _ownedPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch user playlists", it) })
   }
 
   fun getSharedPlaylists() {
-    Log.d("PlaylistViewModel", "Fetching shared playlists...")
     repository.getSharedPlaylists(
-        onSuccess = { sharedPlaylistList_.value = it },
+        onSuccess = { _sharedPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch shared playlists", it) })
   }
 
   fun getPublicPlaylists() {
-    Log.d("PlaylistViewModel", "Fetching public playlists...")
     repository.getPublicPlaylists(
-        onSuccess = { publicPlaylistList_.value = it },
+        onSuccess = { _publicPlaylistList.value = it },
         onFailure = { Log.e("PlaylistViewModel", "Failed to fetch public playlists", it) })
   }
 
@@ -125,7 +113,7 @@ open class PlaylistViewModel(
   }
 
   open fun selectPlaylist(playlist: Playlist) {
-    selectedPlaylist_.value = playlist
+    _selectedPlaylist.value = playlist
   }
 
   fun addPlaylist(playlist: Playlist) {
@@ -138,13 +126,13 @@ open class PlaylistViewModel(
   fun updatePlaylist(playlist: Playlist) {
     repository.updatePlaylist(
         playlist,
-        onSuccess = { selectedPlaylist_.value = playlist },
+        onSuccess = { _selectedPlaylist.value = playlist },
         onFailure = { e -> Log.e("PlaylistViewModel", "Failed to update playlist", e) })
     getOwnedPlaylists()
   }
 
   fun addTrack(track: PlaylistTrack, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-    selectedPlaylist_.value?.let { playlist ->
+    _selectedPlaylist.value?.let { playlist ->
       try {
         val newTrackList = playlist.playlistTracks.toMutableList()
         newTrackList.add(track)
@@ -164,7 +152,7 @@ open class PlaylistViewModel(
   }
 
   fun updateTrackLikes(trackId: String, userId: String) {
-    selectedPlaylist_.value?.let { playlist ->
+    _selectedPlaylist.value?.let { playlist ->
       // Update the tracks in the playlist
       val updatedTracks =
           playlist.playlistTracks.map { track ->
@@ -198,7 +186,7 @@ open class PlaylistViewModel(
    * descending order
    */
   fun getFinalListTracks(): List<SpotifyTrack> {
-    return selectedPlaylist_.value
+    return _selectedPlaylist.value
         ?.playlistTracks
         ?.sortedByDescending { it.likes } // Sort by likes in descending order
         ?.take(DEFAULT_TRACK_LIMIT) // Take at most 50 tracks
@@ -236,48 +224,37 @@ open class PlaylistViewModel(
   }
 
   fun updateTemporallyTitle(title: String) {
-    tempPlaylistTitle_.value = title
+    _tempPlaylistTitle.value = title
   }
 
   fun updateTemporallyDescription(description: String) {
-    tempPlaylistDescription_.value = description
+    _tempPlaylistDescription.value = description
   }
 
   open fun updateTemporallyIsPublic(isPublic: Boolean) {
-    tempPlaylistIsPublic_.value = isPublic
+    _tempPlaylistIsPublic.value = isPublic
   }
 
   open fun updateTemporallyCollaborators(collaborators: List<String>) {
-    tempPlaylistCollaborators_.value = collaborators
+    _tempPlaylistCollaborators.value = collaborators
   }
 
   fun resetTemporaryState() {
-    isTempStateInitialized_.value = false
-    tempPlaylistTitle_.value = ""
-    tempPlaylistDescription_.value = ""
-    tempPlaylistIsPublic_.value = false
-    tempPlaylistCollaborators_.value = emptyList()
+    _isTempStateInitialized.value = false
+    _tempPlaylistTitle.value = ""
+    _tempPlaylistDescription.value = ""
+    _tempPlaylistIsPublic.value = false
+    _tempPlaylistCollaborators.value = emptyList()
     resetCoverImage()
   }
 
   fun preloadTemporaryState(selectedPlaylist: Playlist) {
-    if (!isTempStateInitialized_.value) {
-      tempPlaylistTitle_.value = selectedPlaylist.playlistName
-      tempPlaylistDescription_.value = selectedPlaylist.playlistDescription
-      tempPlaylistIsPublic_.value = selectedPlaylist.playlistPublic
-      tempPlaylistCollaborators_.value = selectedPlaylist.playlistCollaborators
-      isTempStateInitialized_.value = true
-    }
-  }
-
-  // Playlist cover image
-  fun uploadPlaylistCover(imageUri: Uri, context: Context, playlist: Playlist) {
-    if (playlist.playlistID.isEmpty()) {
-      Log.e("PlaylistViewModel", "Playlist ID is empty, upload failed")
-      return
-    }
-    viewModelScope.launch(dispatcher) {
-      repository.uploadPlaylistCover(imageUri, context, playlist)
+    if (!_isTempStateInitialized.value) {
+      _tempPlaylistTitle.value = selectedPlaylist.playlistName
+      _tempPlaylistDescription.value = selectedPlaylist.playlistDescription
+      _tempPlaylistIsPublic.value = selectedPlaylist.playlistPublic
+      _tempPlaylistCollaborators.value = selectedPlaylist.playlistCollaborators
+      _isTempStateInitialized.value = true
     }
   }
 
