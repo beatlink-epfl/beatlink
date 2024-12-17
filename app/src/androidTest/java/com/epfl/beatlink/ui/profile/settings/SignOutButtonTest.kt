@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.profile.settings
 
+import android.app.Application
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -8,18 +9,23 @@ import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
+import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,16 +48,24 @@ class SignOutButtonTest {
   private lateinit var profileViewModel: ProfileViewModel
   private lateinit var mapUsersViewModel: MapUsersViewModel
   private lateinit var mapUsersRepository: MapUserRepository
+  private lateinit var spotifyRepository: SpotifyAuthRepository
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
+  private lateinit var playlistViewModel: PlaylistViewModel
 
   @Before
   fun setUp() {
     navigationActions = mockk(relaxed = true)
+
+    val application = ApplicationProvider.getApplicationContext<Application>()
+    spotifyRepository = SpotifyAuthRepository(client = OkHttpClient()) // or any required client
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyRepository)
     authRepository = mock(FirebaseAuthRepository::class.java)
     authViewModel = FirebaseAuthViewModel(authRepository)
     profileRepository = mock(ProfileRepository::class.java)
     profileViewModel = ProfileViewModel(profileRepository)
     mapUsersRepository = mockk(relaxed = true)
     mapUsersViewModel = MapUsersViewModel(mapUsersRepository)
+    playlistViewModel = mockk(relaxed = true)
 
     // Set the composable for testing
     composeTestRule.setContent {
@@ -59,7 +73,9 @@ class SignOutButtonTest {
           navigationActions = navigationActions,
           firebaseAuthViewModel = authViewModel,
           mapUsersViewModel = mapUsersViewModel,
-          profileViewModel)
+          profileViewModel = profileViewModel,
+          spotifyAuthViewModel = spotifyAuthViewModel,
+          playlistViewModel = playlistViewModel)
     }
   }
 
