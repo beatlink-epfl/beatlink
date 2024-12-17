@@ -62,7 +62,6 @@ fun MapScreen(
   LaunchedEffect(Unit) {
     profileViewModel.fetchProfile()
     if (spotifyAuthViewModel.isRefreshNeeded()) {
-      Log.d("SPOTIFY AUTH", "Refreshing access token.")
       spotifyAuthViewModel.refreshAccessToken(context)
     }
   }

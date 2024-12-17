@@ -68,7 +68,6 @@ fun SearchBarScreen(
     profileViewModel.unselectSelectedUser()
     profileViewModel.unreadyProfile()
     if (spotifyAuthViewModel.isRefreshNeeded()) {
-      Log.d("SPOTIFY AUTH", "Refreshing access token.")
       spotifyAuthViewModel.refreshAccessToken(context)
     }
   }
