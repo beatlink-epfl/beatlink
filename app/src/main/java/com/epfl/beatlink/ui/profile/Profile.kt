@@ -52,7 +52,6 @@ fun ProfileScreen(
     friendRequestViewModel.getFriendRequests()
     friendRequestViewModel.getAllFriends()
     if (spotifyAuthViewModel.isRefreshNeeded()) {
-      Log.d("SPOTIFY AUTH", "Refreshing access token.")
       spotifyAuthViewModel.refreshAccessToken(context)
     }
   }

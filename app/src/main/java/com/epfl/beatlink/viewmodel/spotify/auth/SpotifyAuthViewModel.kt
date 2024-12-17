@@ -122,17 +122,12 @@ open class SpotifyAuthViewModel(
         if (result.isSuccess) {
           loadTokens(context) // load the new tokens
           _authState.value = AuthState.Authenticated
-          Log.d("SpotifyAuthViewModel", "Access token refreshed.")
         } else {
-          Log.d(
-              "SpotifyAuthViewModel",
-              "Failed to refresh access token : ${result.exceptionOrNull()}")
           _authState.value = AuthState.Idle
         }
       }
     } else {
       _authState.value = AuthState.Idle
-      Log.d("SpotifyAuthViewModel", "Failed to refresh access token : no refresh token found.")
     }
   }
 }
