@@ -14,7 +14,8 @@ class FakeProfileViewModel(
 
   private val fakeProfiles = mutableListOf<ProfileData>()
   private val fakeProfilePictures = mutableMapOf<String, Bitmap>()
-  private var fakeUserIdByUsername = mutableMapOf<String, String>()
+  private val fakeUserIdByUsername = mutableMapOf<String, String>()
+  private val fakeUsernameById = mutableMapOf<String, String>()
   private val fakeProfileDataById = mutableMapOf<String, ProfileData>()
 
   override fun searchUsers(query: String, callback: (List<ProfileData>) -> Unit) {
@@ -27,8 +28,28 @@ class FakeProfileViewModel(
     (searchResult as MutableLiveData).postValue(profiles)
   }
 
+  fun setFakeUserIdByUsername(map: Map<String, String>) {
+    fakeUserIdByUsername.clear()
+    fakeUserIdByUsername.putAll(map)
+  }
+
   override fun getUserIdByUsername(username: String, onResult: (String?) -> Unit) {
     onResult(fakeUserIdByUsername[username])
+  }
+
+  fun setFakeUsernameById(map: Map<String, String>) {
+    fakeUsernameById.clear()
+    fakeUsernameById.putAll(map)
+  }
+
+  override fun getUsername(userId: String, onResult: (String?) -> Unit) {
+    val username = fakeUsernameById[userId]
+    onResult(username)
+  }
+
+  fun setFakeProfileDataById(map: Map<String, ProfileData>) {
+    fakeProfileDataById.clear() // Clear existing data to avoid duplication
+    fakeProfileDataById.putAll(map)
   }
 
   override fun fetchProfileById(userId: String, onResult: (ProfileData?) -> Unit) {
@@ -52,12 +73,6 @@ class FakeProfileViewModel(
 
   fun setFakeProfile(profileData: ProfileData) {
     (profile as MutableStateFlow).value = profileData
-  }
-
-  // Adding some fake profiles to return
-  fun setFakeProfileDataById(map: Map<String, ProfileData>) {
-    fakeProfileDataById.clear() // Clear existing data to avoid duplication
-    fakeProfileDataById.putAll(map)
   }
 
   fun setFakeSelectedProfile(selectedProfileData: ProfileData) {

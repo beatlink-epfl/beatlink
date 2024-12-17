@@ -21,7 +21,7 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
+open class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel() {
   private val _ownedPlaylistList = MutableStateFlow<List<Playlist>>(emptyList())
   val ownedPlaylistList: StateFlow<List<Playlist>>
     get() = _ownedPlaylistList
@@ -112,7 +112,7 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
     return repository.getNewUid()
   }
 
-  fun selectPlaylist(playlist: Playlist) {
+  open fun selectPlaylist(playlist: Playlist) {
     _selectedPlaylist.value = playlist
   }
 
@@ -231,11 +231,11 @@ class PlaylistViewModel(private val repository: PlaylistRepository) : ViewModel(
     _tempPlaylistDescription.value = description
   }
 
-  fun updateTemporallyIsPublic(isPublic: Boolean) {
+  open fun updateTemporallyIsPublic(isPublic: Boolean) {
     _tempPlaylistIsPublic.value = isPublic
   }
 
-  fun updateTemporallyCollaborators(collaborators: List<String>) {
+  open fun updateTemporallyCollaborators(collaborators: List<String>) {
     _tempPlaylistCollaborators.value = collaborators
   }
 

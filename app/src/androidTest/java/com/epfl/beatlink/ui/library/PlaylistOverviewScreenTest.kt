@@ -16,6 +16,7 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -139,6 +140,45 @@ class PlaylistOverviewScreenTest {
   }
 
   @Test
+  fun playlistOverviewScreen_displaysCollaborators() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val collaboratorIds = listOf("user1", "user2")
+    fakeProfileViewModel.setFakeUsernameById(
+        mapOf(
+            "user1" to "alice123",
+            "user2" to "bob123",
+        ))
+
+    val playlistWithCollab =
+        Playlist(
+            playlistID = "123",
+            playlistName = "Test Playlist",
+            playlistDescription = "A test playlist",
+            playlistCover = "",
+            playlistOwner = "OwnerUser",
+            playlistCollaborators = collaboratorIds,
+            playlistTracks = emptyList(),
+            playlistPublic = true,
+            nbTracks = 0,
+            userId = "OwnerUserID")
+    playlistViewModel.selectPlaylist(playlistWithCollab)
+    `when`(playlistViewModel.getUserId()).thenReturn("OwnerUserID")
+
+    composeTestRule.setContent {
+      PlaylistOverviewScreen(
+          navigationActions = navigationActions,
+          profileViewModel = fakeProfileViewModel,
+          playlistViewModel = playlistViewModel,
+          spotifyViewModel = fakeSpotifyApiViewModel)
+    }
+
+    // Check empty playlist prompt is displayed
+    composeTestRule.onNodeWithTag("ownerText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("collaboratorsText").performScrollTo().assertIsDisplayed()
+    composeTestRule.onNodeWithTag("collaboratorsText").assertTextContains("alice123, bob123")
+  }
+
+  @Test
   fun playlistOverviewScreen_displaysEmptyPromptWhenNoTracks() {
     playlistViewModel.selectPlaylist(emptyPlaylist)
 
@@ -230,6 +270,12 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Check that the tracks dialog is displayed
+    composeTestRule.onNodeWithTag("trackSelectionDialog").assertIsDisplayed()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Check that the export dialog is displayed
     composeTestRule.onNodeWithTag("confirmButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("cancelButton").assertIsDisplayed()
@@ -290,6 +336,9 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
@@ -319,6 +368,9 @@ class PlaylistOverviewScreenTest {
 
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
 
     // Perform click on the cancel button
     composeTestRule.onNodeWithTag("cancelButton").performClick()
@@ -352,6 +404,9 @@ class PlaylistOverviewScreenTest {
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
 
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
+
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()
 
@@ -377,6 +432,9 @@ class PlaylistOverviewScreenTest {
 
     // Perform click on the export button
     composeTestRule.onNodeWithTag("exportButton").performScrollTo().performClick()
+
+    // Perform click on the ALL button
+    composeTestRule.onNodeWithTag("AllTracksSelectedButton").performScrollTo().performClick()
 
     // Perform click on the confirm button
     composeTestRule.onNodeWithTag("confirmButton").performClick()

@@ -10,10 +10,13 @@ import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.Screen.MY_PLAYLISTS
 import com.epfl.beatlink.ui.navigation.Screen.PLAYLIST_OVERVIEW
+import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
@@ -59,7 +62,10 @@ class EditPlaylistScreenTest {
     `when`(navigationActions.currentRoute()).thenReturn(Screen.EDIT_PLAYLIST)
 
     playlistViewModel.selectPlaylist(playlist)
+  }
 
+  @Test
+  fun everythingIsDisplayed() {
     composeTestRule.setContent {
       EditPlaylistScreen(
           navigationActions,
@@ -67,10 +73,6 @@ class EditPlaylistScreenTest {
           viewModel(factory = FriendRequestViewModel.Factory),
           playlistViewModel)
     }
-  }
-
-  @Test
-  fun everythingIsDisplayed() {
     // The screen is displayed
     composeTestRule.onNodeWithTag("editPlaylistScreen").assertIsDisplayed()
     // The title is displayed
@@ -107,6 +109,13 @@ class EditPlaylistScreenTest {
 
   @Test
   fun editPlaylistScreen_deletesPlaylist() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("deleteButton").performClick()
 
     Mockito.verify(navigationActions).navigateToAndClearBackStack(MY_PLAYLISTS, 2)
@@ -114,6 +123,13 @@ class EditPlaylistScreenTest {
 
   @Test
   fun editPlaylistScreen_updatesPlaylist() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule
         .onNodeWithTag("inputPlaylistTitle")
         .assertIsDisplayed()
@@ -149,6 +165,13 @@ class EditPlaylistScreenTest {
 
   @Test
   fun deletePlaylistButtonWorks() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("deleteButton").performClick()
 
     verify(playlistRepository).deletePlaylistById(any(), any(), any())
@@ -156,12 +179,26 @@ class EditPlaylistScreenTest {
 
   @Test
   fun updatePlaylistButtonWorks() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
     verify(playlistRepository).updatePlaylist(any(), any(), any())
   }
 
   @Test
   fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("collabButton").performClick()
@@ -171,7 +208,94 @@ class EditPlaylistScreenTest {
 
   @Test
   fun testNavigationAfterPlaylistUpdate() {
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("saveEditPlaylist").performScrollTo().performClick()
     verify(navigationActions).navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
+  }
+
+  @Test
+  fun editPlaylistMakesPlaylistPublic() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+
+    val playlist =
+        Playlist(
+            playlistID = "2",
+            playlistCover = "",
+            playlistName = "Empty Playlist",
+            playlistDescription = "No tracks here",
+            playlistPublic = false,
+            userId = "testUserId",
+            playlistOwner = "testOwner",
+            playlistCollaborators = listOf("user1"),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+
+    fakePlaylistViewModel.selectPlaylist(playlist)
+
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel)
+    }
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("gradientSwitch").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("gradientSwitch").performClick() // make public
+
+    val updatedPublic = fakePlaylistViewModel.tempPlaylistIsPublic.value
+    assertEquals(true, updatedPublic)
+  }
+
+  @Test
+  fun editPlaylistRemovesCollaborators() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+
+    val playlist =
+        Playlist(
+            playlistID = "2",
+            playlistCover = "",
+            playlistName = "Empty Playlist",
+            playlistDescription = "No tracks here",
+            playlistPublic = true,
+            userId = "testUserId",
+            playlistOwner = "testOwner",
+            playlistCollaborators = listOf("user1"),
+            playlistTracks = emptyList(),
+            nbTracks = 0)
+
+    fakePlaylistViewModel.selectPlaylist(playlist)
+    fakeProfileViewModel.setFakeUserIdByUsername(mapOf("alice123" to "user1"))
+    fakeProfileViewModel.setFakeUsernameById(mapOf("user1" to "alice123"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf("user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
+
+    composeTestRule.setContent {
+      EditPlaylistScreen(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel)
+    }
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("collabCard").assertIsDisplayed()
+    composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("closeButton")
+        .performClick() // Remove collaborator via UI interaction
+
+    val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+    assertEquals(emptyList<String>(), updatedCollaborators)
+    composeTestRule.onNodeWithTag("collabCard").assertDoesNotExist()
   }
 }
