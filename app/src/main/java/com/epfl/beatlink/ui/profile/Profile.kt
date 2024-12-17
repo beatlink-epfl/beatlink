@@ -43,6 +43,8 @@ fun ProfileScreen(
   // Load Profile Picture
   LaunchedEffect(Unit) {
     profileViewModel.loadProfilePicture { profileViewModel.profilePicture.value = it }
+    friendRequestViewModel.getFriendRequests()
+    friendRequestViewModel.getAllFriends()
   }
 
   val topSongsState = remember { mutableStateOf<List<SpotifyTrack>>(emptyList()) }

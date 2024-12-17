@@ -191,18 +191,17 @@ fun EditProfileScreen(profileViewModel: ProfileViewModel, navigationActions: Nav
                       e.printStackTrace()
                     }
                   })
-
-              // Show music genre selection dialog if visible
-              if (isGenreSelectionVisible) {
-                MusicGenreSelectionDialog(
-                    musicGenres = MusicGenre.getAllGenres(),
-                    selectedGenres = profileData?.favoriteMusicGenres!!.toMutableList(),
-                    onDismissRequest = { isGenreSelectionVisible = false },
-                    onGenresSelected = { selectedGenres ->
-                      profileData?.favoriteMusicGenres = selectedGenres
-                      isGenreSelectionVisible = false
-                    })
-              }
             }
       })
+  // Show music genre selection dialog if visible
+  if (isGenreSelectionVisible) {
+    MusicGenreSelectionDialog(
+        musicGenres = MusicGenre.getAllGenres(),
+        selectedGenres = profileData?.favoriteMusicGenres!!.toMutableList(),
+        onDismissRequest = { isGenreSelectionVisible = false },
+        onGenresSelected = { selectedGenres ->
+          profileData?.favoriteMusicGenres = selectedGenres
+          isGenreSelectionVisible = false
+        })
+  }
 }

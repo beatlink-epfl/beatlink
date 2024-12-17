@@ -40,6 +40,11 @@ fun LinkRequestsScreen(
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel
 ) {
+  // Updates the sent/received friend requests instantly by reloading the screen
+  LaunchedEffect(Unit) {
+    friendRequestViewModel.getOwnRequests()
+    friendRequestViewModel.getFriendRequests()
+  }
 
   val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())
   val ownRequestProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }
