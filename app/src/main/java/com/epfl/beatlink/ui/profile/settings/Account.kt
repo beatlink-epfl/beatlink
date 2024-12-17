@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,12 +44,14 @@ import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.joinAll
 
 @Composable
 fun AccountScreen(
@@ -57,7 +60,8 @@ fun AccountScreen(
     profileViewModel: ProfileViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel,
     mapUsersViewModel: MapUsersViewModel,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    friendRequestViewModel: FriendRequestViewModel
 ) {
   val context = LocalContext.current
   LaunchedEffect(Unit) { profileViewModel.fetchProfile() }
@@ -67,6 +71,7 @@ fun AccountScreen(
   val scrollState = rememberScrollState()
   var showDialog by remember { mutableStateOf(false) }
   var password by remember { mutableStateOf("") }
+    val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
   Scaffold(
       topBar = { ScreenTopAppBar("Account", "accountScreenTitle", navigationActions) },
@@ -79,10 +84,11 @@ fun AccountScreen(
       content = { paddingValue ->
         Column(
             modifier =
-                Modifier.fillMaxSize()
-                    .padding(paddingValue)
-                    .verticalScroll(scrollState)
-                    .testTag("accountScreenContent"),
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValue)
+                .verticalScroll(scrollState)
+                .testTag("accountScreenContent"),
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.height(53.dp))
               TextInBox("E-mail: $email")
@@ -123,7 +129,9 @@ fun AccountScreen(
                 label = { Text("Enter Password") },
                 placeholder = { Text("Your current password") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth().testTag("passwordField"))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("passwordField"))
           }
         },
         confirmButton = {
@@ -132,10 +140,12 @@ fun AccountScreen(
               onClick = {
                 deleteAccount(
                     password = password,
+                    allFriends = allFriends,
                     profileViewModel = profileViewModel,
                     mapUsersViewModel = mapUsersViewModel,
                     playlistViewModel = playlistViewModel,
                     firebaseAuthViewModel = firebaseAuthViewModel,
+                    friendRequestViewModel = friendRequestViewModel,
                     navigationActions = navigationActions,
                     onDeletionFailed = { errorMessage ->
                       Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -175,10 +185,12 @@ fun AccountScreen(
 @OptIn(DelicateCoroutinesApi::class)
 private fun deleteAccount(
     password: String,
+    allFriends: List<String>,
     profileViewModel: ProfileViewModel,
     mapUsersViewModel: MapUsersViewModel,
     playlistViewModel: PlaylistViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
     navigationActions: NavigationActions,
     onDeletionFailed: (String) -> Unit,
     onDeletionSuccess: () -> Unit
@@ -198,6 +210,14 @@ private fun deleteAccount(
       }
 
       // Step 2: Delete Firestore data
+
+        val jobs = allFriends.map{ friend ->
+            launch { friendRequestViewModel.removeFriend(friend) }
+        }
+
+        jobs.joinAll()
+
+
       val deleteProfileResult = profileViewModel.deleteProfile()
       val deleteMapUserResult = mapUsersViewModel.deleteMapUser()
       val deletePlaylistsResult = playlistViewModel.deleteOwnedPlaylists()

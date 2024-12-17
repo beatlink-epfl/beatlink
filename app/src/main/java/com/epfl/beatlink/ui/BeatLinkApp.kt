@@ -198,7 +198,8 @@ fun BeatLinkApp(
                 profileViewModel,
                 firebaseAuthViewModel,
                 mapUsersViewModel,
-                playlistViewModel)
+                playlistViewModel,
+                friendRequestViewModel)
           }
           composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
         }
