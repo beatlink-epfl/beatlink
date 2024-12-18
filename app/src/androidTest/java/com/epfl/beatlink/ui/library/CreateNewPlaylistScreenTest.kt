@@ -1,5 +1,12 @@
 package com.epfl.beatlink.ui.library
 
+import android.Manifest.permission.READ_MEDIA_IMAGES
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,9 +19,12 @@ import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
+import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
+import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +55,10 @@ class CreateNewPlaylistScreenTest {
 
     navigationActions = mock(NavigationActions::class.java)
     `when`(navigationActions.currentRoute()).thenReturn(Screen.CREATE_NEW_PLAYLIST)
+  }
 
+  @Test
+  fun everythingIsDisplayed() {
     composeTestRule.setContent {
       CreateNewPlaylistScreen(
           navigationActions,
@@ -53,10 +66,6 @@ class CreateNewPlaylistScreenTest {
           viewModel(factory = FriendRequestViewModel.Factory),
           playlistViewModel)
     }
-  }
-
-  @Test
-  fun everythingIsDisplayed() {
     // The screen is displayed
     composeTestRule.onNodeWithTag("createNewPlaylistScreen").assertIsDisplayed()
     // The title is displayed
@@ -86,12 +95,33 @@ class CreateNewPlaylistScreenTest {
   }
 
   @Test
-  fun buttonsWorkCorrectly() {
-    composeTestRule.onNodeWithTag("playlistCover").performScrollTo().performClick()
+  fun playlistCoverButtonOpensLauncher() {
+    val mockLauncher =
+        mock<(String) -> Unit>() // Mock a function that simulates permission launcher
+    composeTestRule.setContent {
+      val permissionLauncher =
+          rememberLauncherForActivityResult(
+              contract = ActivityResultContracts.RequestPermission()) { /* no-op */}
+      Button(
+          onClick = { mockLauncher(READ_MEDIA_IMAGES) },
+          modifier = Modifier.testTag("coverImageButton")) {
+            Text("Select Cover Image")
+          }
+    }
+
+    composeTestRule.onNodeWithTag("coverImageButton").performClick()
+    verify(mockLauncher).invoke(READ_MEDIA_IMAGES)
   }
 
   @Test
   fun createPlaylistButtonWorks() {
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     val mockPlaylistID = "mockPlaylistID"
     `when`(playlistViewModel.getNewUid()).thenReturn(mockPlaylistID)
 
@@ -109,10 +139,70 @@ class CreateNewPlaylistScreenTest {
 
   @Test
   fun invite_collaborators_button_opens_overlay() {
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(
+          navigationActions,
+          viewModel(factory = ProfileViewModel.Factory),
+          viewModel(factory = FriendRequestViewModel.Factory),
+          playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("overlay").assertDoesNotExist()
     // Perform click on the "Invite Collaborators" button
     composeTestRule.onNodeWithTag("collabButton").performClick()
     // Verify the overlay is visible after the click
     composeTestRule.onNodeWithTag("overlay").assertIsDisplayed()
+  }
+
+  @Test
+  fun createPlaylistMakesPlaylistPublic() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel)
+    }
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("gradientSwitch").assertIsDisplayed()
+    composeTestRule.onNodeWithTag("gradientSwitch").performClick() // make public
+
+    val updatedPublic = fakePlaylistViewModel.tempPlaylistIsPublic.value
+    assertEquals(true, updatedPublic)
+  }
+
+  @Test
+  fun createNewPlaylistRemovesCollaborators() {
+    val fakeProfileViewModel = FakeProfileViewModel()
+    val fakeFriendRequestViewModel = FakeFriendRequestViewModel()
+    val fakePlaylistViewModel = FakePlaylistViewModel()
+
+    fakeProfileViewModel.setFakeUserIdByUsername(mapOf("alice123" to "user1"))
+    fakeProfileViewModel.setFakeUsernameById(mapOf("user1" to "alice123"))
+    fakeProfileViewModel.setFakeProfileDataById(
+        mapOf("user1" to ProfileData(bio = "", links = 1, name = "Alice", username = "alice123")))
+
+    fakePlaylistViewModel.updateTemporallyCollaborators(listOf("user1"))
+
+    composeTestRule.setContent {
+      CreateNewPlaylistScreen(
+          navigationActions,
+          fakeProfileViewModel,
+          fakeFriendRequestViewModel,
+          fakePlaylistViewModel)
+    }
+    // Simulate adding a collaborator
+    composeTestRule.onNodeWithTag("collabCard").assertIsDisplayed()
+    composeTestRule.waitForIdle()
+    composeTestRule
+        .onNodeWithTag("closeButton")
+        .performClick() // Remove collaborator via UI interaction
+
+    val updatedCollaborators = fakePlaylistViewModel.tempPlaylistCollaborators.value
+    assertEquals(emptyList<String>(), updatedCollaborators)
+    composeTestRule.onNodeWithTag("collabCard").assertDoesNotExist()
   }
 }

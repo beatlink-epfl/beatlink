@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_TITLE_LENGTH
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.DeleteButton
 import com.epfl.beatlink.ui.components.PrincipalButton
@@ -69,7 +70,7 @@ fun EditPlaylistScreen(
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
 
   // Load Playlist Cover
-  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  var playlistCover by remember { mutableStateOf(selectedPlaylistState.playlistCover ?: "") }
   LaunchedEffect(Unit) {
     playlistViewModel.loadPlaylistCover(selectedPlaylistState) {
       playlistViewModel.coverImage.value = it
@@ -79,9 +80,12 @@ fun EditPlaylistScreen(
   // Permission Launcher
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri ?: Uri.EMPTY
-        playlistViewModel.coverImage.value =
-            base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
+        if (uri == null) {
+          // Do nothing
+        } else {
+          playlistCover = resizeAndCompressImageFromUri(uri, context) ?: ""
+          playlistViewModel.coverImage.value = base64ToBitmap(playlistCover)
+        }
       }
 
   var titleError by remember { mutableStateOf(false) }
@@ -98,6 +102,20 @@ fun EditPlaylistScreen(
         fetchedUsernames.add(username)
       }
       collabUsernames = fetchedUsernames.toList()
+    }
+  }
+
+  val fetchedProfileData = mutableListOf<ProfileData>()
+  var collabProfileData by remember { mutableStateOf<List<ProfileData>>(emptyList()) }
+
+  fetchedProfileData.clear()
+  playlistCollab.forEach { userId ->
+    profileViewModel.fetchProfileById(userId) { profile ->
+      if (profile != null) {
+        fetchedProfileData.add(profile)
+        // Update the state after all additions to avoid unnecessary recompositions
+        collabProfileData = fetchedProfileData.toList()
+      }
     }
   }
 
@@ -168,6 +186,7 @@ fun EditPlaylistScreen(
 
           CollaboratorsSection(
               collabUsernames,
+              collabProfileData,
               onClick = { showDialog = true },
               onRemove = { usernameToRemove ->
                 profileViewModel.getUserIdByUsername(
@@ -190,7 +209,7 @@ fun EditPlaylistScreen(
               val updatedPlaylist =
                   Playlist(
                       playlistID = selectedPlaylistState.playlistID,
-                      playlistCover = selectedPlaylistState.playlistCover,
+                      playlistCover = playlistCover,
                       playlistName = playlistTitle,
                       playlistDescription = playlistDescription,
                       playlistPublic = playlistIsPublic,
@@ -201,9 +220,6 @@ fun EditPlaylistScreen(
                       nbTracks = selectedPlaylistState.nbTracks)
               playlistViewModel.updatePlaylist(updatedPlaylist)
               playlistViewModel.selectPlaylist(updatedPlaylist)
-              if (imageUri != Uri.EMPTY && imageUri != null) {
-                playlistViewModel.uploadPlaylistCover(imageUri, context, updatedPlaylist)
-              }
               navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
             }
           }
@@ -214,6 +230,7 @@ fun EditPlaylistScreen(
         navigationActions,
         profileViewModel,
         friendRequestViewModel,
+        playlistViewModel,
         onDismissRequest = { showDialog = false })
   }
 }

@@ -45,6 +45,12 @@ fun PeopleItem(
     profileViewModel: ProfileViewModel,
     friendRequestViewModel: FriendRequestViewModel,
 ) {
+  // Updates the sent/received friend requests instantly by reloading the screen
+  LaunchedEffect(Unit) {
+    friendRequestViewModel.getOwnRequests()
+    friendRequestViewModel.getFriendRequests()
+    friendRequestViewModel.getAllFriends()
+  }
   val profileData by profileViewModel.profile.collectAsState()
 
   val ownRequests by friendRequestViewModel.ownRequests.observeAsState(emptyList())

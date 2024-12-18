@@ -10,10 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,15 +35,6 @@ fun AddButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun SearchButton(onClick: () -> Unit) {
-  CornerIcons(
-      onClick = onClick,
-      icon = Icons.Outlined.Search,
-      contentDescription = "Search",
-      modifier = Modifier.testTag("searchButton"))
-}
-
-@Composable
 fun PlayButton(onClick: () -> Unit) {
   IconButton(onClick) {
     Icon(
@@ -54,16 +43,6 @@ fun PlayButton(onClick: () -> Unit) {
         tint = Color.Unspecified,
         modifier = Modifier.testTag("playButton").size(30.dp))
   }
-}
-
-@Composable
-fun MoreOptionsButton(onClick: () -> Unit) {
-  CornerIcons(
-      onClick = onClick,
-      icon = Icons.Filled.MoreVert,
-      contentDescription = "More Options",
-      modifier = Modifier.testTag("moreOptionsButton"),
-      iconSize = 35.dp)
 }
 
 @Composable

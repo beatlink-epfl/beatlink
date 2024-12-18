@@ -24,6 +24,7 @@ class InviteCollaboratorsScreenTest {
   private lateinit var playlistRepository: PlaylistRepository
   private lateinit var playlistViewModel: PlaylistViewModel
   private lateinit var navigationActions: NavigationActions
+  private lateinit var fakeProfileViewModel: FakeProfileViewModel
 
   private val profiles =
       listOf(ProfileData(username = "username1"), ProfileData(username = "username2"))
@@ -35,9 +36,6 @@ class InviteCollaboratorsScreenTest {
           name = "John Doe",
           profilePicture = null,
           username = "TestUser")
-  val testProfile =
-      ProfileData(
-          bio = "", links = 3, name = "Test User", profilePicture = null, username = "testuser")
 
   @get:Rule val composeTestRule = createComposeRule()
 
@@ -49,40 +47,48 @@ class InviteCollaboratorsScreenTest {
                 .java) // Use relaxed if you don't want to manually mock every behavior
     playlistViewModel = PlaylistViewModel(playlistRepository)
 
-    val fakeProfileViewModel = FakeProfileViewModel()
-    fakeProfileViewModel.setFakeProfiles(profiles)
-
+    fakeProfileViewModel = FakeProfileViewModel()
+    fakeProfileViewModel.setFakeProfile(profile)
     fakeProfileViewModel.setFakeProfiles(profiles)
 
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.INVITE_COLLABORATORS)
-    composeTestRule.setContent {
-      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
-    }
   }
 
   @Test
   fun inviteCollaboratorsScreen_initialRender_displaysComponents() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("inviteCollaboratorsScreen").assertIsDisplayed()
-    // Verify the ShortSearchBarLayout is displayed
+
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertExists()
   }
 
   @Test
   fun testBackNavigation() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("goBackButton").performClick()
     org.mockito.kotlin.verify(navigationActions).goBack()
   }
 
   @Test
   fun testSearchBarInteraction() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("John Doe")
     composeTestRule.onNodeWithTag("writableSearchBar").assertTextEquals("John Doe")
   }
 
   @Test
   fun searchResultsDisplayPeopleWhenSearching() {
+    composeTestRule.setContent {
+      InviteCollaboratorsScreen(navigationActions, fakeProfileViewModel, playlistViewModel)
+    }
     composeTestRule.onNodeWithTag("writableSearchBar").performClick()
     composeTestRule.onNodeWithTag("writableSearchBar").performTextInput("username")
     composeTestRule.onAllNodesWithTag("CollabCard").assertCountEquals(profiles.size)

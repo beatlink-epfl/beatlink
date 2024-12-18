@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.search
 
+import android.app.Application
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -10,10 +11,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.navigation.TopLevelDestinations
@@ -21,6 +24,8 @@ import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
+import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -33,6 +38,9 @@ class SearchBarScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
+
+  private lateinit var spotifyAuthRepository: SpotifyAuthRepository
+  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
 
   private var topSongs =
       listOf(
@@ -67,6 +75,12 @@ class SearchBarScreenTest {
   @Before
   fun setUp() {
 
+    val client = OkHttpClient()
+    val application = ApplicationProvider.getApplicationContext<Application>()
+
+    spotifyAuthRepository = SpotifyAuthRepository(client)
+    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyAuthRepository)
+
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH)
@@ -90,6 +104,7 @@ class SearchBarScreenTest {
       SearchBarScreen(
           navigationActions,
           fakeSpotifyApiViewModel,
+          spotifyAuthViewModel,
           viewModel(factory = MapUsersViewModel.Factory),
           fakeProfileViewModel,
           fakeFriendRequestViewModel)

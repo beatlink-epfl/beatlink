@@ -24,6 +24,7 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.network.NetworkStatusTracker
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.repository.spotify.auth.SPOTIFY_AUTH_PREFS
+import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.BeatLinkApp
 import com.epfl.beatlink.viewmodel.network.NetworkViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
@@ -51,7 +52,9 @@ class SearchE2ETest {
     application = ApplicationProvider.getApplicationContext()
     val sharedPreferences = application.getSharedPreferences(SPOTIFY_AUTH_PREFS, MODE_PRIVATE)
 
-    val spotifyAuthViewModel = mock(SpotifyAuthViewModel::class.java)
+    val mockSpotifyAuthRepository = mock(SpotifyAuthRepository::class.java)
+
+    val spotifyAuthViewModel = SpotifyAuthViewModel(application, mockSpotifyAuthRepository)
     val mockSpotifyApiViewModel = MockSpotifyApiViewModel(sharedPreferences)
     // Mock the network status tracker
     val mockNetworkViewModel = FakeNetworkViewModel(initialConnectionState = true)

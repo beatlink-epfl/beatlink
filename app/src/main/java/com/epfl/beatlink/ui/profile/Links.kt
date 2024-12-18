@@ -35,7 +35,10 @@ fun LinksScreen(
     friendRequestViewModel: FriendRequestViewModel
 ) {
 
-  LaunchedEffect(Unit) { profileViewModel.unreadyProfile() }
+  LaunchedEffect(Unit) {
+    profileViewModel.unreadyProfile()
+    friendRequestViewModel.getAllFriends()
+  }
 
   val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
   val allFriendsProfileData = remember { mutableStateOf<List<ProfileData?>>(emptyList()) }

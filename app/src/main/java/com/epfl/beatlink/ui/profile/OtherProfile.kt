@@ -1,7 +1,5 @@
 package com.epfl.beatlink.ui.profile
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.epfl.beatlink.model.library.UserPlaylist
-import com.epfl.beatlink.ui.components.CornerIcons
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
 import com.epfl.beatlink.ui.components.profile.ProfileColumn
 import com.epfl.beatlink.ui.navigation.NavigationActions
@@ -27,6 +24,12 @@ fun OtherProfileScreen(
     navigationAction: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel
 ) {
+  // Updates the sent/received friend requests instantly by reloading the screen
+  LaunchedEffect(Unit) {
+    friendRequestViewModel.getFriendRequests()
+    friendRequestViewModel.getAllFriends()
+  }
+
   val profileData by profileViewModel.profile.collectAsState()
 
   val selectedUserId by profileViewModel.selectedUserUserId.collectAsState()
@@ -57,13 +60,6 @@ fun OtherProfileScreen(
             selectedProfileData?.username ?: "",
             "titleUsername",
             navigationAction,
-            listOf {
-              CornerIcons(
-                  onClick = { /*click action*/},
-                  icon = Icons.Filled.MoreVert,
-                  contentDescription = "MoreVert",
-                  modifier = Modifier.testTag("profileScreenMoreVertButton"))
-            },
             goBackManagement = { profileViewModel.goBackToPreviousUser() })
       },
       content = { paddingValues ->

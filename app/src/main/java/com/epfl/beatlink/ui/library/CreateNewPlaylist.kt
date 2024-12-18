@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.model.library.Playlist
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_DESCRIPTION_LENGTH
 import com.epfl.beatlink.model.library.Playlist.Companion.MAX_PLAYLIST_TITLE_LENGTH
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.ui.components.CustomInputField
 import com.epfl.beatlink.ui.components.PrincipalButton
 import com.epfl.beatlink.ui.components.ScreenTopAppBar
@@ -56,7 +57,7 @@ fun CreateNewPlaylistScreen(
   val playlistDescription by playlistViewModel.tempPlaylistDescription.collectAsState()
   val playlistIsPublic by playlistViewModel.tempPlaylistIsPublic.collectAsState()
   val playlistCollab by playlistViewModel.tempPlaylistCollaborators.collectAsState() // user IDs
-  var imageUri by remember { mutableStateOf(Uri.EMPTY) }
+  var imageCover by remember { mutableStateOf("") }
 
   val context = LocalContext.current
   val titleError = playlistTitle.length !in 1..MAX_PLAYLIST_TITLE_LENGTH
@@ -67,19 +68,40 @@ fun CreateNewPlaylistScreen(
   // Permission launcher for reading images
   val permissionLauncher =
       permissionLauncher(context) { uri: Uri? ->
-        imageUri = uri ?: Uri.EMPTY
-        playlistViewModel.coverImage.value =
-            base64ToBitmap(resizeAndCompressImageFromUri(imageUri, context) ?: "")
+        if (uri == null) {
+          playlistViewModel.coverImage.value = null
+        } else {
+          imageCover = resizeAndCompressImageFromUri(uri, context) ?: ""
+          playlistViewModel.coverImage.value = base64ToBitmap(imageCover)
+        }
       }
 
   val fetchedUsernames = mutableListOf<String>()
   var collabUsernames by remember { mutableStateOf<List<String>>(emptyList()) }
-  playlistCollab.forEach { userId ->
-    profileViewModel.getUsername(userId) { username ->
-      if (username != null) {
-        fetchedUsernames.add(username)
+
+  LaunchedEffect(playlistCollab) {
+    playlistCollab.forEach { userId ->
+      profileViewModel.getUsername(userId) { username ->
+        if (username != null) {
+          fetchedUsernames.add(username)
+        }
+        collabUsernames = fetchedUsernames.toList()
       }
-      collabUsernames = fetchedUsernames.toList()
+    }
+  }
+
+  val fetchedProfileData = mutableListOf<ProfileData>()
+  var collabProfileData by remember { mutableStateOf<List<ProfileData>>(emptyList()) }
+  LaunchedEffect(playlistCollab) {
+    fetchedProfileData.clear()
+    playlistCollab.forEach { userId ->
+      profileViewModel.fetchProfileById(userId) { profile ->
+        if (profile != null) {
+          fetchedProfileData.add(profile)
+          // Update the state after all additions to avoid unnecessary recompositions
+          collabProfileData = fetchedProfileData.toList()
+        }
+      }
     }
   }
 
@@ -134,6 +156,7 @@ fun CreateNewPlaylistScreen(
 
           CollaboratorsSection(
               collabUsernames,
+              collabProfileData,
               onClick = { showDialog = true },
               onRemove = { usernameToRemove ->
                 profileViewModel.getUserIdByUsername(
@@ -156,7 +179,7 @@ fun CreateNewPlaylistScreen(
               val newPlaylist =
                   Playlist(
                       playlistID = playlistViewModel.getNewUid(),
-                      playlistCover = "",
+                      playlistCover = imageCover,
                       playlistName = playlistTitle,
                       playlistDescription = playlistDescription,
                       playlistPublic = playlistIsPublic,
@@ -166,9 +189,6 @@ fun CreateNewPlaylistScreen(
                       playlistTracks = emptyList(),
                       nbTracks = 0)
               playlistViewModel.addPlaylist(newPlaylist)
-              if (imageUri != Uri.EMPTY) {
-                playlistViewModel.uploadPlaylistCover(imageUri, context, newPlaylist)
-              }
               playlistViewModel.resetTemporaryState()
               playlistViewModel.selectPlaylist(newPlaylist)
               navigationActions.navigateToAndClearBackStack(PLAYLIST_OVERVIEW, 1)
@@ -181,6 +201,7 @@ fun CreateNewPlaylistScreen(
         navigationActions,
         profileViewModel,
         friendRequestViewModel,
+        playlistViewModel,
         onDismissRequest = { showDialog = false })
   }
 }
