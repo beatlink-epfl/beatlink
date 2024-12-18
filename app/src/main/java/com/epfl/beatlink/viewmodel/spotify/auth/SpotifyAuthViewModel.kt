@@ -32,6 +32,10 @@ open class SpotifyAuthViewModel(
     if (doesTokenExist() && !isTokenValid()) refreshAccessToken(application)
   }
 
+  fun isRefreshNeeded(): Boolean {
+    return doesTokenExist() && !isTokenValid()
+  }
+
   /** Updates the data values in the view model */
   fun loadTokens(context: Context) {
     val newAccessToken = repository.getAccessToken(context)

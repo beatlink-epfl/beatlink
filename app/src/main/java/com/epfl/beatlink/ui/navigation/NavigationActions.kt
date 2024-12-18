@@ -44,8 +44,6 @@ object Screen {
   const val NOTIFICATIONS = "Notifications Screen"
   const val LINK_REQUESTS = "Link Requests Screen"
   const val SETTINGS = "Settings Screen"
-  const val NOTIFICATION_SETTINGS = "Notification Settings Screen"
-  const val ACCOUNT = "Account Screen"
   const val CHANGE_USERNAME = "Change Username Screen"
   const val CHANGE_PASSWORD = "Change Password Screen"
   const val PLAY_SCREEN = "Play Screen"

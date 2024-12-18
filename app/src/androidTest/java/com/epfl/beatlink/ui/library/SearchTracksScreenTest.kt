@@ -15,7 +15,6 @@ import com.epfl.beatlink.model.spotify.objects.State
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
-import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
 import com.epfl.beatlink.ui.spotify.FakeSpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
@@ -93,7 +92,6 @@ class SearchTracksScreenTest {
   @Test
   fun everythingIsDisplayed() {
     composeTestRule.onNodeWithTag("searchScaffold").assertIsDisplayed()
-    composeTestRule.onNodeWithTag("bottomNavigationMenu").assertIsDisplayed()
     composeTestRule.onNodeWithTag("shortSearchBarRow").assertIsDisplayed()
     composeTestRule.onNodeWithTag("goBackButton").assertIsDisplayed()
     composeTestRule.onNodeWithTag("writableSearchBar").assertIsDisplayed()
@@ -156,35 +154,5 @@ class SearchTracksScreenTest {
   fun testBackNavigation() {
     composeTestRule.onNodeWithTag("goBackButton").performClick()
     verify(navigationActions).goBack()
-  }
-
-  @Test
-  fun testNavigationToHome() {
-    composeTestRule.onNodeWithTag("Home").performClick()
-    org.mockito.kotlin.verify(navigationActions).navigateTo(destination = TopLevelDestinations.HOME)
-  }
-
-  @Test
-  fun testNavigationToSearch() {
-    composeTestRule.onNodeWithTag("Search").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.SEARCH)
-  }
-
-  @Test
-  fun testNavigationToLibrary() {
-    composeTestRule.onNodeWithTag("Library").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.LIBRARY)
-  }
-
-  @Test
-  fun testNavigationToProfile() {
-    composeTestRule.onNodeWithTag("Profile").performClick()
-    org.mockito.kotlin
-        .verify(navigationActions)
-        .navigateTo(destination = TopLevelDestinations.PROFILE)
   }
 }

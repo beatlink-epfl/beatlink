@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -58,10 +59,16 @@ fun SearchBarScreen(
     mutableStateOf(Pair(emptyList<SpotifyTrack>(), emptyList<SpotifyArtist>()))
   }
   val peopleResult = remember { mutableStateOf(emptyList<ProfileData?>()) }
+
+  val context = LocalContext.current
+
   LaunchedEffect(Unit) {
     // Resets selected users in people searching
     profileViewModel.unselectSelectedUser()
     profileViewModel.unreadyProfile()
+    if (spotifyAuthViewModel.isRefreshNeeded()) {
+      spotifyAuthViewModel.refreshAccessToken(context)
+    }
   }
 
   if (selectedCategory.value == "People") {
@@ -82,7 +89,7 @@ fun SearchBarScreen(
       navigationActions = navigationActions,
       spotifyApiViewModel = spotifyApiViewModel,
       mapUsersViewModel = mapUsersViewModel,
-      backArrowButton = false,
+      isTLDScreen = true,
       searchQuery = searchQuery) { paddingValues ->
         Column(
             modifier =

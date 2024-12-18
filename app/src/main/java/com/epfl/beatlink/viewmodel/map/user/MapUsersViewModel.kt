@@ -110,6 +110,7 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
     }
   }
 
+  /** Update the playback state of the current user. */
   suspend fun updatePlayback(album: SpotifyAlbum, track: SpotifyTrack, artist: SpotifyArtist) {
     if (_authState.value) {
       _playbackState.value =

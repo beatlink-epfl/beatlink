@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
@@ -74,6 +75,8 @@ class SearchBarScreenTest {
   @Before
   fun setUp() {
 
+    application = ApplicationProvider.getApplicationContext<Application>()
+
     navigationActions = mock(NavigationActions::class.java)
 
     `when`(navigationActions.currentRoute()).thenReturn(Screen.SEARCH)
@@ -93,7 +96,6 @@ class SearchBarScreenTest {
 
     fakeSpotifyApiViewModel.updatePlayer()
 
-    application = mockk<Application>(relaxed = true)
     spotifyAuthRepository = mockk<SpotifyAuthRepository>(relaxed = true)
 
     spotifyAuthViewModel =

@@ -36,10 +36,8 @@ import com.epfl.beatlink.ui.profile.OtherProfileScreen
 import com.epfl.beatlink.ui.profile.ProfileScreen
 import com.epfl.beatlink.ui.profile.notifications.LinkRequestsScreen
 import com.epfl.beatlink.ui.profile.notifications.NotificationsScreen
-import com.epfl.beatlink.ui.profile.settings.AccountScreen
 import com.epfl.beatlink.ui.profile.settings.ChangePassword
 import com.epfl.beatlink.ui.profile.settings.ChangeUsername
-import com.epfl.beatlink.ui.profile.settings.NotificationSettingsScreen
 import com.epfl.beatlink.ui.profile.settings.SettingsScreen
 import com.epfl.beatlink.ui.search.SearchBarScreen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
@@ -102,6 +100,7 @@ fun BeatLinkApp(
                   navigationActions,
                   mapViewModel,
                   spotifyApiViewModel,
+                  spotifyAuthViewModel,
                   profileViewModel,
                   mapUsersViewModel)
             } else {
@@ -137,7 +136,11 @@ fun BeatLinkApp(
         navigation(startDestination = Screen.LIBRARY, route = Route.LIBRARY) {
           composable(Screen.LIBRARY) {
             LibraryScreen(
-                navigationActions, playlistViewModel, spotifyApiViewModel, mapUsersViewModel)
+                navigationActions,
+                playlistViewModel,
+                spotifyApiViewModel,
+                spotifyAuthViewModel,
+                mapUsersViewModel)
           }
           composable(Screen.CREATE_NEW_PLAYLIST) {
             CreateNewPlaylistScreen(
@@ -180,6 +183,7 @@ fun BeatLinkApp(
                 friendRequestViewModel,
                 navigationActions,
                 spotifyApiViewModel,
+                spotifyAuthViewModel,
                 mapUsersViewModel)
           }
           composable(Screen.LINKS) {
@@ -193,16 +197,11 @@ fun BeatLinkApp(
           }
           composable(Screen.SETTINGS) {
             SettingsScreen(
-                navigationActions, firebaseAuthViewModel, mapUsersViewModel, profileViewModel)
-          }
-          composable(Screen.NOTIFICATION_SETTINGS) { NotificationSettingsScreen(navigationActions) }
-          composable(Screen.ACCOUNT) {
-            AccountScreen(
                 navigationActions,
-                spotifyAuthViewModel,
-                profileViewModel,
                 firebaseAuthViewModel,
                 mapUsersViewModel,
+                profileViewModel,
+                spotifyAuthViewModel,
                 playlistViewModel)
           }
           composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
