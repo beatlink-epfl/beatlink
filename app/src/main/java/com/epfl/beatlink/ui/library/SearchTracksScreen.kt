@@ -19,11 +19,13 @@ import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun SearchTracksScreen(
     navigationActions: NavigationActions,
     spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel,
     mapUsersViewModel: MapUsersViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
@@ -36,7 +38,8 @@ fun SearchTracksScreen(
       query = searchQuery.value.text,
       onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
       onFailure = { results.value = Pair(emptyList(), emptyList()) },
-      spotifyApiViewModel = spotifyApiViewModel)
+      spotifyApiViewModel = spotifyApiViewModel,
+      spotifyAuthViewModel = spotifyAuthViewModel)
 
   SearchScaffold(
       navigationActions = navigationActions,
