@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.map
 
+import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -15,8 +16,10 @@ import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Timestamp
 import org.junit.Before
@@ -33,6 +36,9 @@ class GoogleMapViewTest {
 
   @Mock lateinit var profileViewModel: ProfileViewModel
   @Mock lateinit var navigationActions: NavigationActions
+  @Mock private lateinit var mockApplication: Application
+  @Mock private lateinit var mockApiRepository: SpotifyApiRepository
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
   private lateinit var testUser: MapUser
 
@@ -40,6 +46,8 @@ class GoogleMapViewTest {
   fun setUp() {
     // Initialize mocks
     MockitoAnnotations.openMocks(this)
+
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
 
     // Set up a test user with known location and song information
     testUser =
@@ -71,6 +79,7 @@ class GoogleMapViewTest {
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions,
           locationPermitted = true)
     }
@@ -100,6 +109,7 @@ class GoogleMapViewTest {
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions,
           locationPermitted = false)
     }
@@ -129,6 +139,7 @@ class GoogleMapViewTest {
           modifier = Modifier.testTag("MapView"),
           mapUsers = mapUsers,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions,
           locationPermitted = true)
     }
@@ -158,6 +169,7 @@ class GoogleMapViewTest {
           locationPermitted = true,
           mapUsers = mapUsers,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions,
           selectedUser = selectedUser // Pass the test-controlled selectedUser state
           )
@@ -190,6 +202,7 @@ class GoogleMapViewTest {
           locationPermitted = true,
           mapUsers = mapUsers,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions,
           selectedUser = selectedUser // Pass controlled selectedUser state
           )
