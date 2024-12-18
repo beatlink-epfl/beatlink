@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,10 +42,12 @@ import com.epfl.beatlink.ui.spotify.SpotifyAuth
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -56,7 +59,8 @@ fun SettingsScreen(
     mapUsersViewModel: MapUsersViewModel,
     profileViewModel: ProfileViewModel,
     spotifyAuthViewModel: SpotifyAuthViewModel,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    friendRequestViewModel: FriendRequestViewModel
 ) {
   val context = LocalContext.current
   var showDialogSignOut by remember { mutableStateOf(false) }
@@ -67,6 +71,7 @@ fun SettingsScreen(
   val scrollState = rememberScrollState()
   var showDialogDeleteAccount by remember { mutableStateOf(false) }
   var password by remember { mutableStateOf("") }
+  val allFriends by friendRequestViewModel.allFriends.observeAsState(emptyList())
 
   Scaffold(
       modifier = Modifier.testTag("settingScreen"),
@@ -183,10 +188,12 @@ fun SettingsScreen(
               onClick = {
                 deleteAccount(
                     password = password,
+                    allFriends = allFriends,
                     profileViewModel = profileViewModel,
                     mapUsersViewModel = mapUsersViewModel,
                     playlistViewModel = playlistViewModel,
                     firebaseAuthViewModel = firebaseAuthViewModel,
+                    friendRequestViewModel = friendRequestViewModel,
                     navigationActions = navigationActions,
                     onDeletionFailed = { errorMessage ->
                       Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
@@ -227,10 +234,12 @@ fun SettingsScreen(
 @OptIn(DelicateCoroutinesApi::class)
 private fun deleteAccount(
     password: String,
+    allFriends: List<String>,
     profileViewModel: ProfileViewModel,
     mapUsersViewModel: MapUsersViewModel,
     playlistViewModel: PlaylistViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel,
+    friendRequestViewModel: FriendRequestViewModel,
     navigationActions: NavigationActions,
     onDeletionFailed: (String) -> Unit,
     onDeletionSuccess: () -> Unit
@@ -250,6 +259,11 @@ private fun deleteAccount(
       }
 
       // Step 2: Delete Firestore data
+
+      val jobs = allFriends.map { friend -> launch { friendRequestViewModel.removeFriend(friend) } }
+
+      jobs.joinAll()
+
       val deleteProfileResult = profileViewModel.deleteProfile()
       val deleteMapUserResult = mapUsersViewModel.deleteMapUser()
       val deletePlaylistsResult = playlistViewModel.deleteOwnedPlaylists()
