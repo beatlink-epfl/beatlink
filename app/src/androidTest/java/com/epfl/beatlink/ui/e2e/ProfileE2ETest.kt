@@ -57,14 +57,24 @@ class ProfileE2ETest {
     composeTestRule.onNodeWithTag("Profile").performClick()
     composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
 
-    // Step 5: Click the edit profile button and verify navigation to Edit Profile Screen
+    // Step 5: Click the settings button and verify navigation to Settings Screen
+    composeTestRule.onNodeWithTag("profileScreenSettingsButton").performClick()
+    composeTestRule.waitUntil(6000) { composeTestRule.onNodeWithTag("settingScreen").isDisplayed() }
+    composeTestRule.onNodeWithTag("settingScreen").assertIsDisplayed()
+
+    // Step 6: Click the back arrow button and verify navigation to Profile Screen
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
+    composeTestRule.waitUntil(4000) { composeTestRule.onNodeWithTag("profileScreen").isDisplayed() }
+    composeTestRule.onNodeWithTag("profileScreen").assertIsDisplayed()
+
+    // Step 7: Click the edit profile button and verify navigation to Edit Profile Screen
     composeTestRule.onNodeWithTag("editProfileButton").performClick()
     composeTestRule.waitUntil(6000) {
       composeTestRule.onNodeWithTag("editProfileScreen").isDisplayed()
     }
     composeTestRule.onNodeWithTag("editProfileScreen").assertIsDisplayed()
 
-    // Step 6: Edit the profile
+    // Step 8: Edit the profile
     composeTestRule.onNodeWithTag("editProfileNameInput").performTextClearance()
     composeTestRule.onNodeWithTag("editProfileNameInput").performTextInput("John Doe")
     composeTestRule.onNodeWithTag("editProfileDescriptionInput").performTextClearance()
