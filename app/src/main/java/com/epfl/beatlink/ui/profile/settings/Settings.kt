@@ -86,19 +86,19 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally) {
               Spacer(modifier = Modifier.height(53.dp))
               TextInBox("E-mail: $email")
-              Spacer(modifier = Modifier.height(35.dp))
+              Spacer(modifier = Modifier.height(45.dp))
               TextInBox(
                   "Username: $username",
                   Modifier.clickable { navigationActions.navigateTo(Screen.CHANGE_USERNAME) },
                   Icons.AutoMirrored.Filled.ArrowForward)
-              Spacer(modifier = Modifier.height(35.dp))
+              Spacer(modifier = Modifier.height(45.dp))
               TextInBox(
                   "Change password",
                   Modifier.clickable { navigationActions.navigateTo(Screen.CHANGE_PASSWORD) },
                   Icons.AutoMirrored.Filled.ArrowForward)
               Spacer(modifier = Modifier.height(45.dp))
               SpotifyAuth(spotifyAuthViewModel)
-              Spacer(modifier = Modifier.height(228.dp))
+              Spacer(modifier = Modifier.height(100.dp))
               PrincipalButton("Sign out", "signOutButton", isRed = true) {
                 showDialogSignOut = true
               }

@@ -10,7 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions

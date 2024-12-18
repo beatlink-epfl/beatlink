@@ -29,11 +29,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.theme.PrimaryGradientBrush
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.Timestamp
 import java.time.Duration
 import java.time.Instant
@@ -47,10 +49,13 @@ import java.time.Instant
 fun SongPreviewMapUsers(
     mapUser: MapUser,
     profileViewModel: ProfileViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
     navigationActions: NavigationActions
 ) {
   val selectedUserUserId = remember { mutableStateOf("") }
   val isIdFetched = remember { mutableStateOf(false) }
+
+  val trackForPlay = SpotifyTrack(trackId = mapUser.currentPlayingTrack.trackId)
 
   // Check if the user ID is fetched and trigger navigation
   LaunchedEffect(isIdFetched.value) {
@@ -99,7 +104,10 @@ fun SongPreviewMapUsers(
                             AsyncImage(
                                 model = mapUser.currentPlayingTrack.albumCover,
                                 contentDescription = "Cover",
-                                modifier = Modifier.fillMaxSize())
+                                modifier =
+                                    Modifier.fillMaxSize().clickable {
+                                      spotifyApiViewModel.playTrackAlone(trackForPlay)
+                                    })
                           }
 
                       Spacer(modifier = Modifier.width(16.dp))

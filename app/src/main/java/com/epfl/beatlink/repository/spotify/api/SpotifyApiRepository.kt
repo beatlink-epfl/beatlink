@@ -2,7 +2,6 @@ package com.epfl.beatlink.repository.spotify.api
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.epfl.beatlink.model.spotify.api.ApiRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -11,6 +10,12 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
+/**
+ * Repository to handle API requests to the Spotify API
+ *
+ * @param client OkHttpClient instance to make the requests
+ * @param sharedPreferences SharedPreferences instance to store the token
+ */
 open class SpotifyApiRepository(
     private val client: OkHttpClient,
     private val sharedPreferences: SharedPreferences
@@ -18,7 +23,13 @@ open class SpotifyApiRepository(
   // Function to get the token from SharedPreferences
   override fun getToken(): String? = sharedPreferences.getString("access_token", null)
 
-  // Main generic function to configure and execute the request
+  /**
+   * Main generic function to configure and execute the request
+   *
+   * @param endpoint The endpoint to call
+   * @param requestConfig Function to configure the request
+   * @return Result<JSONObject> with the response
+   */
   private suspend fun makeRequest(
       endpoint: String,
       requestConfig: (Request.Builder) -> Unit

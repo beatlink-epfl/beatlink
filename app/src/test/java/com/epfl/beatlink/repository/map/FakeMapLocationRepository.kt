@@ -1,6 +1,5 @@
 package com.epfl.beatlink.repository.map
 
-import com.epfl.beatlink.model.map.LocationRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

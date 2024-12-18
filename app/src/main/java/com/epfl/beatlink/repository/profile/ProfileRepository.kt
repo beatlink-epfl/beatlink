@@ -1,6 +1,7 @@
-package com.epfl.beatlink.model.profile
+package com.epfl.beatlink.repository.profile
 
 import android.graphics.Bitmap
+import com.epfl.beatlink.model.profile.ProfileData
 
 interface ProfileRepository {
 

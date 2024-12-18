@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
-import com.epfl.beatlink.model.map.LocationRepository
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -15,6 +14,12 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Repository for location updates
+ *
+ * @param context The application context
+ * @param locationClient The FusedLocationProviderClient instance
+ */
 class MapLocationRepository(
     private val context: Context,
     private val locationClient: FusedLocationProviderClient

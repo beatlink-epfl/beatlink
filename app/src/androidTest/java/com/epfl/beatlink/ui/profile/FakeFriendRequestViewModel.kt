@@ -1,7 +1,7 @@
 package com.epfl.beatlink.ui.profile
 
 import androidx.lifecycle.MutableLiveData
-import com.epfl.beatlink.model.profile.FriendRequestRepository
+import com.epfl.beatlink.repository.profile.FriendRequestRepository
 import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import org.mockito.Mockito.mock
 
