@@ -4,7 +4,6 @@ import android.util.Log
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
-import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -25,6 +24,12 @@ private const val TTL_DURATION_MINUTES = 30
 private const val MINUTE_IN_MILLIS = 60 * 1000L
 private const val TTL_MILLIS = TTL_DURATION_MINUTES * MINUTE_IN_MILLIS
 
+/**
+ * A Firestore implementation of the MapUserRepository interface.
+ *
+ * @param db The Firestore database instance.
+ * @param auth The Firebase authentication instance.
+ */
 class MapUsersRepositoryFirestore(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()

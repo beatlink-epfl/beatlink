@@ -1,4 +1,4 @@
-package com.epfl.beatlink.model.auth
+package com.epfl.beatlink.repository.authentication
 
 interface FirebaseAuthRepository {
   /**

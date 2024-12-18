@@ -1,4 +1,7 @@
-package com.epfl.beatlink.model.map.user
+package com.epfl.beatlink.repository.map.user
+
+import com.epfl.beatlink.model.map.user.Location
+import com.epfl.beatlink.model.map.user.MapUser
 
 interface MapUserRepository {
   /**

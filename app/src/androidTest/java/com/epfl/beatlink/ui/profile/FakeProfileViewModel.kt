@@ -3,7 +3,7 @@ package com.epfl.beatlink.ui.profile
 import android.graphics.Bitmap
 import androidx.lifecycle.MutableLiveData
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.mockito.Mockito.mock

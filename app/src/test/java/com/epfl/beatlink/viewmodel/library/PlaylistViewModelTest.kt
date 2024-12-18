@@ -3,10 +3,10 @@ package com.epfl.beatlink.viewmodel.library
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.model.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.library.PlaylistRepository
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.Dispatchers
