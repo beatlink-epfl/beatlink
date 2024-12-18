@@ -77,6 +77,7 @@ fun ChangeUsername(navigationActions: NavigationActions, profileViewModel: Profi
                                     name = profileData?.name ?: "",
                                     profilePicture = profileData?.profilePicture,
                                     username = username,
+                                    email = profileData?.email ?: "",
                                     favoriteMusicGenres =
                                         profileData?.favoriteMusicGenres ?: emptyList(),
                                     topSongs = profileData?.topSongs ?: emptyList(),
