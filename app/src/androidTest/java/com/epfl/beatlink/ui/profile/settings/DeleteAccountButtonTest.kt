@@ -10,10 +10,10 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.authentication.FirebaseAuthRepository
 import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.repository.map.user.MapUserRepository
-import com.epfl.beatlink.model.profile.ProfileData
 import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions

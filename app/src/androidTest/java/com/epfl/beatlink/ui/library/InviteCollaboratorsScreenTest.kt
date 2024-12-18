@@ -8,8 +8,8 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel

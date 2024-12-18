@@ -1,7 +1,7 @@
 package com.epfl.beatlink.viewmodel.map
 
-import com.epfl.beatlink.repository.map.LocationRepository
 import com.epfl.beatlink.repository.map.FakeMapLocationRepository
+import com.epfl.beatlink.repository.map.LocationRepository
 import com.epfl.beatlink.repository.map.MainCoroutineRule
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.ExperimentalCoroutinesApi

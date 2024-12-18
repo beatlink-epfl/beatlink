@@ -10,12 +10,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.epfl.beatlink.model.library.UserPlaylist
-import com.epfl.beatlink.repository.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State
+import com.epfl.beatlink.repository.profile.FriendRequestRepository
+import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
