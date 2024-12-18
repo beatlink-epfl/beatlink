@@ -1,4 +1,4 @@
-package com.epfl.beatlink.model.map
+package com.epfl.beatlink.repository.map
 
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.StateFlow

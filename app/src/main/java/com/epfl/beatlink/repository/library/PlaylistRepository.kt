@@ -1,6 +1,7 @@
-package com.epfl.beatlink.model.library
+package com.epfl.beatlink.repository.library
 
 import android.graphics.Bitmap
+import com.epfl.beatlink.model.library.Playlist
 
 interface PlaylistRepository {
   /**

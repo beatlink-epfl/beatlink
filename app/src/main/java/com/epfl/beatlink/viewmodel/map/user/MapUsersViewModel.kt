@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
-import com.epfl.beatlink.model.map.user.MapUserRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyAlbum
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.repository.map.user.MapUserRepository
 import com.epfl.beatlink.repository.map.user.MapUsersRepositoryFirestore
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -25,7 +25,7 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
   // Private mutable LiveData to hold the data
   private val _mapUsers = MutableStateFlow<List<MapUser>>(emptyList())
   private var _mapUser = MutableStateFlow<MapUser?>(null)
-  private val _authState = MutableStateFlow<Boolean>(false)
+  private val _authState = MutableStateFlow(false)
   private val _playbackState = MutableStateFlow<CurrentPlayingTrack?>(null)
 
   // Public immutable StateFlows for observers
@@ -95,7 +95,7 @@ open class MapUsersViewModel(private val repository: MapUserRepository) : ViewMo
 
   /** Delete a user from the database. */
   suspend fun deleteMapUser(): Boolean {
-    return try {
+    try {
       if (repository.deleteMapUser()) {
         _mapUser.value = null
         _playbackState.value = null

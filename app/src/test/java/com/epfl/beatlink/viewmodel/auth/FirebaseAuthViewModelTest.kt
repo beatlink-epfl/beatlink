@@ -1,7 +1,7 @@
 package com.epfl.beatlink.viewmodel.auth
 
 import com.epfl.beatlink.model.auth.AuthState
-import com.epfl.beatlink.model.auth.FirebaseAuthRepository
+import com.epfl.beatlink.repository.authentication.FirebaseAuthRepository
 import com.google.firebase.firestore.util.Assert.fail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

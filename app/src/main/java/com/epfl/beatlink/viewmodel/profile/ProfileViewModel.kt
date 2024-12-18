@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.repository.profile.ProfileRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth

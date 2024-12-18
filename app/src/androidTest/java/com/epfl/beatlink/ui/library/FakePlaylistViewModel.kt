@@ -1,7 +1,7 @@
 package com.epfl.beatlink.ui.library
 
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.mockito.Mockito.mock

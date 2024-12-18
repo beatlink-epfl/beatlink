@@ -1,4 +1,4 @@
-package com.epfl.beatlink.model.spotify.api
+package com.epfl.beatlink.repository.spotify.api
 
 import okhttp3.RequestBody
 import org.json.JSONObject
