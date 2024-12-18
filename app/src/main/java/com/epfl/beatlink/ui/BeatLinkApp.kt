@@ -165,7 +165,11 @@ fun BeatLinkApp(
           }
           composable(Screen.ADD_TRACK_TO_PLAYLIST) {
             SearchTracksScreen(
-                navigationActions, spotifyApiViewModel, mapUsersViewModel, playlistViewModel)
+                navigationActions,
+                spotifyApiViewModel,
+                spotifyAuthViewModel,
+                mapUsersViewModel,
+                playlistViewModel)
           }
           composable(Screen.INVITE_COLLABORATORS) {
             InviteCollaboratorsScreen(navigationActions, profileViewModel, playlistViewModel)
@@ -198,7 +202,8 @@ fun BeatLinkApp(
                 mapUsersViewModel,
                 profileViewModel,
                 spotifyAuthViewModel,
-                playlistViewModel)
+                playlistViewModel,
+                friendRequestViewModel)
           }
           composable(Screen.CHANGE_USERNAME) { ChangeUsername(navigationActions, profileViewModel) }
         }

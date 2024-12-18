@@ -18,6 +18,7 @@ import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.every
@@ -84,7 +85,8 @@ class SettingsScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
 
     // Check if the title is displayed
@@ -109,7 +111,8 @@ class SettingsScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
 
     // Test "Username" clickable text box

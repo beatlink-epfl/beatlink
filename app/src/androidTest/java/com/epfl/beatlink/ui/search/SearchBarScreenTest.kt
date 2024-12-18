@@ -23,9 +23,9 @@ import com.epfl.beatlink.ui.navigation.TopLevelDestinations
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel
 import com.epfl.beatlink.ui.profile.FakeProfileViewModel
 import com.epfl.beatlink.ui.profile.FakeSpotifyApiViewModel
+import com.epfl.beatlink.ui.spotify.FakeSpotifyAuthViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
-import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
-import okhttp3.OkHttpClient
+import io.mockk.mockk
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,9 +38,9 @@ class SearchBarScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var navigationActions: NavigationActions
-
+  private lateinit var application: Application
   private lateinit var spotifyAuthRepository: SpotifyAuthRepository
-  private lateinit var spotifyAuthViewModel: SpotifyAuthViewModel
+  private lateinit var spotifyAuthViewModel: FakeSpotifyAuthViewModel
 
   private var topSongs =
       listOf(
@@ -75,11 +75,7 @@ class SearchBarScreenTest {
   @Before
   fun setUp() {
 
-    val client = OkHttpClient()
-    val application = ApplicationProvider.getApplicationContext<Application>()
-
-    spotifyAuthRepository = SpotifyAuthRepository(client)
-    spotifyAuthViewModel = SpotifyAuthViewModel(application, spotifyAuthRepository)
+    application = ApplicationProvider.getApplicationContext<Application>()
 
     navigationActions = mock(NavigationActions::class.java)
 
@@ -99,6 +95,11 @@ class SearchBarScreenTest {
     fakeSpotifyApiViewModel.setTopArtists(topArtists)
 
     fakeSpotifyApiViewModel.updatePlayer()
+
+    spotifyAuthRepository = mockk<SpotifyAuthRepository>(relaxed = true)
+
+    spotifyAuthViewModel =
+        FakeSpotifyAuthViewModel(application = application, repository = spotifyAuthRepository)
 
     composeTestRule.setContent {
       SearchBarScreen(
