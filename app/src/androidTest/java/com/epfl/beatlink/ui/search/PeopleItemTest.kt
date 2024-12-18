@@ -4,9 +4,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.epfl.beatlink.model.profile.FriendRequestRepository
+import com.epfl.beatlink.repository.profile.FriendRequestRepository
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.ui.components.search.PeopleItem
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.profile.FakeFriendRequestViewModel

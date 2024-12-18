@@ -2,7 +2,6 @@ package com.epfl.beatlink.repository.spotify.api
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.epfl.beatlink.model.spotify.api.ApiRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient

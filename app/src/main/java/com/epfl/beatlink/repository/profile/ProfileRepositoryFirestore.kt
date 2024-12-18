@@ -3,7 +3,6 @@ package com.epfl.beatlink.repository.profile
 import android.graphics.Bitmap
 import android.util.Log
 import com.epfl.beatlink.model.profile.ProfileData
-import com.epfl.beatlink.model.profile.ProfileRepository
 import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State

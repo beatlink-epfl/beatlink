@@ -1,7 +1,6 @@
 package com.epfl.beatlink.repository.authentication
 
 import android.util.Log
-import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser

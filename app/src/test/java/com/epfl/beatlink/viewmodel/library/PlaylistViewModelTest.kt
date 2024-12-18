@@ -3,7 +3,7 @@ package com.epfl.beatlink.viewmodel.library
 import android.graphics.Bitmap
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.epfl.beatlink.model.library.Playlist
-import com.epfl.beatlink.model.library.PlaylistRepository
+import com.epfl.beatlink.repository.library.PlaylistRepository
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.model.spotify.objects.State

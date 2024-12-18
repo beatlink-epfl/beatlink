@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.epfl.beatlink.model.profile.FriendRequestRepository
+import com.epfl.beatlink.repository.profile.FriendRequestRepository
 import com.epfl.beatlink.repository.profile.FriendRequestRepositoryFirestore
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth

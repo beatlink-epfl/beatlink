@@ -2,7 +2,6 @@ package com.epfl.beatlink.repository.profile
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import com.epfl.beatlink.model.profile.FriendRequestRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore

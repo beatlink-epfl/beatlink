@@ -2,7 +2,6 @@ package com.epfl.beatlink.repository.spotify.auth
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import com.epfl.beatlink.model.spotify.auth.MusicServiceAuthRepository
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
