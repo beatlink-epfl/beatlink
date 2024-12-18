@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 import com.epfl.beatlink.R
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.ui.components.VoteButton
+import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.epfl.beatlink.ui.theme.TypographySongs
 
 @Composable
@@ -57,7 +58,7 @@ fun TrackVoteCard(
             Text(
                 text = playlistTrack.track.artist,
                 style = TypographySongs.titleMedium,
-            )
+                color = SecondaryPurple)
           }
 
           // Vote button

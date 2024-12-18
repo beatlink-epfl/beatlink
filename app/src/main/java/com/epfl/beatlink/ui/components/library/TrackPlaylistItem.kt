@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.epfl.beatlink.model.library.PlaylistTrack
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
+import com.epfl.beatlink.ui.theme.SecondaryPurple
 import com.epfl.beatlink.ui.theme.TypographySongs
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 
@@ -80,6 +81,7 @@ fun TrackPlaylistItem(
           Text(
               text = track.artist,
               modifier = Modifier.testTag("trackArtist-${track.trackId}"),
+              color = SecondaryPurple,
               style = TypographySongs.titleSmall)
         }
       }

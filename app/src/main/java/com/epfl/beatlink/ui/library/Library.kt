@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.epfl.beatlink.ui.components.AddButton
 import com.epfl.beatlink.ui.components.MusicPlayerUI
 import com.epfl.beatlink.ui.components.PageTopAppBar
-import com.epfl.beatlink.ui.components.SearchButton
 import com.epfl.beatlink.ui.components.TitleWithArrow
 import com.epfl.beatlink.ui.components.library.PlaylistCard
 import com.epfl.beatlink.ui.navigation.BottomNavigationMenu
@@ -59,10 +58,7 @@ fun LibraryScreen(
         PageTopAppBar(
             "My Library",
             "libraryTitle",
-            listOf {
-              SearchButton {}
-              AddButton { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) }
-            })
+            listOf { AddButton { navigationActions.navigateTo(Screen.CREATE_NEW_PLAYLIST) } })
       },
       bottomBar = {
         Column {

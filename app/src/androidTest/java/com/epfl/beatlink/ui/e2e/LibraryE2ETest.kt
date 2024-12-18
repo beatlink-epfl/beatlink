@@ -76,7 +76,7 @@ class LibraryE2ETest {
     // Step 7: Click the create button and verify navigation to Playlist Overview Screen
     composeTestRule.onNodeWithTag("createPlaylist").performScrollTo().performClick()
 
-    composeTestRule.onNodeWithTag("Library").performClick()
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
     composeTestRule.onNodeWithTag("libraryScreen").assertExists()
 
     composeTestRule.onNodeWithTag("MY PLAYLISTSTitleWithArrow").performScrollTo().performClick()
