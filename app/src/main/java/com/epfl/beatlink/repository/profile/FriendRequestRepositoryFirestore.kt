@@ -7,6 +7,12 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
+/**
+ * A Firestore implementation of the FriendRequestRepository interface.
+ *
+ * @param db The Firestore database instance.
+ * @param auth The Firebase authentication instance.
+ */
 open class FriendRequestRepositoryFirestore(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()

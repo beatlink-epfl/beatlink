@@ -13,6 +13,12 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
+/**
+ * Firestore implementation of the PlaylistRepository interface.
+ *
+ * @param db The Firestore instance to use for database operations.
+ * @param auth The FirebaseAuth instance to use for authentication operations.
+ */
 @Suppress("UNCHECKED_CAST")
 class PlaylistRepositoryFirestore(
     private val db: FirebaseFirestore,

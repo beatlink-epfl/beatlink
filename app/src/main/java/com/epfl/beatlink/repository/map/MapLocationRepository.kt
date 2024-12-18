@@ -14,6 +14,12 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Repository for location updates
+ *
+ * @param context The application context
+ * @param locationClient The FusedLocationProviderClient instance
+ */
 class MapLocationRepository(
     private val context: Context,
     private val locationClient: FusedLocationProviderClient

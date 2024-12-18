@@ -112,6 +112,13 @@ class FirebaseAuthRepositoryFirestore(private val auth: FirebaseAuth) : Firebase
     }
   }
 
+  /**
+   * Deletes the user account from Firebase Authentication.
+   *
+   * @param user The user to be deleted.
+   * @param onSuccess Callback for successful deletion.
+   * @param onFailure Callback that is invoked if an error occurs.
+   */
   private fun deleteUser(
       user: FirebaseUser,
       onSuccess: () -> Unit,

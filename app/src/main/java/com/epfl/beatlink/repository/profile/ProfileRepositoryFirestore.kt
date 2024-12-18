@@ -300,6 +300,12 @@ open class ProfileRepositoryFirestore(
     }
   }
 
+    /**
+     * Converts a list of [SpotifyTrack] objects to a list of maps for Firestore serialization.
+     *
+     * @param profileData The [ProfileData] object containing the user's profile information.
+     * @return A list of maps representing the Spotify tracks.
+     */
   private fun spotifyTrackToMap(profileData: ProfileData): List<Map<String, Any>> {
     val topSongs =
         profileData.topSongs.map {
@@ -315,6 +321,12 @@ open class ProfileRepositoryFirestore(
     return topSongs
   }
 
+    /**
+     * Converts a list of [SpotifyArtist] objects to a list of maps for Firestore serialization.
+     *
+     * @param profileData The [ProfileData] object containing the user's profile information.
+     * @return A list of maps representing the Spotify artists.
+     */
   private fun spotifyArtistToMap(profileData: ProfileData): List<Map<String, Any>> {
     val topArtists =
         profileData.topArtists.map {
