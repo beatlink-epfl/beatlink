@@ -1,7 +1,7 @@
 package com.epfl.beatlink.ui.library
 
-import android.widget.Toast
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -175,8 +175,7 @@ class SearchTracksScreenTest {
                     PlaylistTrack(
                         track = topSongs[0], // Track 1 already in the playlist
                         likes = 0,
-                        likedBy = mutableListOf())
-                ),
+                        likedBy = mutableListOf())),
             nbTracks = 1)
 
     `when`(playlistRepository.getOwnedPlaylists(any(), any())).thenAnswer {

@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.components.library
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,12 +45,16 @@ fun TrackPlaylistItem(
               .padding(horizontal = 8.dp)
               .testTag("trackItem-${track.trackId}") // Unique testTag for the Row
               .clickable {
+                if (playlistViewModel.selectedPlaylist.value == null) {
+                  Log.e("TrackPlaylistItem", "No playlist selected")
+                  return@clickable
+                }
                 val isTrackAlreadyInPlaylist =
-                    playlistViewModel.selectedPlaylist.value?.playlistTracks?.any {
+                    playlistViewModel.selectedPlaylist.value!!.playlistTracks.any {
                       it.track.trackId == track.trackId
                     }
 
-                if (isTrackAlreadyInPlaylist == true) {
+                if (isTrackAlreadyInPlaylist) {
                   Toast.makeText(context, "Track already in playlist!", Toast.LENGTH_SHORT).show()
                 } else {
                   playlistViewModel.addTrack(
