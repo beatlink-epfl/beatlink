@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.map
 
+import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,8 +10,10 @@ import com.epfl.beatlink.R
 import com.epfl.beatlink.model.map.user.CurrentPlayingTrack
 import com.epfl.beatlink.model.map.user.Location
 import com.epfl.beatlink.model.map.user.MapUser
+import com.epfl.beatlink.repository.spotify.api.SpotifyApiRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.firebase.Timestamp
 import java.time.Instant
 import junit.framework.Assert.assertEquals
@@ -30,6 +33,9 @@ class SongPreviewMapUsersTest {
 
   @Mock lateinit var profileViewModel: ProfileViewModel
   @Mock lateinit var navigationActions: NavigationActions
+  @Mock private lateinit var mockApplication: Application
+  @Mock private lateinit var mockApiRepository: SpotifyApiRepository
+  private lateinit var spotifyApiViewModel: SpotifyApiViewModel
 
   private lateinit var testUser: MapUser
 
@@ -37,6 +43,8 @@ class SongPreviewMapUsersTest {
   fun setUp() {
     // Initialize mocks
     MockitoAnnotations.openMocks(this)
+
+    spotifyApiViewModel = SpotifyApiViewModel(mockApplication, mockApiRepository)
 
     testUser =
         MapUser(
@@ -55,7 +63,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysAlbumCover() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule.onNodeWithTag("albumCover").assertIsDisplayed()
@@ -64,7 +73,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysCorrectSongName() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule
@@ -76,7 +86,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysCorrectArtistName() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule
@@ -88,7 +99,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysCorrectAlbumName() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule
@@ -100,7 +112,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysUsernameWithUppercase() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule
@@ -112,7 +125,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysTimeSinceLastUpdate() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule
@@ -124,7 +138,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysShadowBox() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule.onNodeWithTag("shadowbox").assertIsDisplayed()
@@ -133,7 +148,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_displaysGradientBrushBox() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     composeTestRule.onNodeWithTag("brushbox").assertIsDisplayed()
@@ -142,7 +158,8 @@ class SongPreviewMapUsersTest {
   @Test
   fun songPreviewMapUsers_layoutCorrectness() {
     composeTestRule.setContent {
-      SongPreviewMapUsers(mapUser = testUser, profileViewModel, navigationActions)
+      SongPreviewMapUsers(
+          mapUser = testUser, profileViewModel, spotifyApiViewModel, navigationActions)
     }
 
     // Check if elements are displayed within expected structure
@@ -162,6 +179,7 @@ class SongPreviewMapUsersTest {
       SongPreviewMapUsers(
           mapUser = testUser,
           profileViewModel = profileViewModel,
+          spotifyApiViewModel = spotifyApiViewModel,
           navigationActions = navigationActions)
     }
     composeTestRule.onNodeWithTag("username").performClick()

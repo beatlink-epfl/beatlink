@@ -24,6 +24,7 @@ import com.epfl.beatlink.model.map.user.MapUser
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.viewmodel.map.defaultLocation
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
+import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -48,6 +49,7 @@ fun GoogleMapView(
     locationPermitted: Boolean,
     mapUsers: List<MapUser>,
     profileViewModel: ProfileViewModel,
+    spotifyApiViewModel: SpotifyApiViewModel,
     navigationActions: NavigationActions,
     selectedUser: MutableState<MapUser?> = remember { mutableStateOf(null) }
 ) {
@@ -174,7 +176,8 @@ fun GoogleMapView(
                   .pointerInput(Unit) {
                     detectTapGestures {} // Consume clicks within SongPreviewMapUsers
                   }) {
-            SongPreviewMapUsers(mapUser = user, profileViewModel, navigationActions)
+            SongPreviewMapUsers(
+                mapUser = user, profileViewModel, spotifyApiViewModel, navigationActions)
           }
     }
   }
