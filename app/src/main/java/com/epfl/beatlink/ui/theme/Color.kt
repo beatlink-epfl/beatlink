@@ -5,18 +5,15 @@ import androidx.compose.ui.graphics.Color
 
 // Primary color definitions for the app's UI elements
 val PrimaryRed = Color(0xFFEF3535)
-val SecondaryRed = Color(0x80EF3535) // label input
 val PrimaryPurple = Color(0xFF5F2A83)
 val SecondaryPurple = Color(0x805F2A83) // label input
 val PrimaryOrange = Color(0xFFFF7C1E)
-val PrimaryBlue = Color(0xFF35A1EF)
 
 // Define the vertical gradient brush
 val PrimaryGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 val IconsGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryPurple, PrimaryRed))
 val RedGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryRed))
 val PositiveGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryOrange, PrimaryRed))
-val NegativeGradientBrush = Brush.verticalGradient(colors = listOf(PrimaryBlue, PrimaryPurple))
 
 // Define the circle color
 val CircleColor = Color(0x3E5F2A83)
@@ -50,9 +47,6 @@ val darkThemeGray1 = Color(0xFF2F2A31)
 val darkThemeGray2 = Color(0xFF454147)
 val darkThemeLightPurple = Color(0xFF956EAC)
 val darkThemeWhite = Color.White
-
-val lightThemePlaylistCard = Color(0x145F2A83)
-val darkThemePlaylistCard = Brush.verticalGradient(colors = listOf(PrimaryRed, PrimaryPurple))
 
 // Music Genres colors
 val pop = Color(0xFFFF69B4)
