@@ -9,17 +9,19 @@ import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.model.auth.FirebaseAuthRepository
-import com.epfl.beatlink.model.map.user.MapUserRepository
-import com.epfl.beatlink.model.profile.ProfileRepository
+import com.epfl.beatlink.repository.authentication.FirebaseAuthRepository
+import com.epfl.beatlink.repository.map.user.MapUserRepository
+import com.epfl.beatlink.repository.profile.ProfileRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.coEvery
@@ -75,7 +77,8 @@ class SignOutButtonTest {
           mapUsersViewModel = mapUsersViewModel,
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
   }
 

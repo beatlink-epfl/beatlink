@@ -81,7 +81,8 @@ fun SearchBarScreen(
         query = searchQuery.value.text,
         onResults = { tracks, artists -> results.value = Pair(tracks, artists) },
         onFailure = { results.value = Pair(emptyList(), emptyList()) },
-        spotifyApiViewModel = spotifyApiViewModel)
+        spotifyApiViewModel = spotifyApiViewModel,
+        spotifyAuthViewModel = spotifyAuthViewModel)
   }
 
   SearchScaffold(

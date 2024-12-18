@@ -10,14 +10,15 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.beatlink.model.auth.FirebaseAuthRepository
 import com.epfl.beatlink.model.profile.ProfileData
+import com.epfl.beatlink.repository.authentication.FirebaseAuthRepository
 import com.epfl.beatlink.repository.spotify.auth.SpotifyAuthRepository
 import com.epfl.beatlink.ui.navigation.NavigationActions
 import com.epfl.beatlink.ui.navigation.Screen
 import com.epfl.beatlink.viewmodel.auth.FirebaseAuthViewModel
 import com.epfl.beatlink.viewmodel.library.PlaylistViewModel
 import com.epfl.beatlink.viewmodel.map.user.MapUsersViewModel
+import com.epfl.beatlink.viewmodel.profile.FriendRequestViewModel
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 import io.mockk.every
@@ -84,7 +85,8 @@ class SettingsScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
 
     // Check if the title is displayed
@@ -109,7 +111,8 @@ class SettingsScreenTest {
           mapUsersViewModel = viewModel(factory = MapUsersViewModel.Factory),
           profileViewModel = profileViewModel,
           spotifyAuthViewModel = spotifyAuthViewModel,
-          playlistViewModel = playlistViewModel)
+          playlistViewModel = playlistViewModel,
+          friendRequestViewModel = viewModel(factory = FriendRequestViewModel.Factory))
     }
 
     // Test "Username" clickable text box

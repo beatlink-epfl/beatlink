@@ -85,14 +85,22 @@ class LibraryE2ETest {
     composeTestRule.onNodeWithText("Test Playlist").performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
-    // Step 8: Click the edit button and verify navigation to Edit Playlist Screen
+    // Step 8: Click on Add to this playlist button and verify navigation to Add to Playlist Screen
+    composeTestRule.onNodeWithTag("addToThisPlaylistButton").performClick()
+    composeTestRule.waitForIdle()
+    composeTestRule.waitUntil(6000) {
+      composeTestRule.onNodeWithTag("searchScaffold").isDisplayed()
+    }
+    composeTestRule.onNodeWithTag("goBackButton").performClick()
+
+    // Step 9: Click the edit button and verify navigation to Edit Playlist Screen
     composeTestRule.onNodeWithTag("editButton").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.waitUntil(6000) {
       composeTestRule.onNodeWithTag("editPlaylistScreen").isDisplayed()
     }
 
-    // Step 9: Click the delete button and verify navigation to Library Screen
+    // Step 10: Click the delete button and verify navigation to Library Screen
     composeTestRule.onNodeWithTag("deleteButton").performClick()
     composeTestRule.waitForIdle()
     composeTestRule.waitUntil(7000) {

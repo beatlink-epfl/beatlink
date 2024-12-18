@@ -9,28 +9,42 @@ import com.epfl.beatlink.model.spotify.objects.SpotifyArtist
 import com.epfl.beatlink.model.spotify.objects.SpotifyTrack
 import com.epfl.beatlink.viewmodel.profile.ProfileViewModel
 import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
+import com.epfl.beatlink.viewmodel.spotify.auth.AuthState
+import com.epfl.beatlink.viewmodel.spotify.auth.SpotifyAuthViewModel
 
 @Composable
 fun HandleSearchQuery(
     query: String,
     onResults: (List<SpotifyTrack>, List<SpotifyArtist>) -> Unit,
     onFailure: () -> Unit,
-    spotifyApiViewModel: SpotifyApiViewModel
+    spotifyApiViewModel: SpotifyApiViewModel,
+    spotifyAuthViewModel: SpotifyAuthViewModel
 ) {
   val context = LocalContext.current
+  val auth = spotifyAuthViewModel.authState.value
   LaunchedEffect(query) {
     if (query.isNotEmpty()) {
-      spotifyApiViewModel.searchArtistsAndTracks(
-          query = query,
-          onSuccess = { artists, tracks -> onResults(tracks, artists) },
-          onFailure = { _, _ ->
-            Toast.makeText(
-                    context,
-                    "Sorry, we couldn't find any matches for that search.",
-                    Toast.LENGTH_SHORT)
-                .show()
-            onFailure()
-          })
+      if (auth is AuthState.Idle) {
+        Toast.makeText(
+                context,
+                "For spotify searches, please connect your Spotify account to the app.",
+                Toast.LENGTH_SHORT)
+            .show()
+        onFailure()
+        return@LaunchedEffect
+      } else {
+        spotifyApiViewModel.searchArtistsAndTracks(
+            query = query,
+            onSuccess = { artists, tracks -> onResults(tracks, artists) },
+            onFailure = { _, _ ->
+              Toast.makeText(
+                      context,
+                      "Sorry, we couldn't find any matches for that search.",
+                      Toast.LENGTH_SHORT)
+                  .show()
+              onFailure()
+            })
+      }
     } else {
       onResults(emptyList(), emptyList())
     }
