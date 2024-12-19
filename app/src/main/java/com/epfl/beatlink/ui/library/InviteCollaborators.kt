@@ -96,7 +96,7 @@ fun InviteCollaboratorsScreen(
                           playlistViewModel.updateTemporallyCollaborators(updatedCollabList)
                           collabUsernames = collabUsernames + profile.username
                         } else {
-                          Log.e("ERROR", "Failed to get userId for username: $userIdToAdd")
+                          Log.e("ERROR", "userId is null")
                         }
                       })
                 },

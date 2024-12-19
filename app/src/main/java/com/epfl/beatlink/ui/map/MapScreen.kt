@@ -169,6 +169,7 @@ fun MapScreen(
                   modifier = Modifier.testTag("Map"),
                   mapUsers = mapUsers,
                   profileViewModel = profileViewModel,
+                  spotifyApiViewModel = spotifyApiViewModel,
                   navigationActions = navigationActions,
                   locationPermitted = locationPermitted)
             } else {

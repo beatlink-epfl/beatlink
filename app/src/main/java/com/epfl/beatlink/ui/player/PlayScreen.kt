@@ -209,7 +209,7 @@ fun TrackList(spotifyApiViewModel: SpotifyApiViewModel) {
                       .padding(top = 25.dp)
                       .testTag("emptyQueue"))
         } else {
-          spotifyApiViewModel.queue.forEachIndexed() { index, track -> TrackItem(track, index) }
+          spotifyApiViewModel.queue.forEachIndexed { index, track -> TrackItem(track, index) }
         }
       }
 }
