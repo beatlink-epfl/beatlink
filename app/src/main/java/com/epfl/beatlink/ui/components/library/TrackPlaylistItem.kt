@@ -1,5 +1,6 @@
 package com.epfl.beatlink.ui.components.library
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,17 +45,31 @@ fun TrackPlaylistItem(
               .padding(horizontal = 8.dp)
               .testTag("trackItem-${track.trackId}") // Unique testTag for the Row
               .clickable {
-                playlistViewModel.addTrack(
-                    PlaylistTrack(track, 0, mutableListOf()),
-                    onSuccess = {
-                      Toast.makeText(context, "Track added to playlist!", Toast.LENGTH_SHORT).show()
-                      onClearQuery()
-                    },
-                    onFailure = { e ->
-                      Toast.makeText(
-                              context, "Failed to add track: ${e.message}", Toast.LENGTH_SHORT)
-                          .show()
-                    })
+                if (playlistViewModel.selectedPlaylist.value == null) {
+                  Log.e("TrackPlaylistItem", "No playlist selected")
+                  return@clickable
+                }
+                val isTrackAlreadyInPlaylist =
+                    playlistViewModel.selectedPlaylist.value!!.playlistTracks.any {
+                      it.track.trackId == track.trackId
+                    }
+
+                if (isTrackAlreadyInPlaylist) {
+                  Toast.makeText(context, "Track already in playlist!", Toast.LENGTH_SHORT).show()
+                } else {
+                  playlistViewModel.addTrack(
+                      PlaylistTrack(track, 0, mutableListOf()),
+                      onSuccess = {
+                        Toast.makeText(context, "Track added to playlist!", Toast.LENGTH_SHORT)
+                            .show()
+                        onClearQuery()
+                      },
+                      onFailure = { e ->
+                        Toast.makeText(
+                                context, "Failed to add track: ${e.message}", Toast.LENGTH_SHORT)
+                            .show()
+                      })
+                }
                 onClearQuery()
               }) {
         // Album cover
