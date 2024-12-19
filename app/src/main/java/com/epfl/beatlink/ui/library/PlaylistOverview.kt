@@ -216,7 +216,7 @@ fun PlaylistOverviewScreen(
                     style = TypographyPlaylist.displayMedium,
                     modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
               } else {
-                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 600.dp)) {
+                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 6000.dp)) {
                   LazyColumn(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
