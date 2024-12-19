@@ -87,7 +87,7 @@ import com.epfl.beatlink.viewmodel.spotify.api.SpotifyApiViewModel
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 @Composable
 fun Modifier.topAppBarModifier() =
-    Modifier.fillMaxWidth()
+    this.fillMaxWidth()
         .height(48.dp)
         .background(color = MaterialTheme.colorScheme.background)
         .drawWithCache {
