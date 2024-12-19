@@ -216,7 +216,7 @@ fun PlaylistOverviewScreen(
                     style = TypographyPlaylist.displayMedium,
                     modifier = Modifier.padding(top = 165.dp).testTag("emptyPlaylistPrompt"))
               } else {
-                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 400.dp)) {
+                Box(modifier = Modifier.fillMaxSize().heightIn(min = 0.dp, max = 600.dp)) {
                   LazyColumn(
                       verticalArrangement = Arrangement.Top,
                       contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
@@ -334,7 +334,7 @@ fun PlaylistTracksSelectionDialog(
               },
               content = {
                 Column(
-                    modifier = Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
                       Text("Select the number of tracks you want to export to Spotify")
